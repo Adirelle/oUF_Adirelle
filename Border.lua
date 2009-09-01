@@ -27,7 +27,7 @@ local function Update(self, event, unit)
 	else
 		return border:Hide()
 	end
-	border:SetVertexColor(r, g, b)
+	border:SetColor(r, g, b)
 	border:Show()
 end
 
