@@ -1,4 +1,7 @@
 --[=[
+Adirelle's oUF raid layout
+(c) 2009 Adirelle (adirelle@tagada-team.net)
+All rights reserved.
 --]=]
 
 local oUF = assert(_G.oUF, "oUF_Adirelle requires oUF")

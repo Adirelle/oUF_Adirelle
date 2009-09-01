@@ -4,8 +4,11 @@
 ## Title: oUF Adirelle
 ## Notes: oUF Adirelle layout.
 ## RequiredDeps: oUF
-## OptionalDeps: LibSharedMedia-3.0, LibHealComm-3.0, oUF_ReadyCheck
+## OptionalDeps: LibSharedMedia-3.0, LibHealComm-3.0
 
-Border.lua
-Icon.lua
+elements\Border.lua
+elements\ReadyCheck.lua
+elements\Icon.lua
+
 Core.lua
+
