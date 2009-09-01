@@ -3,6 +3,9 @@
 ## Version: 30200
 ## Title: oUF Adirelle
 ## Notes: oUF Adirelle layout.
-## RequiredDeps: oUF, LibSharedMedia-3.0
+## RequiredDeps: oUF
+## OptionalDeps: LibSharedMedia-3.0
 
+Border.lua
+Icon.lua
 Core.lua
