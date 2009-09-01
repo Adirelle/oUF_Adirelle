@@ -19,7 +19,7 @@ local function Update(self, event, unit)
 	local r, g, b
 	local threat = UnitThreatSituation(unit)
 	if UnitIsUnit('target', unit) then
-		r, g, b = 1, 1, 0
+		r, g, b = 1, 1, 1
 	elseif threat and threat > 0 then
 		r, g, b = GetThreatStatusColor(threat)
 	elseif UnitPowerType(unit) == 0 and UnitMana(unit) / UnitManaMax(unit) < 0.25 then
