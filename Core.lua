@@ -105,10 +105,10 @@ local function UpdateHealth(self, event, unit, bar, current, max)
 	local hpPercent = current/max
 	if isDead then
 		self.Name:SetText("MORT")
-	elseif isDisconnected or hpPercent > 0.9  then
-		self.Name:SetText(UnitName(unit))
 	elseif incomingHeal > 0 then
 		self.Name:SetText(strformat("+%.1fk", incomingHeal/1000))
+	elseif isDisconnected or hpPercent > 0.9  then
+		self.Name:SetText(UnitName(unit))
 	else
 		self.Name:SetText(strformat("-%.1fk", (max-current)/1000))
 	end
@@ -240,7 +240,7 @@ local function InitFrame(settings, self, unit)
 	-- Incoming heals
 	if lbh then
 		local heal = hp:CreateTexture(nil, "OVERLAY")
-		heal:SetTexture(0, 0.5, 0, 0.25)
+		heal:SetTexture(0, 0.5, 0, 0.5)
 		heal:SetBlendMode("BLEND")
 		heal:SetPoint("LEFT")
 		heal:SetPoint("TOP")

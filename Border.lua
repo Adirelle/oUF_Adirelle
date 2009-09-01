@@ -20,6 +20,8 @@ local function Update(self, event, unit)
 	local threat = UnitThreatSituation(unit)
 	if UnitIsUnit('target', unit) then
 		r, g, b = 1, 1, 1
+	elseif UnitIsDeadOrGhost(unit) then
+		return border:Hide()
 	elseif threat and threat > 0 then
 		r, g, b = GetThreatStatusColor(threat)
 	elseif UnitPowerType(unit) == 0 and UnitMana(unit) / UnitManaMax(unit) < 0.25 then
@@ -31,7 +33,7 @@ local function Update(self, event, unit)
 	border:Show()
 end
 
-local function Enable (self)
+local function Enable(self)
 	if self.Border then
 		self:RegisterEvent("UNIT_THREAT_SITUATION_UPDATE", Update)
 		self:RegisterEvent("UNIT_MANA", Update)
