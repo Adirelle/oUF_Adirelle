@@ -20,7 +20,7 @@ local function Update(self, event, unit)
 	unit = unit or self.unit
 	local border = self.Border
 	local r, g, b
-	local threat = UnitThreatSituation(unit, 'target')
+	local threat = UnitThreatSituation(unit)
 	if UnitIsUnit('target', unit) then
 		r, g, b = 1, 1, 1
 	elseif UnitIsDeadOrGhost(unit) then
