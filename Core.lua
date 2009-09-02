@@ -312,6 +312,18 @@ local function GetCureableDebuff(unit)
 	end
 end
 
+local function GetDebuffByType(wanted, r, g, b)
+	assert(wanted)
+	return function(unit)
+		for i = 1, 40 do
+			local name, _, texture, count, debuffType, duration, expirationTime = UnitAura(unit, i, "HARMFUL")
+			if name and debuffType == wanted then
+				return texture, count, expirationTime-duration, duration, r, g, b
+			end
+		end
+	end
+end
+
 -- ------------------------------------------------------------------------------
 -- Statusbar texturing
 -- ------------------------------------------------------------------------------
@@ -483,10 +495,16 @@ local function InitFrame(settings, self, unit)
 		debuff:SetPoint("CENTER", self, "LEFT", WIDTH * 0.8, 0)
 		self:AuraIcon(debuff, GetCureableDebuff)
 
-	elseif class == 'SHAMAN' or class == 'MAGE' or class == 'WARLOCK' or class == 'PRIEST' then
+	elseif class == 'SHAMAN' or class == 'MAGE' or class == 'PRIEST' then
 		local debuff = SpawnIcon(self)
 		debuff:SetPoint("CENTER")
 		self:AuraIcon(debuff, GetCureableDebuff)
+		
+	elseif class == 'WARLOCK' then
+		local debuff = SpawnIcon(self)
+		debuff:SetPoint("CENTER")
+		self:AuraIcon(debuff, GetDebuffByType("Magic"))
+		
 	end
 	self.iconBlinkThreshold = 3
 
