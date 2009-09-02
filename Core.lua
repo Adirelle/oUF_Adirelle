@@ -317,7 +317,24 @@ local function InitFrame(settings, self, unit)
 		debuff:SetPoint("CENTER", self, "LEFT", WIDTH * 0.8, 0)
 		self:AuraIcon(debuff, GetCureableDebuff)
 
-	elseif class == 'SHAMAN' or class == 'PALADIN' or class == 'MAGE' or class == 'WARLOCK' or class == 'PRIEST' then
+	elseif class == 'PALADIN' then
+		local beacon = SpawnIcon(self)
+		beacon:SetPoint("CENTER", self, "LEFT", WIDTH * 0.2, 0)
+		self:AuraIcon(beacon, TestMyAura(53563))
+		
+		local sacredShield = SpawnIcon(self)
+		sacredShield:SetPoint("CENTER", self, "LEFT", WIDTH * 0.4, 0)
+		self:AuraIcon(sacredShield, TestMyAura(53601))
+
+		local flashLight = SpawnIcon(self)
+		flashLight:SetPoint("CENTER", self, "LEFT", WIDTH * 0.6, 0)
+		self:AuraIcon(flashLight, TestMyAura(48785))
+		
+		local debuff = SpawnIcon(self)
+		debuff:SetPoint("CENTER", self, "LEFT", WIDTH * 0.8, 0)
+		self:AuraIcon(debuff, GetCureableDebuff)
+
+	elseif class == 'SHAMAN' or class == 'MAGE' or class == 'WARLOCK' or class == 'PRIEST' then
 		local debuff = SpawnIcon(self)
 		debuff:SetPoint("CENTER")
 		self:AuraIcon(debuff, GetCureableDebuff)
