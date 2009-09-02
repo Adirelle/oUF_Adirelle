@@ -90,11 +90,10 @@ local function UpdateHealth(self, event, unit, bar, current, max)
 		bar:SetValue(max)
 	end
 	
-	local r, g, b
-	if isDisconnected then
-		r, g, b = unpack(self.colors.disconnected)
-	else
-		r, g, b = unpack(self.colors.class[select(2, UnitClass(unit))])
+	local r, g, b = 0.5, 0.5, 0.5
+	local color = isDisconnected and self.colors.disconnected or self.colors.class[select(2, UnitClass(unit))]
+	if color then
+		r, g, b = unpack(color)
 	end
 	bar.bg:SetVertexColor(r, g, b, 1)
 
@@ -285,7 +284,6 @@ local function InitFrame(settings, self, unit)
 	border:Hide()	 
 	self.Border = border
 	
-	--[=[
 	-- ReadyCheck icon
 	local rc = self:CreateTexture(nil, 'OVERLAY')
 	rc:SetPoint('CENTER', self)
@@ -294,12 +292,12 @@ local function InitFrame(settings, self, unit)
 	rc:SetAlpha(1.0)
 	rc:Hide()
 	self.ReadyCheck = rc 
-	--]=]
 	
+	-- Per-class aura icons
 	local _, class = UnitClass("player")
 	if class == "HUNTER" then
 		local misdirection = SpawnIcon(self)
-		misdirection:SetPoint("CENTER", self, "CENTER", 0, 0)
+		misdirection:SetPoint("CENTER")
 		self:AuraIcon(misdirection, TestMyAura(34477))
 		
 	elseif class == "DRUID" then
@@ -318,7 +316,11 @@ local function InitFrame(settings, self, unit)
 		local debuff = SpawnIcon(self)
 		debuff:SetPoint("CENTER", self, "LEFT", WIDTH * 0.8, 0)
 		self:AuraIcon(debuff, GetCureableDebuff)
-		
+
+	elseif class == 'SHAMAN' or class == 'PALADIN' or class == 'MAGE' or class == 'WARLOCK' or class == 'PRIEST' then
+		local debuff = SpawnIcon(self)
+		debuff:SetPoint("CENTER")
+		self:AuraIcon(debuff, GetCureableDebuff)
 	end
 	self.iconBlinkThreshold = 3
 	
@@ -381,7 +383,6 @@ end
 raid[1]:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, 230)
 raid[1]:SetManyAttributes(
 	"showParty", true,
-	"showPlayer", true,
-	"showSolo", true
+	"showPlayer", true
 )
 
