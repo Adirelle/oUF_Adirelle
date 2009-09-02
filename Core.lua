@@ -248,7 +248,6 @@ do
 	end
 	
 	local function SetSquareColor(self, r, g, b)
-		print('SetSquareColor', self, r, g, b)
 		self:SetBackdropColor(r, g, b, 1)
 	end
 
