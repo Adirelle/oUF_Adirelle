@@ -6,64 +6,69 @@ All rights reserved.
 
 local oUF = assert(_G.oUF, "oUF_Adirelle requires oUF")
 
-local function UpdateAlpha(icon)
-	local now = GetTime()
-	local alpha = 1
-	if icon.expireTime - now < icon.threshold then
-		alpha = 2 * (now % 1)
+local CreateBlinkingFrame
+do
+	local function RegisterIcon(self, icon, expireTime, threshold)
+		self.icons[icon] = true
+		icon.expireTime = expireTime
+		icon.threshold = threshold
+		self:Show()
+	end
+	
+	local function UnregisterIcon(self, icon)
+		icon:SetAlpha(1)
+		self.icons[icon] = nil
+	end
+
+	local function UpdateBlinking(self)
+		local now = GetTime()
+		local alpha = 2 * (now % 1)
 		if alpha > 1 then
 			alpha = 2 - alpha
 		end
+		local icons = self.icons
+		for icon in pairs(icons) do
+			if not icon:IsShown() then
+				UnregisterIcon(self, icon)
+			elseif icon.expireTime - now < icon.threshold then
+				icon:SetAlpha(alpha)
+			else
+				icon:SetAlpha(1)
+			end
+		end
+		if not next(icons) then
+			self:Hide()
+		end
 	end
-	if alpha ~= icon:GetAlpha() then
-		icon:SetAlpha(alpha)	
+
+	function CreateBlinkingFrame()
+		local f  = CreateFrame("Frame", nil, UIParent)
+		f:SetScript('OnUpdate', UpdateBlinking)
+		f.icons = {}
+		f.RegisterIcon = RegisterIcon
+		f.UnregisterIcon = UnregisterIcon
+		f:Hide()
+		return f
 	end
+	
 end
 
-local function EndBlinking(icon)
-	icon:SetAlpha(1)
-	icon:SetScript('OnUpdate', nil)
-	icon:SetScript('OnHide', nil)	
-end
+local blinkingFrame
 
 local function UpdateIcon(self, unit, icon, func)
 	local texture, count, start, duration, r, g, b = func(unit)
 	if not texture then
 		return icon:Hide()
 	end
-	icon.Texture:SetTexture(texture)
+	icon:SetTexture(texture)
+	icon:SetCooldown(start, duration)
+	icon:SetStack(count)
+	icon:SetColor(r, g, b)
 	if self.iconBlinkThreshold and start and duration then
-		icon.expireTime = start + duration
-		icon.threshold = self.iconBlinkThreshold
-		icon:SetScript('OnUpdate', UpdateAlpha)
-		icon:SetScript('OnHide', EndBlinking)	
-	else
-		EndBlinking(icon)
-	end
-	local cooldown, stack, border = icon.Cooldown, icon.Stack, icon.Border
-	if cooldown then
-		if start and duration then
-			cooldown:SetCooldown(start, duration)
-			cooldown:Show()
-		else
-			cooldown:Hiden()
-		end
-	end
-	if stack then
-		if (tonumber(count) or 0) > 1 then
-			stack:SetText(count)
-			stack:Show()
-		else
-			stack:Hide()
-		end
-	end
-	if border then
-		if r and g and b then
-			border:SetColor(r, g, b, 1)
-			border:Show()
-		else
-			border:Hide()
-		end
+		blinkingFrame = blinkingFrame or CreateBlinkingFrame()
+		blinkingFrame:RegisterIcon(icon, start+duration, self.iconBlinkThreshold)
+	elseif blinkingFrame then
+		blinkingFrame:UnregisterIcon(icon)
 	end
 	icon:Show()
 end
@@ -102,5 +107,5 @@ local function AuraIcon(self, icon, func, ...)
 end
 
 oUF.AuraIcon = AuraIcon
-oUF:AddElement('Adirelle_AuraIcons', Update, Enable, Disable)
+oUF:AddElement('AuraIcons', Update, Enable, Disable)
 

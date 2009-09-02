@@ -20,7 +20,7 @@ local function Update(self, event, unit)
 	unit = unit or self.unit
 	local border = self.Border
 	local r, g, b
-	local threat = UnitThreatSituation(unit)
+	local threat = UnitThreatSituation(unit, 'target')
 	if UnitIsUnit('target', unit) then
 		r, g, b = 1, 1, 1
 	elseif UnitIsDeadOrGhost(unit) then
@@ -58,4 +58,4 @@ local function Disable(self)
 	end
 end
 
-oUF:AddElement('Adirelle_Border', Update, Enable, Disable)
+oUF:AddElement('Border', Update, Enable, Disable)
