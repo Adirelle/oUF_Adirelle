@@ -45,5 +45,5 @@ local function Disable(self)
 	end
 end
 
-oUF:AddElement('Adirelle_ReadyCheck', Update, Enable, Disable)
+oUF:AddElement('ReadyCheck', Update, Enable, Disable)
 
