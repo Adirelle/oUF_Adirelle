@@ -17,6 +17,7 @@ if lhc4 then
 	major, minor = 'LibHealComm-4.0', lhc4_minor
 	local band = bit.band
 	local HEAL_FLAGS = lhc4.ALL_HEALS
+	local objects = {}
 
 	local function UpdateHeals(event, _, healType, _, ...)
 		if band(healType, HEAL_FLAGS) == 0 then return end
@@ -26,7 +27,7 @@ if lhc4 then
 			local guid = select(i, ...)
 			local unit = guid and unitMap[guid]
 			local frame = unit and units[unit]
-			if frame then
+			if frame and objects[frame] then
 				frame:UpdateElement('IncomingHeal')
 			end
 		end
@@ -35,14 +36,14 @@ if lhc4 then
 	local function ModifierChanged(guid)
 		local unitMap = lhc4:GetGuidUnitMapTable()
 		local frame = oUF.units[unitMap[guid] or false]
-		if frame and frame.unit == unit then
+		if frame and objects[frame] then
 			frame:UpdateElement('IncomingHeal')
 		end
 	end
 
-	function GetIncomingHeal(unit, time)
+	function GetIncomingHeal(unit, timeLimit)
 		local guid = UnitGUID(unit)
-		local inc = lhc4:GetHealAmount(guid, HEAL_FLAGS, time)
+		local inc = lhc4:GetHealAmount(guid, HEAL_FLAGS, timeLimit)
 		if inc then
 			return inc * lhc4:GetHealModifier(guid)
 		else
@@ -62,6 +63,7 @@ if lhc4 then
 	end
 
 	function DoDisable(self) 
+		objects[self] = nil
 		if not next(objects) then
 			lhc4.UnregisterAllCallbacks('oUF_IncomingHeal')
 		end
@@ -154,7 +156,7 @@ local function Update(self, event, unit)
 	if not heal then return end
 	local current, max, incomingHeal = UnitHealth(unit), UnitHealthMax(unit), 0
 	if UnitIsConnected(unit) and not UnitIsDeadOrGhost(unit) then
-		incomingHeal = GetIncomingHeal(unit, GetTime()+3)
+		incomingHeal = GetIncomingHeal(unit, GetTime() + 3.0)
 	end
 	self:UpdateIncomingHeal(event, unit, heal, current, max, incomingHeal)
 end
