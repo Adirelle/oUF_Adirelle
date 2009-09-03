@@ -59,3 +59,4 @@ local function Disable(self)
 end
 
 oUF:AddElement('Border', Update, Enable, Disable)
+
