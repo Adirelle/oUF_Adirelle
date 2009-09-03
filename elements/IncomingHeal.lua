@@ -20,7 +20,7 @@ if false and lhc4 then
 
 -- ------------------------------------------------------------------------------
 -- LibHealComm-3.0 support
--- ------------------sz------------------------------------------------z------------
+-- ------------------------------------------------------------------------------
 elseif lhc3 then
 	major, minor = 'LibHealComm-3.0', lhc3_minor
 	local lhc = lhc3
@@ -83,6 +83,7 @@ elseif lhc3 then
 
 else
 	-- No library
+	print('oUF_IncomingHeal disabled')
 	return
 end
 
