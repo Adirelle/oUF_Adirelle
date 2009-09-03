@@ -4,8 +4,7 @@ Adirelle's oUF raid layout
 All rights reserved.
 --]=]
 
-local function NOOP() end
-local DoEnable, DoDisable, GetIncomingHeal = NOOP, NOOP, nil
+local DoEnable, DoDisable, GetIncomingHeal
 local major, minor
 
 local lhc3, lhc3_minor = LibStub('LibHealComm-3.0', true)
@@ -16,8 +15,6 @@ local lhc4, lhc4_minor = LibStub('LibHealComm-4.0', true)
 -- ------------------------------------------------------------------------------
 if lhc4 then
 	major, minor = 'LibHealComm-4.0', lhc4_minor
-	local objects = {}
-	local playerHeals = {}
 	local band = bit.band
 	local HEAL_FLAGS = lhc4.ALL_HEALS
 
