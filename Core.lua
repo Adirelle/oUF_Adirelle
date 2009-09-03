@@ -45,56 +45,6 @@ local strsub = string.sub
 local mmin = math.min
 
 -- ------------------------------------------------------------------------------
--- LibHealComm-3.0 support
--- ------------------------------------------------------------------------------
-local lbh = LibStub('LibHealComm-3.0', true)
-
-local GetPlayerHealer
-if lbh then
-	local playerName = UnitName('player')
-	local playerHeals = {}
-
-	local function UpdateHeals(event, healer, amount, ...)
-		for i = 1, select('#', ...) do
-			local target = select(i, ...)
-			if healer == playerName then
-				playerHeals[target] = amount and ((playerHeals[target] or 0) + amount) or nil
-			end
-			for k, frame in pairs(oUF.objects) do
-				local health = frame.Health
-				if health and frame.unit and UnitName(frame.unit) == target then
-					if health.frequentUpdates then
-						health.min = nil
-					else
-						frame:UNIT_MAXHEALTH(event, frame.unit)
-					end
-				end
-			end
-		end
-	end
-
-	lbh.RegisterCallback(playerHeals, 'HealComm_DirectHealStart', function(event, healer, amount, _, ...)
-		return UpdateHeals(event, healer, amount, ...)
-	end)
-	lbh.RegisterCallback(playerHeals, 'HealComm_DirectHealDelayed', function(event, healer, _, ...)
-		return UpdateHeals(event, healer, 0, ...)
-	end)
-	lbh.RegisterCallback(playerHeals, 'HealComm_DirectHealStop', function(event, healer, _, ...)
-		return UpdateHeals(event, healer, nil, ...)
-	end)
-	lbh.RegisterCallback(playerHeals, 'HealComm_HealModifierUpdate', function(event, unit)
-		local frame = oUF.units[unit]
-		if frame and frame.Health and frame.Health.heal then
-			frame:UNIT_MAXHEALTH(event, unit)
-		end
-	end)
-
-	function GetPlayerHealer(unit)
-		return playerHeals[UnitName(unit) or false] or 0
-	end
-end
-
--- ------------------------------------------------------------------------------
 -- Health bar and name updates
 -- ------------------------------------------------------------------------------
 
@@ -113,13 +63,11 @@ local function UpdateHealth(self, event, unit, bar, current, max)
 	end
 	bar.bg:SetVertexColor(r, g, b, 1)
 
-	local unitName, incomingHeal = GetShortUnitName(unit), 0
+	self:UpdateElement('IncomingHeal')
+	local unitName, incomingHeal = GetShortUnitName(unit), self.incHeal or 0
 	if isDead then
 		unitName, r, g, b = "MORT", 1, 0, 0
 	elseif not isDisconnected then
-		if lbh then
-			incomingHeal = ((lbh:UnitIncomingHealGet(unit, GetTime() + 5) or 0) + GetPlayerHealer(unit)) * lbh:UnitHealModifierGet(unit)
-		end
 		if incomingHeal > 0 then
 			unitName, r, g, b = strformat("+%.1fk", incomingHeal/1000), 0, 1, 0
 		elseif current < max then
@@ -137,17 +85,21 @@ local function UpdateHealth(self, event, unit, bar, current, max)
 	name:SetTextColor(r, g, b, 1)
 	if isDisconnected or isDead then
 		bar:SetValue(max)
-	end	
-	if heal then
-		if incomingHeal > 0 and current < max then
-			local pixelPerHP = bar:GetWidth() / max
-			heal:SetPoint('LEFT', bar, 'LEFT', current * pixelPerHP, 0)
-			heal:SetPoint('RIGHT', bar, 'LEFT', mmin(current + incomingHeal, max) * pixelPerHP, 0)
-			heal:Show()		
-		else
-			heal:Hide()
-		end
 	end
+end
+
+local function UpdateIncomingHeal(self, event, unit, heal, current, max, incomingHeal)
+	if incomingHeal > 0 and current < max then
+		self.incHeal = incomingHeal
+		local bar = self.Health
+		local pixelPerHP = bar:GetWidth() / max
+		heal:SetPoint('LEFT', bar, 'LEFT', current * pixelPerHP, 0)
+		heal:SetPoint('RIGHT', bar, 'LEFT', mmin(current + incomingHeal, max) * pixelPerHP, 0)
+		heal:Show()		
+	else
+		self.incHeal = nil
+		heal:Hide()
+	end	
 end
 
 -- ------------------------------------------------------------------------------
@@ -280,6 +232,10 @@ do
 	end
 end
 
+-- ------------------------------------------------------------------------------
+-- Aura detection
+-- ------------------------------------------------------------------------------
+
 local function IsMeOrMine(caster)
 	return caster and (UnitIsUnit('player', caster) or UnitIsUnit('pet', caster) or UnitIsUnit('vehicle', caster))
 end
@@ -380,7 +336,7 @@ local function InitFrame(settings, self, unit)
 	hp.bg = hpbg
 
 	-- Incoming heals
-	if lbh then
+	if oUF.HasIncomingHeal then
 		local heal = hp:CreateTexture(nil, "OVERLAY")
 		heal:SetTexture(0, 0.5, 0, 0.5)
 		heal:SetBlendMode("BLEND")
@@ -388,7 +344,8 @@ local function InitFrame(settings, self, unit)
 		heal:SetPoint("TOP")
 		heal:SetPoint("BOTTOM")
 		heal:Hide()
-		hp.heal = heal
+		self.IncomingHeal = heal
+		self.UpdateIncomingHeal = UpdateIncomingHeal
 	end
 
 	self.Health = hp
