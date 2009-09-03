@@ -9,7 +9,7 @@ local HEIGHT = 25
 local BORDER_WIDTH = 2
 local ICON_SIZE = 14
 local SQUARE_SIZE = 5
-local SPACING = 2
+local SPACING = 4
 
 local oUF = assert(_G.oUF, "oUF_Adirelle requires oUF")
 local lsm = LibStub('LibSharedMedia-3.0', true)
@@ -33,9 +33,15 @@ local squareBackdrop = {
 	bgFile = [[Interface\Addons\oUF_Adirelle\white16x16]], tile = true, tileSize = 16,
 }
 
-local UnitClass, UnitIsConnected = UnitClass, UnitIsConnected
-local UnitIsDeadOrGhost, UnitName = UnitIsDeadOrGhost, UnitName
+local UnitClass = UnitClass
+local UnitIsConnected = UnitIsConnected
+local UnitIsDeadOrGhost = UnitIsDeadOrGhost
+local UnitName = UnitName
+local UnitAura = UnitAura
+local UnitIsUnit = UnitIsUnit
+local GetTime = GetTime
 local strformat = string.format
+local strsub = string.sub
 local mmin = math.min
 
 -- ------------------------------------------------------------------------------
@@ -92,12 +98,14 @@ end
 -- Health bar and name updates
 -- ------------------------------------------------------------------------------
 
+local function GetShortUnitName(unit)
+	return strsub(UnitName(unit),1,12)
+end
+
 local function UpdateHealth(self, event, unit, bar, current, max)
 	local isDisconnected, isDead = not UnitIsConnected(unit), UnitIsDeadOrGhost(unit)
-	if isDisconnected or isDead then
-		bar:SetValue(max)
-	end
-
+	local name, heal = self.Name, bar.heal
+	
 	local r, g, b = 0.5, 0.5, 0.5
 	local color = isDisconnected and self.colors.disconnected or self.colors.class[select(2, UnitClass(unit))]
 	if color then
@@ -105,35 +113,37 @@ local function UpdateHealth(self, event, unit, bar, current, max)
 	end
 	bar.bg:SetVertexColor(r, g, b, 1)
 
-	local incomingHeal = 0
-	if lbh then
-		incomingHeal = ((lbh:UnitIncomingHealGet(unit, GetTime() + 5) or 0) + GetPlayerHealer(unit)) * lbh:UnitHealModifierGet(unit)
-	end
-	local hpPercent = current/max
+	local unitName, incomingHeal = GetShortUnitName(unit), 0
 	if isDead then
-		self.Name:SetText("MORT")
-	elseif incomingHeal > 0 then
-		self.Name:SetText(strformat("+%.1fk", incomingHeal/1000))
-	elseif isDisconnected or hpPercent > 0.9  then
-		self.Name:SetText(UnitName(unit):sub(1,12))
-	else
-		self.Name:SetText(strformat("-%.1fk", (max-current)/1000))
+		unitName, r, g, b = "MORT", 1, 0, 0
+	elseif not isDisconnected then
+		if lbh then
+			incomingHeal = ((lbh:UnitIncomingHealGet(unit, GetTime() + 5) or 0) + GetPlayerHealer(unit)) * lbh:UnitHealModifierGet(unit)
+		end
+		if incomingHeal > 0 then
+			unitName, r, g, b = strformat("+%.1fk", incomingHeal/1000), 0, 1, 0
+		elseif current < max then
+			local hpPercent = current/max
+			if hpPercent < 0.9 then
+				unitName = strformat("-%.1fk", (max-current)/1000)
+				if hpPercent < 0.4 then
+					r, g, b = 1, 0, 0
+				end
+			end
+		end
 	end
-	if hpPercent < 0.4 then
-		self.Name:SetTextColor(1,0,0)
-	elseif incomingHeal > 0 then
-		self.Name:SetTextColor(0,1,0)
-	else
-		self.Name:SetTextColor(r, g, b)
-	end
-
-	local heal = bar.heal
+	
+	name:SetText(unitName)
+	name:SetTextColor(r, g, b, 1)
+	if isDisconnected or isDead then
+		bar:SetValue(max)
+	end	
 	if heal then
 		if incomingHeal > 0 and current < max then
 			local pixelPerHP = bar:GetWidth() / max
 			heal:SetPoint('LEFT', bar, 'LEFT', current * pixelPerHP, 0)
 			heal:SetPoint('RIGHT', bar, 'LEFT', mmin(current + incomingHeal, max) * pixelPerHP, 0)
-			heal:Show()
+			heal:Show()		
 		else
 			heal:Hide()
 		end
@@ -270,12 +280,16 @@ do
 	end
 end
 
+local function IsMeOrMine(caster)
+	return caster and (UnitIsUnit('player', caster) or UnitIsUnit('pet', caster) or UnitIsUnit('vehicle', caster))
+end
+
 local function TestMyAura(spellId, r, g, b)
 	local spellName = GetSpellInfo(spellId)
 	assert(spellName, "invalid spell id: "..spellId)
 	return function(unit)
 		local name, _, texture, count, _, duration, expirationTime, caster = UnitAura(unit, spellName)
-		if name and UnitIsUnit(caster, "player") then
+		if name and IsMeOrMine(caster) then
 			return texture, count, expirationTime-duration, duration, r, g, b
 		end
 	end
@@ -297,14 +311,14 @@ local function TestMyAuraCount(spellId, wanted, r, g, b)
 	assert(spellName, "invalid spell id: "..spellId)
 	return function(unit)
 		local name, _, texture, count, _, duration, expirationTime, caster = UnitAura(unit, spellName)
-		if name and UnitIsUnit(caster, "player") and count >= wanted then
+		if name and IsMeOrMine(caster) and count >= wanted then
 			return texture, 1, expirationTime-duration, duration, r, g, b
 		end
 	end
 end
 
 local function GetCureableDebuff(unit)
-	local name, _, texture, count, debuffType, duration, expirationTime, caster = UnitAura(unit, 1, "HARMFUL|RAID")
+	local name, _, texture, count, debuffType, duration, expirationTime = UnitAura(unit, 1, "HARMFUL|RAID")
 	if name then
 		local color = DebuffTypeColor[debuffType or "none"]
 		return texture, count, expirationTime-duration, duration, color.r, color.g, color.b
@@ -415,11 +429,10 @@ local function InitFrame(settings, self, unit)
 
 	-- ReadyCheck icon
 	local rc = self:CreateTexture(nil, 'OVERLAY')
-	rc:SetPoint('CENTER', self)
+	rc:SetPoint('CENTER')
 	rc:SetWidth(HEIGHT)
 	rc:SetHeight(HEIGHT)
-	rc:SetAlpha(1.0)
-	rc:Hide()
+	rc:SetAlpha(1)
 	self.ReadyCheck = rc
 
 	-- Per-class aura icons
@@ -444,7 +457,7 @@ local function InitFrame(settings, self, unit)
 		self:AuraIcon(lifebloom, TestMyAura(33763))
 		--]]
 		
-		local INSET = 0
+		local INSET = 1
 		local size = 8
 		local spawn = function(self, size)
 			return SpawnIcon(self, size, true, true, true)
@@ -560,6 +573,18 @@ do
 	header:SetPoint("BOTTOMLEFT", raid[1], "TOPLEFT", 0, SPACING)
 	header:Show()
 	raid['PartyPets'] = header
+	
+	local visibilityFrame = CreateFrame("Frame")
+	visibilityFrame:SetScript('OnEvent', function()
+		if InCombatLockdown() then return end
+		if GetNumRaidMembers() == 0 then
+			header:Show()
+		else
+			header:Hide()
+		end
+	end)
+	visibilityFrame:RegisterEvent('PARTY_MEMBERS_CHANGED')
+	visibilityFrame:RegisterEvent('PLAYER_REGEN_ENABLED')
 end
 
 -- First raid group (or party)
