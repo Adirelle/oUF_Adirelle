@@ -15,14 +15,46 @@ local textures = {
 	afk       = READY_CHECK_AFK_TEXTURE
 }
 
+local icons = {}
+local timerFrame
+local mmin = math.min
+
+local function UpdateAlpha(self)
+	local now = GetTime()
+	for icon, expireTime in pairs(icons) do
+		local alpha = mmin(expireTime - now, 1)
+		if alpha <= 0 then
+			alpha = 1
+			icon:Hide()
+			icons[icon] =  nil
+		end
+		if icon:GetAlpha() ~= alpha then
+			icon:SetAlpha(alpha)
+		end
+	end
+	if not next(icons) then
+		self:Hide()
+	end
+end
+
 local function Update(self)
-	local texture = textures[GetReadyCheckStatus(self.unit) or ""]
+	local status = GetReadyCheckStatus(self.unit)
 	local rc = self.ReadyCheck
-	if texture then
-		rc:SetTexture(texture)
+	if rc.status == status then return end
+	print('readycheck change', self.unit, 'old:', rc.status, 'new:', status)
+	rc.status = status
+	if status then
+		icons[rc] = nil
+		rc:SetTexture(textures[status])
+		rc:SetAlpha(1.0)
 		rc:Show()
-	else
-		rc:Hide()
+	else		
+		if not timerFrame then
+			timerFrame = CreateFrame("Frame")
+			timerFrame:SetScript('OnUpdate', UpdateAlpha)
+		end
+		icons[rc] = GetTime() + 5
+		timerFrame:Show()
 	end
 end
 
