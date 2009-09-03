@@ -54,7 +54,7 @@ end
 
 local function UpdateHealth(self, event, unit, bar, current, max)
 	local isDisconnected, isDead = not UnitIsConnected(unit), UnitIsDeadOrGhost(unit)
-	local name, heal = self.Name, bar.heal
+	local name = self.Name
 	
 	local r, g, b = 0.5, 0.5, 0.5
 	local color = isDisconnected and self.colors.disconnected or self.colors.class[select(2, UnitClass(unit))]
@@ -63,7 +63,6 @@ local function UpdateHealth(self, event, unit, bar, current, max)
 	end
 	bar.bg:SetVertexColor(r, g, b, 1)
 
-	self:UpdateElement('IncomingHeal')
 	local unitName, incomingHeal = GetShortUnitName(unit), self.incHeal or 0
 	if isDead then
 		unitName, r, g, b = "MORT", 1, 0, 0
@@ -88,16 +87,19 @@ local function UpdateHealth(self, event, unit, bar, current, max)
 	end
 end
 
+local function PreUpdateHealth(self, unit)
+	self:UpdateElement('IncomingHeal')
+end
+
 local function UpdateIncomingHeal(self, event, unit, heal, current, max, incomingHeal)
+	self.incHeal = incomingHeal
 	if incomingHeal > 0 and current < max then
-		self.incHeal = incomingHeal
 		local bar = self.Health
 		local pixelPerHP = bar:GetWidth() / max
 		heal:SetPoint('LEFT', bar, 'LEFT', current * pixelPerHP, 0)
 		heal:SetPoint('RIGHT', bar, 'LEFT', mmin(current + incomingHeal, max) * pixelPerHP, 0)
-		heal:Show()		
+		heal:Show()
 	else
-		self.incHeal = nil
 		heal:Hide()
 	end	
 end
@@ -345,6 +347,7 @@ local function InitFrame(settings, self, unit)
 		heal:SetPoint("BOTTOM")
 		heal:Hide()
 		self.IncomingHeal = heal
+		self.PreUpdateHealth = PreUpdateHealth
 		self.UpdateIncomingHeal = UpdateIncomingHeal
 	end
 
