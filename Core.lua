@@ -52,18 +52,15 @@ local function GetShortUnitName(unit)
 	return strsub(UnitName(unit),1,12)
 end
 
-local function UpdateHealth(self, event, unit, bar, current, max)
-	local isDisconnected, isDead = not UnitIsConnected(unit), UnitIsDeadOrGhost(unit)
-	local name = self.Name
-	
+local function UpdateName(self, unit, current, max)
+	current = current or UnitHealth(unit)
+	max = max or UnitHealthMax(max)
+	local incomingHeal = self.incomingHeal or 0
 	local r, g, b = 0.5, 0.5, 0.5
-	local color = isDisconnected and self.colors.disconnected or self.colors.class[select(2, UnitClass(unit))]
-	if color then
-		r, g, b = unpack(color)
+	if self.bgColor then
+		r, g, b = unpack(self.bgColor)
 	end
-	bar.bg:SetVertexColor(r, g, b, 1)
-
-	local unitName, incomingHeal = GetShortUnitName(unit), self.incHeal or 0
+	local unitName = GetShortUnitName(unit)
 	if isDead then
 		unitName, r, g, b = "MORT", 1, 0, 0
 	elseif not isDisconnected then
@@ -79,12 +76,25 @@ local function UpdateHealth(self, event, unit, bar, current, max)
 			end
 		end
 	end
+	self.Name:SetText(unitName)
+	self.Name:SetTextColor(r, g, b, 1)	
+end
+
+local function UpdateHealth(self, event, unit, bar, current, max)
+	local isDisconnected, isDead = not UnitIsConnected(unit), UnitIsDeadOrGhost(unit)
+	local name = self.Name
 	
-	name:SetText(unitName)
-	name:SetTextColor(r, g, b, 1)
+	local r, g, b = 0.5, 0.5, 0.5
+	local color = isDisconnected and self.colors.disconnected or self.colors.class[select(2, UnitClass(unit))]
+	if color then
+		r, g, b = unpack(color)
+		self.bgColor = color or self.bgColor
+	end
+	bar.bg:SetVertexColor(r, g, b, 1)
 	if isDisconnected or isDead then
 		bar:SetValue(max)
 	end
+	UpdateName(self, unit, current, max)
 end
 
 local function PreUpdateHealth(self, unit)
@@ -92,7 +102,10 @@ local function PreUpdateHealth(self, unit)
 end
 
 local function UpdateIncomingHeal(self, event, unit, heal, current, max, incomingHeal)
-	self.incHeal = incomingHeal
+	if self.incomingHeal ~= incomingHeal then
+		self.incomingHeal = incomingHeal
+		UpdateName(self, unit, current, max)
+	end
 	if incomingHeal > 0 and current < max then
 		local bar = self.Health
 		local pixelPerHP = bar:GetWidth() / max
@@ -101,7 +114,7 @@ local function UpdateIncomingHeal(self, event, unit, heal, current, max, incomin
 		heal:Show()
 	else
 		heal:Hide()
-	end	
+	end
 end
 
 -- ------------------------------------------------------------------------------
