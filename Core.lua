@@ -49,7 +49,7 @@ local mmin = math.min
 -- ------------------------------------------------------------------------------
 
 local function GetShortUnitName(unit)
-	return strsub(UnitName(unit),1,12)
+	return strsub(UnitName(unit),1,10)
 end
 
 local function UpdateName(self, unit, current, max)
@@ -61,9 +61,9 @@ local function UpdateName(self, unit, current, max)
 		r, g, b = unpack(self.bgColor)
 	end
 	local unitName = GetShortUnitName(unit)
-	if isDead then
+	if UnitIsDeadOrGhost(unit) then
 		unitName, r, g, b = "MORT", 1, 0, 0
-	elseif not isDisconnected then
+	elseif UnitIsConnected(unit) then
 		if incomingHeal > 0 then
 			unitName, r, g, b = strformat("+%.1fk", incomingHeal/1000), 0, 1, 0
 		elseif current < max then
