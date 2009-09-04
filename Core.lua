@@ -617,7 +617,7 @@ end
 
 local function UpdateLayout()
 	if InCombatLockdown() then return end
-	if GetNumRaidMembers() == 0 then
+	if GetNumRaidMembers() == 0 or select(2, IsInInstance()) == 'arena' then
 		raid.PartyPets:Show()
 	else
 		raid.PartyPets:Hide()
