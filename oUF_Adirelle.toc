@@ -1,8 +1,8 @@
 ## Interface: 30200
 ## Author: Adirelle
-## Version: 30200
+## Version: 1.0
 ## Title: oUF Adirelle
-## Notes: oUF Adirelle layout.
+## Notes: Adirelle's oUF raid layout.
 ## RequiredDeps: oUF
 ## OptionalDeps: LibSharedMedia-3.0, LibHealComm-4.0, LibHealComm-3.0
 

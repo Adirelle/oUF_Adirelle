@@ -5,7 +5,6 @@ All rights reserved.
 --]=]
 
 local DoEnable, DoDisable, GetIncomingHeal
-local major, minor
 
 local lhc3, lhc3_minor = LibStub('LibHealComm-3.0', true)
 local lhc4, lhc4_minor = LibStub('LibHealComm-4.0', true)
@@ -14,7 +13,6 @@ local lhc4, lhc4_minor = LibStub('LibHealComm-4.0', true)
 -- LibHealComm-4.0 support
 -- ------------------------------------------------------------------------------
 if lhc4 then
-	major, minor = 'LibHealComm-4.0', lhc4_minor
 	local band = bit.band
 	local HEAL_FLAGS = lhc4.ALL_HEALS
 	local objects = {}
@@ -73,7 +71,6 @@ if lhc4 then
 -- LibHealComm-3.0 support
 -- ------------------------------------------------------------------------------
 elseif lhc3 then
-	major, minor = 'LibHealComm-3.0', lhc3_minor
 	local playerName = UnitName('player')
 	local objects = {}
 	local playerHeals = {}
@@ -133,11 +130,8 @@ elseif lhc3 then
 
 else
 	-- No library
-	print('oUF_IncomingHeal disabled')
 	return
 end
-
-print('oUF_IncomingHeal enabled using', major, minor)
 
 local function Enable(self)
 	if self.IncomingHeal and type(self.UpdateIncomingHeal) == "function" then
@@ -151,14 +145,23 @@ local function Disable(self)
 	end
 end
 
+local floor = math.floor
+local UnitHealth = UnitHealth
+local UnitHealthMax = UnitHealthMax
+local UnitIsConnected = UnitIsConnected
+local UnitIsDeadOrGhost = UnitIsDeadOrGhost
+
 local function Update(self, event, unit)
 	local heal = self.IncomingHeal
 	if not heal then return end
-	local current, max, incomingHeal = UnitHealth(unit), UnitHealthMax(unit), 0
+	local incomingHeal = 0
 	if UnitIsConnected(unit) and not UnitIsDeadOrGhost(unit) then
-		incomingHeal = GetIncomingHeal(unit, GetTime() + 3.0)
+		incomingHeal = floor(GetIncomingHeal(unit, GetTime() + 3.0))
 	end
-	self:UpdateIncomingHeal(event, unit, heal, current, max, incomingHeal)
+	if incomingHeal ~= heal.__incomingHeal then
+		heal.__incomingHeal = incomingHeal
+		self:UpdateIncomingHeal(event, unit, heal, incomingHeal)
+	end
 end
 
 oUF.HasIncomingHeal = true
