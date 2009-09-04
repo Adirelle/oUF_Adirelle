@@ -615,7 +615,7 @@ do
 	raid['PartyPets'] = header
 end
 
-local function UpdateLayout()
+local function UpdateLayout(self)
 	if InCombatLockdown() then return end
 	if GetNumRaidMembers() == 0 or select(2, IsInInstance()) == 'arena' then
 		raid.PartyPets:Show()
@@ -635,6 +635,7 @@ local updateFrame = CreateFrame("Frame")
 updateFrame:SetScript('OnEvent', UpdateLayout)
 updateFrame:RegisterEvent('PARTY_MEMBERS_CHANGED')
 updateFrame:RegisterEvent('PLAYER_REGEN_ENABLED')
+updateFrame:RegisterEvent('PLAYER_ENTERING_WORLD')
 
 raid[1]:SetManyAttributes(
 	"showParty", true,
