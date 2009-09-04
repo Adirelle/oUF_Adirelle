@@ -52,10 +52,7 @@ local function GetShortUnitName(unit)
 	return strsub(UnitName(unit),1,10)
 end
 
-local function UpdateName(self, unit, current, max)
-	current = current or UnitHealth(unit)
-	max = max or UnitHealthMax(max)
-	local incomingHeal = self.incomingHeal or 0
+local function UpdateName(self, unit, current, max, incomingHeal)
 	local r, g, b = 0.5, 0.5, 0.5
 	if self.bgColor then
 		r, g, b = unpack(self.bgColor)
@@ -80,6 +77,19 @@ local function UpdateName(self, unit, current, max)
 	self.Name:SetTextColor(r, g, b, 1)	
 end
 
+local function UpdateHealBar(self, current, max, incomingHeal)
+	local heal = self.IncomingHeal
+	if incomingHeal > 0 and current < max then
+		local bar = self.Health
+		local pixelPerHP = bar:GetWidth() / max
+		heal:SetPoint('LEFT', bar, 'LEFT', current * pixelPerHP, 0)
+		heal:SetPoint('RIGHT', bar, 'LEFT', mmin(current + incomingHeal, max) * pixelPerHP, 0)
+		heal:Show()
+	else
+		heal:Hide()
+	end
+end
+
 local function UpdateHealth(self, event, unit, bar, current, max)
 	local isDisconnected, isDead = not UnitIsConnected(unit), UnitIsDeadOrGhost(unit)
 	local name = self.Name
@@ -94,27 +104,19 @@ local function UpdateHealth(self, event, unit, bar, current, max)
 	if isDisconnected or isDead then
 		bar:SetValue(max)
 	end
-	UpdateName(self, unit, current, max)
+	self.currentHealth, self.maxHealth = current, max
+	UpdateName(self, unit, current, max, self.incomingHeal)
 end
 
-local function PreUpdateHealth(self, unit)
-	self:UpdateElement('IncomingHeal')
+local function UpdateIncomingHeal(self, event, unit, heal, incomingHeal)
+	local current, max = self.currentHealth, self.maxHealth
+	self.incomingHeal = incomingHeal
+	UpdateName(self, unit, current, max, incomingHeal)
+	UpdateHealBar(self, current, max, incomingHeal)
 end
 
-local function UpdateIncomingHeal(self, event, unit, heal, current, max, incomingHeal)
-	if self.incomingHeal ~= incomingHeal then
-		self.incomingHeal = incomingHeal
-		UpdateName(self, unit, current, max)
-	end
-	if incomingHeal > 0 and current < max then
-		local bar = self.Health
-		local pixelPerHP = bar:GetWidth() / max
-		heal:SetPoint('LEFT', bar, 'LEFT', current * pixelPerHP, 0)
-		heal:SetPoint('RIGHT', bar, 'LEFT', mmin(current + incomingHeal, max) * pixelPerHP, 0)
-		heal:Show()
-	else
-		heal:Hide()
-	end
+local function PostUpdateHealth(self, event, unit, bar, current, max)
+	UpdateHealBar(self, current, max, self.incomingHeal)
 end
 
 -- ------------------------------------------------------------------------------
@@ -360,12 +362,13 @@ local function InitFrame(settings, self, unit)
 		heal:SetPoint("BOTTOM")
 		heal:Hide()
 		self.IncomingHeal = heal
-		self.PreUpdateHealth = PreUpdateHealth
 		self.UpdateIncomingHeal = UpdateIncomingHeal
+		self.PostUpdateHealth = PostUpdateHealth
 	end
 
 	self.Health = hp
 	self.OverrideUpdateHealth = UpdateHealth
+	self.incomingHeal = 0
 
 	UpdateTextures(self)
 
