@@ -53,6 +53,7 @@ local function GetShortUnitName(unit)
 end
 
 local function UpdateName(self, unit, current, max, incomingHeal)
+	--print('Core.UpdateName', 'unit:', unit, 'current:', current, 'max:', max, 'incomingHeal:', incomingHeal)
 	local r, g, b = 0.5, 0.5, 0.5
 	if self.bgColor then
 		r, g, b = unpack(self.bgColor)
@@ -79,6 +80,7 @@ end
 
 local function UpdateHealBar(self, current, max, incomingHeal)
 	local heal = self.IncomingHeal
+	--print('Core.UpdateHealBar', 'current:', current, 'max:', max, 'incomingHeal:', incomingHeal)
 	if incomingHeal > 0 and current < max then
 		local bar = self.Health
 		local pixelPerHP = bar:GetWidth() / max
@@ -91,9 +93,9 @@ local function UpdateHealBar(self, current, max, incomingHeal)
 end
 
 local function UpdateHealth(self, event, unit, bar, current, max)
+	--print('Core.UpdateHealth', event, 'unit:', unit, 'current:', current, 'max:', max)
 	local isDisconnected, isDead = not UnitIsConnected(unit), UnitIsDeadOrGhost(unit)
 	local name = self.Name
-	
 	local r, g, b = 0.5, 0.5, 0.5
 	local color = isDisconnected and self.colors.disconnected or self.colors.class[select(2, UnitClass(unit))]
 	if color then
@@ -109,6 +111,7 @@ local function UpdateHealth(self, event, unit, bar, current, max)
 end
 
 local function UpdateIncomingHeal(self, event, unit, heal, incomingHeal)
+	--print('Core.UpdateIncomingHeal', event, 'unit:', unit, 'incomingHeal:', incomingHeal)
 	local current, max = self.currentHealth, self.maxHealth
 	self.incomingHeal = incomingHeal
 	UpdateName(self, unit, current, max, incomingHeal)
