@@ -310,6 +310,89 @@ local function GetDebuffByType(wanted, r, g, b)
 	end
 end
 
+local GetImportantBuff
+do
+	local commonBuffs = {
+		[19752] = 99, -- Divine Intervention	
+		[ 1022] = 70, -- Hand of Protection
+		[33206] = 50, -- Pain Suppression
+		[47788] = 50, -- Guardian Spirit
+		[29166] = 20, -- Innervate
+	}
+	
+	local tmp = {}
+	local function compare(a, b)
+		return tmp[a] > tmp[b]
+	end
+	local function BuildClassBuffs(classBuffs)
+		wipe(tmp)
+		local buffs = {}
+		for _, t in pairs({classBuffs, commonBuffs}) do
+			for id, prio in pairs(t) do
+				local name = assert(GetSpellInfo(id), "invalid spell id: "..id)
+				tmp[name] = prio
+				tinsert(buffs, name)
+			end
+		end
+		table.sort(buffs, compare)
+		return buffs
+	end
+
+	local importantBuffs = {
+		HUNTER = BuildClassBuffs{
+			[19263] = 40, -- Deterrence
+			[ 5384] = 10, -- Feign Death
+		},
+		MAGE = BuildClassBuffs{
+			[45438] = 80, -- Ice Block
+		},
+		DRUID = BuildClassBuffs{
+			[61336] = 60, -- Survival Instincts
+			[22812] = 50, -- Barkskin
+			[22842] = 30, -- Frenzied Regeneration	
+		},
+		PALADIN = BuildClassBuffs{
+			[64205] = 90, -- Divine Sacrifice
+			[  642] = 80, -- Divine Shield
+			[  498] = 50, -- Divine Protection
+		},
+		WARRIOR = BuildClassBuffs{
+			[12975] = 60, -- Last Stand
+			[  871] = 50, -- Shield Wall
+			[55694] = 30, -- Enraged Regeneration
+			[ 2565] = 20, -- Shield Block
+		},
+		DEATHKNIGHT = BuildClassBuffs{
+			[48792] = 50, -- Icebound Fortitude
+			[51271] = 50, -- Unbreakable Armor
+			[48707] = 40, -- Anti-Magic Shell
+			-- [49222] = 20, -- Bone Shield
+		},
+		ROGUE = BuildClassBuffs{
+			[31224] = 60, -- Cloak of Shadows
+		},
+		WARLOCK = BuildClassBuffs{
+			[47986] = 40, -- Sacrifice
+		},		
+		PRIEST = BuildClassBuffs{
+			[20711] = 99, -- Spirit of Redemption
+		},
+		SHAMAN = BuildClassBuffs{},		
+	}
+
+	function GetImportantBuff(unit)
+		if not UnitIsPlayer(unit) then return end
+		local buffs = importantBuffs[select(2, UnitClass(unit))]
+		if not buffs then return print('no important buff for', UnitName(unit)) end
+		for i, spellName in ipairs(buffs) do
+			local name, _, texture, count, _, duration, expirationTime = UnitAura(unit, spellName, nil, "HELPFUL")
+			if name then
+				return texture, count, expirationTime-duration, duration
+			end
+		end
+	end
+end
+
 -- ------------------------------------------------------------------------------
 -- Statusbar texturing
 -- ------------------------------------------------------------------------------
@@ -412,27 +495,24 @@ local function InitFrame(settings, self, unit)
 	self.ReadyCheck = rc
 
 	-- Per-class aura icons
+	local importantBuff = SpawnIcon(self)
+	importantBuff:SetPoint("CENTER", self, "LEFT", WIDTH * 0.4, 0)
+	self:AuraIcon(importantBuff, GetImportantBuff)
+	
+	local debuff = SpawnIcon(self)
+	debuff:SetPoint("CENTER", self, "LEFT", WIDTH * 0.6, 0)
+	self:AuraIcon(debuff, GetCureableDebuff)
+	
 	local _, class = UnitClass("player")
 	if class == "HUNTER" then
 		local misdirection = SpawnIcon(self)
-		misdirection:SetPoint("CENTER")
+		misdirection:SetPoint("CENTER", self, "LEFT", WIDTH * 0.25, 0)
 		self:AuraIcon(misdirection, TestAnyAura(34477, "HELPFUL"))
 
-	elseif class == "DRUID" then
-		--[[
-		local rejuv = SpawnIcon(self, false, false, true)
-		rejuv:SetPoint("CENTER", self, "LEFT", WIDTH * 0.2, 0)
-		self:AuraIcon(rejuv, TestMyAura(774))
-
-		local regrowth = SpawnIcon(self, false, false, true)
-		regrowth:SetPoint("CENTER", self, "LEFT", WIDTH * 0.4, 0)
-		self:AuraIcon(regrowth, TestMyAura(8936))
-
-		local lifebloom = SpawnIcon(self, false, false, true)
-		lifebloom:SetPoint("CENTER", self, "LEFT", WIDTH * 0.6, 0)
-		self:AuraIcon(lifebloom, TestMyAura(33763))
-		--]]
+		importantBuff:SetPoint("CENTER")
+		debuff:SetPoint("CENTER", self, "LEFT", WIDTH * 0.75, 0)
 		
+	elseif class == "DRUID" then
 		local INSET = 1
 		local size = 8
 		local spawn = function(self, size)
@@ -461,11 +541,7 @@ local function InitFrame(settings, self, unit)
 		local c = DebuffTypeColor.Poison
 		abolishPoison:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -INSET, INSET)
 		self:AuraIcon(abolishPoison, TestMyAura(2893, c.r, c.g, c.b))
-
-		local debuff = SpawnIcon(self)
-		debuff:SetPoint("CENTER")
-		self:AuraIcon(debuff, GetCureableDebuff)
-
+		
 	elseif class == 'PALADIN' then
 		local beacon = SpawnIcon(self)
 		beacon:SetPoint("CENTER", self, "LEFT", WIDTH * 0.2, 0)
@@ -475,25 +551,13 @@ local function InitFrame(settings, self, unit)
 		sacredShield:SetPoint("CENTER", self, "LEFT", WIDTH * 0.4, 0)
 		self:AuraIcon(sacredShield, TestMyAura(53601))
 
-		local flashLight = SpawnIcon(self)
-		flashLight:SetPoint("CENTER", self, "LEFT", WIDTH * 0.6, 0)
-		self:AuraIcon(flashLight, TestMyAura(48785))
-
-		local debuff = SpawnIcon(self)
+		importantBuff:SetPoint("CENTER", self, "LEFT", WIDTH * 0.6, 0)
 		debuff:SetPoint("CENTER", self, "LEFT", WIDTH * 0.8, 0)
-		self:AuraIcon(debuff, GetCureableDebuff)
 
-	elseif class == 'SHAMAN' or class == 'MAGE' or class == 'PRIEST' then
-		local debuff = SpawnIcon(self)
-		debuff:SetPoint("CENTER")
-		self:AuraIcon(debuff, GetCureableDebuff)
-		
 	elseif class == 'WARLOCK' then
-		local debuff = SpawnIcon(self)
-		debuff:SetPoint("CENTER")
-		self:AuraIcon(debuff, GetDebuffByType("Magic"))
-		
+		self:AuraIcon(debuff, GetDebuffByType("Magic"))		
 	end
+	
 	self.iconBlinkThreshold = 3
 
 	-- Range fading
@@ -549,25 +613,33 @@ do
 	header:SetPoint("BOTTOMLEFT", raid[1], "TOPLEFT", 0, SPACING)
 	header:Show()
 	raid['PartyPets'] = header
-	
-	local visibilityFrame = CreateFrame("Frame")
-	visibilityFrame:SetScript('OnEvent', function()
-		if InCombatLockdown() then return end
-		if GetNumRaidMembers() == 0 then
-			header:Show()
-		else
-			header:Hide()
-		end
-	end)
-	visibilityFrame:RegisterEvent('PARTY_MEMBERS_CHANGED')
-	visibilityFrame:RegisterEvent('PLAYER_REGEN_ENABLED')
 end
 
--- First raid group (or party)
-raid[1]:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, 230)
+local function UpdateLayout()
+	if InCombatLockdown() then return end
+	if GetNumRaidMembers() == 0 then
+		raid.PartyPets:Show()
+	else
+		raid.PartyPets:Hide()
+	end
+	local width = 0
+	for _, frame in pairs(raid) do
+		if frame:IsShown() then
+			width = math.max(width, math.floor(frame:GetWidth()))
+		end
+	end
+	raid[1]:SetPoint("BOTTOMLEFT", UIParent, "BOTTOM", -width/2, 230)
+end
+
+local updateFrame = CreateFrame("Frame")
+updateFrame:SetScript('OnEvent', UpdateLayout)
+updateFrame:RegisterEvent('PARTY_MEMBERS_CHANGED')
+updateFrame:RegisterEvent('PLAYER_REGEN_ENABLED')
+
 raid[1]:SetManyAttributes(
 	"showParty", true,
 	"showPlayer", true,
 	"showSolo", true
 )
+UpdateLayout()
 
