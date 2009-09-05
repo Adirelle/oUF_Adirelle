@@ -5,11 +5,11 @@ All rights reserved.
 --]=]
 
 local WIDTH = 80
+local SPACING = 4
 local HEIGHT = 25
 local BORDER_WIDTH = 2
 local ICON_SIZE = 14
 local SQUARE_SIZE = 5
-local SPACING = 4
 
 local oUF = assert(_G.oUF, "oUF_Adirelle requires oUF")
 local lsm = LibStub('LibSharedMedia-3.0', true)
@@ -631,12 +631,19 @@ local function UpdateLayout(self)
 	else
 		raid.PartyPets:Hide()
 	end
-	local width = 0
-	for _, frame in pairs(raid) do
-		if frame:IsShown() then
-			width = math.max(width, math.floor(frame:GetWidth()))
+	local numColumns = GetNumPartyMembers() + 1
+	if GetNumRaidMembers() > 0 then
+		for gr = 0, 7 do
+			local n = 0
+			for i = 1, 5 do
+				if UnitExists('raid'..gr*5+i) then
+					n = n + 1
+				end
+			end
+			numColumns = math.max(numColumns, n)
 		end
 	end
+	local width = WIDTH * numColumns + SPACING * (numColumns - 1)
 	raid[1]:SetPoint("BOTTOMLEFT", UIParent, "BOTTOM", -width/2, 230)
 end
 
