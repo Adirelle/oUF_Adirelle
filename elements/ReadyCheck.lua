@@ -70,9 +70,9 @@ end
 local function Disable(self)
 	local rc = self.ReadyCheck
 	if rc then	
-		self:UnregisterEvent('READY_CHECK')
-		self:UnregisterEvent('READY_CHECK_CONFIRM')
-		self:UnregisterEvent('READY_CHECK_FINISHED')
+		self:UnregisterEvent('READY_CHECK', Update)
+		self:UnregisterEvent('READY_CHECK_CONFIRM', Update)
+		self:UnregisterEvent('READY_CHECK_FINISHED', Update)
 		rc:Hide()
 	end
 end
