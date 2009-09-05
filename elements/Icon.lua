@@ -91,7 +91,7 @@ end
 local function Disable(self)
 	local icons = self.AuraIcons
 	if icons then
-		self:UnregisterEvent('UNIT_AURA')
+		self:UnregisterEvent('UNIT_AURA', Update)
 		for icon in pairs(icons) do
 			icon:Hide()
 		end

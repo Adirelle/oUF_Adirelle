@@ -617,6 +617,12 @@ for group = 1, 8 do
 	raid[group] = header
 end
 
+raid[1]:SetManyAttributes(
+	"showParty", true,
+	"showPlayer", true,
+	"showSolo", true
+)
+
 do
 	-- Party pets
 	local header = oUF:Spawn("header", "oUF_PartyPets", "SecureGroupPetHeaderTemplate")
@@ -634,7 +640,7 @@ do
 	raid['PartyPets'] = header
 end
 
-local function UpdateLayout(self)
+local function UpdateLayout(...)
 	if InCombatLockdown() then return end
 	if GetNumRaidMembers() == 0 or select(2, IsInInstance()) == 'arena' then
 		raid.PartyPets:Show()
@@ -663,13 +669,7 @@ end
 local updateFrame = CreateFrame("Frame")
 updateFrame:SetScript('OnEvent', UpdateLayout)
 updateFrame:RegisterEvent('PARTY_MEMBERS_CHANGED')
+updateFrame:RegisterEvent('VARIABLES_LOADED')
 updateFrame:RegisterEvent('PLAYER_REGEN_ENABLED')
 updateFrame:RegisterEvent('PLAYER_ENTERING_WORLD')
-
-raid[1]:SetManyAttributes(
-	"showParty", true,
-	"showPlayer", true,
-	"showSolo", true
-)
-UpdateLayout()
 
