@@ -53,15 +53,12 @@ local function GetShortUnitName(unit)
 end
 
 local function UpdateName(self, unit, current, max, incomingHeal)
-	--print('Core.UpdateName', 'unit:', unit, 'current:', current, 'max:', max, 'incomingHeal:', incomingHeal)
 	local r, g, b = 0.5, 0.5, 0.5
 	if self.bgColor then
 		r, g, b = unpack(self.bgColor)
 	end
 	local unitName = GetShortUnitName(unit)
-	if UnitIsDeadOrGhost(unit) then
-		unitName, r, g, b = "MORT", 1, 0, 0
-	elseif UnitIsConnected(unit) then
+	if UnitIsConnected(unit) and not UnitIsDeadOrGhost(unit) then
 		if incomingHeal > 0 then
 			unitName, r, g, b = strformat("+%.1fk", incomingHeal/1000), 0, 1, 0
 		elseif current < max then
@@ -80,7 +77,6 @@ end
 
 local function UpdateHealBar(self, current, max, incomingHeal)
 	local heal = self.IncomingHeal
-	--print('Core.UpdateHealBar', 'current:', current, 'max:', max, 'incomingHeal:', incomingHeal)
 	if incomingHeal > 0 and current < max then
 		local bar = self.Health
 		local pixelPerHP = bar:GetWidth() / max
@@ -93,25 +89,30 @@ local function UpdateHealBar(self, current, max, incomingHeal)
 end
 
 local function UpdateHealth(self, event, unit, bar, current, max)
-	--print('Core.UpdateHealth', event, 'unit:', unit, 'current:', current, 'max:', max)
 	local isDisconnected, isDead = not UnitIsConnected(unit), UnitIsDeadOrGhost(unit)
-	local name = self.Name
 	local r, g, b = 0.5, 0.5, 0.5
-	local color = isDisconnected and self.colors.disconnected or self.colors.class[select(2, UnitClass(unit))]
+	local color
+	if isDisconnected or isDead then
+		bar:SetValue(max)
+		color = self.colors.disconnected
+	else
+		color = self.colors.class[select(2, UnitClass(unit))]
+	end
 	if color then
 		r, g, b = unpack(color)
 		self.bgColor = color or self.bgColor
 	end
 	bar.bg:SetVertexColor(r, g, b, 1)
-	if isDisconnected or isDead then
-		bar:SetValue(max)
+	if isDead then
+		self.DeathIcon:Show()
+	else
+		self.DeathIcon:Hide()
 	end
 	self.currentHealth, self.maxHealth = current, max
 	UpdateName(self, unit, current, max, self.incomingHeal)
 end
 
 local function UpdateIncomingHeal(self, event, unit, heal, incomingHeal)
-	--print('Core.UpdateIncomingHeal', event, 'unit:', unit, 'incomingHeal:', incomingHeal)
 	local current, max = self.currentHealth, self.maxHealth
 	self.incomingHeal = incomingHeal
 	UpdateName(self, unit, current, max, incomingHeal)
@@ -411,17 +412,11 @@ end
 -- Unit frame initialization
 -- ------------------------------------------------------------------------------
 
-local function Unit_OnEnter(...)
-	if not InCombatLockdown() then
-		return UnitFrame_OnEnter(...)
-	end
-end
-
 local function InitFrame(settings, self, unit)
 	self:EnableMouse(true)
 	self:RegisterForClicks("anyup")
 
-	self:SetScript("OnEnter", Unit_OnEnter)
+	self:SetScript("OnEnter", UnitFrame_OnEnter)
 	self:SetScript("OnLeave", UnitFrame_OnLeave)
 
 	self:SetBackdrop(backdrop)
@@ -437,7 +432,18 @@ local function InitFrame(settings, self, unit)
 	hpbg:SetAllPoints(hp)
 	hpbg:SetAlpha(1)
 	hp.bg = hpbg
-
+	
+	-- Death icon
+	local death = hp:CreateTexture(nil, "OVERLAY")
+	death:SetWidth(HEIGHT*2)
+	death:SetHeight(HEIGHT)
+	death:SetTexture([[Interface\TargetingFrame\UI-TargetingFrame-Skull]])
+	death:SetTexCoord(0, 1, 0.35, 0.85)
+	death:SetAlpha(0.5)
+	death:SetPoint("CENTER")
+	death:Hide()
+	self.DeathIcon = death
+	
 	-- Incoming heals
 	if oUF.HasIncomingHeal then
 		local heal = hp:CreateTexture(nil, "OVERLAY")
