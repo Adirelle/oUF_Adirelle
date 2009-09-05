@@ -17,19 +17,9 @@ if lhc4 then
 	local HEAL_FLAGS = lhc4.ALL_HEALS
 	local objects = {}
 	
-	local function guidToName(unitMap, guid, ...)
-		local name = guid and unitMap[guid] and UnitName(unitMap[guid]) or guid 
-		if select('#', ...) > 0 then
-			return name, guidToName(unitMap, ...)
-		else
-			return name
-		end
-	end
-
 	local function UpdateHeals(event, casterGUID, spellId, healType, _, ...)
 		if band(healType, HEAL_FLAGS) == 0 then return end
 		local unitMap = lhc4:GetGuidUnitMapTable()
-		--print('LHC4 update', event, 'caster:', guidToName(unitMap, casterGUID), 'spell:', (GetSpellInfo(spellId) or spellId), 'targets:', guidToName(unitMap, ...))
 		local units = oUF.units
 		for i = 1, select('#', ...) do
 			local guid = select(i, ...)
@@ -168,11 +158,7 @@ local function Update(self, event, unit)
 	if UnitIsConnected(unit) and not UnitIsDeadOrGhost(unit) then
 		incomingHeal = floor(GetIncomingHeal(unit, GetTime() + 3.0))
 	end
-	if incomingHeal ~= heal.__incomingHeal then
-		heal.__incomingHeal = incomingHeal
-		--print('IncomingHeal.Update', event, 'unit:', unit, 'incomingHeal:', incomingHeal)
-		self:UpdateIncomingHeal(event, unit, heal, incomingHeal)
-	end
+	self:UpdateIncomingHeal(event, unit, heal, incomingHeal)
 end
 
 oUF.HasIncomingHeal = true
