@@ -4,6 +4,7 @@ Adirelle's oUF raid layout
 All rights reserved.
 --]=]
 
+local SCALE = 1.0
 local WIDTH = 80
 local SPACING = 4
 local HEIGHT = 25
@@ -13,6 +14,8 @@ local SQUARE_SIZE = 5
 
 local oUF = assert(_G.oUF, "oUF_Adirelle requires oUF")
 local lsm = LibStub('LibSharedMedia-3.0', true)
+
+local _, playerClass = UnitClass("player")
 
 local statusbarTexture = lsm and lsm:Fetch("statusbar", false) or [[Interface\TargetingFrame\UI-StatusBar]]
 
@@ -53,10 +56,7 @@ local function GetShortUnitName(unit)
 end
 
 local function UpdateName(self, unit, current, max, incomingHeal)
-	local r, g, b = 0.5, 0.5, 0.5
-	if self.bgColor then
-		r, g, b = unpack(self.bgColor)
-	end
+	local r, g, b = unpack(self.bgColor)
 	local unitName = GetShortUnitName(unit)
 	if UnitIsConnected(unit) and not UnitIsDeadOrGhost(unit) then
 		if incomingHeal > 0 then
@@ -91,17 +91,19 @@ end
 local function UpdateHealth(self, event, unit, bar, current, max)
 	local isDisconnected, isDead = not UnitIsConnected(unit), UnitIsDeadOrGhost(unit)
 	local r, g, b = 0.5, 0.5, 0.5
-	local color
 	if isDisconnected or isDead then
 		bar:SetValue(max)
-		color = self.colors.disconnected
-	else
-		color = self.colors.class[select(2, UnitClass(unit))]
+		r, g, b = unpack(self.colors.disconnected)
+	elseif UnitInVehicle(unit) then
+		r, g, b = 0.2, 0.6, 0
+	elseif UnitName(unit) ~= UNKNOWN then
+		local classUnit = unit
+		if not UnitIsPlayer(classUnit) then
+			classUnit = (classUnit == 'pet') and 'player' or classUnit:gsub('pet', '')
+		end
+		r, g, b = unpack(self.colors.class[select(2, UnitClass(classUnit))])
 	end
-	if color then
-		r, g, b = unpack(color)
-		self.bgColor = color or self.bgColor
-	end
+	self.bgColor[1], self.bgColor[2], self.bgColor[3] = r, g, b
 	bar.bg:SetVertexColor(r, g, b, 1)
 	if isDead then
 		self.DeathIcon:Show()
@@ -412,7 +414,7 @@ end
 -- Unit frame initialization
 -- ------------------------------------------------------------------------------
 
-local function InitFrame(settings, self, unit)
+local function InitFrame(settings, self)
 	self:EnableMouse(true)
 	self:RegisterForClicks("anyup")
 
@@ -422,7 +424,9 @@ local function InitFrame(settings, self, unit)
 	self:SetBackdrop(backdrop)
 	self:SetBackdropColor(0, 0, 0, 1)
 	self:SetBackdropBorderColor(0, 0, 0, 1)
-
+	
+	self.bgColor = { 1, 1, 1 }
+	
 	-- Health bar
 	local hp = CreateFrame("StatusBar", nil, self)
 	hp:SetAllPoints(self)
@@ -512,8 +516,7 @@ local function InitFrame(settings, self, unit)
 	debuff:SetPoint("CENTER", self, "LEFT", WIDTH * 0.6, 0)
 	self:AuraIcon(debuff, GetCureableDebuff)
 	
-	local _, class = UnitClass("player")
-	if class == "HUNTER" then
+	if playerClass == "HUNTER" then
 		local misdirection = SpawnIcon(self)
 		misdirection:SetPoint("CENTER", self, "LEFT", WIDTH * 0.25, 0)
 		self:AuraIcon(misdirection, TestAnyAura(34477, "HELPFUL"))
@@ -521,7 +524,7 @@ local function InitFrame(settings, self, unit)
 		importantBuff:SetPoint("CENTER")
 		debuff:SetPoint("CENTER", self, "LEFT", WIDTH * 0.75, 0)
 		
-	elseif class == "DRUID" then
+	elseif playerClass == "DRUID" then
 		local INSET = 1
 		local size = 8
 		local spawn = function(self, size)
@@ -551,7 +554,7 @@ local function InitFrame(settings, self, unit)
 		abolishPoison:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -INSET, INSET)
 		self:AuraIcon(abolishPoison, TestMyAura(2893, c.r, c.g, c.b))
 		
-	elseif class == 'PALADIN' then
+	elseif playerClass == 'PALADIN' then
 		local beacon = SpawnIcon(self)
 		beacon:SetPoint("CENTER", self, "LEFT", WIDTH * 0.2, 0)
 		self:AuraIcon(beacon, TestMyAura(53563))
@@ -563,7 +566,7 @@ local function InitFrame(settings, self, unit)
 		importantBuff:SetPoint("CENTER", self, "LEFT", WIDTH * 0.6, 0)
 		debuff:SetPoint("CENTER", self, "LEFT", WIDTH * 0.8, 0)
 
-	elseif class == 'WARLOCK' then
+	elseif playerClass == 'WARLOCK' then
 		self:AuraIcon(debuff, GetDebuffByType("Magic"))		
 	end
 	
@@ -578,6 +581,11 @@ end
 -- ------------------------------------------------------------------------------
 -- Style and layout setup
 -- ------------------------------------------------------------------------------
+
+if playerClass == 'ROGUE' or playerClass == 'WARRIOR' or playerClass == 'MAGE' or playerClass == 'WARLOCK' 
+	or playerClass == 'HUNTER' then
+	HEIGHT = 20
+end
 
 local style = setmetatable(
 	{
@@ -601,6 +609,7 @@ for group = 1, 8 do
 		"point", "LEFT",
 		"xOffset", SPACING
 	)
+	header:SetScale(SCALE)
 	if group > 1 then
 		header:SetPoint("BOTTOMLEFT", raid[group - 1], "TOPLEFT", 0, SPACING)
 	end
@@ -619,6 +628,7 @@ do
 		"point", "LEFT",
 		"xOffset", SPACING
 	)
+	header:SetScale(SCALE)
 	header:SetPoint("BOTTOMLEFT", raid[1], "TOPLEFT", 0, SPACING)
 	header:Show()
 	raid['PartyPets'] = header
@@ -631,12 +641,13 @@ local function UpdateLayout(self)
 	else
 		raid.PartyPets:Hide()
 	end
-	local numColumns = GetNumPartyMembers() + 1
-	if GetNumRaidMembers() > 0 then
-		for gr = 0, 7 do
+	local numColumns = 0
+	for name, header in pairs(raid) do
+		if header:IsVisible() then
 			local n = 0
 			for i = 1, 5 do
-				if UnitExists('raid'..gr*5+i) then
+				local frame = header:GetAttribute('child'..i)
+				if frame and frame:IsVisible() then
 					n = n + 1
 				end
 			end
@@ -644,7 +655,9 @@ local function UpdateLayout(self)
 		end
 	end
 	local width = WIDTH * numColumns + SPACING * (numColumns - 1)
-	raid[1]:SetPoint("BOTTOMLEFT", UIParent, "BOTTOM", -width/2, 230)
+	local header = raid[1]
+	local scale = header:GetScale() or 1.0
+	header:SetPoint("BOTTOMLEFT", UIParent, "BOTTOM", -width/2/scale, 230/scale)
 end
 
 local updateFrame = CreateFrame("Frame")
