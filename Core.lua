@@ -122,7 +122,7 @@ local function UpdateIncomingHeal(self, event, unit, heal, incomingHeal)
 end
 
 local function PostUpdateHealth(self, event, unit, bar, current, max)
-	UpdateHealBar(self, current, max, self.incomingHeal)
+	self:UpdateElement('IncomingHeal')
 end
 
 -- ------------------------------------------------------------------------------

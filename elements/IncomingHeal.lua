@@ -4,10 +4,13 @@ Adirelle's oUF raid layout
 All rights reserved.
 --]=]
 
-local DoEnable, DoDisable, GetIncomingHeal
+local DoEnable, DoDisable, GetIncomingHeal, Update
 
 local lhc3, lhc3_minor = LibStub('LibHealComm-3.0', true)
 local lhc4, lhc4_minor = LibStub('LibHealComm-4.0', true)
+
+local playerName = UnitName('player')
+local objects = {}
 
 -- ------------------------------------------------------------------------------
 -- LibHealComm-4.0 support
@@ -15,7 +18,6 @@ local lhc4, lhc4_minor = LibStub('LibHealComm-4.0', true)
 if lhc4 then
 	local band = bit.band
 	local HEAL_FLAGS = lhc4.ALL_HEALS
-	local objects = {}
 	
 	local function UpdateHeals(event, casterGUID, spellId, healType, _, ...)
 		if band(healType, HEAL_FLAGS) == 0 then return end
@@ -26,16 +28,19 @@ if lhc4 then
 			local unit = guid and unitMap[guid]
 			local frame = unit and units[unit]
 			if frame and objects[frame] then
-				frame:UpdateElement('IncomingHeal')
+				--frame:UpdateElement('IncomingHeal')
+				Update(frame, event, unit)
 			end
 		end
 	end
 	
-	local function ModifierChanged(guid)
+	local function ModifierChanged(event, guid)
 		local unitMap = lhc4:GetGuidUnitMapTable()
-		local frame = oUF.units[unitMap[guid] or false]
+		local unit = unitMap[guid]
+		local frame = oUF.units[unit or false]
 		if frame and objects[frame] then
-			frame:UpdateElement('IncomingHeal')
+			--frame:UpdateElement('IncomingHeal')
+			Update(frame, event, unit)
 		end
 	end
 
@@ -71,8 +76,6 @@ if lhc4 then
 -- LibHealComm-3.0 support
 -- ------------------------------------------------------------------------------
 elseif lhc3 then
-	local playerName = UnitName('player')
-	local objects = {}
 	local playerHeals = {}
 
 	local function UpdateHeals(event, healer, amount, ...)
@@ -146,18 +149,20 @@ local function Disable(self)
 end
 
 local floor = math.floor
-local UnitHealth = UnitHealth
-local UnitHealthMax = UnitHealthMax
 local UnitIsConnected = UnitIsConnected
 local UnitIsDeadOrGhost = UnitIsDeadOrGhost
 
-local function Update(self, event, unit)
+function Update(self, event, unit)
 	local heal = self.IncomingHeal
 	if not heal then return end
+	unit = unit or self.unit
 	local incomingHeal = 0
 	if UnitIsConnected(unit) and not UnitIsDeadOrGhost(unit) then
 		incomingHeal = floor(GetIncomingHeal(unit, GetTime() + 3.0))
 	end
+	--[[if playerName == 'Qwetia' or playerName == 'Adirelle' then
+		print('incomingHeal:Update', GetTime(), event, unit, ':', self.__incomingHeal, '=>', incomingHeal)
+	end]]
 	self:UpdateIncomingHeal(event, unit, heal, incomingHeal)
 end
 
