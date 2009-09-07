@@ -647,17 +647,19 @@ local function UpdateLayout(...)
 	else
 		raid.PartyPets:Hide()
 	end
-	local numColumns = 0
-	for name, header in pairs(raid) do
-		if header:IsVisible() then
-			local n = 0
-			for i = 1, 5 do
-				local frame = header:GetAttribute('child'..i)
-				if frame and frame:IsVisible() then
-					n = n + 1
+	local numColumns = 1 + GetNumPartyMembers()
+	if GetNumRaidMembers() > 0 then
+		for name, header in pairs(raid) do
+			if header:IsVisible() then
+				local n = 0
+				for i = 1, 5 do
+					local frame = header:GetAttribute('child'..i)
+					if frame and frame:IsVisible() then
+						n = n + 1
+					end
 				end
+				numColumns = math.max(numColumns, n)
 			end
-			numColumns = math.max(numColumns, n)
 		end
 	end
 	local width = WIDTH * numColumns + SPACING * (numColumns - 1)
