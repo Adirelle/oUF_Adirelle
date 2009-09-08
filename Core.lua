@@ -125,6 +125,11 @@ local function PostUpdateHealth(self, event, unit, bar, current, max)
 	self:UpdateElement('IncomingHeal')
 end
 
+local function UnitFlagChanged(self, event, unit)
+	if unit and unit ~= self.unit then return end	
+	UpdateHealth(self, event, unit, self.Health, self.currentHealth, self.maxHealth)
+end
+
 -- ------------------------------------------------------------------------------
 -- Aura indicators
 -- ------------------------------------------------------------------------------
@@ -571,6 +576,10 @@ local function InitFrame(settings, self)
 	end
 	
 	self.iconBlinkThreshold = 3
+	
+	self:RegisterEvent('UNIT_FLAGS', UnitFlagChanged)
+	self:RegisterEvent('UNIT_ENTERED_VEHICLE', UnitFlagChanged)
+	self:RegisterEvent('UNIT_EXITED_VEHICLE', UnitFlagChanged)
 
 	-- Range fading
 	self.Range = true

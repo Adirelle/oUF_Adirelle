@@ -152,6 +152,8 @@ local floor = math.floor
 local UnitIsConnected = UnitIsConnected
 local UnitIsDeadOrGhost = UnitIsDeadOrGhost
 
+local incHeals = {}
+
 function Update(self, event, unit)
 	local heal = self.IncomingHeal
 	if not heal then return end
@@ -160,12 +162,12 @@ function Update(self, event, unit)
 	if UnitIsConnected(unit) and not UnitIsDeadOrGhost(unit) then
 		incomingHeal = floor(GetIncomingHeal(unit, GetTime() + 3.0))
 	end
-	--[[if playerName == 'Qwetia' or playerName == 'Adirelle' then
-		print('incomingHeal:Update', GetTime(), event, unit, ':', self.__incomingHeal, '=>', incomingHeal)
-	end]]
+	--[[if incHeals[self] or incomingHeal > 0 then
+		print("IncomingHeal:Update", GetTime() % 1, '-', event, unit, ':', incHeals[self], '=>', incomingHeal)
+		incHeals[self] = incomingHeal > 0 and incomingHeal or nil
+	end--]]
 	self:UpdateIncomingHeal(event, unit, heal, incomingHeal)
 end
 
 oUF.HasIncomingHeal = true
 oUF:AddElement('IncomingHeal', Update, Enable, Disable)
-
