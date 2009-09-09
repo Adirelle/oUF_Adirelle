@@ -38,10 +38,10 @@ local function SetStatus(self, newStatus)
 	local rc = self.ReadyCheck
 	local oldStatus = rc.status
 	if oldStatus == newStatus then return end
-	print('ReadyCheck:SetStatus', self.unit, ':', oldStatus, '=>', newStatus)
+	--print('ReadyCheck:SetStatus', self.unit, ':', oldStatus, '=>', newStatus)
 	rc.status = newStatus
 	if newStatus == 'waiting' or newStatus == 'ready' or newStatus == 'notready' then
-		print('=> showing texture', textures[newStatus])
+		--print('=> showing texture', textures[newStatus])
 		rc:SetTexture(textures[newStatus])
 		rc:SetAlpha(1)
 		rc:Show()
@@ -49,9 +49,9 @@ local function SetStatus(self, newStatus)
 	elseif not newStatus and rc:IsShown() then
 		if oldStatus == 'waiting' then
 			rc:SetTexture(textures.afk)
-			print("=> afking")
+			--print("=> afking")
 		end
-		print("=> starting fade out timer")
+		--print("=> starting fade out timer")
 		icons[rc] = GetTime()+5
 		fadeOutFrame:Show()
 	end
