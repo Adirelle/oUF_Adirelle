@@ -458,7 +458,6 @@ local function InitFrame(settings, self)
 		local heal = hp:CreateTexture(nil, "OVERLAY")
 		heal:SetTexture(0, 0.5, 0, 0.5)
 		heal:SetBlendMode("BLEND")
-		heal:SetPoint("LEFT")
 		heal:SetPoint("TOP")
 		heal:SetPoint("BOTTOM")
 		heal:Hide()
@@ -505,11 +504,15 @@ local function InitFrame(settings, self)
 	self.Border = border
 
 	-- ReadyCheck icon
-	local rc = self:CreateTexture(nil, 'OVERLAY')
-	rc:SetPoint('CENTER')
+	local rc = CreateFrame("Frame", nil, self)
+	rc:SetFrameLevel(self:GetFrameLevel()+5)
+	rc:SetPoint('CENTER', self)
 	rc:SetWidth(HEIGHT)
 	rc:SetHeight(HEIGHT)
 	rc:SetAlpha(1)
+	rc:Hide()
+	rc.icon = rc:CreateTexture()
+	rc.icon:SetAllPoints(rc)
 	self.ReadyCheck = rc
 
 	-- Per-class aura icons
@@ -584,7 +587,7 @@ local function InitFrame(settings, self)
 	-- Range fading
 	self.Range = true
 	self.inRangeAlpha = 1.0
-	self.outsideRangeAlpha = 0.25
+	self.outsideRangeAlpha = 0.25	
 end
 
 -- ------------------------------------------------------------------------------
