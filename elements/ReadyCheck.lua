@@ -40,6 +40,9 @@ end
 local function SetStatus(self, newStatus)
 	local rc = self.ReadyCheck
 	local oldStatus = rc.status
+	if not IsRaidLeader() and not IsRaidOfficer() and not IsPartyLeader() then
+		newStatus = nil
+	end
 	if oldStatus == newStatus then return end
 	rc.status = newStatus
 	if newStatus == 'waiting' or newStatus == 'ready' or newStatus == 'notready' then
@@ -54,8 +57,8 @@ local function SetStatus(self, newStatus)
 	end
 end
 
-local function OnCheckStart(self, ...)
-	SetStatus(self, UnitIsUnit(self.unit, 'player') and 'ready' or 'waiting')
+local function OnCheckStart(self, event, requestor)
+	SetStatus(self, requestor == UnitName(self.unit) and 'ready' or 'waiting')
 end
 
 local function OnCheckAnswer(self, event, unitId, answer)
