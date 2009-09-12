@@ -587,7 +587,7 @@ local function InitFrame(settings, self)
 	-- Range fading
 	self.Range = true
 	self.inRangeAlpha = 1.0
-	self.outsideRangeAlpha = 0.25	
+	self.outsideRangeAlpha = 0.40
 end
 
 -- ------------------------------------------------------------------------------
