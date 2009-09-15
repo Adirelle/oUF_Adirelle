@@ -17,29 +17,49 @@ local objects = {}
 -- ------------------------------------------------------------------------------
 if lhc4 then
 	local band = bit.band
-	local HEAL_FLAGS = lhc4.ALL_HEALS
+	local HEAL_FLAGS = lhc4.ALL_HEALS -- lhc4.BOMB_HEALS
+	
+	local unitMap, units
+	
+	do
+		local _unitMap = lhc4:GetGuidUnitMapTable()
+		unitMap = setmetatable({}, {
+			__index = function(t, guid)
+				local unit = guid and _unitMap[guid] or false
+				if guid and not unit then
+					geterrorhandler()(string.format('No unit for guid %s', tostring(guid)))
+				end
+				return unit
+			end
+		})
+	end
+	
+	do
+		units = setmetatable({}, {
+			__index = function(t, unit)
+				local frame = unit and oUF.units[unit] or false
+				if unit and not frame then
+					geterrorhandler()(string.format('No frame for unit %s', tostring(unit)))
+				end
+				return frame
+			end
+		})
+	end
 	
 	local function UpdateHeals(event, casterGUID, spellId, healType, _, ...)
 		if band(healType, HEAL_FLAGS) == 0 then return end
-		local unitMap = lhc4:GetGuidUnitMapTable()
-		local units = oUF.units
 		for i = 1, select('#', ...) do
-			local guid = select(i, ...)
-			local unit = guid and unitMap[guid]
-			local frame = unit and units[unit]
+			local unit = unitMap[select(i, ...)]
+			local frame = units[unit]
 			if frame and objects[frame] then
-				--frame:UpdateElement('IncomingHeal')
 				Update(frame, event, unit)
 			end
 		end
 	end
 	
 	local function ModifierChanged(event, guid)
-		local unitMap = lhc4:GetGuidUnitMapTable()
-		local unit = unitMap[guid]
-		local frame = oUF.units[unit or false]
+		local frame = units[unitMap[guid]]
 		if frame and objects[frame] then
-			--frame:UpdateElement('IncomingHeal')
 			Update(frame, event, unit)
 		end
 	end
@@ -47,10 +67,8 @@ if lhc4 then
 	function GetIncomingHeal(unit, timeLimit)
 		local guid = UnitGUID(unit)
 		local inc = lhc4:GetHealAmount(guid, HEAL_FLAGS, timeLimit)
-		if inc then
+		if inc and inc > 0 then
 			return inc * lhc4:GetHealModifier(guid)
-		else
-			return 0
 		end
 	end
 
@@ -78,6 +96,16 @@ if lhc4 then
 elseif lhc3 then
 	local playerHeals = {}
 
+	local UnitName = UnitName
+	local function UnitFullName(unit)
+		local name, realm = UnitName(unit)
+		if realm then
+			return name .. '-' .. realm
+		else
+			return name
+		end
+	end
+
 	local function UpdateHeals(event, healer, amount, ...)
 		for i = 1, select('#', ...) do
 			local target = select(i, ...)
@@ -85,7 +113,7 @@ elseif lhc3 then
 				playerHeals[target] = amount and ((playerHeals[target] or 0) + amount) or nil
 			end
 			for frame in pairs(objects) do
-				if frame.unit and UnitName(frame.unit) == target then
+				if frame.unit and UnitFullName(frame.unit) == target then
 					frame:UpdateElement('IncomingHeal')
 				end
 			end
@@ -107,9 +135,13 @@ elseif lhc3 then
 			frame:UpdateElement('IncomingHeal')
 		end
 	end
-
+	
 	function GetIncomingHeal(unit, time)
-		return lhc3:UnitHealModifierGet(unit) * ( (lhc3:UnitIncomingHealGet(unit, time) or 0) + (playerHeals[UnitName(unit) or false] or 0))
+		local pHeals = playerHeals[UnitFullName(unit) or false]
+		local otherHeals = lhc3:UnitIncomingHealGet(unit, time)
+		if otherHeals or pHeals then
+			return lhc3:UnitHealModifierGet(unit) * ((pHeals or 0) + (otherHeals or 0))
+		end
 	end
 
 	function DoEnable(self)
@@ -136,6 +168,8 @@ else
 	return
 end
 
+local incomingHeals = {}
+
 local function Enable(self)
 	if self.IncomingHeal and type(self.UpdateIncomingHeal) == "function" then
 		return DoEnable(self)
@@ -144,6 +178,7 @@ end
 
 local function Disable(self)
 	if self.IncomingHeal and type(self.UpdateIncomingHeal) == "function" then	
+		incomingHeals[self] = nil
 		return DoDisable(self)
 	end
 end
@@ -152,22 +187,20 @@ local floor = math.floor
 local UnitIsConnected = UnitIsConnected
 local UnitIsDeadOrGhost = UnitIsDeadOrGhost
 
-local incHeals = {}
-
 function Update(self, event, unit)
 	local heal = self.IncomingHeal
-	if not heal then return end
+	if not heal or (unit and unit ~= self.unit) then return end
 	unit = unit or self.unit
-	local incomingHeal = 0
+	local incomingHeal
 	if UnitIsConnected(unit) and not UnitIsDeadOrGhost(unit) then
-		incomingHeal = floor(GetIncomingHeal(unit, GetTime() + 3.0))
+		incomingHeal = GetIncomingHeal(unit, GetTime() + 3.0)
 	end
-	--[[if incHeals[self] or incomingHeal > 0 then
-		print("IncomingHeal:Update", GetTime() % 1, '-', event, unit, ':', incHeals[self], '=>', incomingHeal)
-		incHeals[self] = incomingHeal > 0 and incomingHeal or nil
-	end--]]
-	self:UpdateIncomingHeal(event, unit, heal, incomingHeal)
+	if incomingHeals[self] ~= incomingHeal or event == 'PLAYER_ENTERING_WORLD' then
+		incomingHeals[self] = incomingHeal
+		self:UpdateIncomingHeal(event, unit, heal, incomingHeal or 0)
+	end
 end
 
 oUF.HasIncomingHeal = true
 oUF:AddElement('IncomingHeal', Update, Enable, Disable)
+
