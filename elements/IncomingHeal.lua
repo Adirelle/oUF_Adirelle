@@ -11,6 +11,7 @@ local lhc4, lhc4_minor = LibStub('LibHealComm-4.0', true)
 
 local playerName = UnitName('player')
 local objects = {}
+local _units = {}
 
 -- ------------------------------------------------------------------------------
 -- LibHealComm-4.0 support
@@ -20,7 +21,7 @@ if lhc4 then
 	local HEAL_FLAGS = lhc4.ALL_HEALS -- lhc4.BOMB_HEALS
 	
 	local unitMap, units
-	
+
 	do
 		local _unitMap = lhc4:GetGuidUnitMapTable()
 		unitMap = setmetatable({}, {
@@ -37,7 +38,7 @@ if lhc4 then
 	do
 		units = setmetatable({}, {
 			__index = function(t, unit)
-				local frame = unit and oUF.units[unit] or false
+				local frame = unit and _units[unit] or false
 				if unit and not frame then
 					geterrorhandler()(string.format('No frame for unit %s', tostring(unit)))
 				end
@@ -72,22 +73,16 @@ if lhc4 then
 		end
 	end
 
-	function DoEnable(self)
-		if not next(objects) then
-			lhc4.RegisterCallback('oUF_IncomingHeal', 'HealComm_HealStarted', UpdateHeals)
-			lhc4.RegisterCallback('oUF_IncomingHeal', 'HealComm_HealUpdated', UpdateHeals)
-			lhc4.RegisterCallback('oUF_IncomingHeal', 'HealComm_HealDelayed', UpdateHeals)
-			lhc4.RegisterCallback('oUF_IncomingHeal', 'HealComm_HealStopped', UpdateHeals)
-			lhc4.RegisterCallback('oUF_IncomingHeal', 'HealComm_ModifierChanged', ModifierChanged)
-		end
-		objects[self] = true
+	function DoEnable()
+		lhc4.RegisterCallback('oUF_IncomingHeal', 'HealComm_HealStarted', UpdateHeals)
+		lhc4.RegisterCallback('oUF_IncomingHeal', 'HealComm_HealUpdated', UpdateHeals)
+		lhc4.RegisterCallback('oUF_IncomingHeal', 'HealComm_HealDelayed', UpdateHeals)
+		lhc4.RegisterCallback('oUF_IncomingHeal', 'HealComm_HealStopped', UpdateHeals)
+		lhc4.RegisterCallback('oUF_IncomingHeal', 'HealComm_ModifierChanged', ModifierChanged)
 	end
 
-	function DoDisable(self) 
-		objects[self] = nil
-		if not next(objects) then
-			lhc4.UnregisterAllCallbacks('oUF_IncomingHeal')
-		end
+	function DoDisable() 
+		lhc4.UnregisterAllCallbacks('oUF_IncomingHeal')
 	end
 
 -- ------------------------------------------------------------------------------
@@ -144,23 +139,15 @@ elseif lhc3 then
 		end
 	end
 
-	function DoEnable(self)
-		if not next(objects) then
-			lhc3.RegisterCallback('oUF_IncomingHeal', 'HealComm_DirectHealStart', DirectHealStart)
-			lhc3.RegisterCallback('oUF_IncomingHeal', 'HealComm_DirectHealDelayed', DirectHealDelayed)
-			lhc3.RegisterCallback('oUF_IncomingHeal', 'HealComm_DirectHealStop', DirectHealStop)
-			lhc3.RegisterCallback('oUF_IncomingHeal', 'HealComm_HealModifierUpdate', HealModifierUpdate)
-		end
-		objects[self] = true
+	function DoEnable()
+		lhc3.RegisterCallback('oUF_IncomingHeal', 'HealComm_DirectHealStart', DirectHealStart)
+		lhc3.RegisterCallback('oUF_IncomingHeal', 'HealComm_DirectHealDelayed', DirectHealDelayed)
+		lhc3.RegisterCallback('oUF_IncomingHeal', 'HealComm_DirectHealStop', DirectHealStop)
+		lhc3.RegisterCallback('oUF_IncomingHeal', 'HealComm_HealModifierUpdate', HealModifierUpdate)
 	end
 
-	function DoDisable(self) 
-		if objects[self] then
-			objects[self] = nil
-			if not next(objects) then
-				lhc3.UnregisterAllCallbacks('oUF_IncomingHeal')
-			end
-		end
+	function DoDisable() 
+		lhc3.UnregisterAllCallbacks('oUF_IncomingHeal')
 	end
 
 else
@@ -172,14 +159,25 @@ local incomingHeals = {}
 
 local function Enable(self)
 	if self.IncomingHeal and type(self.UpdateIncomingHeal) == "function" then
-		return DoEnable(self)
+		if not objects[self] then
+			if not next(objects) then
+				DoEnable()
+			end
+			objects[self] = true
+		end
+		return true
 	end
 end
 
 local function Disable(self)
 	if self.IncomingHeal and type(self.UpdateIncomingHeal) == "function" then	
 		incomingHeals[self] = nil
-		return DoDisable(self)
+		if objects[self] then
+			objects[self] = nil
+			if not next(objects[self]) then
+				DoDisable()
+			end
+		end
 	end
 end
 
@@ -191,6 +189,7 @@ function Update(self, event, unit)
 	local heal = self.IncomingHeal
 	if not heal or (unit and unit ~= self.unit) then return end
 	unit = unit or self.unit
+	_units[unit] = self
 	local incomingHeal
 	if UnitIsConnected(unit) and not UnitIsDeadOrGhost(unit) then
 		incomingHeal = GetIncomingHeal(unit, GetTime() + 3.0)
