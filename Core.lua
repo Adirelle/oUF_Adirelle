@@ -6,9 +6,9 @@ All rights reserved.
 
 local SCALE = 1.0
 local WIDTH = 80
-local SPACING = 4
+local SPACING = 2
 local HEIGHT = 25
-local BORDER_WIDTH = 2
+local BORDER_WIDTH = 1
 local ICON_SIZE = 14
 local SQUARE_SIZE = 5
 
@@ -29,7 +29,7 @@ local backdrop = {
 local borderBackdrop = {
 	edgeFile = [[Interface\Addons\oUF_Adirelle\white16x16]],
 	edgeSize = BORDER_WIDTH,
-	insets = {left = BORDER_WIDTH, right = BORDER_WIDTH, top = BORDER_WIDTH, bottom = BORDER_WIDTH},
+	insets = {left = 0, right = 0, top = 0, bottom = 0},
 }
 
 local squareBackdrop = {
@@ -419,6 +419,17 @@ end
 -- Unit frame initialization
 -- ------------------------------------------------------------------------------
 
+local function OnSizeChanged(self, width, height)
+	width = width or self:GetWidth()
+	height = height or self:GetHeight()
+	self.Border:SetWidth(width + 2 * BORDER_WIDTH)
+	self.Border:SetHeight(height + 2 * BORDER_WIDTH)
+	self.ReadyCheck:SetWidth(height)
+	self.ReadyCheck:SetHeight(height)
+	self.DeathIcon:SetWidth(height*2)
+	self.DeathIcon:SetHeight(height)
+end
+
 local function InitFrame(settings, self)
 	self:EnableMouse(true)
 	self:RegisterForClicks("anyup")
@@ -583,6 +594,8 @@ local function InitFrame(settings, self)
 	self:RegisterEvent('UNIT_FLAGS', UnitFlagChanged)
 	self:RegisterEvent('UNIT_ENTERED_VEHICLE', UnitFlagChanged)
 	self:RegisterEvent('UNIT_EXITED_VEHICLE', UnitFlagChanged)
+	
+	self:HookScript('OnSizeChanged', OnSizeChanged)
 
 	-- Range fading
 	self.Range = true
@@ -652,32 +665,119 @@ do
 	raid['PartyPets'] = header
 end
 
-local function UpdateLayout(...)
-	if InCombatLockdown() then return end
-	if GetNumRaidMembers() == 0 or select(2, IsInInstance()) == 'arena' then
-		raid.PartyPets:Show()
-	else
-		raid.PartyPets:Hide()
+local LAYOUTS = {
+	[1] = { '1', pets = true },
+	[5] = { '1', pets = true },
+	[10] = { '1', '2' },
+	[15] = { '1', '2', '3' },
+	[20] = { '1', '2', '3', '4' },
+	[25] = { '1', '2', '3', '4', '5' },
+	[40] = { '1', '2', '3', '4', '5', '6', '7', '8', height = 20 },
+}
+
+local BATTLE_GROUND_LAYOUTS = {
+	AlteracValley = 40,
+	ArathiBasin = 15,
+	NetherstormArena = 15,
+	StrandoftheAncients = 15,
+	WarsongGulch = 10,
+}
+
+local RAID_LAYOUTS = {
+	[RAID_DIFFICULTY_10PLAYER] = 10,
+	[RAID_DIFFICULTY_10PLAYER_HEROIC] = 10,
+	[RAID_DIFFICULTY_20PLAYER] = 20,
+	[RAID_DIFFICULTY_25PLAYER] = 25,
+	[RAID_DIFFICULTY_25PLAYER_HEROIC] = 25,
+	[RAID_DIFFICULTY_40PLAYER] = 40,
+}
+
+local function GetLayoutType()
+	local name, instanceType, _, difficulty = GetInstanceInfo()
+	if instanceType == 'arena' or instanceType == 'party' then
+		return 5
+	elseif instanceType == 'pvp' then
+		return BATTLE_GROUND_LAYOUTS[GetMapInfo()]
+	elseif instanceType == 'raid' then
+		return RAID_LAYOUTS[difficulty]
+	elseif GetNumRaidMembers() > 0 then
+		local num = GetNumRaidMembers()
+		local lastType = 1
+		for t in pairs(LAYOUTS) do
+			if t > num then
+				return lastType
+			end
+			lastType = t
+		end
+		return lastType
+	elseif GetNumPartyMembers() > 0 then
+		return 5
 	end
-	local numColumns = 1 + GetNumPartyMembers()
-	if GetNumRaidMembers() > 0 then
-		for name, header in pairs(raid) do
-			if header:IsVisible() then
-				local n = 0
+	return 1
+end
+
+local lastLayoutType, lastNumColumns
+
+function oUF:SetRaidLayout(layoutType)
+	local layout = layoutType and LAYOUTS[layoutType]	
+	if layout then
+		print('new layout', layoutType)
+		if layout.pets then
+			raid.PartyPets:Show()
+		else
+			raid.PartyPets:Hide()
+		end
+		local height = layout.height or HEIGHT
+		style['initial-height'] = height
+		for groupNum = 1, 8 do
+			local group, filter = raid[groupNum], layout[groupNum]
+			if filter then
+				group:SetAttribute('groupFilter', filter)
+				group:Show()
 				for i = 1, 5 do
-					local frame = header:GetAttribute('child'..i)
-					if frame and frame:IsVisible() then
-						n = n + 1
+					local frame = _G[group:GetName().."UnitButton"..i]
+					if frame then
+						frame:SetAttribute('initial-height', height)
+						frame:SetHeight(height)
 					end
 				end
-				numColumns = math.max(numColumns, n)
+			else
+				group:SetAttribute('groupFilter', '')
+				group:Hide()
 			end
 		end
+	else
+		print('No data for layout', layoutType)
 	end
-	local width = WIDTH * numColumns + SPACING * (numColumns - 1)
-	local header = raid[1]
-	local scale = header:GetScale() or 1.0
-	header:SetPoint("BOTTOMLEFT", UIParent, "BOTTOM", -width/2/scale, 230/scale)
+end
+
+local function UpdateLayout(...)
+	if InCombatLockdown() then return end
+	local layoutType = GetLayoutType()
+	if layoutType ~= lastLayoutType then
+		lastLayoutType = layoutType
+		oUF:SetRaidLayout(layoutType)
+	end
+	local numColumns = 1 + GetNumPartyMembers()
+	for name, header in pairs(raid) do
+		if header:IsVisible() then
+			local n = 0
+			for i = 1, 5 do
+				local frame = header:GetAttribute('child'..i)
+				if frame and frame:IsVisible() then
+					n = n + 1
+				end
+			end
+			numColumns = math.max(numColumns, n)
+		end
+	end
+	if lastNumColumns ~= numColumns then
+		lastNumColumns = numColumns
+		local width = WIDTH * numColumns + SPACING * (numColumns - 1)
+		local header = raid[1]
+		local scale = header:GetScale() or 1.0
+		header:SetPoint("BOTTOMLEFT", UIParent, "BOTTOM", -width/2/scale, 230/scale)
+	end
 end
 
 local updateFrame = CreateFrame("Frame")
@@ -686,4 +786,3 @@ updateFrame:RegisterEvent('PARTY_MEMBERS_CHANGED')
 updateFrame:RegisterEvent('VARIABLES_LOADED')
 updateFrame:RegisterEvent('PLAYER_REGEN_ENABLED')
 updateFrame:RegisterEvent('PLAYER_ENTERING_WORLD')
-
