@@ -721,7 +721,6 @@ local lastLayoutType, lastNumColumns
 function oUF:SetRaidLayout(layoutType)
 	local layout = layoutType and LAYOUTS[layoutType]	
 	if layout then
-		print('new layout', layoutType)
 		if layout.pets then
 			raid.PartyPets:Show()
 		else
