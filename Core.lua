@@ -675,8 +675,11 @@ local LAYOUTS = {
 	[40] = { '1', '2', '3', '4', '5', '6', '7', '8', height = 20 },
 }
 
+local LAYOUTS_SIZES = { 1, 5, 10, 15, 20, 25 }
+
 local BATTLE_GROUND_LAYOUTS = {
 	AlteracValley = 40,
+	IsleofConquest = 40,
 	ArathiBasin = 15,
 	NetherstormArena = 15,
 	StrandoftheAncients = 15,
@@ -702,14 +705,12 @@ local function GetLayoutType()
 		return RAID_LAYOUTS[difficulty]
 	elseif GetNumRaidMembers() > 0 then
 		local num = GetNumRaidMembers()
-		local lastType = 1
-		for t in pairs(LAYOUTS) do
-			if t > num then
-				return lastType
+		for i, size in ipairs(LAYOUTS_SIZES) do
+			if num <= size then
+				return size
 			end
-			lastType = t
 		end
-		return lastType
+		return 40
 	elseif GetNumPartyMembers() > 0 then
 		return 5
 	end
