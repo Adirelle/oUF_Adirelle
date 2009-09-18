@@ -39,7 +39,7 @@ if lhc4 then
 		units = setmetatable({}, {
 			__index = function(t, unit)
 				local frame = unit and _units[unit] or false
-				if unit and not frame then
+				if unit and not unit:match('^raidpet') and not frame then
 					geterrorhandler()(string.format('No frame for unit %s', tostring(unit)))
 				end
 				return frame
