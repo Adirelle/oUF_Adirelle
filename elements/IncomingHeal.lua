@@ -20,7 +20,7 @@ if lhc4 then
 	local band = bit.band
 	local HEAL_FLAGS = lhc4.ALL_HEALS -- lhc4.BOMB_HEALS
 	
-	local function warn(t, ...)
+	local function warn(...)
 		return geterrorhandler()(string.format(tostringall(...)))
 	end
 	
