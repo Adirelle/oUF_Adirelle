@@ -20,47 +20,50 @@ if lhc4 then
 	local band = bit.band
 	local HEAL_FLAGS = lhc4.ALL_HEALS -- lhc4.BOMB_HEALS
 	
-	local unitMap, units
-
-	do
-		local _unitMap = lhc4:GetGuidUnitMapTable()
-		unitMap = setmetatable({}, {
-			__index = function(t, guid)
-				local unit = guid and _unitMap[guid] or false
-				if guid and not unit then
-					geterrorhandler()(string.format('No unit for guid %s', tostring(guid)))
-				end
-				return unit
-			end
-		})
+	local function warn(t, ...)
+		return geterrorhandler()(string.format(tostringall(...)))
 	end
 	
+	local GetUnitForGUID
 	do
-		units = setmetatable({}, {
-			__index = function(t, unit)
-				local frame = unit and _units[unit] or false
-				if unit and not unit:match('^raidpet') and not frame then
-					geterrorhandler()(string.format('No frame for unit %s', tostring(unit)))
-				end
-				return frame
+		local _unitMap = lhc4:GetGuidUnitMapTable()
+		function GetUnitForGUID(guid, event)
+			if not guid then return end
+			local unit = _unitMap[guid]
+			if not unit then
+				warn('No unit for guid %s (event: %s, guidToUnit: %s, guidToGroup: %s)', guid, event, lhc4.guidToUnit[guid], lhc4.guidToGroup[guid])
 			end
-		})
+			return unit or false
+		end
+	end
+	
+	local function GetFrameForUnit(unit, event)
+		if not unit then return end
+		local frame = _units[unit] or oUF.units[unit] or false
+		if not unit:match('pet') then
+			if not frame then
+				warn('No frame found for %s (event: %s)', unit, event)
+			elseif not _units[unit] then
+				warn('Frame for %s found only in oUF.units (event: %s)', unit, event)
+			end
+		end
+		return frame
 	end
 	
 	local function UpdateHeals(event, casterGUID, spellId, healType, _, ...)
 		if band(healType, HEAL_FLAGS) == 0 then return end
 		for i = 1, select('#', ...) do
-			local unit = unitMap[select(i, ...)]
-			local frame = units[unit]
-			if frame and objects[frame] then
+			local unit = GetUnitForGUID(select(i, ...), event)
+			local frame = GetFrameForUnit(unit, event)
+			if frame and frame:IsShown() and objects[frame] then
 				Update(frame, event, unit)
 			end
 		end
 	end
 	
 	local function ModifierChanged(event, guid)
-		local frame = units[unitMap[guid]]
-		if frame and objects[frame] then
+		local frame = GetFrameForUnit(GetUnitForGUID(guid, event), event)
+		if frame and frame:IsShown() and objects[frame] then
 			Update(frame, event, unit)
 		end
 	end
@@ -78,6 +81,7 @@ if lhc4 then
 		lhc4.RegisterCallback('oUF_IncomingHeal', 'HealComm_HealUpdated', UpdateHeals)
 		lhc4.RegisterCallback('oUF_IncomingHeal', 'HealComm_HealDelayed', UpdateHeals)
 		lhc4.RegisterCallback('oUF_IncomingHeal', 'HealComm_HealStopped', UpdateHeals)
+		lhc4.RegisterCallback('oUF_IncomingHeal', 'HealComm_GUIDDisappeared', UpdateHeals)
 		lhc4.RegisterCallback('oUF_IncomingHeal', 'HealComm_ModifierChanged', ModifierChanged)
 	end
 
