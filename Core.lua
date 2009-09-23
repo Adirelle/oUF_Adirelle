@@ -198,6 +198,7 @@ do
 		if not noCooldown then
 			local cooldown = CreateFrame("Cooldown", nil, icon, "CooldownFrameTemplate")
 			cooldown:SetAllPoints(icon.Texture or icon)
+			cooldown:SetDrawEdge(true)
 			cooldown:SetReverse(true)
 			icon.Cooldown = cooldown
 			icon.SetCooldown = SetCooldown
@@ -461,6 +462,7 @@ if drdata then
 		local curPrio, curTexture, curCount, curExpTime, curDuration, curDebuffType = IGNORED
 		for index = 1, 256 do
 			local name, _, icon, count, debuffType, duration, expirationTime = UnitDebuff(unit, index)
+			if not name then break end
 			local priority = classPriorities[SPELL_CATEGORIES[name] or false]
 			if priority and priority > curPrio then
 				curPrio, curTexture, curCount, curExpTime, curDuration, curDebuffType = priority, icon, count, expirationTime, duration, debuffType
@@ -662,9 +664,9 @@ local function InitFrame(settings, self)
 	-- Crowd control icon
 	local header = self:GetParent()
 	if GetCCIcon and header.isParty and not header.isPets then
-		local ccicon = SpawnIcon(self, 24)
+		local ccicon = SpawnIcon(self, 32)
 		ccicon:SetPoint("TOP", self, "BOTTOM", 0, -SPACING)
-		self.CCIcon = ccicon
+		ccicon.doNotBlink = true
 		self:AuraIcon(ccicon, GetCCIcon)
 	end
 
