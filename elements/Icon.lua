@@ -85,6 +85,7 @@ local function Enable(self)
 	local icons = self.AuraIcons and next(self.AuraIcons)
 	if icons then
 		self:RegisterEvent('UNIT_AURA', Update)
+		return true
 	end
 end
 
