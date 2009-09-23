@@ -20,8 +20,13 @@ if lhc4 then
 	local band = bit.band
 	local HEAL_FLAGS = lhc4.ALL_HEALS -- lhc4.BOMB_HEALS
 	
-	local function warn(t, ...)
-		return geterrorhandler()(string.format(tostringall(...)))
+	local warn
+	if UnitName('player') == 'Adirelle' or UnitName('player') == 'Qwetia' then
+		function warn(...)
+			return geterrorhandler()(string.format(tostringall(...)))
+		end
+	else
+		function warn() end
 	end
 	
 	local GetUnitForGUID
