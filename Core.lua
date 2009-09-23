@@ -404,6 +404,74 @@ do
 	end
 end
 
+local drdata = LibStub('DRData-1.0', true)
+local GetCCIcon
+if drdata then
+
+	local IGNORED = -1
+	local SPELL_CATEGORIES = {}
+	local DEFAULT_PRIORITIES = {
+		["banish"] = 100,
+		["cyclone"] = 100,
+		["mc"] = 100,
+		["ctrlstun"] = 90,
+		["rndstun"] = 90,
+		["cheapshot"] = 90,
+		["charge"] = 90,
+		["fear"] = 80,
+		["horror"] = 80,
+		["sleep"] = 60,
+		["disorient"] = 60,
+		["scatters"] = 60,
+		["silence"] = 50,
+		["disarm"] = 50,
+		["ctrlroot"] = 40,
+		["rndroot"] = 40,
+		["entrapment"] = 40,
+	}
+	local CLASS_PRIORITIES = {
+		HUNTER = {
+			silence = IGNORED,
+		},
+		DRUID = {
+			disarm = IGNORED,
+		},
+		PRIEST = {
+			disarm = IGNORED,
+		},
+	}
+	for id, cat in pairs(drdata:GetSpells()) do
+		local name = GetSpellInfo(id)
+		if name and DEFAULT_PRIORITIES[cat] then
+			SPELL_CATEGORIES[name] = cat
+		end
+	end
+	do
+		local meta = { __index = DEFAULT_PRIORITIES }
+		for name, t in pairs(CLASS_PRIORITIES) do
+			CLASS_PRIORITIES[name] = setmetatable(t, meta)
+		end
+	end
+
+	function GetCCIcon(unit)
+		if select(2, IsInInstance()) ~= "arena" then return end
+		local _, className = UnitClass(unit)
+		local classPriorities = CLASS_PRIORITIES[className] or DEFAULT_PRIORITIES
+		local curPrio, curTexture, curCount, curExpTime, curDuration, curDebuffType = IGNORED
+		for index = 1, 256 do
+			local name, _, icon, count, debuffType, duration, expirationTime = UnitDebuff(unit, index) 
+			local priority = classPriorities[SPELL_CATEGORIES[name] or false]
+			if priority and priority > curPrio then
+				curPrio, curTexture, curCount, curExpTime, curDuration, curDebuffType = priority, icon, count, expirationTime, duration, debuffType
+			end
+		end
+		if curTexture then
+			local color = DebuffTypeColor[curDebuffType or "none"]
+			return curTexture, curCount, curExpTime-curDuration, curDuration, color.r, color.g, color.b
+		end
+	end
+end
+
 -- ------------------------------------------------------------------------------
 -- Statusbar texturing
 -- ------------------------------------------------------------------------------
@@ -436,6 +504,7 @@ local function InitFrame(settings, self)
 
 	self:SetScript("OnEnter", UnitFrame_OnEnter)
 	self:SetScript("OnLeave", UnitFrame_OnLeave)
+
 
 	self:SetBackdrop(backdrop)
 	self:SetBackdropColor(0, 0, 0, 1)
@@ -589,7 +658,15 @@ local function InitFrame(settings, self)
 		self:AuraIcon(debuff, GetDebuffByType("Magic"))		
 	end
 	
+	-- Crowd control icon
+	if GetCCIcon then
+		local ccicon = SpawnIcon(self, 24)
+		ccicon:SetPoint("TOP", self, "BOTTOM", 0, -SPACING)
+		self:AuraIcon(ccicon, GetCCIcon)		
+	end
+	
 	self.iconBlinkThreshold = 3
+	
 	
 	self:RegisterEvent('UNIT_FLAGS', UnitFlagChanged)
 	self:RegisterEvent('UNIT_ENTERED_VEHICLE', UnitFlagChanged)
