@@ -14,7 +14,7 @@ do
 		icon.threshold = threshold
 		self:Show()
 	end
-	
+
 	local function UnregisterIcon(self, icon)
 		icon:SetAlpha(1)
 		self.icons[icon] = nil
@@ -50,7 +50,7 @@ do
 		f:Hide()
 		return f
 	end
-	
+
 end
 
 local blinkingFrame

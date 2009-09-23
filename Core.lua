@@ -20,8 +20,8 @@ local _, playerClass = UnitClass("player")
 local statusbarTexture = lsm and lsm:Fetch("statusbar", false) or [[Interface\TargetingFrame\UI-StatusBar]]
 
 local backdrop = {
-	bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], 
-	tile = true, 
+	bgFile = [[Interface\Tooltips\UI-Tooltip-Background]],
+	tile = true,
 	tileSize = 16,
 	insets = {left = 0, right = 0, top = 0, bottom = 0},
 }
@@ -72,7 +72,7 @@ local function UpdateName(self, unit, current, max, incomingHeal)
 		end
 	end
 	self.Name:SetText(unitName)
-	self.Name:SetTextColor(r, g, b, 1)	
+	self.Name:SetTextColor(r, g, b, 1)
 end
 
 local function UpdateHealBar(self, current, max, incomingHeal)
@@ -121,12 +121,12 @@ local function UpdateIncomingHeal(self, event, unit, heal, incomingHeal)
 	UpdateHealBar(self, current, max, incomingHeal)
 end
 
-local function PostUpdateHealth(self, event, unit, bar, current, max)	
+local function PostUpdateHealth(self, event, unit, bar, current, max)
 	UpdateHealBar(self, current, max, self.incomingHeal)
 end
 
 local function UnitFlagChanged(self, event, unit)
-	if unit and unit ~= self.unit then return end	
+	if unit and unit ~= self.unit then return end
 	UpdateHealth(self, event, unit, self.Health, self.currentHealth, self.maxHealth)
 end
 
@@ -236,7 +236,7 @@ do
 		icon:Hide()
 		return icon
 	end
-	
+
 	local function SetSquareColor(self, r, g, b)
 		self:SetBackdropColor(r, g, b, 1)
 	end
@@ -249,7 +249,7 @@ do
 		square:SetBackdrop(squareBackdrop)
 		square:SetBackdropBorderColor(0,0,0,0)
 		square:SetFrameLevel(self.Health:GetFrameLevel() + 5)
-				
+
 		square.SetTexture = NOOP
 		square.SetCooldown = NOOP
 		square.SetStack = NOOP
@@ -324,13 +324,13 @@ end
 local GetImportantBuff
 do
 	local commonBuffs = {
-		[19752] = 99, -- Divine Intervention	
+		[19752] = 99, -- Divine Intervention
 		[ 1022] = 70, -- Hand of Protection
 		[33206] = 50, -- Pain Suppression
 		[47788] = 50, -- Guardian Spirit
 		[29166] = 20, -- Innervate
 	}
-	
+
 	local tmp = {}
 	local function compare(a, b)
 		return tmp[a] > tmp[b]
@@ -360,7 +360,7 @@ do
 		DRUID = BuildClassBuffs{
 			[61336] = 60, -- Survival Instincts
 			[22812] = 50, -- Barkskin
-			[22842] = 30, -- Frenzied Regeneration	
+			[22842] = 30, -- Frenzied Regeneration
 		},
 		PALADIN = BuildClassBuffs{
 			[64205] = 90, -- Divine Sacrifice
@@ -384,11 +384,11 @@ do
 		},
 		WARLOCK = BuildClassBuffs{
 			[47986] = 40, -- Sacrifice
-		},		
+		},
 		PRIEST = BuildClassBuffs{
 			[20711] = 99, -- Spirit of Redemption
 		},
-		SHAMAN = BuildClassBuffs{},		
+		SHAMAN = BuildClassBuffs{},
 	}
 
 	function GetImportantBuff(unit)
@@ -404,9 +404,10 @@ do
 	end
 end
 
-local drdata = LibStub('DRData-1.0', true)
+local drdata, drdata_minor = LibStub('DRData-1.0', true)
 local GetCCIcon
 if drdata then
+	print('oUF_Adirelle DRData-1.0 version', drdata_minor, 'support enabled')
 
 	local IGNORED = -1
 	local SPELL_CATEGORIES = {}
@@ -454,12 +455,12 @@ if drdata then
 	end
 
 	function GetCCIcon(unit)
-		if select(2, IsInInstance()) ~= "arena" then return end
+		if not UnitIsPVP(unit) then return end
 		local _, className = UnitClass(unit)
 		local classPriorities = CLASS_PRIORITIES[className] or DEFAULT_PRIORITIES
 		local curPrio, curTexture, curCount, curExpTime, curDuration, curDebuffType = IGNORED
 		for index = 1, 256 do
-			local name, _, icon, count, debuffType, duration, expirationTime = UnitDebuff(unit, index) 
+			local name, _, icon, count, debuffType, duration, expirationTime = UnitDebuff(unit, index)
 			local priority = classPriorities[SPELL_CATEGORIES[name] or false]
 			if priority and priority > curPrio then
 				curPrio, curTexture, curCount, curExpTime, curDuration, curDebuffType = priority, icon, count, expirationTime, duration, debuffType
@@ -509,9 +510,9 @@ local function InitFrame(settings, self)
 	self:SetBackdrop(backdrop)
 	self:SetBackdropColor(0, 0, 0, 1)
 	self:SetBackdropBorderColor(0, 0, 0, 1)
-	
+
 	self.bgColor = { 1, 1, 1 }
-	
+
 	-- Health bar
 	local hp = CreateFrame("StatusBar", nil, self)
 	hp:SetAllPoints(self)
@@ -521,7 +522,7 @@ local function InitFrame(settings, self)
 	hpbg:SetAllPoints(hp)
 	hpbg:SetAlpha(1)
 	hp.bg = hpbg
-	
+
 	-- Death icon
 	local death = hp:CreateTexture(nil, "OVERLAY")
 	death:SetWidth(HEIGHT*2)
@@ -532,7 +533,7 @@ local function InitFrame(settings, self)
 	death:SetPoint("CENTER")
 	death:Hide()
 	self.DeathIcon = death
-	
+
 	-- Incoming heals
 	if oUF.HasIncomingHeal then
 		local heal = hp:CreateTexture(nil, "OVERLAY")
@@ -599,11 +600,11 @@ local function InitFrame(settings, self)
 	local importantBuff = SpawnIcon(self)
 	importantBuff:SetPoint("CENTER", self, "LEFT", WIDTH * 0.4, 0)
 	self:AuraIcon(importantBuff, GetImportantBuff)
-	
+
 	local debuff = SpawnIcon(self)
 	debuff:SetPoint("CENTER", self, "LEFT", WIDTH * 0.6, 0)
 	self:AuraIcon(debuff, GetCureableDebuff)
-	
+
 	if playerClass == "HUNTER" then
 		local misdirection = SpawnIcon(self)
 		misdirection:SetPoint("CENTER", self, "LEFT", WIDTH * 0.25, 0)
@@ -611,14 +612,14 @@ local function InitFrame(settings, self)
 
 		importantBuff:SetPoint("CENTER")
 		debuff:SetPoint("CENTER", self, "LEFT", WIDTH * 0.75, 0)
-		
+
 	elseif playerClass == "DRUID" then
 		local INSET = 1
 		local size = 8
 		local spawn = function(self, size)
 			return SpawnIcon(self, size, true, true, true)
 		end
-		
+
 		local rejuv = spawn(self, size)
 		rejuv:SetPoint("TOPLEFT", self, "TOPLEFT", INSET, -INSET)
 		self:AuraIcon(rejuv, TestMyAura(774, 6, 0, 1))
@@ -641,7 +642,7 @@ local function InitFrame(settings, self)
 		local c = DebuffTypeColor.Poison
 		abolishPoison:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -INSET, INSET)
 		self:AuraIcon(abolishPoison, TestMyAura(2893, c.r, c.g, c.b))
-		
+
 	elseif playerClass == 'PALADIN' then
 		local beacon = SpawnIcon(self)
 		beacon:SetPoint("CENTER", self, "LEFT", WIDTH * 0.2, 0)
@@ -655,23 +656,24 @@ local function InitFrame(settings, self)
 		debuff:SetPoint("CENTER", self, "LEFT", WIDTH * 0.8, 0)
 
 	elseif playerClass == 'WARLOCK' then
-		self:AuraIcon(debuff, GetDebuffByType("Magic"))		
+		self:AuraIcon(debuff, GetDebuffByType("Magic"))
 	end
-	
+
 	-- Crowd control icon
-	if GetCCIcon then
+	local header = self:GetParent()
+	if GetCCIcon and header.isParty and not header.isPets then
 		local ccicon = SpawnIcon(self, 24)
 		ccicon:SetPoint("TOP", self, "BOTTOM", 0, -SPACING)
-		self:AuraIcon(ccicon, GetCCIcon)		
+		self.CCIcon = ccicon
+		self:AuraIcon(ccicon, GetCCIcon)
 	end
-	
+
 	self.iconBlinkThreshold = 3
-	
-	
+
 	self:RegisterEvent('UNIT_FLAGS', UnitFlagChanged)
 	self:RegisterEvent('UNIT_ENTERED_VEHICLE', UnitFlagChanged)
 	self:RegisterEvent('UNIT_EXITED_VEHICLE', UnitFlagChanged)
-	
+
 	self:HookScript('OnSizeChanged', OnSizeChanged)
 
 	-- Range fading
@@ -684,7 +686,7 @@ end
 -- Style and layout setup
 -- ------------------------------------------------------------------------------
 
-if playerClass == 'ROGUE' or playerClass == 'WARRIOR' or playerClass == 'MAGE' or playerClass == 'WARLOCK' 
+if playerClass == 'ROGUE' or playerClass == 'WARRIOR' or playerClass == 'MAGE' or playerClass == 'WARLOCK'
 	or playerClass == 'HUNTER' then
 	HEIGHT = 20
 end
@@ -705,6 +707,7 @@ oUF:SetActiveStyle("Adirelle")
 local raid = {}
 for group = 1, 8 do
 	local header = oUF:Spawn("header", "oUF_Raid" .. group)
+	header.isParty = (group == 1)
 	header:SetManyAttributes(
 		"showRaid", true,
 		"groupFilter", group,
@@ -736,6 +739,7 @@ do
 		"point", "LEFT",
 		"xOffset", SPACING
 	)
+	header.isPets = true
 	header:SetScale(SCALE)
 	header:SetPoint("BOTTOMLEFT", raid[1], "TOPLEFT", 0, SPACING)
 	header:Show()
@@ -797,7 +801,7 @@ end
 local lastLayoutType, lastNumColumns
 
 function oUF:SetRaidLayout(layoutType)
-	local layout = layoutType and LAYOUTS[layoutType]	
+	local layout = layoutType and LAYOUTS[layoutType]
 	if layout then
 		if layout.pets then
 			raid.PartyPets:Show()

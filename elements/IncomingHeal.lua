@@ -17,6 +17,7 @@ local _units = {}
 -- LibHealComm-4.0 support
 -- ------------------------------------------------------------------------------
 if lhc4 then
+	print('oUF_Adirelle LibHealComm-4.0 version', lhc4_minor, 'support enabled')
 	local band = bit.band
 	local HEAL_FLAGS = lhc4.ALL_HEALS -- lhc4.BOMB_HEALS
 	
@@ -98,6 +99,7 @@ if lhc4 then
 -- LibHealComm-3.0 support
 -- ------------------------------------------------------------------------------
 elseif lhc3 then
+	print('oUF_Adirelle LibHealComm-3.0 version', lhc3_minor, 'support enabled')
 	local playerHeals = {}
 
 	local UnitName = UnitName
