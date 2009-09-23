@@ -64,7 +64,7 @@ local function UpdateIcon(self, unit, icon, func)
 	icon:SetCooldown(start, duration)
 	icon:SetStack(count)
 	icon:SetColor(r, g, b)
-	if self.iconBlinkThreshold and start and duration then
+	if self.iconBlinkThreshold and start and duration and not icon.doNotBlink then
 		blinkingFrame = blinkingFrame or CreateBlinkingFrame()
 		blinkingFrame:RegisterIcon(icon, start+duration, self.iconBlinkThreshold)
 	elseif blinkingFrame then
