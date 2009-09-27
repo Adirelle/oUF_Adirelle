@@ -17,7 +17,6 @@ local _units = {}
 -- LibHealComm-4.0 support
 -- ------------------------------------------------------------------------------
 if lhc4 then
-	print('oUF_Adirelle LibHealComm-4.0 version', lhc4_minor, 'support enabled')
 	local band = bit.band
 	local HEAL_FLAGS = lhc4.ALL_HEALS -- lhc4.BOMB_HEALS
 	
@@ -99,7 +98,6 @@ if lhc4 then
 -- LibHealComm-3.0 support
 -- ------------------------------------------------------------------------------
 elseif lhc3 then
-	print('oUF_Adirelle LibHealComm-3.0 version', lhc3_minor, 'support enabled')
 	local playerHeals = {}
 
 	local UnitName = UnitName
@@ -167,6 +165,29 @@ else
 end
 
 local incomingHeals = {}
+local refreshFrame
+
+local function RefreshHealbars(self, elapsed)
+	elapsed = elapsed + self.elapsed
+	if elapsed < 0.5 then
+		self.elapsed = elapsed
+	else
+		self.elapsed = 0
+		for frame in pairs(incomingHeals) do
+			Update(frame, 'OnUpdate')
+		end
+		if not next(incomingHeals) then
+			self:Hide()
+		end
+	end
+end
+
+local function CreateRefreshFrame()
+	refreshFrame = CreateFrame("Frame")
+	refreshFrame:Hide()
+	refreshFrame:SetScript('OnShow', function() self.elapsed = 0 end)
+	refreshFrame:SetScript('OnUpdate', RefreshHealbars)
+end
 
 local function Enable(self)
 	if self.IncomingHeal and type(self.UpdateIncomingHeal) == "function" then
@@ -208,6 +229,12 @@ function Update(self, event, unit)
 	if incomingHeals[self] ~= incomingHeal or event == 'PLAYER_ENTERING_WORLD' then
 		incomingHeals[self] = incomingHeal
 		self:UpdateIncomingHeal(event, unit, heal, incomingHeal or 0)
+		if incomingHeal then
+			if not refreshFrame then
+				CreateRefreshFrame()
+			end
+			refreshFrame:Show()
+		end
 	end
 end
 
