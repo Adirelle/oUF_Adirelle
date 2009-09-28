@@ -185,7 +185,7 @@ end
 local function CreateRefreshFrame()
 	refreshFrame = CreateFrame("Frame")
 	refreshFrame:Hide()
-	refreshFrame:SetScript('OnShow', function() self.elapsed = 0 end)
+	refreshFrame:SetScript('OnShow', function(self) self.elapsed = 0 end)
 	refreshFrame:SetScript('OnUpdate', RefreshHealbars)
 end
 
