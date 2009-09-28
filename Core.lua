@@ -660,6 +660,11 @@ local function InitFrame(settings, self)
 	elseif playerClass == 'WARLOCK' then
 		self:AuraIcon(debuff, GetDebuffByType("Magic"))
 	end
+	
+	-- Targetting thing
+	local tc = SpawnSquare(self, 4)
+	tc:SetPoint("LEFT", self ,"LEFT", INSET, 0)
+	self.TargetColor = tc
 
 	-- Crowd control icon
 	local header = self:GetParent()
