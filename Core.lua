@@ -869,3 +869,4 @@ updateFrame:RegisterEvent('PARTY_MEMBERS_CHANGED')
 updateFrame:RegisterEvent('VARIABLES_LOADED')
 updateFrame:RegisterEvent('PLAYER_REGEN_ENABLED')
 updateFrame:RegisterEvent('PLAYER_ENTERING_WORLD')
+
