@@ -11,7 +11,10 @@ local lhc4, lhc4_minor = LibStub('LibHealComm-4.0', true)
 
 local playerName = UnitName('player')
 local objects = {}
-local _units = {}
+local guidFrameMap = {}
+
+local frame = CreateFrame("Frame")
+frame:Hide()
 
 -- ------------------------------------------------------------------------------
 -- LibHealComm-4.0 support
@@ -20,6 +23,7 @@ if lhc4 then
 	local band = bit.band
 	local HEAL_FLAGS = lhc4.ALL_HEALS -- lhc4.BOMB_HEALS
 	
+	--[[
 	local warn
 	if UnitName('player') == 'Adirelle' or UnitName('player') == 'Qwetia' then
 		function warn(...)
@@ -28,51 +32,53 @@ if lhc4 then
 	else
 		function warn() end
 	end
-	
-	local GetUnitForGUID
-	do
-		local _unitMap = lhc4:GetGuidUnitMapTable()
-		function GetUnitForGUID(guid, event)
-			if not guid then return end
-			local unit = _unitMap[guid]
-			if not unit then
-				warn('No unit for guid %s (event: %s, guidToUnit: %s, guidToGroup: %s)', guid, event, lhc4.guidToUnit[guid], lhc4.guidToGroup[guid])
-			end
-			return unit or false
+	--]]
+
+	local function GetFrameForGUID(guid, event)
+		local frame = guid and guidFrameMap[guid]
+		if frame and UnitGUID(frame.unit) == guid then
+			return frame
 		end
 	end
 	
-	local function GetFrameForUnit(unit, event)
-		if not unit then return end
-		local frame = _units[unit] or oUF.units[unit] or false
-		if not unit:match('pet') then
-			if not frame then
-				warn('No frame found for %s (event: %s)', unit, event)
-			elseif not _units[unit] then
-				warn('Frame for %s found only in oUF.units (event: %s)', unit, event)
+	local function CleanupGUIDFrameMap(self, event)
+		if event == 'PLAYER_REGEN_ENABLED' or InCombatLockDown() then return end
+		if event == 'PARTY_MEMBER_CHANGED' and GetNumRaidMembers() > 0 then return end
+		if not UnitGUID('player') then return end
+		for guid, frame in pairs(guidFrameMap) do
+			if not frame.unit or UnitGUID(frame.unit) ~= guid then
+				guidFrameMap[guid] = nil
 			end
 		end
-		return frame
 	end
 	
 	local function UpdateHeals(event, casterGUID, spellId, healType, _, ...)
-		if band(healType, HEAL_FLAGS) == 0 then return end
+		if healType and band(healType, HEAL_FLAGS) == 0 then return end
 		for i = 1, select('#', ...) do
-			local unit = GetUnitForGUID(select(i, ...), event)
-			local frame = GetFrameForUnit(unit, event)
+			local frame = GetFrameForGUID(select(i, ...), event)
 			if frame and frame:IsShown() and objects[frame] then
-				Update(frame, event, unit)
+				Update(frame, event)
 			end
 		end
 	end
 	
-	local function ModifierChanged(event, guid)
-		local frame = GetFrameForUnit(GetUnitForGUID(guid, event), event)
-		if frame and frame:IsShown() and objects[frame] then
-			Update(frame, event, unit)
+	local function UpdateMultiGUID(event, casterGUID, spellId, healType, _, ...)
+		if healType and band(healType, HEAL_FLAGS) == 0 then return end
+		for i = 1, select('#', ...) do
+			local frame = GetFrameForGUID(select(i, ...), event)
+			if frame and frame:IsShown() and objects[frame] then
+				Update(frame, event)
+			end
 		end
 	end
-
+	
+	local function UpdateOneGUID(event, guid)
+		local frame = GetFrameForGUID(guid, event)
+		if frame and frame:IsShown() and objects[frame] then
+			Update(frame, event)
+		end
+	end
+	
 	function GetIncomingHeal(unit, timeLimit)
 		local guid = UnitGUID(unit)
 		local inc = lhc4:GetHealAmount(guid, HEAL_FLAGS, timeLimit)
@@ -82,16 +88,23 @@ if lhc4 then
 	end
 
 	function DoEnable()
-		lhc4.RegisterCallback('oUF_IncomingHeal', 'HealComm_HealStarted', UpdateHeals)
-		lhc4.RegisterCallback('oUF_IncomingHeal', 'HealComm_HealUpdated', UpdateHeals)
-		lhc4.RegisterCallback('oUF_IncomingHeal', 'HealComm_HealDelayed', UpdateHeals)
-		lhc4.RegisterCallback('oUF_IncomingHeal', 'HealComm_HealStopped', UpdateHeals)
-		lhc4.RegisterCallback('oUF_IncomingHeal', 'HealComm_GUIDDisappeared', UpdateHeals)
-		lhc4.RegisterCallback('oUF_IncomingHeal', 'HealComm_ModifierChanged', ModifierChanged)
+		lhc4.RegisterCallback('oUF_IncomingHeal', 'HealComm_HealStarted', UpdateMultiGUID)
+		lhc4.RegisterCallback('oUF_IncomingHeal', 'HealComm_HealUpdated', UpdateMultiGUID)
+		lhc4.RegisterCallback('oUF_IncomingHeal', 'HealComm_HealDelayed', UpdateMultiGUID)
+		lhc4.RegisterCallback('oUF_IncomingHeal', 'HealComm_HealStopped', UpdateMultiGUID)
+		lhc4.RegisterCallback('oUF_IncomingHeal', 'HealComm_GUIDDisappeared', UpdateOneGUID)
+		lhc4.RegisterCallback('oUF_IncomingHeal', 'HealComm_ModifierChanged', UpdateOneGUID)
+		frame:SetScript('OnEvent', CleanupGUIDFrameMap)
+		frame:RegisterEvent('PARTY_MEMBER_CHANGED')
+		frame:RegisterEvent('RAID_ROSTER_UPDATE')
+		frame:RegisterEvent('PLAYER_REGEN_ENABLED')
 	end
 
 	function DoDisable() 
 		lhc4.UnregisterAllCallbacks('oUF_IncomingHeal')
+		frame:UnregisterEvent('PARTY_MEMBER_CHANGED')
+		frame:UnregisterEvent('RAID_ROSTER_UPDATE')
+		frame:UnregisterEvent('PLAYER_REGEN_ENABLED')
 	end
 
 -- ------------------------------------------------------------------------------
@@ -165,9 +178,9 @@ else
 end
 
 local incomingHeals = {}
-local refreshFrame
 
-local function RefreshHealbars(self, elapsed)
+frame:SetScript('OnShow', function(self) self.elapsed = 0 end)
+frame:SetScript('OnUpdate', function(self, elapsed)
 	elapsed = elapsed + self.elapsed
 	if elapsed < 0.5 then
 		self.elapsed = elapsed
@@ -180,14 +193,7 @@ local function RefreshHealbars(self, elapsed)
 			self:Hide()
 		end
 	end
-end
-
-local function CreateRefreshFrame()
-	refreshFrame = CreateFrame("Frame")
-	refreshFrame:Hide()
-	refreshFrame:SetScript('OnShow', function() self.elapsed = 0 end)
-	refreshFrame:SetScript('OnUpdate', RefreshHealbars)
-end
+end)
 
 local function Enable(self)
 	if self.IncomingHeal and type(self.UpdateIncomingHeal) == "function" then
@@ -221,7 +227,10 @@ function Update(self, event, unit)
 	local heal = self.IncomingHeal
 	if not heal or (unit and unit ~= self.unit) then return end
 	unit = unit or self.unit
-	_units[unit] = self
+	local guid = UnitGUID(unit)
+	if guid then
+		guidFrameMap[guid] = self
+	end
 	local incomingHeal
 	if UnitIsConnected(unit) and not UnitIsDeadOrGhost(unit) then
 		incomingHeal = GetIncomingHeal(unit, GetTime() + 3.0)
@@ -230,10 +239,7 @@ function Update(self, event, unit)
 		incomingHeals[self] = incomingHeal
 		self:UpdateIncomingHeal(event, unit, heal, incomingHeal or 0)
 		if incomingHeal then
-			if not refreshFrame then
-				CreateRefreshFrame()
-			end
-			refreshFrame:Show()
+			frame:Show()
 		end
 	end
 end
