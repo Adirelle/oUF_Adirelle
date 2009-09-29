@@ -7,22 +7,25 @@ Elements handled: .TargetColor
 --]=]
 
 local colors
-local NUM_COLORS = 32
+local NUM_COLORS = 20
 
 local function LoadColors()
+	local pi, cos, floor = math.pi, math.cos, math.floor
 	colors = {}
 	for i = 1, NUM_COLORS do
-		local c  = math.floor((i*3) % NUM_COLORS)/NUM_COLORS * 2 * math.pi
-		colors[i] = {
-			0.5 + 0.4 * math.cos(c),
-			0.5 + 0.4 * math.cos(c + 2*math.pi/3),
-			0.5 + 0.4 * math.cos(c + 4*math.pi/3)
-		}
+		local fr = (i * 11) % NUM_COLORS / NUM_COLORS		
+		local fg = (fr + 1/3) % 1
+		local fb = (fr + 2/3) % 1
+		local r = fr < 0.5 and 1-fr*2 or fr*2-1
+		local g = fg < 0.5 and 1-fg*2 or fg*2-1
+		local b = fb < 0.5 and 1-fb*2 or fb*2-1
+		colors[i] = { r, g, b }
 	end
+	LoadColors = nil
 end
 
 local function GetColorForGUID(guid)
-	return tremove(colors, 1)
+	return tremove(colors)
 end
 
 local guidColorMap = setmetatable({}, {__index = function(t, guid)
