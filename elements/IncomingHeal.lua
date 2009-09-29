@@ -42,7 +42,7 @@ if lhc4 then
 	end
 	
 	local function CleanupGUIDFrameMap(self, event)
-		if event == 'PLAYER_REGEN_ENABLED' or InCombatLockDown() then return end
+		if event == 'PLAYER_REGEN_ENABLED' or InCombatLockdown() then return end
 		if event == 'PARTY_MEMBER_CHANGED' and GetNumRaidMembers() > 0 then return end
 		if not UnitGUID('player') then return end
 		for guid, frame in pairs(guidFrameMap) do
