@@ -52,7 +52,7 @@ local mmin = math.min
 -- ------------------------------------------------------------------------------
 
 local function GetShortUnitName(unit)
-	return strsub(UnitName(unit),1,10)
+	return strsub(tostring(UnitName(unit)),1,10)
 end
 
 local function UpdateName(self, unit, current, max, incomingHeal)
@@ -435,10 +435,22 @@ if drdata then
 		HUNTER = {
 			silence = IGNORED,
 		},
+		WARRIOR = {
+			silence = IGNORED,
+		},
+		ROGUE = {
+			silence = IGNORED,
+		},
 		DRUID = {
 			disarm = IGNORED,
 		},
 		PRIEST = {
+			disarm = IGNORED,
+		},
+		WARLOCK = {
+			disarm = IGNORED,
+		},
+		MAGE = {
 			disarm = IGNORED,
 		},
 	}
