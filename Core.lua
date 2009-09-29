@@ -662,7 +662,7 @@ local function InitFrame(settings, self)
 	end
 	
 	-- Targetting thing
-	local tc = SpawnSquare(self, 4)
+	local tc = SpawnSquare(self, 5)
 	tc:SetPoint("LEFT", self ,"LEFT", INSET, 0)
 	self.TargetColor = tc
 
