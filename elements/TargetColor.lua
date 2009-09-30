@@ -6,56 +6,46 @@ All rights reserved.
 Elements handled: .TargetColor
 --]=]
 
-local colors
-local NUM_COLORS = 20
-
-local function LoadColors()
-	local pi, cos, floor = math.pi, math.cos, math.floor
-	colors = {}
-	for i = 1, NUM_COLORS do
-		local fr = (i * 11) % NUM_COLORS / NUM_COLORS		
-		local fg = (fr + 1/3) % 1
-		local fb = (fr + 2/3) % 1
-		local r = fr < 0.5 and 1-fr*2 or fr*2-1
-		local g = fg < 0.5 and 1-fg*2 or fg*2-1
-		local b = fb < 0.5 and 1-fb*2 or fb*2-1
-		colors[i] = { r, g, b }
+local function gradient(f)
+	f = f * 6
+	if f < 1 then
+		return 0
+	elseif f < 3 then
+		return (f-1)/2
+	elseif f < 4 then
+		return 1
+	else
+		return (6-f)/2
 	end
-	LoadColors = nil
 end
 
 local function GetColorForGUID(guid)
-	return tremove(colors)
-end
-
-local guidColorMap = setmetatable({}, {__index = function(t, guid)
-	if not guid then return end
-	local color = GetColorForGUID(guid)
-	t[guid] = color
-	return color
-end})
-
-local function ResetColors(_)
-	for guid, color in pairs(guidColorMap) do
-		tinsert(colors, color)
+	local v = 0x55
+	for i = 3, 18, 2 do
+		v = bit.bxor(v, tonumber(string.sub(guid,i,i+1), 16))
 	end
-	wipe(guidColorMap)
+	local fr = v / 256
+	local fg = (fr + 1/3) % 1
+	local fb = (fr + 2/3) % 1
+	return { gradient(fr), gradient(fg), gradient(fb) }
 end
 
-local function CheckDeadFoes(self, _, _, event, _, _, _, guid)
-	if event == 'UNIT_DIED' and guid and guidColorMap[guid] then
-		local color = guidColorMap[guid]
-		guidColorMap[guid] = nil
-		tinsert(colors, color)
+local guidColorMap = setmetatable({}, {
+	__mode='kv',
+	__index = function(t, guid)
+		if not guid then return end
+		local color = GetColorForGUID(guid)
+		t[guid] = color
+		return color
 	end
-end
+})
 
 local function Update(self, event, unit)
 	if unit and unit ~= self.unit then return end
 	unit = self.unit
 	local target = unit == "player" and "target" or unit..'target'
 	local color
-	if UnitIsConnected(unit) and not UnitIsDeadOrGhost(unit) and UnitCanAttack('player', target) then
+	if UnitIsConnected(unit) and not UnitIsDeadOrGhost(unit) and not UnitIsDeadOrGhost(target) and UnitCanAttack(unit, target) then
 		color = guidColorMap[UnitGUID(target)]
 	end
 	if color then
@@ -69,11 +59,6 @@ end
 
 local function Enable(self)
 	if self.TargetColor then
-		if not colors then
-			LoadColors()
-			oUF:RegisterEvent('PLAYER_REGEN_ENABLED', ResetColors)
-			oUF:RegisterEvent('COMBAT_LOG_EVENT_UNFILTERED', CheckDeadFoes)
-		end
 		self:RegisterEvent('UNIT_TARGET', Update)
 		self:RegisterEvent('UNIT_FLAGS', Update)
 		return true
