@@ -675,7 +675,7 @@ local function InitFrame(settings, self)
 	
 	-- Targetting thing
 	local tc = SpawnSquare(self, 5)
-	tc:SetPoint("LEFT", self ,"LEFT", INSET, 0)
+	tc:SetPoint("LEFT", self ,"LEFT", 1, 0)
 	self.TargetColor = tc
 
 	-- Crowd control icon
