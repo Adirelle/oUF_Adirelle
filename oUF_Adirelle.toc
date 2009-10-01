@@ -10,7 +10,7 @@ elements\Border.lua
 elements\ReadyCheck.lua
 elements\IncomingHeal.lua
 elements\Icon.lua
-elements\TargetColor.lua
+# elements\TargetColor.lua
 
 Core.lua
 

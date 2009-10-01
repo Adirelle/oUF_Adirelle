@@ -669,8 +669,43 @@ local function InitFrame(settings, self)
 		importantBuff:SetPoint("CENTER", self, "LEFT", WIDTH * 0.6, 0)
 		debuff:SetPoint("CENTER", self, "LEFT", WIDTH * 0.8, 0)
 
-	elseif playerClass == 'WARLOCK' then
+	elseif playerClass == 'WARLOCK' then	
 		self:AuraIcon(debuff, GetDebuffByType("Magic"))
+		
+	elseif playerClass == 'PRIEST' then
+		local INSET = 1
+		local SIZE = 8
+		local spawn = function(size, ...)
+			local icon = SpawnIcon(self, size, true, true, true)
+			icon:SetPoint(...)
+			return icon
+		end
+
+		-- PW:Shield or Weakened Soul
+		local shield = spawn(SIZE, "TOPLEFT", self, "TOPLEFT", INSET, -INSET)
+		local PWSHIELD = GetSpellInfo(17)
+		local WEAKENEDSOUL = GetSpellInfo(6788)
+		self:AuraIcon(shield, function(unit)
+			local texture, _, _, duration, expirationTime = select(3, UnitBuff(unit, PWSHIELD))
+			if not texture then
+				duration, expirationTime = select(6, UnitDebuff(unit, WEAKENEDSOUL))
+				if duration then
+					-- Display a red X in place of the weakened soul icon
+					texture = [[Interface\RaidFrame\ReadyCheck-NotReady]]
+				end
+			end
+			if texture then
+				print(texture, duration, expirationTime)
+				return texture, 1, expirationTime-duration, duration			
+			end
+		end)
+		
+		-- Renew
+		self:AuraIcon(spawn(SIZE, "TOPRIGHT", self, "TOPRIGHT", -INSET, -INSET), TestMyAura(139))
+
+		-- Prayer of Mending
+		self:AuraIcon(spawn(SIZE, "BOTTOMRIGHT", self, "BOTTOMRIGHT", -INSET, INSET), TestMyAura(48113))
+
 	end
 	
 	-- Targetting thing
