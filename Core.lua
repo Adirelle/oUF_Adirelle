@@ -695,7 +695,6 @@ local function InitFrame(settings, self)
 				end
 			end
 			if texture then
-				print(texture, duration, expirationTime)
 				return texture, 1, expirationTime-duration, duration			
 			end
 		end)
