@@ -16,6 +16,15 @@ local guidFrameMap = {}
 local frame = CreateFrame("Frame")
 frame:Hide()
 
+local pairs = pairs
+local next = next
+local type = type
+local select = select
+local floor = math.floor
+local UnitIsConnected = UnitIsConnected
+local UnitIsDeadOrGhost = UnitIsDeadOrGhost
+local UnitGUID = UnitGUID
+
 -- ------------------------------------------------------------------------------
 -- LibHealComm-4.0 support
 -- ------------------------------------------------------------------------------
@@ -23,27 +32,32 @@ if lhc4 then
 	local band = bit.band
 	local HEAL_FLAGS = lhc4.ALL_HEALS -- lhc4.BOMB_HEALS
 	
-	--[[
 	local warn
 	if UnitName('player') == 'Adirelle' or UnitName('player') == 'Qwetia' then
 		function warn(...)
 			return geterrorhandler()(string.format(tostringall(...)))
 		end
-	else
-		function warn() end
 	end
-	--]]
+	
+	local lhc4map = lhc4:GetGUIDUnitMapTable()
 
 	local function GetFrameForGUID(guid, event)
-		local frame = guid and guidFrameMap[guid]
+		if not guid then return end
+		local frame = guidFrameMap[guid]
 		if frame and objects[frame] then
 			if frame.unit and UnitGUID(frame.unit) == guid then
+				if warn and lhc4map[guid] ~= frame.unit then
+					warn('LHC4 guid to unit discrepancy on '..tostring(event)..': guid='..tostring(guid)..', LHC4 unit='..tostring(lhc4map[guid])..', real unit='..tostring(frame.unit))
+				end
 				return frame
 			else
 				guidFrameMap[guid] = nil
 			end
 		end
 	end
+	
+	local InCombatLockdown = InCombatLockdown
+	local GetNumRaidMembers = GetNumRaidMembers
 	
 	local function CleanupGUIDFrameMap(self, event)
 		if event ~= 'PLAYER_REGEN_ENABLED' and InCombatLockdown() then return end
@@ -218,10 +232,6 @@ local function Disable(self)
 		end
 	end
 end
-
-local floor = math.floor
-local UnitIsConnected = UnitIsConnected
-local UnitIsDeadOrGhost = UnitIsDeadOrGhost
 
 function Update(self, event, unit)
 	local heal = self.IncomingHeal
