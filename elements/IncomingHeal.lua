@@ -36,13 +36,17 @@ if lhc4 then
 
 	local function GetFrameForGUID(guid, event)
 		local frame = guid and guidFrameMap[guid]
-		if frame and UnitGUID(frame.unit) == guid then
-			return frame
+		if frame then
+			if frame.unit and UnitGUID(frame.unit) == guid then
+				return frame
+			else
+				guidFrameMap[guid] = nil
+			end
 		end
 	end
 	
 	local function CleanupGUIDFrameMap(self, event)
-		if event == 'PLAYER_REGEN_ENABLED' or InCombatLockdown() then return end
+		if event ~= 'PLAYER_REGEN_ENABLED' and InCombatLockdown() then return end
 		if event == 'PARTY_MEMBER_CHANGED' and GetNumRaidMembers() > 0 then return end
 		if not UnitGUID('player') then return end
 		for guid, frame in pairs(guidFrameMap) do
