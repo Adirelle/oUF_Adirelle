@@ -36,7 +36,7 @@ if lhc4 then
 
 	local function GetFrameForGUID(guid, event)
 		local frame = guid and guidFrameMap[guid]
-		if frame then
+		if frame and objects[frame] then
 			if frame.unit and UnitGUID(frame.unit) == guid then
 				return frame
 			else
@@ -54,23 +54,19 @@ if lhc4 then
 				guidFrameMap[guid] = nil
 			end
 		end
-	end
-	
-	local function UpdateHeals(event, casterGUID, spellId, healType, _, ...)
-		if healType and band(healType, HEAL_FLAGS) == 0 then return end
-		for i = 1, select('#', ...) do
-			local frame = GetFrameForGUID(select(i, ...), event)
-			if frame and frame:IsShown() and objects[frame] then
-				Update(frame, event)
+		for frame in pairs(objects) do
+			local guid = frame.unit and UnitGUID(frame.unit)
+			if guid then
+				guidFrameMap[guid] = frame
 			end
 		end
 	end
-	
+
 	local function UpdateMultiGUID(event, casterGUID, spellId, healType, _, ...)
 		if healType and band(healType, HEAL_FLAGS) == 0 then return end
 		for i = 1, select('#', ...) do
 			local frame = GetFrameForGUID(select(i, ...), event)
-			if frame and frame:IsShown() and objects[frame] then
+			if frame and frame:IsShown() then
 				Update(frame, event)
 			end
 		end
@@ -78,7 +74,7 @@ if lhc4 then
 	
 	local function UpdateOneGUID(event, guid)
 		local frame = GetFrameForGUID(guid, event)
-		if frame and frame:IsShown() and objects[frame] then
+		if frame and frame:IsShown() then
 			Update(frame, event)
 		end
 	end
