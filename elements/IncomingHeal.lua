@@ -226,7 +226,7 @@ local UnitIsDeadOrGhost = UnitIsDeadOrGhost
 function Update(self, event, unit)
 	local heal = self.IncomingHeal
 	if not heal or (unit and unit ~= self.unit) then return end
-	unit = unit or self.unit
+	unit = self.unit
 	local guid = UnitGUID(unit)
 	if guid then
 		guidFrameMap[guid] = self
@@ -238,9 +238,9 @@ function Update(self, event, unit)
 	if incomingHeals[self] ~= incomingHeal or event == 'PLAYER_ENTERING_WORLD' then
 		incomingHeals[self] = incomingHeal
 		self:UpdateIncomingHeal(event, unit, heal, incomingHeal or 0)
-		if incomingHeal then
+		--[[if incomingHeal then
 			frame:Show()
-		end
+		end]]
 	end
 end
 
