@@ -10,6 +10,7 @@ elements\Border.lua
 elements\ReadyCheck.lua
 elements\IncomingHeal.lua
 elements\Icon.lua
+elements\ReplaceWithVehicle.lua
 # elements\TargetColor.lua
 
 Core.lua
