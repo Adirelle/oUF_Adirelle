@@ -46,7 +46,7 @@ if lhc4 then
 		local frame = guidFrameMap[guid]
 		if frame and objects[frame] then
 			if frame.unit and UnitGUID(frame.unit) == guid then
-				if warn and lhc4map[guid] ~= frame.unit then
+				if warn and not UnitIsUnit(lhc4map[guid], frame.unit) then
 					warn('LHC4 guid to unit discrepancy on '..tostring(event)..': guid='..tostring(guid)..', LHC4 unit='..tostring(lhc4map[guid])..', real unit='..tostring(frame.unit))
 				end
 				return frame
