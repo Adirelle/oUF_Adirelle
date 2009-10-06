@@ -57,7 +57,7 @@ end
 
 local function UpdateName(self, unit, current, max, incomingHeal)
 	local r, g, b = unpack(self.bgColor)
-	local unitName = GetShortUnitName(unit)
+	local unitName = GetShortUnitName(SecureButton_GetUnit(self))
 	if UnitIsConnected(unit) and not UnitIsDeadOrGhost(unit) then
 		if incomingHeal > 0 then
 			unitName, r, g, b = strformat("+%.1fk", incomingHeal/1000), 0, 1, 0
@@ -94,7 +94,7 @@ local function UpdateHealth(self, event, unit, bar, current, max)
 	if isDisconnected or isDead then
 		bar:SetValue(max)
 		r, g, b = unpack(self.colors.disconnected)
-	elseif UnitInVehicle(unit) then
+	elseif UnitInVehicle(SecureButton_GetUnit(self)) then
 		r, g, b = 0.2, 0.6, 0
 	elseif UnitName(unit) ~= UNKNOWN then
 		local classUnit = unit
