@@ -838,7 +838,12 @@ local function GetLayoutType()
 	elseif instanceType == 'raid' then
 		return RAID_LAYOUTS[difficulty]
 	elseif GetNumRaidMembers() > 0 then
-		local num = GetNumRaidMembers()
+		local maxGroup = 1
+		for index = 1, GetNumRaidMembers() do
+			local _, _, subGroup = GetRaidRosterInfo(index)
+			maxGroup = math.max(maxGroup, subGroup)
+		end
+		local num = 5 * maxGroup
 		for i, size in ipairs(LAYOUTS_SIZES) do
 			if num <= size then
 				return size
