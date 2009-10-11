@@ -395,7 +395,7 @@ do
 	function GetImportantBuff(unit)
 		if not UnitIsPlayer(unit) then return end
 		local buffs = importantBuffs[select(2, UnitClass(unit))]
-		if not buffs then return print('no important buff for', UnitName(unit)) end
+		if not buffs then return end
 		for i, spellName in ipairs(buffs) do
 			local name, _, texture, count, _, duration, expirationTime = UnitAura(unit, spellName, nil, "HELPFUL")
 			if name then
