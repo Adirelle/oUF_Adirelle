@@ -55,8 +55,7 @@ end
 
 local blinkingFrame
 
-local function UpdateIcon(self, unit, icon, func)
-	local texture, count, start, duration, r, g, b = func(unit)
+local function UpdateIcon(self, unit, icon, texture, count, start, duration, r, g, b)
 	if not texture then
 		return icon:Hide()
 	end
@@ -73,11 +72,21 @@ local function UpdateIcon(self, unit, icon, func)
 	icon:Show()
 end
 
+local UnitIsConnected, UnitIsDeadOrGhost, UnitName = UnitIsConnected, UnitIsDeadOrGhost, UnitName
+
 local function Update(self, event, unit)
 	if unit and unit ~= self.unit then return end
 	unit = unit or self.unit
-	for icon, func in pairs(self.AuraIcons) do
-		UpdateIcon(self, unit, icon, func)
+	if UnitIsConnected(unit) and not UnitIsDeadOrGhost(unit) and UnitName(unit) ~= UNKNOWN then
+		-- Update all icons
+		for icon, func in pairs(self.AuraIcons) do
+			UpdateIcon(self, unit, icon, func(unit))
+		end
+	else
+		-- Hide all icons
+		for icon in pairs(self.AuraIcons) do
+			icon:Hide()
+		end
 	end
 end
 
