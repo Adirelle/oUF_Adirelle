@@ -618,6 +618,13 @@ local function InitFrame(settings, self)
 	local debuff = SpawnIcon(self)
 	debuff:SetPoint("CENTER", self, "LEFT", WIDTH * 0.6, 0)
 	self:AuraIcon(debuff, GetCureableDebuff)
+	
+	local INSET, SMALL_ICON_SIZE = 1, 8
+	local function SpawnSmallIcon(...)
+		local icon = SpawnIcon(self, SMALL_ICON_SIZE, true, true, true)
+		icon:SetPoint(...)
+		return icon
+	end
 
 	if playerClass == "HUNTER" then
 		local misdirection = SpawnIcon(self)
@@ -628,33 +635,22 @@ local function InitFrame(settings, self)
 		debuff:SetPoint("CENTER", self, "LEFT", WIDTH * 0.75, 0)
 
 	elseif playerClass == "DRUID" then
-		local INSET = 1
-		local size = 8
-		local spawn = function(self, size)
-			return SpawnIcon(self, size, true, true, true)
-		end
-
-		local rejuv = spawn(self, size)
-		rejuv:SetPoint("TOPLEFT", self, "TOPLEFT", INSET, -INSET)
+		local rejuv = SpawnSmallIcon("TOPLEFT", self, "TOPLEFT", INSET, -INSET)
 		self:AuraIcon(rejuv, TestMyAura(774, 6, 0, 1))
 
-		local regrowth = spawn(self, size)
-		regrowth:SetPoint("TOP", self, "TOP", 0, -INSET)
+		local regrowth = SpawnSmallIcon("TOP", self, "TOP", 0, -INSET)
 		self:AuraIcon(regrowth, TestMyAura(8936, 0, 0.6, 0))
 
 		for i = 1, 3 do
-			local lifebloom = spawn(self, size)
-			lifebloom:SetPoint("TOPRIGHT", self, "TOPRIGHT", -INSET - size*(i-1), -INSET)
+			local lifebloom = SpawnSmallIcon("TOPRIGHT", self, "TOPRIGHT", -INSET - SMALL_ICON_SIZE*(i-1), -INSET)
 			self:AuraIcon(lifebloom, TestMyAuraCount(33763, i, 0, 1, 0))
 		end
 
-		local wildGrowth = spawn(self, size)
-		wildGrowth:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", INSET, INSET)
+		local wildGrowth = SpawnSmallIcon("BOTTOMLEFT", self, "BOTTOMLEFT", INSET, INSET)
 		self:AuraIcon(wildGrowth, TestMyAura(53248, 0, 1, 0))
 
-		local abolishPoison = spawn(self, size)
+		local abolishPoison = SpawnSmallIcon("BOTTOMRIGHT", self, "BOTTOMRIGHT", -INSET, INSET)
 		local c = DebuffTypeColor.Poison
-		abolishPoison:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -INSET, INSET)
 		self:AuraIcon(abolishPoison, TestMyAura(2893, c.r, c.g, c.b))
 
 	elseif playerClass == 'PALADIN' then
@@ -669,41 +665,60 @@ local function InitFrame(settings, self)
 		importantBuff:SetPoint("CENTER", self, "LEFT", WIDTH * 0.6, 0)
 		debuff:SetPoint("CENTER", self, "LEFT", WIDTH * 0.8, 0)
 
+	elseif playerClass == "SHAMAN" then
+		local earthShield = SpawnIcon(self)
+		earthShield:SetPoint("CENTER", self, "LEFT", WIDTH * 0.25, 0)
+		self:AuraIcon(earthShield, TestMyAura(49284))
+
+		importantBuff:SetPoint("CENTER")
+		debuff:SetPoint("CENTER", self, "LEFT", WIDTH * 0.75, 0)
+		
+		-- Riptide
+		self:AuraIcon(
+			SpawnSmallIcon("TOPRIGHT", self, "TOPRIGHT", -INSET, -INSET),
+			TestMyAura(61301)
+		)
+		
+		-- Sated/Exhausted
+		self:AuraIcon(
+			SpawnSmallIon("TOPLEFT", self, "TOPLEFT", INSET, -INSET),
+			TestAnyAura((UnitFactionGroup("player") == "Alliance") and 29650 or 57724, "HARMFUL")
+		)
+
 	elseif playerClass == 'WARLOCK' then	
 		self:AuraIcon(debuff, GetDebuffByType("Magic"))
 		
 	elseif playerClass == 'PRIEST' then
-		local INSET = 1
-		local SIZE = 8
-		local spawn = function(size, ...)
-			local icon = SpawnIcon(self, size, true, true, true)
-			icon:SetPoint(...)
-			return icon
-		end
-
 		-- PW:Shield or Weakened Soul
-		local shield = spawn(SIZE, "TOPLEFT", self, "TOPLEFT", INSET, -INSET)
-		local PWSHIELD = GetSpellInfo(17)
-		local WEAKENEDSOUL = GetSpellInfo(6788)
-		self:AuraIcon(shield, function(unit)
-			local texture, _, _, duration, expirationTime = select(3, UnitBuff(unit, PWSHIELD))
-			if not texture then
-				duration, expirationTime = select(6, UnitDebuff(unit, WEAKENEDSOUL))
-				if duration then
-					-- Display a red X in place of the weakened soul icon
-					texture = [[Interface\RaidFrame\ReadyCheck-NotReady]]
+		local PWSHIELD, WEAKENEDSOUL = GetSpellInfo(17), GetSpellInfo(6788)
+		self:AuraIcon(
+			SpawnSmallIcon("TOPLEFT", self, "TOPLEFT", INSET, -INSET),
+			function(unit)
+				local texture, _, _, duration, expirationTime = select(3, UnitBuff(unit, PWSHIELD))
+				if not texture then
+					duration, expirationTime = select(6, UnitDebuff(unit, WEAKENEDSOUL))
+					if duration then
+						-- Display a red X in place of the weakened soul icon
+						texture = [[Interface\RaidFrame\ReadyCheck-NotReady]]
+					end
+				end
+				if texture then
+					return texture, 1, expirationTime-duration, duration			
 				end
 			end
-			if texture then
-				return texture, 1, expirationTime-duration, duration			
-			end
-		end)
+		)
 		
 		-- Renew
-		self:AuraIcon(spawn(SIZE, "TOPRIGHT", self, "TOPRIGHT", -INSET, -INSET), TestMyAura(139))
+		self:AuraIcon(
+			SpawnSmallIcon("TOPRIGHT", self, "TOPRIGHT", -INSET, -INSET), 
+			TestMyAura(139)
+		)
 
 		-- Prayer of Mending
-		self:AuraIcon(spawn(SIZE, "BOTTOMRIGHT", self, "BOTTOMRIGHT", -INSET, INSET), TestMyAura(48113))
+		self:AuraIcon(
+			SpawnSmallIcon("BOTTOMRIGHT", self, "BOTTOMRIGHT", -INSET, INSET), 
+			TestMyAura(48113)
+		)
 
 	end
 	
@@ -798,6 +813,13 @@ do
 	header:Show()
 	raid['PartyPets'] = header
 end
+
+--[[
+local target = oUF:Spawn("target", "oUF_Adirelle_Target")
+target:SetPoint('BOTTOMRIGHT', UIParent, "BOTTOMRIGHT", -400, 400)
+local focus = oUF:Spawn("focus","oUF_Adirelle_Focus")
+focus:SetPoint('BOTTOMLEFT', target, "TOPLEFT", 0, 30)
+--]]
 
 local LAYOUTS = {
 	[1] = { '1', pets = true },
