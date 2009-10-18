@@ -4,19 +4,36 @@ Adirelle's oUF raid layout
 All rights reserved.
 --]=]
 
-local SCALE = 1.0
-local WIDTH = 80
-local SPACING = 2
-local HEIGHT = 25
-local BORDER_WIDTH = 1
-local ICON_SIZE = 14
-local SQUARE_SIZE = 5
-
 local oUF = assert(_G.oUF, "oUF_Adirelle requires oUF")
-local lsm = LibStub('LibSharedMedia-3.0', true)
 
+local LibStub = LibStub
+local UnitClass = UnitClass
+local UnitIsConnected = UnitIsConnected
+local UnitIsDeadOrGhost = UnitIsDeadOrGhost
+local UnitName = UnitName
+local UnitAura = UnitAura
+local UnitIsUnit = UnitIsUnit
+local GetTime = GetTime
+local strformat = string.format
+local strsub = string.sub
+local mmin = math.min
+local tostring = tostring
+local unpack = unpack
+
+oUF_Adirelle = setmetatable({}, {__index = _G})
+setfenv(1, oUF_Adirelle)
+
+SCALE = 1.0
+WIDTH = 80
+SPACING = 2
+HEIGHT = 25
+BORDER_WIDTH = 1
+ICON_SIZE = 14
+SQUARE_SIZE = 5
+	
 local _, playerClass = UnitClass("player")
 
+local lsm = LibStub('LibSharedMedia-3.0', true)
 local statusbarTexture = lsm and lsm:Fetch("statusbar", false) or [[Interface\TargetingFrame\UI-StatusBar]]
 
 local backdrop = {
@@ -520,11 +537,13 @@ local function InitFrame(settings, self)
 	self:SetScript("OnEnter", UnitFrame_OnEnter)
 	self:SetScript("OnLeave", UnitFrame_OnLeave)
 
-
 	self:SetBackdrop(backdrop)
 	self:SetBackdropColor(0, 0, 0, 1)
 	self:SetBackdropBorderColor(0, 0, 0, 1)
-
+	
+	self.SpawnIcon = SpawnIcon
+	self.SpawnSquare = SpawnSquare
+	
 	self.bgColor = { 1, 1, 1 }
 
 	-- Health bar
@@ -635,23 +654,38 @@ local function InitFrame(settings, self)
 		debuff:SetPoint("CENTER", self, "LEFT", WIDTH * 0.75, 0)
 
 	elseif playerClass == "DRUID" then
-		local rejuv = SpawnSmallIcon("TOPLEFT", self, "TOPLEFT", INSET, -INSET)
-		self:AuraIcon(rejuv, TestMyAura(774, 6, 0, 1))
+		
+		-- Rejuvenation
+		self:AuraIcon(
+			SpawnSmallIcon("TOPLEFT", self, "TOPLEFT", INSET, -INSET),
+			TestMyAura(774, 6, 0, 1)
+		)
 
-		local regrowth = SpawnSmallIcon("TOP", self, "TOP", 0, -INSET)
-		self:AuraIcon(regrowth, TestMyAura(8936, 0, 0.6, 0))
-
+		-- Regrowth
+		self:AuraIcon(
+			SpawnSmallIcon("TOP", self, "TOP", 0, -INSET),
+			TestMyAura(8936, 0, 0.6, 0)
+		)
+		
+		-- Lifebloom
 		for i = 1, 3 do
-			local lifebloom = SpawnSmallIcon("TOPRIGHT", self, "TOPRIGHT", -INSET - SMALL_ICON_SIZE*(i-1), -INSET)
-			self:AuraIcon(lifebloom, TestMyAuraCount(33763, i, 0, 1, 0))
+			self:AuraIcon(
+				SpawnSmallIcon("TOPRIGHT", self, "TOPRIGHT", -INSET - SMALL_ICON_SIZE*(i-1), -INSET),
+				TestMyAuraCount(33763, i, 0, 1, 0)
+			)
 		end
 
-		local wildGrowth = SpawnSmallIcon("BOTTOMLEFT", self, "BOTTOMLEFT", INSET, INSET)
-		self:AuraIcon(wildGrowth, TestMyAura(53248, 0, 1, 0))
+		-- Wild Growth		
+		self:AuraIcon(
+			SpawnSmallIcon("BOTTOMLEFT", self, "BOTTOMLEFT", INSET, INSET),
+			TestMyAura(53248, 0, 1, 0)
+		)
 
-		local abolishPoison = SpawnSmallIcon("BOTTOMRIGHT", self, "BOTTOMRIGHT", -INSET, INSET)
-		local c = DebuffTypeColor.Poison
-		self:AuraIcon(abolishPoison, TestMyAura(2893, c.r, c.g, c.b))
+		-- Abolish Poison
+		self:AuraIcon(
+			SpawnSmallIcon("BOTTOMRIGHT", self, "BOTTOMRIGHT", -INSET, INSET), 
+			TestMyAura(2893)
+		)
 
 	elseif playerClass == 'PALADIN' then
 		local beacon = SpawnIcon(self)
@@ -722,10 +756,11 @@ local function InitFrame(settings, self)
 
 	end
 	
-	-- Targetting thing
+	--[[ Targetting thing
 	local tc = SpawnSquare(self, 5)
 	tc:SetPoint("LEFT", self ,"LEFT", 1, 0)
 	self.TargetColor = tc
+	--]]
 
 	-- Crowd control icon
 	local header = self:GetParent()
@@ -759,7 +794,7 @@ if playerClass == 'ROGUE' or playerClass == 'WARRIOR' or playerClass == 'MAGE' o
 	HEIGHT = 20
 end
 
-local style = setmetatable(
+style = setmetatable(
 	{
 		["initial-width"] = WIDTH,
 		["initial-height"] = HEIGHT,
@@ -771,180 +806,4 @@ local style = setmetatable(
 oUF:RegisterStyle("Adirelle", style)
 oUF:SetActiveStyle("Adirelle")
 
--- Raid groups
-local raid = {}
-for group = 1, 8 do
-	local header = oUF:Spawn("header", "oUF_Raid" .. group)
-	header.isParty = (group == 1)
-	header:SetManyAttributes(
-		"showRaid", true,
-		"groupFilter", group,
-		"point", "LEFT",
-		"xOffset", SPACING
-	)
-	header:SetScale(SCALE)
-	if group > 1 then
-		header:SetPoint("BOTTOMLEFT", raid[group - 1], "TOPLEFT", 0, SPACING)
-	end
-	header:Show()
-	raid[group] = header
-end
-
-raid[1]:SetManyAttributes(
-	"showParty", true,
-	"showPlayer", true,
-	"showSolo", true
-)
-
-do
-	-- Party pets
-	local header = oUF:Spawn("header", "oUF_PartyPets", "SecureGroupPetHeaderTemplate")
-	header:SetManyAttributes(
-		"showParty", true,
-		"showPlayer", true,
-		"showSolo", true,
-		"groupFilter", 1,
-		"point", "LEFT",
-		"xOffset", SPACING
-	)
-	header.isPets = true
-	header:SetScale(SCALE)
-	header:SetPoint("BOTTOMLEFT", raid[1], "TOPLEFT", 0, SPACING)
-	header:Show()
-	raid['PartyPets'] = header
-end
-
---[[
-local target = oUF:Spawn("target", "oUF_Adirelle_Target")
-target:SetPoint('BOTTOMRIGHT', UIParent, "BOTTOMRIGHT", -400, 400)
-local focus = oUF:Spawn("focus","oUF_Adirelle_Focus")
-focus:SetPoint('BOTTOMLEFT', target, "TOPLEFT", 0, 30)
---]]
-
-local LAYOUTS = {
-	[1] = { '1', pets = true },
-	[5] = { '1', pets = true },
-	[10] = { '1', '2' },
-	[15] = { '1', '2', '3' },
-	[20] = { '1', '2', '3', '4' },
-	[25] = { '1', '2', '3', '4', '5' },
-	[40] = { '1', '2', '3', '4', '5', '6', '7', '8', height = 20 },
-}
-
-local LAYOUTS_SIZES = { 1, 5, 10, 15, 20, 25 }
-
-local BATTLE_GROUND_LAYOUTS = {
-	AlteracValley = 40,
-	IsleofConquest = 40,
-	ArathiBasin = 15,
-	NetherstormArena = 15,
-	StrandoftheAncients = 15,
-	WarsongGulch = 10,
-}
-
-local RAID_LAYOUTS = {
-	[RAID_DIFFICULTY_10PLAYER] = 10,
-	[RAID_DIFFICULTY_10PLAYER_HEROIC] = 10,
-	[RAID_DIFFICULTY_20PLAYER] = 20,
-	[RAID_DIFFICULTY_25PLAYER] = 25,
-	[RAID_DIFFICULTY_25PLAYER_HEROIC] = 25,
-	[RAID_DIFFICULTY_40PLAYER] = 40,
-}
-
-local function GetLayoutType()
-	local name, instanceType, _, difficulty = GetInstanceInfo()
-	if instanceType == 'arena' or instanceType == 'party' then
-		return 5
-	elseif instanceType == 'pvp' then
-		return BATTLE_GROUND_LAYOUTS[GetMapInfo()]
-	elseif instanceType == 'raid' then
-		return RAID_LAYOUTS[difficulty]
-	elseif GetNumRaidMembers() > 0 then
-		local maxGroup = 1
-		for index = 1, GetNumRaidMembers() do
-			local _, _, subGroup = GetRaidRosterInfo(index)
-			maxGroup = math.max(maxGroup, subGroup)
-		end
-		local num = 5 * maxGroup
-		for i, size in ipairs(LAYOUTS_SIZES) do
-			if num <= size then
-				return size
-			end
-		end
-		return 40
-	elseif GetNumPartyMembers() > 0 then
-		return 5
-	end
-	return 1
-end
-
-local lastLayoutType, lastNumColumns
-
-function oUF:SetRaidLayout(layoutType)
-	local layout = layoutType and LAYOUTS[layoutType]
-	if layout then
-		if layout.pets then
-			raid.PartyPets:Show()
-		else
-			raid.PartyPets:Hide()
-		end
-		local height = layout.height or HEIGHT
-		style['initial-height'] = height
-		for groupNum = 1, 8 do
-			local group, filter = raid[groupNum], layout[groupNum]
-			if filter then
-				group:SetAttribute('groupFilter', filter)
-				group:Show()
-				for i = 1, 5 do
-					local frame = _G[group:GetName().."UnitButton"..i]
-					if frame then
-						frame:SetAttribute('initial-height', height)
-						frame:SetHeight(height)
-					end
-				end
-			else
-				group:SetAttribute('groupFilter', '')
-				group:Hide()
-			end
-		end
-	else
-		print('No data for layout', layoutType)
-	end
-end
-
-local function UpdateLayout(...)
-	if InCombatLockdown() then return end
-	local layoutType = GetLayoutType()
-	if layoutType ~= lastLayoutType then
-		lastLayoutType = layoutType
-		oUF:SetRaidLayout(layoutType)
-	end
-	local numColumns = 1 + GetNumPartyMembers()
-	for name, header in pairs(raid) do
-		if header:IsVisible() then
-			local n = 0
-			for i = 1, 5 do
-				local frame = header:GetAttribute('child'..i)
-				if frame and frame:IsVisible() then
-					n = n + 1
-				end
-			end
-			numColumns = math.max(numColumns, n)
-		end
-	end
-	if lastNumColumns ~= numColumns then
-		lastNumColumns = numColumns
-		local width = WIDTH * numColumns + SPACING * (numColumns - 1)
-		local header = raid[1]
-		local scale = header:GetScale() or 1.0
-		header:SetPoint("BOTTOMLEFT", UIParent, "BOTTOM", -width/2/scale, 230/scale)
-	end
-end
-
-local updateFrame = CreateFrame("Frame")
-updateFrame:SetScript('OnEvent', UpdateLayout)
-updateFrame:RegisterEvent('PARTY_MEMBERS_CHANGED')
-updateFrame:RegisterEvent('VARIABLES_LOADED')
-updateFrame:RegisterEvent('PLAYER_REGEN_ENABLED')
-updateFrame:RegisterEvent('PLAYER_ENTERING_WORLD')
 
