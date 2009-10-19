@@ -1,5 +1,5 @@
 --[=[
-Adirelle's oUF raid layout
+Adirelle's oUF layout
 (c) 2009 Adirelle (adirelle@tagada-team.net)
 All rights reserved.
 --]=]
@@ -36,6 +36,8 @@ local RAID_LAYOUTS = {
 	[RAID_DIFFICULTY_25PLAYER_HEROIC] = 25,
 	[RAID_DIFFICULTY_40PLAYER] = 40,
 }
+
+oUF:SetActiveStyle("Adirelle_Raid")
 
 -- Raid groups
 local raid = {}
@@ -80,13 +82,6 @@ do
 	raid['PartyPets'] = header
 end
 
---[[
-local target = oUF:Spawn("target", "oUF_Adirelle_Target")
-target:SetPoint('BOTTOMRIGHT', UIParent, "BOTTOMRIGHT", -400, 400)
-local focus = oUF:Spawn("focus","oUF_Adirelle_Focus")
-focus:SetPoint('BOTTOMLEFT', target, "TOPLEFT", 0, 30)
---]]
-
 local function GetLayoutType()
 	local name, instanceType, _, difficulty = GetInstanceInfo()
 	if instanceType == 'arena' or instanceType == 'party' then
@@ -125,7 +120,7 @@ function oUF:SetRaidLayout(layoutType)
 			raid.PartyPets:Hide()
 		end
 		local height = layout.height or HEIGHT
-		style['initial-height'] = height
+		raid_style['initial-height'] = height
 		for groupNum = 1, 8 do
 			local group, filter = raid[groupNum], layout[groupNum]
 			if filter then
@@ -183,4 +178,21 @@ updateFrame:RegisterEvent('PARTY_MEMBERS_CHANGED')
 updateFrame:RegisterEvent('VARIABLES_LOADED')
 updateFrame:RegisterEvent('PLAYER_REGEN_ENABLED')
 updateFrame:RegisterEvent('PLAYER_ENTERING_WORLD')
+
+---- Single UF
+
+oUF:SetActiveStyle("Adirelle_Single")
+
+local player = oUF:Spawn("player", "oUF_Adirelle_Player")
+player:SetPoint('BOTTOMRIGHT', UIParent, "BOTTOMLEFT", 325, 400)
+
+local pet = oUF:Spawn("pet","oUF_Adirelle_Pet")
+pet:SetPoint('BOTTOMLEFT', player, "TOPLEFT", 0, 30)
+
+local target = oUF:Spawn("target", "oUF_Adirelle_Target")
+target:SetPoint('BOTTOMRIGHT', UIParent, "BOTTOMRIGHT", -325, 400)
+
+local focus = oUF:Spawn("focus","oUF_Adirelle_Focus")
+focus:SetPoint('BOTTOMLEFT', target, "TOPLEFT", 0, 30)
+
 

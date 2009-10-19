@@ -1,5 +1,5 @@
 --[=[
-Adirelle's oUF raid layout
+Adirelle's oUF layout
 (c) 2009 Adirelle (adirelle@tagada-team.net)
 All rights reserved.
 
