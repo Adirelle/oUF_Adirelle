@@ -1,0 +1,10 @@
+## Interface: 30200
+## Author: Adirelle
+## Version: 1.0
+## Title: oUF Adirelle single units.
+## Notes: Adirelle's oUF single units.
+## RequiredDeps: oUF_Adirelle
+
+..\oUF_Adirelle\Single_Style.lua
+..\oUF_Adirelle\Single_Layout.lua
+
