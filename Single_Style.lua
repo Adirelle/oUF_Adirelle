@@ -7,6 +7,8 @@ All rights reserved.
 local oUF = assert(_G.oUF, "oUF_Adirelle requires oUF")
 setfenv(1, oUF_Adirelle)
 
+local GAP = 2
+
 local floor = math.floor
 local function OnStatusBarUpdate(bar)
 	local text = bar.Text
@@ -28,11 +30,17 @@ local function OnStatusBarUpdate(bar)
 	text:Show()
 end
 
-local fontPath, fontSize, fontFlags = GameFontNormalSmall:GetFont()
+local fontPath, fontSize, fontFlags = GameFontWhiteSmall:GetFont()
+local lsm = LibStub('LibSharedMedia-3.0', true)
+if lsm then
+	fontPath, fontSize = lsm:Fetch("font", "ABF"), 12
+end
 
 local function SetFont(fs, size, flags)
-	fs:SetFont(fontPath, size or fontsize, flags or fontFlags)
-	fs:SetFontColor(1,1,1,1)
+	fs:SetFont(fontPath, size or fontSize, flags or fontFlags)
+	fs:SetTextColor(1,1,1,1)
+	fs:SetShadowColor(0,0,0,1)
+	fs:SetShadowOffset(0.5,-0.5)
 end
 
 local function SpawnTexture(object, layer, width, height, from, to, xOffset, yOffset)
@@ -50,14 +58,25 @@ local function SpawnText(object, layer, from, to, xOffset, yOffset)
 	SetFont(text)
 	text:SetWidth(0)
 	text:SetHeight(0)
+	text:SetJustifyV("MIDDLE")			
 	if from then
 		text:SetPoint(from, object, to or from, xOffset or 0, yOffset or 0)
+		if from:match("RIGHT") then
+			text:SetJustifyH("RIGHT")
+		elseif from:match("LEFT") then
+			text:SetJustifyH("LEFT")
+		else
+			text:SetJustifyH("CENTER")
+		end
+	else
+		text:SetJustifyH("LEFT")
 	end
 	return text
 end
 
 local function CreateStatusBarText(bar)
-	bar.Text = SpawnText(bar, "OVERLAY", "RIGHT")
+	bar.Text = SpawnText(bar, "OVERLAY", "TOPRIGHT")
+	bar.Text:SetPoint("BOTTOMRIGHT")
 	bar:SetScript('OnValueChanged', OnStatusBarUpdate)
 	bar:SetScript('OnMinMaxChanged', OnStatusBarUpdate)	
 end
@@ -81,10 +100,10 @@ local function InitFrame(settings, self)
 	
 		if settings.rightPortrait then
 			portrait:SetPoint("TOPRIGHT")
-			rightOffset = -1-height
+			rightOffset = -GAP-height
 		else
 			portrait:SetPoint("TOPLEFT")
-			leftOffset = 1+height
+			leftOffset = GAP+height
 		end
 	end
 	
@@ -105,7 +124,8 @@ local function InitFrame(settings, self)
 	CreateStatusBarText(health)
 	
 	-- Name
-	local name = SpawnText(health, "OVERLAY", "LEFT")
+	local name = SpawnText(health, "OVERLAY", "LEFT", "LEFT", 4)
+	name:SetPoint("RIGHT", health.Text, "LEFT")
 	self:Tag(name, "[name][( )status]")
 	
 	--[[ Incoming heals
@@ -128,16 +148,16 @@ local function InitFrame(settings, self)
 		power.colorDisconnected = true
 		power.colorPower = true
 		power.frequentUpdates = true
-		power:SetPoint("TOPLEFT", health, "BOTTOMLEFT", 0, -1)
-		power:SetPoint("TOPRIGHT", health, "BOTTOMRIGHT", 0, -1)
-		power:SetHeight(height / 2)
+		power:SetPoint("TOPLEFT", health, "BOTTOMLEFT", 0, -GAP)
+		power:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", rightOffset, 0)
 		CreateStatusBarText(power)
 		self.Power = power
 		oUF:RegisterStatusBarTexture(power)
 		
 		-- Unit level and class (or creature family)
 		if unit ~= "player" and unit ~= "pet" then
-			local classif = SpawnText(power, "OVERLAY", "LEFT")
+			local classif = SpawnText(power, "OVERLAY", "LEFT", "LEFT", 4)
+			classif:SetPoint("RIGHT", power.Text, "LEFT")
 			self:Tag(classif, "[smartlevel][( )smartclass]")
 		end
 	end
