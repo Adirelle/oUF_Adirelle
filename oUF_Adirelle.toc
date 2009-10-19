@@ -13,6 +13,9 @@ elements\Icon.lua
 elements\VehicleSwap.lua
 # elements\TargetColor.lua
 
-Style.lua
+StatusBarTexture.lua
+
+Raid_Style.lua
+Single_Style.lua
 Layout.lua
 

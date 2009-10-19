@@ -1,5 +1,5 @@
 --[=[
-Adirelle's oUF raid layout
+Adirelle's oUF layout
 (c) 2009 Adirelle (adirelle@tagada-team.net)
 All rights reserved.
 --]=]
@@ -33,17 +33,14 @@ SQUARE_SIZE = 5
 	
 local _, playerClass = UnitClass("player")
 
-local lsm = LibStub('LibSharedMedia-3.0', true)
-local statusbarTexture = lsm and lsm:Fetch("statusbar", false) or [[Interface\TargetingFrame\UI-StatusBar]]
-
-local backdrop = {
+backdrop = {
 	bgFile = [[Interface\Tooltips\UI-Tooltip-Background]],
 	tile = true,
 	tileSize = 16,
 	insets = {left = 0, right = 0, top = 0, bottom = 0},
 }
 
-local borderBackdrop = {
+borderBackdrop = {
 	edgeFile = [[Interface\Addons\oUF_Adirelle\white16x16]],
 	edgeSize = BORDER_WIDTH,
 	insets = {left = 0, right = 0, top = 0, bottom = 0},
@@ -508,11 +505,8 @@ end
 -- Statusbar texturing
 -- ------------------------------------------------------------------------------
 
-local function UpdateTextures(self)
-	local bar = self.Health
-	bar:SetStatusBarTexture(statusbarTexture)
-	bar:SetStatusBarColor(0, 0, 0, 0.75)
-	bar.bg:SetTexture(statusbarTexture)
+local function PostHealthBareTextureUpdate(self)
+	self:SetStatusBarColor(0, 0, 0, 0.75)
 end
 
 -- ------------------------------------------------------------------------------
@@ -549,12 +543,16 @@ local function InitFrame(settings, self)
 	-- Health bar
 	local hp = CreateFrame("StatusBar", nil, self)
 	hp:SetAllPoints(self)
+	hp.PostTextureUpdate = PostHealthBareTextureUpdate
 	hp.frequentUpdates = true
 
 	local hpbg = hp:CreateTexture(nil, "BACKGROUND")
 	hpbg:SetAllPoints(hp)
 	hpbg:SetAlpha(1)
 	hp.bg = hpbg
+	
+	oUF:RegisterStatusBarTexture(hp)
+	oUF:RegisterStatusBarTexture(hp.bg)
 
 	-- Death icon
 	local death = hp:CreateTexture(nil, "OVERLAY")
@@ -583,17 +581,6 @@ local function InitFrame(settings, self)
 	self.Health = hp
 	self.OverrideUpdateHealth = UpdateHealth
 	self.incomingHeal = 0
-
-	UpdateTextures(self)
-
-	if lsm then
-		lsm.RegisterCallback(self, 'LibSharedMedia_SetGlobal', function(_, media, value)
-			if media == "statusbar" then
-				statusbarTexture = lsm:Fetch("statusbar", value)
-				UpdateTextures(self)
-			end
-		end)
-	end
 
 	-- Name
 	local name = hp:CreateFontString(nil, "ARTWORK", "GameFontNormal")
@@ -794,7 +781,7 @@ if playerClass == 'ROGUE' or playerClass == 'WARRIOR' or playerClass == 'MAGE' o
 	HEIGHT = 20
 end
 
-style = setmetatable(
+raid_style = setmetatable(
 	{
 		["initial-width"] = WIDTH,
 		["initial-height"] = HEIGHT,
@@ -803,7 +790,7 @@ style = setmetatable(
 	}
 )
 
-oUF:RegisterStyle("Adirelle", style)
-oUF:SetActiveStyle("Adirelle")
+oUF:RegisterStyle("Adirelle_Raid", raid_style)
+
 
 
