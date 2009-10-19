@@ -16,6 +16,5 @@ elements\VehicleSwap.lua
 StatusBarTexture.lua
 
 Raid_Style.lua
-Single_Style.lua
-Layout.lua
+Raid_Layout.lua
 
