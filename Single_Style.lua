@@ -81,18 +81,47 @@ local function CreateStatusBarText(bar)
 	bar:SetScript('OnMinMaxChanged', OnStatusBarUpdate)	
 end
 
+local function OnSizeChanged(self, width, height)
+	width = width or self:GetWidth()
+	height = height or self:GetHeight()
+	self.Border:SetWidth(width + 2)
+	self.Border:SetHeight(height + 2)
+	local portrait = self.Portrait
+	if portrait then
+		portrait:SetWidth(height)
+		portrait:SetHeight(height)
+	end
+	if self.Power then
+		self.Health:SetHeight((height-GAP)/2)
+	end
+end
+
 local function InitFrame(settings, self)
 	local unit = self.unit
 	local height = self:GetAttribute('initial-height') or settings['initial-height']
 	
-	local leftOffset, rightOffset = 0, 0
-	
+
 	self:SetBackdrop(backdrop)
 	self:SetBackdropColor(0,0,0,1)
 	self:SetBackdropBorderColor(0,0,0,1)
 
+	-- Border
+	local border = CreateFrame("Frame", nil, self)
+	border:SetFrameStrata("BACKGROUND")
+	border:SetPoint("CENTER", self)
+	border:SetBackdrop(borderBackdrop)
+	border:SetBackdropColor(0, 0, 0, 0)
+	border:SetBackdropBorderColor(1, 1, 1, 1)
+	border.SetColor = border.SetBackdropBorderColor
+	border.blackByDefault = true
+	self.Border = border	
+	
+	local barContainer
+
 	-- Portrait
 	if not settings.noPortrait then
+		barContainer = CreateFrame("Frame", nil, self)		
+	
 		local portrait = CreateFrame("PlayerModel", nil, self)
 		portrait:SetWidth(height)
 		portrait:SetHeight(height)
@@ -100,12 +129,17 @@ local function InitFrame(settings, self)
 	
 		if settings.rightPortrait then
 			portrait:SetPoint("TOPRIGHT")
-			rightOffset = -GAP-height
+			barContainer:SetPoint("TOPLEFT", self)
+			barContainer:SetPoint("BOTTOMRIGHT", portrait, "BOTTOMLEFT", -GAP)
 		else
 			portrait:SetPoint("TOPLEFT")
-			leftOffset = GAP+height
+			barContainer:SetPoint("BOTTOMLEFT", portrait, "BOTTOMRIGHT", GAP)
+			barContainer:SetPoint("TOPRIGHT", self)
 		end
+	else
+		barContainer = self
 	end
+	self.BarContainer = barContainer
 	
 	-- Health bar
 	local health = CreateFrame("StatusBar", nil, self)	
@@ -113,18 +147,18 @@ local function InitFrame(settings, self)
 	health.colorDisconnected = true
 	health.colorHappiness = true
 	health.colorClass = true	
-	health.colorReaction = true	
+	health.colorSmooth = true	
 	health.frequentUpdates = true	
-	health:SetPoint("TOPLEFT", self, "TOPLEFT", leftOffset, 0)
-	health:SetPoint("TOPRIGHT", self, "TOPRIGHT", rightOffset, 0)
-	health:SetHeight(height / 2)
+	health:SetPoint("TOPLEFT", barContainer)
+	health:SetPoint("TOPRIGHT", barContainer)
 	self.Health = health
 	oUF:RegisterStatusBarTexture(health)
 
 	CreateStatusBarText(health)
 	
 	-- Name
-	local name = SpawnText(health, "OVERLAY", "LEFT", "LEFT", 4)
+	local name = SpawnText(health, "OVERLAY", "TOPLEFT", "TOPLEFT", 4)
+	name:SetPoint("BOTTOMLEFT", health, "BOTTOMLEFT", 4)
 	name:SetPoint("RIGHT", health.Text, "LEFT")
 	self:Tag(name, "[name][( )status]")
 	
@@ -149,34 +183,45 @@ local function InitFrame(settings, self)
 		power.colorPower = true
 		power.frequentUpdates = true
 		power:SetPoint("TOPLEFT", health, "BOTTOMLEFT", 0, -GAP)
-		power:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", rightOffset, 0)
 		CreateStatusBarText(power)
 		self.Power = power
 		oUF:RegisterStatusBarTexture(power)
 		
 		-- Unit level and class (or creature family)
 		if unit ~= "player" and unit ~= "pet" then
-			local classif = SpawnText(power, "OVERLAY", "LEFT", "LEFT", 4)
+			local classif = SpawnText(power, "OVERLAY", "TOPLEFT", "TOPLEFT", 4)
+			classif:SetPoint("BOTTOMLEFT", power, "BOTTOMLEFT", 4)
 			classif:SetPoint("RIGHT", power.Text, "LEFT")
 			self:Tag(classif, "[smartlevel][( )smartclass]")
 		end
 	end
 	
+	-- Stick the last bar to the bottom of the frame
+	(self.Power or self.Health):SetPoint("BOTTOMRIGHT", barContainer)
+	
 	-- Various indicators
-	local indicators = CreateFrame("Frame", self:GetName().."Indicator", self)
+	local indicators = CreateFrame("Frame", nil, self)
 	indicators:SetAllPoints(self)
 	indicators:SetFrameLevel(health:GetFrameLevel()+2)
 	self.RaidIcon = SpawnTexture(indicators, "OVERLAY", height, height, "CENTER")
 	self.Leader = SpawnTexture(indicators, "OVERLAY", 16, 16, "CENTER", "TOPRIGHT")
 	self.Assistant = SpawnTexture(indicators, "OVERLAY", 16, 16, "CENTER", "TOPRIGHT")
 	self.MasterLooter = SpawnTexture(indicators, "OVERLAY", 16, 16, "CENTER", "TOPRIGHT", -16)
-	self.PvP = SpawnTexture(indicators, "OVERLAY", 16, 16, "CENTER", "BOTTOMLEFT", leftOffset)
 	self.Combat = SpawnTexture(indicators, "OVERLAY", 16, 16, "CENTER", "BOTTOMLEFT")
 	if unit == "pet" then
 		self.Happiness = SpawnTexture(indicators, "OVERLAY", 16, 16, "CENTER", "BOTTOMRIGHT")
 	end
 	if unit == "player" then
 		self.Resting = SpawnTexture(indicators, "OVERLAY", 16, 16, "CENTER", "BOTTOMLEFT")
+	end
+	
+	if self.Portrait then
+		self.PvP = SpawnTexture(indicators, "OVERLAY", 16, 16)
+		if settings.rightPortrait then
+			self.PvP:SetPoint("CENTER", barContainer, "BOTTOMRIGHT")
+		else
+			self.PvP:SetPoint("CENTER", barContainer, "BOTTOMLEFT")
+		end
 	end
 
 	-- Range fading
@@ -185,16 +230,38 @@ local function InitFrame(settings, self)
 	self.inRangeAlpha = 1.0
 	self.outsideRangeAlpha = 0.40
 	--]]
+	
+	self:HookScript('OnSizeChanged', OnSizeChanged)
+	OnSizeChanged(self)	
 end
 
-single_style = setmetatable(
-	{
-		["initial-width"] = 190,
-		["initial-height"] = 45,
-	}, {
-		__call = InitFrame,
-	}
-)
+local single_style = setmetatable({
+	["initial-width"] = 190,
+	["initial-height"] = 45,
+}, {
+	__call = InitFrame,
+})
 
 oUF:RegisterStyle("Adirelle_Single", single_style)
+
+local single_style_right = setmetatable({
+	rightPortrait = true
+}, {
+	__call = InitFrame,
+	__index = single_style,
+})
+
+oUF:RegisterStyle("Adirelle_Single_Right", single_style_right)
+
+local single_style_health = setmetatable({
+	["initial-height"] = 20,
+	noPower = true,
+	noPortrait = true
+}, {
+	__call = InitFrame,
+	__index = single_style,
+})
+
+oUF:RegisterStyle("Adirelle_Single_Health", single_style_health)
+
 
