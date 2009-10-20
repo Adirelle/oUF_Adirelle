@@ -31,7 +31,7 @@ local function Update(self, event, unit)
 			if threat and threat > 0 then
 				r, g, b = GetThreatStatusColor(threat)
 			elseif UnitPowerType(unit) == 0 and UnitMana(unit) / UnitManaMax(unit) < 0.25 then
-				r, g, b = 0, 0, 1
+				r, g, b = unpack(oUF.colors.power.MANA)
 			end
 		end
 	end
