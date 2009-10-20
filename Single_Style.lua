@@ -166,9 +166,27 @@ local function OnSizeChanged(self, width, height)
 end
 
 local POWERTYPE_MANA = 0
+local DROPDOWN_MENUS = {
+	player = PlayerFrameDropDown,
+	pet = PetFrameDropDown,
+	target = TargetFrameDropDown,
+	focus = FocusFrameDropDown,
+}
+
+local function ToggleMenu(self, unit, button, actionType)
+	ToggleDropDownMenu(1, nil, DROPDOWN_MENUS[unit], self:GetName(), 0, 0) 
+end
 
 local function InitFrame(settings, self)
 	local unit = self.unit
+	
+	self:RegisterForClicks("AnyUp")
+	self:SetAttribute("type", "target");
+	
+	if DROPDOWN_MENUS[unit] then
+		self:SetAttribute("*type2", "menu");
+		self.menu = ToggleMenu
+	end
 
 	self:SetBackdrop(backdrop)
 	self:SetBackdropColor(0,0,0,1)
