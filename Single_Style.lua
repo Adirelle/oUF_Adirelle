@@ -139,9 +139,9 @@ end
 
 local function playerBuffFilter(icons, unit, icon, name, rank, texture, count, dtype, duration, timeLeft, caster)
 	if name then
-		icon.isPlayer = UnitIsUnit(caster, 'player') or UnitIsUnit(caster, 'vehicle')  or UnitIsUnit(caster, 'pet')
+		icon.isPlayer = caster and (UnitIsUnit(caster, 'player') or UnitIsUnit(caster, 'vehicle') or UnitIsUnit(caster, 'pet'))
 		icon.owner = caster
-		return dtype or (icon.isPlayer and duration and duration ~= 0)
+		return (icon.isPlayer and duration and duration ~= 0)
 	end
 end
 
@@ -161,8 +161,6 @@ local function OnSizeChanged(self, width, height)
 			self.AltPower:SetHeight((height-2*GAP)*0.20)
 		end
 	end
-	self.RaidIcon:SetWidth(height)
-	self.RaidIcon:SetHeight(height)
 end
 
 local POWERTYPE_MANA = 0
@@ -182,7 +180,10 @@ local function InitFrame(settings, self)
 	
 	self:RegisterForClicks("AnyUp")
 	self:SetAttribute("type", "target");
-	
+
+	self:SetScript("OnEnter", UnitFrame_OnEnter)
+	self:SetScript("OnLeave", UnitFrame_OnLeave)
+
 	if DROPDOWN_MENUS[unit] then
 		self:SetAttribute("*type2", "menu");
 		self.menu = ToggleMenu
@@ -310,15 +311,19 @@ local function InitFrame(settings, self)
 	-- Various indicators
 	local indicators = CreateFrame("Frame", nil, self)
 	indicators:SetAllPoints(self)
-	indicators:SetFrameLevel(health:GetFrameLevel()+2)
-	self.RaidIcon = SpawnTexture(indicators, 16)
+	indicators:SetFrameLevel(health:GetFrameLevel()+2)	
 	self.Leader = SpawnTexture(indicators, 16, "TOP"..left)
 	self.Assistant = SpawnTexture(indicators, 16, "TOP"..left)
 	self.MasterLooter = SpawnTexture(indicators, 16, "TOP"..left, 16*dir)
 	self.Combat = SpawnTexture(indicators, 16, "BOTTOM"..left)
+
+	self.RaidIcon = SpawnTexture(indicators, 16)
+	self.RaidIcon:SetPoint("CENTER", barContainer)
+
 	if unit == "pet" then
 		self.Happiness = SpawnTexture(indicators, 16, "BOTTOMRIGHT")
 	end
+
 	if unit == "player" then
 		self.Resting = SpawnTexture(indicators, 16, "BOTTOMLEFT")
 	end
