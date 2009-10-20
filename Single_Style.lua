@@ -17,8 +17,18 @@ local borderBackdrop = {
 	insets = {left = 0, right = 0, top = 0, bottom = 0},
 }
 
-
 local floor = math.floor
+
+local function smartValue(value)
+	if value >= 10000000 then
+		return value/1000000, "%.1fm"
+	elseif value >= 10000 then
+		return value/1000, "%.1fk"
+	else
+		return value, "%d"
+	end
+end
+
 local function OnStatusBarUpdate(bar)
 	local text = bar.Text
 	if not text then return end
@@ -28,13 +38,9 @@ local function OnStatusBarUpdate(bar)
 	elseif max == 0 then
 		return text:Hide()
 	else
-		local unit, div = "", 1
-		if max >= 10000000 then
-			unit, div = "m", 1000000
-		elseif max >= 10000 then
-			unit, div = "k", 1000
-		end
-		text:SetFormattedText("%d%% %.1f%s/%.1f%s", floor(value/max*100), value/div, unit, max/div, unit)
+		local curValue, curFormat = smartValue(value)
+		local maxValue, maxFormat = smartValue(max)
+		text:SetFormattedText("%d%% "..curFormat.."/"..maxFormat, floor(value/max*100), curValue, maxValue)
 	end
 	text:Show()
 end
@@ -106,7 +112,6 @@ local function OnSizeChanged(self, width, height)
 end
 
 local function PostCreateAuraIcon(self, button, icons, index, debuff)
-	button:EnableMouse(false)
 	button.icon:SetTexCoord(0.05, 0.95, 0.05, 0.95)
 	button.cd:SetReverse(true)
 	button.cd:SetDrawEdge(true)
@@ -138,6 +143,14 @@ if oUF.HasIncomingHeal then
 	
 	function PostIncomingHealTextureUpdate(bar)
 		bar:SetStatusBarColor(0, 1, 0, 0.75)
+	end
+end
+
+local function playerBuffFilter(icons, unit, icon, name, rank, texture, count, dtype, duration, timeLeft, caster)
+	if name then
+		icon.isPlayer = UnitIsUnit(caster, 'player') or UnitIsUnit(caster, 'vehicle')  or UnitIsUnit(caster, 'pet')
+		icon.owner = caster
+		return dtype or (icon.isPlayer and duration and duration ~= 0)
 	end
 end
 
@@ -267,8 +280,8 @@ local function InitFrame(settings, self)
 		buffs:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, aura_margin)
 		buffs:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, aura_margin)
 		buffs:SetHeight(16 * 2)
-		buffs.onlyShowPlayer = true
 		self.Buffs = buffs
+		self.CustomAuraFilter = playerBuffFilter
 	elseif unit == "target" or unit == "player" or unit == "focus" then
 		local buffs = CreateFrame("Frame", nil, self)
 		buffs:SetPoint("BOTTOM"..right, self, "BOTTOM"..left, -aura_margin*dir, 0)
@@ -293,8 +306,11 @@ local function InitFrame(settings, self)
 			debuffs['growth-x'] = left
 			debuffs['growth-y'] = "DOWN"
 			self.Debuffs = debuffs
+		else
+			self.CustomAuraFilter = playerBuffFilter
 		end
 	end
+	
 	if self.Buffs or self.Debuffs then
 		self.PostCreateAuraIcon = PostCreateAuraIcon
 	end
