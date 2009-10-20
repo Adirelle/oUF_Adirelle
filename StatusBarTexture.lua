@@ -29,7 +29,7 @@ end
 
 local lsm = LibStub('LibSharedMedia-3.0', true)
 if lsm then
-	texture = lsm:Fetch("statusbar", false)	
+	texture = lsm:Fetch("statusbar", 'BantoBar')	
 	lsm.RegisterCallback(objects, 'LibSharedMedia_SetGlobal', function(_, media, value)
 		if media == "statusbar" then
 			texture = lsm:Fetch("statusbar", value)
