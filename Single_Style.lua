@@ -7,7 +7,16 @@ All rights reserved.
 local oUF = assert(_G.oUF, "oUF_Adirelle requires oUF")
 setfenv(1, oUF_Adirelle)
 
+local BORDER_WIDTH = 2
+local TEXT_MARGIN = 2
 local GAP = 2
+
+local borderBackdrop = {
+	edgeFile = [[Interface\Addons\oUF_Adirelle\white16x16]],
+	edgeSize = BORDER_WIDTH,
+	insets = {left = 0, right = 0, top = 0, bottom = 0},
+}
+
 
 local floor = math.floor
 local function OnStatusBarUpdate(bar)
@@ -43,13 +52,11 @@ local function SetFont(fs, size, flags)
 	fs:SetShadowOffset(0.5,-0.5)
 end
 
-local function SpawnTexture(object, layer, width, height, from, to, xOffset, yOffset)
-	local texture = object:CreateTexture(nil, layer)
-	texture:SetWidth(width)
-	texture:SetHeight(height)
-	if from then
-		texture:SetPoint(from, object, to or from, xOffset or 0, yOffset or 0)
-	end
+local function SpawnTexture(object, size, to, xOffset, yOffset)
+	local texture = object:CreateTexture(nil, "OVERLAY")
+	texture:SetWidth(size)
+	texture:SetHeight(size)
+	texture:SetPoint("CENTER", object, to or "CENTER", xOffset or 0, yOffset or 0)
 	return texture
 end
 
@@ -75,8 +82,8 @@ local function SpawnText(object, layer, from, to, xOffset, yOffset)
 end
 
 local function CreateStatusBarText(bar)
-	bar.Text = SpawnText(bar, "OVERLAY", "TOPRIGHT")
-	bar.Text:SetPoint("BOTTOMRIGHT")
+	bar.Text = SpawnText(bar, "OVERLAY", "TOPRIGHT", "TOPRIGHT", -TEXT_MARGIN, 0)
+	bar.Text:SetPoint("BOTTOMRIGHT", bar, "BOTTOMRIGHT", -TEXT_MARGIN, 0)
 	bar:SetScript('OnValueChanged', OnStatusBarUpdate)
 	bar:SetScript('OnMinMaxChanged', OnStatusBarUpdate)	
 end
@@ -84,27 +91,34 @@ end
 local function OnSizeChanged(self, width, height)
 	width = width or self:GetWidth()
 	height = height or self:GetHeight()
-	self.Border:SetWidth(width + 2)
-	self.Border:SetHeight(height + 2)
+	self.Border:SetWidth(width + 2*BORDER_WIDTH)
+	self.Border:SetHeight(height + 2*BORDER_WIDTH)
 	local portrait = self.Portrait
 	if portrait then
 		portrait:SetWidth(height)
 		portrait:SetHeight(height)
 	end
 	if self.Power then
-		self.Health:SetHeight((height-GAP)/2)
+		self.Health:SetHeight(height*0.55)
 	end
+	self.RaidIcon:SetWidth(height)
+	self.RaidIcon:SetHeight(height)
+end
+
+local function PostCreateAuraIcon(self, button, icons, index, debuff)
+	button:EnableMouse(false)
+	button.icon:SetTexCoord(0.05, 0.95, 0.05, 0.95)
+	button.cd:SetReverse(true)
+	button.cd:SetDrawEdge(true)
 end
 
 local function InitFrame(settings, self)
 	local unit = self.unit
-	local height = self:GetAttribute('initial-height') or settings['initial-height']
-	
 
 	self:SetBackdrop(backdrop)
 	self:SetBackdropColor(0,0,0,1)
 	self:SetBackdropBorderColor(0,0,0,1)
-
+	
 	-- Border
 	local border = CreateFrame("Frame", nil, self)
 	border:SetFrameStrata("BACKGROUND")
@@ -114,28 +128,24 @@ local function InitFrame(settings, self)
 	border:SetBackdropBorderColor(1, 1, 1, 1)
 	border.SetColor = border.SetBackdropBorderColor
 	border.blackByDefault = true
+	border.noTarget = true
 	self.Border = border	
 	
 	local barContainer
+	local left, right, dir = "LEFT", "RIGHT", 1
+	if settings.mirroredFrame then
+		left, right, dir = "RIGHT", "LEFT", -1
+	end
 
 	-- Portrait
 	if not settings.noPortrait then
-		barContainer = CreateFrame("Frame", nil, self)		
-	
 		local portrait = CreateFrame("PlayerModel", nil, self)
-		portrait:SetWidth(height)
-		portrait:SetHeight(height)
+		portrait:SetPoint(left)
 		self.Portrait = portrait
 	
-		if settings.rightPortrait then
-			portrait:SetPoint("TOPRIGHT")
-			barContainer:SetPoint("TOPLEFT", self)
-			barContainer:SetPoint("BOTTOMRIGHT", portrait, "BOTTOMLEFT", -GAP)
-		else
-			portrait:SetPoint("TOPLEFT")
-			barContainer:SetPoint("BOTTOMLEFT", portrait, "BOTTOMRIGHT", GAP)
-			barContainer:SetPoint("TOPRIGHT", self)
-		end
+		barContainer = CreateFrame("Frame", nil, self)
+		barContainer:SetPoint("TOP"..left, portrait, "TOP"..right, -GAP*dir)
+		barContainer:SetPoint("BOTTOM"..right)
 	else
 		barContainer = self
 	end
@@ -157,8 +167,8 @@ local function InitFrame(settings, self)
 	CreateStatusBarText(health)
 	
 	-- Name
-	local name = SpawnText(health, "OVERLAY", "TOPLEFT", "TOPLEFT", 4)
-	name:SetPoint("BOTTOMLEFT", health, "BOTTOMLEFT", 4)
+	local name = SpawnText(health, "OVERLAY", "TOPLEFT", "TOPLEFT", TEXT_MARGIN)
+	name:SetPoint("BOTTOMLEFT", health, "BOTTOMLEFT", TEXT_MARGIN)
 	name:SetPoint("RIGHT", health.Text, "LEFT")
 	self:Tag(name, "[name][( )status]")
 	
@@ -189,8 +199,8 @@ local function InitFrame(settings, self)
 		
 		-- Unit level and class (or creature family)
 		if unit ~= "player" and unit ~= "pet" then
-			local classif = SpawnText(power, "OVERLAY", "TOPLEFT", "TOPLEFT", 4)
-			classif:SetPoint("BOTTOMLEFT", power, "BOTTOMLEFT", 4)
+			local classif = SpawnText(power, "OVERLAY", "TOPLEFT", "TOPLEFT", TEXT_MARGIN)
+			classif:SetPoint("BOTTOMLEFT", power, "BOTTOMLEFT", TEXT_MARGIN)
 			classif:SetPoint("RIGHT", power.Text, "LEFT")
 			self:Tag(classif, "[smartlevel][( )smartclass]")
 		end
@@ -203,25 +213,62 @@ local function InitFrame(settings, self)
 	local indicators = CreateFrame("Frame", nil, self)
 	indicators:SetAllPoints(self)
 	indicators:SetFrameLevel(health:GetFrameLevel()+2)
-	self.RaidIcon = SpawnTexture(indicators, "OVERLAY", height, height, "CENTER")
-	self.Leader = SpawnTexture(indicators, "OVERLAY", 16, 16, "CENTER", "TOPRIGHT")
-	self.Assistant = SpawnTexture(indicators, "OVERLAY", 16, 16, "CENTER", "TOPRIGHT")
-	self.MasterLooter = SpawnTexture(indicators, "OVERLAY", 16, 16, "CENTER", "TOPRIGHT", -16)
-	self.Combat = SpawnTexture(indicators, "OVERLAY", 16, 16, "CENTER", "BOTTOMLEFT")
+	self.RaidIcon = SpawnTexture(indicators, 16)
+	self.Leader = SpawnTexture(indicators, 16, "TOP"..left)
+	self.Assistant = SpawnTexture(indicators, 16, "TOP"..left)
+	self.MasterLooter = SpawnTexture(indicators, 16, "TOP"..left, 16*dir)
+	self.Combat = SpawnTexture(indicators, 16, "BOTTOM"..left)
 	if unit == "pet" then
-		self.Happiness = SpawnTexture(indicators, "OVERLAY", 16, 16, "CENTER", "BOTTOMRIGHT")
+		self.Happiness = SpawnTexture(indicators, 16, "BOTTOMRIGHT")
 	end
 	if unit == "player" then
-		self.Resting = SpawnTexture(indicators, "OVERLAY", 16, 16, "CENTER", "BOTTOMLEFT")
+		self.Resting = SpawnTexture(indicators, 16, "BOTTOMLEFT")
 	end
 	
 	if self.Portrait then
-		self.PvP = SpawnTexture(indicators, "OVERLAY", 16, 16)
-		if settings.rightPortrait then
-			self.PvP:SetPoint("CENTER", barContainer, "BOTTOMRIGHT")
-		else
-			self.PvP:SetPoint("CENTER", barContainer, "BOTTOMLEFT")
+		local pvp = SpawnTexture(indicators, 12) 
+		pvp:SetTexCoord(0, 0.6, 0, 0.6)
+		pvp:SetPoint("CENTER", self.Portrait, "BOTTOM"..right)
+		self.PvP = pvp
+	end
+	
+	-- Auras
+	local aura_margin = BORDER_WIDTH + GAP
+	if unit == "pet" then
+		local buffs = CreateFrame("Frame", nil, self)
+		buffs:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, aura_margin)
+		buffs:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, aura_margin)
+		buffs:SetHeight(16 * 2)
+		buffs.onlyShowPlayer = true
+		self.Buffs = buffs
+	elseif unit == "target" or unit == "player" or unit == "focus" then
+		local buffs = CreateFrame("Frame", nil, self)
+		buffs:SetPoint("BOTTOM"..right, self, "BOTTOM"..left, -aura_margin*dir, 0)
+		buffs.num = 12
+		buffs:SetWidth(12 * 16)
+		buffs:SetHeight(16)
+		buffs.onlyShowPlayer = (unit == "player")		
+		buffs.showType = (unit ~= "player")
+		buffs.initialAnchor = "BOTTOM"..right
+		buffs['growth-x'] = left
+		buffs['growth-y'] = "UP"
+		self.Buffs = buffs
+
+		if unit ~= "player" then
+			local debuffs = CreateFrame("Frame", nil, self)
+			debuffs:SetPoint("TOP"..right, self, "TOP"..left, -aura_margin*dir, 0)
+			debuffs.num = 24
+			debuffs.showType = true
+			debuffs:SetWidth(12 * 16)
+			debuffs:SetHeight(2 * 16)	
+			debuffs.initialAnchor = "TOP"..right
+			debuffs['growth-x'] = left
+			debuffs['growth-y'] = "DOWN"
+			self.Debuffs = debuffs
 		end
+	end
+	if self.Buffs or self.Debuffs then
+		self.PostCreateAuraIcon = PostCreateAuraIcon
 	end
 
 	-- Range fading
@@ -245,7 +292,7 @@ local single_style = setmetatable({
 oUF:RegisterStyle("Adirelle_Single", single_style)
 
 local single_style_right = setmetatable({
-	rightPortrait = true
+	mirroredFrame = true
 }, {
 	__call = InitFrame,
 	__index = single_style,
