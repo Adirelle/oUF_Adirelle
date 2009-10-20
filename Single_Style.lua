@@ -29,9 +29,9 @@ local function OnStatusBarUpdate(bar)
 		return text:Hide()
 	else
 		local unit, div = "", 1
-		if max >= 1000000 then
+		if max >= 10000000 then
 			unit, div = "m", 1000000
-		elseif max >= 1000 then
+		elseif max >= 10000 then
 			unit, div = "k", 1000
 		end
 		text:SetFormattedText("%d%% %.1f%s/%.1f%s", floor(value/max*100), value/div, unit, max/div, unit)
@@ -112,6 +112,35 @@ local function PostCreateAuraIcon(self, button, icons, index, debuff)
 	button.cd:SetDrawEdge(true)
 end
 
+local UpdateIncomingHeal, PostUpdateHealth, PostIncomingHealTextureUpdate
+if oUF.HasIncomingHeal then
+	local function UpdateHealBar(bar, current, max, incomingHeal)
+		if bar.incomingHeal ~= incomingHeal or bar.currentHealth ~= current or bar.maxHealth ~= max then
+			bar.incomingHeal, bar.currentHealth, bar.maxHealth = incomingHeal, current, max
+			if current and incomingHeal and incomingHeal > 0 and max and max > 0 then
+				bar:SetMinMaxValues(0, max)
+				bar:SetValue(current + incomingHeal)		
+				bar:Show()
+			else
+				bar:Hide()
+			end
+		end
+	end
+
+	function UpdateIncomingHeal(self, event, unit, bar, incomingHeal)
+		UpdateHealBar(bar, bar.currentHealth, bar.maxHealth, incomingHeal)
+	end
+		
+	function PostUpdateHealth(self, event, unit, _, current, max)
+		local bar = self.IncomingHeal
+		UpdateHealBar(bar, current, max, bar.incomingHeal)
+	end
+	
+	function PostIncomingHealTextureUpdate(bar)
+		bar:SetStatusBarColor(0, 1, 0, 0.75)
+	end
+end
+
 local function InitFrame(settings, self)
 	local unit = self.unit
 
@@ -172,19 +201,18 @@ local function InitFrame(settings, self)
 	name:SetPoint("RIGHT", health.Text, "LEFT")
 	self:Tag(name, "[name][( )status]")
 	
-	--[[ Incoming heals
+	-- Incoming heals
 	if oUF.HasIncomingHeal then
-		local heal = health:CreateTexture(nil, "OVERLAY")
-		heal:SetTexture(0, 0.5, 0, 0.5)
-		heal:SetBlendMode("BLEND")
-		heal:SetPoint("TOP")
-		heal:SetPoint("BOTTOM")
-		heal:Hide()
-		self.IncomingHeal = heal
-		--self.UpdateIncomingHeal = UpdateIncomingHeal
-		--self.PostUpdateHealth = PostUpdateHealth
-	end	
-	--]]
+		local incomingHeal = CreateFrame("StatusBar", nil, self)
+		incomingHeal:SetAllPoints(health)
+		incomingHeal:SetFrameLevel(health:GetFrameLevel()-1)
+		incomingHeal.PostTextureUpdate = PostIncomingHealTextureUpdate
+		oUF:RegisterStatusBarTexture(incomingHeal)
+
+		self.IncomingHeal = incomingHeal
+		self.UpdateIncomingHeal = UpdateIncomingHeal
+		self.PostUpdateHealth = PostUpdateHealth
+	end
 
 	-- Power bar
 	if not settings.noPower then
