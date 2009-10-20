@@ -87,28 +87,19 @@ local function SpawnText(object, layer, from, to, xOffset, yOffset)
 	return text
 end
 
-local function CreateStatusBarText(bar)
-	bar.Text = SpawnText(bar, "OVERLAY", "TOPRIGHT", "TOPRIGHT", -TEXT_MARGIN, 0)
-	bar.Text:SetPoint("BOTTOMRIGHT", bar, "BOTTOMRIGHT", -TEXT_MARGIN, 0)
-	bar:SetScript('OnValueChanged', OnStatusBarUpdate)
-	bar:SetScript('OnMinMaxChanged', OnStatusBarUpdate)	
-end
-
-local function OnSizeChanged(self, width, height)
-	width = width or self:GetWidth()
-	height = height or self:GetHeight()
-	self.Border:SetWidth(width + 2*BORDER_WIDTH)
-	self.Border:SetHeight(height + 2*BORDER_WIDTH)
-	local portrait = self.Portrait
-	if portrait then
-		portrait:SetWidth(height)
-		portrait:SetHeight(height)
+local function SpawnStatusBar(parent, noText, from, anchor, to, xOffset, yOffset)
+	local bar = CreateFrame("StatusBar", nil, parent)
+	if not noText then
+		bar.Text = SpawnText(bar, "OVERLAY", "TOPRIGHT", "TOPRIGHT", -TEXT_MARGIN, 0)
+		bar.Text:SetPoint("BOTTOMRIGHT", bar, "BOTTOMRIGHT", -TEXT_MARGIN, 0)
+		bar:SetScript('OnValueChanged', OnStatusBarUpdate)
+		bar:SetScript('OnMinMaxChanged', OnStatusBarUpdate)	
 	end
-	if self.Power then
-		self.Health:SetHeight(height*0.55)
+	if from then
+		bar:SetPoint(from, anchor or parent, to or from, xOffset or 0, yOffset or 0)
 	end
-	self.RaidIcon:SetWidth(height)
-	self.RaidIcon:SetHeight(height)
+	oUF:RegisterStatusBarTexture(bar)
+	return bar
 end
 
 local function PostCreateAuraIcon(self, button, icons, index, debuff)
@@ -154,6 +145,28 @@ local function playerBuffFilter(icons, unit, icon, name, rank, texture, count, d
 	end
 end
 
+local function OnSizeChanged(self, width, height)
+	width = width or self:GetWidth()
+	height = height or self:GetHeight()
+	self.Border:SetWidth(width + 2*BORDER_WIDTH)
+	self.Border:SetHeight(height + 2*BORDER_WIDTH)
+	local portrait = self.Portrait
+	if portrait then
+		portrait:SetWidth(height)
+		portrait:SetHeight(height)
+	end
+	if self.Power then
+		self.Health:SetHeight((height-GAP)*0.55)
+		if self.AltPower then
+			self.AltPower:SetHeight((height-2*GAP)*0.20)
+		end
+	end
+	self.RaidIcon:SetWidth(height)
+	self.RaidIcon:SetHeight(height)
+end
+
+local POWERTYPE_MANA = 0
+
 local function InitFrame(settings, self)
 	local unit = self.unit
 
@@ -194,25 +207,21 @@ local function InitFrame(settings, self)
 	self.BarContainer = barContainer
 	
 	-- Health bar
-	local health = CreateFrame("StatusBar", nil, self)	
+	local health = SpawnStatusBar(self, false, "TOPLEFT", barContainer)
+	health:SetPoint("TOPRIGHT", barContainer)
 	health.colorTapping = true
 	health.colorDisconnected = true
 	health.colorHappiness = true
 	health.colorClass = true	
 	health.colorSmooth = true	
 	health.frequentUpdates = true	
-	health:SetPoint("TOPLEFT", barContainer)
-	health:SetPoint("TOPRIGHT", barContainer)
 	self.Health = health
-	oUF:RegisterStatusBarTexture(health)
-
-	CreateStatusBarText(health)
 	
 	-- Name
 	local name = SpawnText(health, "OVERLAY", "TOPLEFT", "TOPLEFT", TEXT_MARGIN)
 	name:SetPoint("BOTTOMLEFT", health, "BOTTOMLEFT", TEXT_MARGIN)
 	name:SetPoint("RIGHT", health.Text, "LEFT")
-	self:Tag(name, "[name][( )status]")
+	self:Tag(name, (unit == "player" or unit == "pet") and "[name]" or "[name][( <)status(>)]")
 	
 	-- Incoming heals
 	if oUF.HasIncomingHeal then
@@ -229,26 +238,56 @@ local function InitFrame(settings, self)
 
 	-- Power bar
 	if not settings.noPower then
-		local power = CreateFrame("StatusBar", nil, self)
+		local power = SpawnStatusBar(self, false, "TOPLEFT", health, "BOTTOMLEFT", 0, -GAP)
 		power.colorDisconnected = true
 		power.colorPower = true
 		power.frequentUpdates = true
-		power:SetPoint("TOPLEFT", health, "BOTTOMLEFT", 0, -GAP)
-		CreateStatusBarText(power)
 		self.Power = power
-		oUF:RegisterStatusBarTexture(power)
-		
+
 		-- Unit level and class (or creature family)
 		if unit ~= "player" and unit ~= "pet" then
-			local classif = SpawnText(power, "OVERLAY", "TOPLEFT", "TOPLEFT", TEXT_MARGIN)
-			classif:SetPoint("BOTTOMLEFT", power, "BOTTOMLEFT", TEXT_MARGIN)
+			local classif = SpawnText(barContainer, "OVERLAY")
+			classif:SetPoint("TOPLEFT", power, "TOPLEFT", TEXT_MARGIN, 0)
 			classif:SetPoint("RIGHT", power.Text, "LEFT")
+			classif:SetPoint("BOTTOM", barContainer)
 			self:Tag(classif, "[smartlevel][( )smartclass]")
 		end
-	end
-	
-	-- Stick the last bar to the bottom of the frame
-	(self.Power or self.Health):SetPoint("BOTTOMRIGHT", barContainer)
+
+		-- Druid mana bar
+		if unit == "player" and select(2, UnitClass("player")) == "DRUID" then
+			local altPower = SpawnStatusBar(self, false, "BOTTOMRIGHT", barContainer) 
+			altPower:SetPoint("BOTTOMLEFT", barContainer)
+			function altPower:PostTextureUpdate()
+				altPower:SetStatusBarColor(unpack(oUF.colors.power.MANA))
+			end
+			altPower:PostTextureUpdate()
+			self.AltPower = altPower 
+
+			function self:PostUpdatePower(event, unit)
+				local power, altPower = self.Power, self.AltPower 
+				if UnitPowerType(unit) ~= POWERTYPE_MANA then
+					local current, max = UnitPower(unit, POWERTYPE_MANA), UnitPowerMax(unit, POWERTYPE_MANA)
+					if max and max > 0 then
+						altPower:SetMinMaxValues(0, max)
+						altPower:SetValue(current)
+						if not altPower:IsShown() then
+							power:SetPoint("BOTTOMRIGHT", altPower, "TOPRIGHT", 0, GAP)
+							altPower:Show()
+						end
+						return
+					end
+				end
+				if altPower:IsShown() then
+					power:SetPoint("BOTTOMRIGHT", barContainer)
+					altPower:Hide()
+				end
+			end
+		else
+			power:SetPoint("BOTTOMRIGHT", barContainer)
+		end
+	else
+		health:SetPoint("BOTTOMRIGHT", barContainer)
+	end	
 	
 	-- Various indicators
 	local indicators = CreateFrame("Frame", nil, self)
