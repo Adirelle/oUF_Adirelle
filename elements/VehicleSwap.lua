@@ -14,8 +14,11 @@ end
 
 local function OnAttributeChanged(self, name, value)
 	if name == "unit" or name == "unitsuffix" then
-		self.__origUnit = SecureButton_GetUnit(self)
-		return Update(self, "OnAttributeChanged") 
+		local newOrig = SecureButton_GetUnit(self)
+		if newOrig ~= self.__origUnit then
+			self.__origUnit = newOrig
+			return Update(self, "OnAttributeChanged") 			
+		end
 	end
 end
 
@@ -26,7 +29,8 @@ local function OnVehicleUpdate(self, event, unit)
 end
 
 local function Enable(self)
-	if self.noVehicleSwap then return end	
+	if self.noVehicleSwap or (self.unit == "player" or self.unit == "pet") then return end	
+	self.__origUnit = SecureButton_GetUnit(self) or self.unit
 	self:SetAttribute('toggleForVehicle', true)
 	self:HookScript('OnAttributeChanged', OnAttributeChanged)
 	self:RegisterEvent('UNIT_ENTERED_VEHICLE', OnVehicleUpdate)
