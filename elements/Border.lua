@@ -19,24 +19,28 @@ local function Update(self, event, unit)
 	if unit and unit ~= self.unit then return end
 	unit = unit or self.unit
 	local border = self.Border
-	if not unit then return border:Hide() end
 	local r, g, b
-	local threat = UnitThreatSituation(unit or "")
-	if unit ~= 'target' and UnitIsUnit('target', unit) then
-		r, g, b = 1, 1, 1
-	elseif UnitIsDeadOrGhost(unit) then
-		return border:Hide()
-	elseif threat and threat > 0 then
-		r, g, b = GetThreatStatusColor(threat)
-	elseif UnitPowerType(unit) == 0 and UnitMana(unit) / UnitManaMax(unit) < 0.25 then
-		r, g, b = 0, 0, 1
-	elseif border.blackByDefault then
+	if border.blackByDefault then
 		r, g, b = 0, 0, 0
-	else
-		return border:Hide()
 	end
-	border:SetColor(r, g, b)
-	border:Show()
+	if unit and UnitExists(unit) then
+		if not border.noTarget and UnitIsUnit('target', unit) then
+			r, g, b = 1, 1, 1
+		elseif not UnitIsDeadOrGhost(unit) then
+			local threat = UnitThreatSituation(unit)
+			if threat and threat > 0 then
+				r, g, b = GetThreatStatusColor(threat)
+			elseif UnitPowerType(unit) == 0 and UnitMana(unit) / UnitManaMax(unit) < 0.25 then
+				r, g, b = 0, 0, 1
+			end
+		end
+	end
+	if b then
+		border:SetColor(r, g, b)
+		border:Show()
+	else
+		border:Hide()
+	end
 end
 
 local function Enable(self)
