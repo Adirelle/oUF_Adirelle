@@ -6,6 +6,8 @@ All rights reserved.
 
 local oUF = assert(_G.oUF, "oUF_Adirelle requires oUF")
 
+oUF.colors.power.MANA = { 0.3, 0.5, 1.0 }
+
 local LibStub = LibStub
 local UnitClass = UnitClass
 local UnitIsConnected = UnitIsConnected
