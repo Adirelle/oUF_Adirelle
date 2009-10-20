@@ -40,7 +40,7 @@ backdrop = {
 	insets = {left = 0, right = 0, top = 0, bottom = 0},
 }
 
-borderBackdrop = {
+local borderBackdrop = {
 	edgeFile = [[Interface\Addons\oUF_Adirelle\white16x16]],
 	edgeSize = BORDER_WIDTH,
 	insets = {left = 0, right = 0, top = 0, bottom = 0},
