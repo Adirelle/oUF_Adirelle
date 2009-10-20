@@ -141,7 +141,7 @@ local function playerBuffFilter(icons, unit, icon, name, rank, texture, count, d
 	if name then
 		icon.isPlayer = caster and (UnitIsUnit(caster, 'player') or UnitIsUnit(caster, 'vehicle') or UnitIsUnit(caster, 'pet'))
 		icon.owner = caster
-		return (icon.isPlayer and duration and duration ~= 0)
+		return (dtype ~= nil) or (icon.isPlayer and duration and duration ~= 0)
 	end
 end
 
@@ -378,11 +378,9 @@ local function InitFrame(settings, self)
 	end
 
 	-- Range fading
-	--[[
-	self.Range = true
+	self.XRange = true
 	self.inRangeAlpha = 1.0
 	self.outsideRangeAlpha = 0.40
-	--]]
 	
 	self:HookScript('OnSizeChanged', OnSizeChanged)
 	OnSizeChanged(self)	
