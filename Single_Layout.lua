@@ -18,10 +18,11 @@ local focus = oUF:Spawn("focus","oUF_Adirelle_Focus")
 oUF:SetActiveStyle("Adirelle_Single_Health")
 local tot = oUF:Spawn("targettarget", "oUF_Adirelle_ToT")
 
-player:SetPoint('BOTTOMLEFT', UIParent, "BOTTOMLEFT", 325, 400)
-pet:SetPoint('BOTTOMLEFT', player, "TOPLEFT", 0, 10)
+player:SetPoint('BOTTOMRIGHT', UIParent, "BOTTOM", -255, 180)
+pet:SetPoint('BOTTOM', player, "TOP", 0, 15)
+pet:SetHeight(40)
 
-target:SetPoint('BOTTOMRIGHT', UIParent, "BOTTOMRIGHT", -325, 400)
-tot:SetPoint('BOTTOMLEFT', target, "TOPLEFT", 0, 10)
-focus:SetPoint('BOTTOMLEFT', tot, "TOPLEFT", 0, 10)
+target:SetPoint('BOTTOMLEFT', UIParent, "BOTTOM", 255, 180)
+tot:SetPoint('BOTTOM', target, "TOP", 0, 15)
+focus:SetPoint('BOTTOM', tot, "TOP", 0, 15)
 
