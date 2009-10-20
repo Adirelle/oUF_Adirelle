@@ -769,7 +769,7 @@ local function InitFrame(settings, self)
 	self:HookScript('OnSizeChanged', OnSizeChanged)
 
 	-- Range fading
-	self.Range = true
+	self.XRange = true
 	self.inRangeAlpha = 1.0
 	self.outsideRangeAlpha = 0.40
 end
