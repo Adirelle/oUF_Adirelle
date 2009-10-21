@@ -166,7 +166,126 @@ local function OnSizeChanged(self, width, height)
 	end
 end
 
-local POWERTYPE_MANA = 0
+local _, playerClass = UnitClass('player')
+
+local SetupAltPower
+if playerClass == 'DEATHKNIGHT' then
+	function SetupAltPower(self)
+	
+		oUF.colors.runes = oUF.colors.runes or {
+			{ 1, 0, 0  },
+			{ 0, 0.5, 0 },
+			{ 0, 1, 1 },
+			{ 0.8, 0.1, 1 },
+		}
+
+		local function UpdateRuneColor(rune)
+			rune:SetStatusBarColor(unpack(oUF.colors.runes[GetRuneType(rune.index)]))
+		end
+	
+		local GetTime = GetTime
+		local function OnUpdate(rune)
+			local now = GetTime()
+			rune:SetValue(now)
+			if now > rune.readyTime then
+				rune:SetScript('OnUpdate', nil)
+			end
+		end
+
+		local function RuneUpdate(self, event, index)
+			local rune = self.RuneBar[index]
+			if not rune then return end
+			UpdateRuneColor(rune)
+			local start, duration, ready = GetRuneCooldown(index)
+			if not ready then
+				rune.duration = duration
+				rune.readyTime = start + duration
+				rune:SetMinMaxValues(start, start + duration)
+				rune:SetScript('OnUpdate', OnUpdate)
+			else
+				rune:SetScript('OnUpdate', nil)		
+			end
+		end
+	
+		local function Update(self, event, index)
+			if not index then
+				for index = 1, 6 do 
+					RuneUpdate(self, event, index) 
+				end
+			else
+				RuneUpdate(self, event, index) 
+			end		
+		end
+	
+		local function LayoutRunes(runeBar)
+			local spacing = (runeBar:GetWidth() + GAP) / 6
+			local runeWidth = spacing - GAP
+			local runeHeight = runeBar:GetHeight()
+			for index = 1, 6 do
+				local rune = runeBar[index]
+				rune:SetPoint("TOPLEFT", runeBar, "TOPLEFT", spacing * (index-1), 0)
+				rune:SetWidth(runeWidth)
+				rune:SetHeight(runeHeight)
+			end
+		end
+
+		local runeBar = CreateFrame("Frame", nil, self)
+		runeBar:HookScript('OnSizeChanged', LayoutRunes)
+		self.RuneBar = runeBar
+		
+		for index = 1, 6 do
+			local rune = CreateFrame("StatusBar", nil, runeBar)
+			rune.index = index
+			rune.PostTextureUpdate = UpdateRuneColor
+			oUF:RegisterStatusBarTexture(rune)
+			runeBar[index] = rune
+		end
+
+		self:RegisterEvent('RUNE_POWER_UPDATE', Update)
+		self:RegisterEvent('RUNE_TYPE_UPDATE', Update)
+
+		RuneFrame:Hide()
+		RuneFrame.Show = RuneFrame.Hide
+		RuneFrame:UnregisterAllEvents()
+		
+		return runeBar
+	end
+
+elseif playerClass == "DRUID" then
+	-- Druid mana bar
+	function SetupAltPower(self)
+		local POWERTYPE_MANA = 0
+
+		local altPower = SpawnStatusBar(self) 
+		altPower.PostTextureUpdate = function()
+			altPower:SetStatusBarColor(unpack(oUF.colors.power.MANA))
+		end
+		altPower:PostTextureUpdate()
+		
+		self.PostUpdatePower = function(self, event, unit)
+			local power, altPower = self.Power, self.AltPower 
+			if UnitPowerType(unit) ~= POWERTYPE_MANA then
+				local current, max = UnitPower(unit, POWERTYPE_MANA), UnitPowerMax(unit, POWERTYPE_MANA)
+				if max and max > 0 then
+					altPower:SetMinMaxValues(0, max)
+					altPower:SetValue(current)
+					if not altPower:IsShown() then
+						power:SetPoint("BOTTOMRIGHT", altPower, "TOPRIGHT", 0, GAP)
+						altPower:Show()
+					end
+					return
+				end
+			end
+			if altPower:IsShown() then
+				power:SetPoint("BOTTOMRIGHT", self.BarContainer)
+				altPower:Hide()
+			end
+		end	
+		
+		return altPower
+	end
+end
+
 local DROPDOWN_MENUS = {
 	player = PlayerFrameDropDown,
 	pet = PetFrameDropDown,
@@ -275,35 +394,12 @@ local function InitFrame(settings, self)
 			self:Tag(classif, "[smartlevel][( )smartclass]")
 		end
 
-		-- Druid mana bar
-		if unit == "player" and select(2, UnitClass("player")) == "DRUID" then
-			local altPower = SpawnStatusBar(self, false, "BOTTOMRIGHT", barContainer) 
+		if unit == "player" and SetupAltPower then
+			local altPower = SetupAltPower(self) 
+			altPower:SetPoint("BOTTOMRIGHT", barContainer)
 			altPower:SetPoint("BOTTOMLEFT", barContainer)
-			function altPower:PostTextureUpdate()
-				altPower:SetStatusBarColor(unpack(oUF.colors.power.MANA))
-			end
-			altPower:PostTextureUpdate()
-			self.AltPower = altPower 
-
-			function self:PostUpdatePower(event, unit)
-				local power, altPower = self.Power, self.AltPower 
-				if UnitPowerType(unit) ~= POWERTYPE_MANA then
-					local current, max = UnitPower(unit, POWERTYPE_MANA), UnitPowerMax(unit, POWERTYPE_MANA)
-					if max and max > 0 then
-						altPower:SetMinMaxValues(0, max)
-						altPower:SetValue(current)
-						if not altPower:IsShown() then
-							power:SetPoint("BOTTOMRIGHT", altPower, "TOPRIGHT", 0, GAP)
-							altPower:Show()
-						end
-						return
-					end
-				end
-				if altPower:IsShown() then
-					power:SetPoint("BOTTOMRIGHT", barContainer)
-					altPower:Hide()
-				end
-			end
+			self.AltPower = altPower
+			power:SetPoint("BOTTOMRIGHT", self.AltPower, "TOPRIGHT", 0, GAP)
 		else
 			power:SetPoint("BOTTOMRIGHT", barContainer)
 		end
@@ -343,8 +439,9 @@ local function InitFrame(settings, self)
 		local cpoints = {}
 		for i = 0, 4 do
 			local cpoint = SpawnTexture(indicators, 8)
-			cpoint:SetPoint("BOTTOM"..right, indicators, "BOTTOM"..right, FRAME_MARGIN*dir, i*9)
-			cpoint:SetTexture([[Interface\AddOns\oUF_Adirelle\combo]]);
+			cpoint:SetPoint("BOTTOM"..left, indicators, "BOTTOM"..right, FRAME_MARGIN*dir, i*9)
+			cpoint:SetTexture([[Interface\AddOns\oUF_Adirelle\combo]])
+			cpoint:SetTexCoord(3/16, 13/16, 5/16, 14/16)
 			tinsert(cpoints, cpoint)
 		end
 		self.CPoints = cpoints
