@@ -4,7 +4,7 @@
 ## Title: oUF Adirelle
 ## Notes: Adirelle's oUF raid layout.
 ## RequiredDeps: oUF
-## OptionalDeps: LibSharedMedia-3.0, LibHealComm-4.0
+## OptionalDeps: LibSharedMedia-3.0, LibHealComm-4.0, SharedMedia, SharedMedia_MyMedia
 
 elements\Border.lua
 elements\ReadyCheck.lua
@@ -18,4 +18,3 @@ StatusBarTexture.lua
 
 Raid_Style.lua
 Raid_Layout.lua
-
