@@ -10,7 +10,8 @@ setfenv(1, oUF_Adirelle)
 local BORDER_WIDTH = 2
 local TEXT_MARGIN = 2
 local GAP = 2
-
+local FRAME_MARGIN = BORDER_WIDTH + GAP
+	
 local borderBackdrop = {
 	edgeFile = [[Interface\Addons\oUF_Adirelle\white16x16]],
 	edgeSize = BORDER_WIDTH,
@@ -139,9 +140,11 @@ end
 
 local function playerBuffFilter(icons, unit, icon, name, rank, texture, count, dtype, duration, timeLeft, caster)
 	if name then
-		icon.isPlayer = caster and (UnitIsUnit(caster, 'player') or UnitIsUnit(caster, 'vehicle') or UnitIsUnit(caster, 'pet'))
+		icon.isPlayer = (caster == 'player' or caster == 'vehicle' or caster == 'pet')
 		icon.owner = caster
-		return (dtype ~= nil) or (icon.isPlayer and duration and duration ~= 0)
+		return (dtype ~= nil) or (icon.isPlayer and duration and duration > 0)
+	else
+		icon.isPlayer, icon.owner = nil, nil
 	end
 end
 
@@ -335,18 +338,29 @@ local function InitFrame(settings, self)
 		self.PvP = pvp
 	end
 	
+	-- Combo points
+	if unit == "target" or unit == "focus" then
+		local cpoints = {}
+		for i = 0, 4 do
+			local cpoint = SpawnTexture(indicators, 8)
+			cpoint:SetPoint("BOTTOM"..right, indicators, "BOTTOM"..right, FRAME_MARGIN*dir, i*9)
+			cpoint:SetTexture([[Interface\AddOns\oUF_Adirelle\combo]]);
+			tinsert(cpoints, cpoint)
+		end
+		self.CPoints = cpoints
+	end
+	
 	-- Auras
-	local aura_margin = BORDER_WIDTH + GAP
 	if unit == "pet" then
 		local buffs = CreateFrame("Frame", nil, self)
-		buffs:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, aura_margin)
-		buffs:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, aura_margin)
+		buffs:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, FRAME_MARGIN)
+		buffs:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, FRAME_MARGIN)
 		buffs:SetHeight(16 * 2)
 		self.Buffs = buffs
 		self.CustomAuraFilter = playerBuffFilter
 	elseif unit == "target" or unit == "player" or unit == "focus" then
 		local buffs = CreateFrame("Frame", nil, self)
-		buffs:SetPoint("BOTTOM"..right, self, "BOTTOM"..left, -aura_margin*dir, 0)
+		buffs:SetPoint("BOTTOM"..right, self, "BOTTOM"..left, -FRAME_MARGIN*dir, 0)
 		buffs.num = 12
 		buffs:SetWidth(12 * 16)
 		buffs:SetHeight(16)
@@ -359,7 +373,7 @@ local function InitFrame(settings, self)
 
 		if unit ~= "player" then
 			local debuffs = CreateFrame("Frame", nil, self)
-			debuffs:SetPoint("TOP"..right, self, "TOP"..left, -aura_margin*dir, 0)
+			debuffs:SetPoint("TOP"..right, self, "TOP"..left, -FRAME_MARGIN*dir, 0)
 			debuffs.num = 24
 			debuffs.showType = true
 			debuffs:SetWidth(12 * 16)
@@ -376,11 +390,9 @@ local function InitFrame(settings, self)
 	if self.Buffs or self.Debuffs then
 		self.PostCreateAuraIcon = PostCreateAuraIcon
 	end
-
+	
 	-- Range fading
 	self.XRange = true
-	self.inRangeAlpha = 1.0
-	self.outsideRangeAlpha = 0.40
 	
 	self:HookScript('OnSizeChanged', OnSizeChanged)
 	OnSizeChanged(self)	
