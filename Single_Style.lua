@@ -140,9 +140,11 @@ end
 
 local function playerBuffFilter(icons, unit, icon, name, rank, texture, count, dtype, duration, timeLeft, caster)
 	if name then
+		if icon.debuff then return true end
 		icon.isPlayer = (caster == 'player' or caster == 'vehicle' or caster == 'pet')
+		print('unit', unit, 'name', name, 'type', dtype, 'duration', duration, 'caster', caster, 'isPlayer', icon.isPlayer)
 		icon.owner = caster
-		return (dtype ~= nil) or (icon.isPlayer and duration and duration > 0)
+		return icon.isPlayer and duration and duration < 30
 	else
 		icon.isPlayer, icon.owner = nil, nil
 	end
