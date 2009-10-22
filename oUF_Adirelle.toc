@@ -1,8 +1,8 @@
 ## Interface: 30200
 ## Author: Adirelle
 ## Version: 1.0
-## Title: oUF Adirelle
-## Notes: Adirelle's oUF raid layout.
+## Title: Adirelle's oUF-based raid frames
+## Notes: Grid-like raid frames
 ## RequiredDeps: oUF
 ## OptionalDeps: LibSharedMedia-3.0, LibHealComm-4.0, SharedMedia, SharedMedia_MyMedia
 
@@ -18,3 +18,4 @@ StatusBarTexture.lua
 
 Raid_Style.lua
 Raid_Layout.lua
+
