@@ -293,6 +293,11 @@ local DROPDOWN_MENUS = {
 	focus = FocusFrameDropDown,
 }
 
+local DRAGON_TEXTURES = {
+	rare  = { [[Interface\Addons\oUF_Adirelle\media\rare_graphic]],  6/128, 123/128, 17/128, 112/128, },
+	elite = { [[Interface\Addons\oUF_Adirelle\media\elite_graphic]], 6/128, 123/128, 17/128, 112/128, },
+}
+
 local function ToggleMenu(self, unit, button, actionType)
 	ToggleDropDownMenu(1, nil, DROPDOWN_MENUS[unit], self:GetName(), 0, 0) 
 end
@@ -488,11 +493,25 @@ local function InitFrame(settings, self)
 		self.PostCreateAuraIcon = PostCreateAuraIcon
 	end
 	
+	-- Classification dragon
+	if unit == "target" or unit == "focus" then
+		local dragon = indicators:CreateTexture(nil, "ARTWORK")
+		local DRAGON_HEIGHT = 45*95/80+2
+		dragon:SetWidth(DRAGON_HEIGHT*117/95)
+		dragon:SetHeight(DRAGON_HEIGHT)
+		dragon:SetPoint('TOPLEFT', self, 'TOPLEFT', -44*DRAGON_HEIGHT/95-1, 15*DRAGON_HEIGHT/95+1)
+		dragon.elite = DRAGON_TEXTURES.elite
+		dragon.rare = DRAGON_TEXTURES.rare
+		self.Dragon = dragon
+	end
+	
 	-- Range fading
 	self.XRange = true
 	
 	self:HookScript('OnSizeChanged', OnSizeChanged)
-	OnSizeChanged(self)	
+	if self:IsShown() and self:GetWidth() and self:GetHeight() then
+		OnSizeChanged(self)	
+	end
 end
 
 local single_style = setmetatable({
