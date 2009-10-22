@@ -10,22 +10,28 @@ local texture = [[Interface\TargetingFrame\UI-StatusBar]]
 local objects = {}
 
 local function UpdateTexture(object)
-	if object.SetStatusBarTexture then
-		object:SetStatusBarTexture(texture)
-	else
-		object:SetTexture(texture)
-	end
-	if type(object.PostTextureUpdate) == "function" then
-		object:PostTextureUpdate(texture)
+	local setter, callback = object.SetStatusBarTexture or object.SetTexture, object.PostTextureUpdate
+	setter(object, texture)
+	if callback then
+		callback(object, texture)
 	end
 end
 
-function oUF:RegisterStatusBarTexture(object)
-	local handler = object.SetStatusBarTexture or object.SetTexture
-	assert(type(handler) == "function", "object has neither :SetTexture nor :SetStatusBarTexture") 
-	objects[object] = true
-	UpdateTexture(object)
+function oUF:RegisterStatusBarTexture(object, callback)
+	local setter = object.SetStatusBarTexture or object.SetTexture
+	assert(type(setter) == "function", "object has neither :SetTexture nor :SetStatusBarTexture") 
+	assert(callback == nil or type(callback) == "function", "callback should be either nil or a function")
+	objects[object] = self
+	object.PostTextureUpdate = callback or object.PostTextureUpdate
 end
+
+oUF:RegisterInitCallback(function(self)
+	for object, frame in pairs(objects) do
+		if frame == self then
+			UpdateTexture(object)
+		end
+	end
+end)
 
 local lsm = LibStub('LibSharedMedia-3.0', true)
 if lsm then
