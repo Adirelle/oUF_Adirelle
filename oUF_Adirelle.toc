@@ -7,12 +7,12 @@
 ## OptionalDeps: LibSharedMedia-3.0, LibHealComm-4.0, SharedMedia, SharedMedia_MyMedia
 
 elements\Border.lua
+elements\Dragon.lua
 elements\ReadyCheck.lua
 elements\IncomingHeal.lua
 elements\Icon.lua
 elements\VehicleSwap.lua
 elements\XRange.lua
-# elements\TargetColor.lua
 
 StatusBarTexture.lua
 
