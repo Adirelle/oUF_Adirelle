@@ -20,14 +20,15 @@ local borderBackdrop = {
 }
 
 local floor = math.floor
+local strformat = string.format
 
 local function smartValue(value)
 	if value >= 10000000 then
-		return value/1000000, "%.1fm"
+		return strformat("%.1fm", value/1000000)
 	elseif value >= 10000 then
-		return value/1000, "%.1fk"
+		return strformat("%.1fk", value/1000)
 	else
-		return value, "%d"
+		return tostring(value)
 	end
 end
 
@@ -40,9 +41,10 @@ local function OnStatusBarUpdate(bar)
 	elseif max == 0 then
 		return text:Hide()
 	else
-		local curValue, curFormat = smartValue(value)
-		local maxValue, maxFormat = smartValue(max)
-		text:SetFormattedText("%d%% "..curFormat.."/"..maxFormat, floor(value/max*100), curValue, maxValue)
+		local perValue = ((value < max) and UnitClassification(bar:GetParent().unit) ~= 'normal') and strformat("%d%% ", floor(value/max*100)) or ""
+		local maxValue = smartValue(max)
+		local curValue = value < max and (smartValue(value).."/") or ""
+		text:SetText(perValue..curValue..maxValue)
 	end
 	text:Show()
 end
@@ -58,9 +60,9 @@ end
 
 local function SetFont(fs, size, flags)
 	fs:SetFont(fontPath, size or fontSize, flags or fontFlags)
-	fs:SetTextColor(1,1,1,1)
-	fs:SetShadowColor(0,0,0,1)
-	fs:SetShadowOffset(0.5,-0.5)
+	fs:SetTextColor(1, 1, 1, 1)
+	fs:SetShadowColor(0, 0, 0, 1)
+	fs:SetShadowOffset(1, -1)
 end
 
 local function SpawnTexture(object, size, to, xOffset, yOffset)
@@ -95,10 +97,11 @@ end
 local function SpawnStatusBar(self, noText, from, anchor, to, xOffset, yOffset)
 	local bar = CreateFrame("StatusBar", nil, self)
 	if not noText then
-		bar.Text = SpawnText(bar, "OVERLAY", "TOPRIGHT", "TOPRIGHT", -TEXT_MARGIN, 0)
-		bar.Text:SetPoint("BOTTOMRIGHT", bar, "BOTTOMRIGHT", -TEXT_MARGIN, 0)
+		local text = SpawnText(bar, "OVERLAY", "TOPRIGHT", "TOPRIGHT", -TEXT_MARGIN, 0)
+		text:SetPoint("BOTTOMRIGHT", bar, "BOTTOMRIGHT", -TEXT_MARGIN, 0)
+		bar.Text = text
 		bar:SetScript('OnValueChanged', OnStatusBarUpdate)
-		bar:SetScript('OnMinMaxChanged', OnStatusBarUpdate)	
+		bar:SetScript('OnMinMaxChanged', OnStatusBarUpdate)
 	end
 	if from then
 		bar:SetPoint(from, anchor or self, to or from, xOffset or 0, yOffset or 0)
@@ -299,14 +302,22 @@ local function ToggleMenu(self, unit, button, actionType)
 	ToggleDropDownMenu(1, nil, DROPDOWN_MENUS[unit], self:GetName(), 0, 0) 
 end
 
+local function OoC_UnitFrame_OnEnter(...)
+	if not InCombatLockdown() then return UnitFrame_OnEnter(...) end	
+end
+
+local function OoC_UnitFrame_OnLeave(...)
+	if not InCombatLockdown() then return UnitFrame_OnLeave(...) end	
+end
+
 local function InitFrame(settings, self)
 	local unit = self.unit
 	
 	self:RegisterForClicks("AnyUp")
 	self:SetAttribute("type", "target");
 
-	self:SetScript("OnEnter", UnitFrame_OnEnter)
-	self:SetScript("OnLeave", UnitFrame_OnLeave)
+	self:SetScript("OnEnter", OoC_UnitFrame_OnEnter)
+	self:SetScript("OnLeave", OoC_UnitFrame_OnLeave)
 
 	if DROPDOWN_MENUS[unit] then
 		self:SetAttribute("*type2", "menu");
