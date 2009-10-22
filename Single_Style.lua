@@ -11,6 +11,7 @@ local BORDER_WIDTH = 2
 local TEXT_MARGIN = 2
 local GAP = 2
 local FRAME_MARGIN = BORDER_WIDTH + GAP
+local AURA_SIZE = 15
 	
 local borderBackdrop = {
 	edgeFile = [[Interface\Addons\oUF_Adirelle\media\white16x16]],
@@ -49,7 +50,10 @@ end
 local fontPath, fontSize, fontFlags = GameFontWhiteSmall:GetFont()
 local lsm = LibStub('LibSharedMedia-3.0', true)
 if lsm then
-	fontPath, fontSize = lsm:Fetch("font", "ABF"), 12
+	local altFont = lsm:Fetch("font", "ABF")
+	if altFont then
+		fontPath, fontSize, fontFlags = altFont, 12, ""
+	end
 end
 
 local function SetFont(fs, size, flags)
@@ -88,8 +92,8 @@ local function SpawnText(object, layer, from, to, xOffset, yOffset)
 	return text
 end
 
-local function SpawnStatusBar(parent, noText, from, anchor, to, xOffset, yOffset)
-	local bar = CreateFrame("StatusBar", nil, parent)
+local function SpawnStatusBar(self, noText, from, anchor, to, xOffset, yOffset)
+	local bar = CreateFrame("StatusBar", nil, self)
 	if not noText then
 		bar.Text = SpawnText(bar, "OVERLAY", "TOPRIGHT", "TOPRIGHT", -TEXT_MARGIN, 0)
 		bar.Text:SetPoint("BOTTOMRIGHT", bar, "BOTTOMRIGHT", -TEXT_MARGIN, 0)
@@ -97,9 +101,9 @@ local function SpawnStatusBar(parent, noText, from, anchor, to, xOffset, yOffset
 		bar:SetScript('OnMinMaxChanged', OnStatusBarUpdate)	
 	end
 	if from then
-		bar:SetPoint(from, anchor or parent, to or from, xOffset or 0, yOffset or 0)
+		bar:SetPoint(from, anchor or self, to or from, xOffset or 0, yOffset or 0)
 	end
-	oUF:RegisterStatusBarTexture(bar)
+	self:RegisterStatusBarTexture(bar)
 	return bar
 end
 
@@ -142,9 +146,9 @@ local function playerBuffFilter(icons, unit, icon, name, rank, texture, count, d
 	if name then
 		if icon.debuff then return true end
 		icon.isPlayer = (caster == 'player' or caster == 'vehicle' or caster == 'pet')
-		print('unit', unit, 'name', name, 'type', dtype, 'duration', duration, 'caster', caster, 'isPlayer', icon.isPlayer)
 		icon.owner = caster
-		return icon.isPlayer and duration and duration < 30
+		duration = tonumber(duration) or 0
+		return icon.isPlayer and duration > 0 and duration < 30
 	else
 		icon.isPlayer, icon.owner = nil, nil
 	end
@@ -243,8 +247,7 @@ if playerClass == 'DEATHKNIGHT' then
 		for index = 1, 6 do
 			local rune = CreateFrame("StatusBar", nil, runeBar)
 			rune.index = index
-			rune.PostTextureUpdate = UpdateRuneColor
-			oUF:RegisterStatusBarTexture(rune)
+			self:RegisterStatusBarTexture(rune, UpdateRuneColor)
 			runeBar[index] = rune
 		end
 
@@ -267,8 +270,7 @@ elseif playerClass == "DRUID" then
 		altPower.PostTextureUpdate = function()
 			altPower:SetStatusBarColor(unpack(oUF.colors.power.MANA))
 		end
-		altPower:PostTextureUpdate()
-		
+
 		self.PostUpdatePower = function(self, event, unit)
 			local power, altPower = self.Power, self.AltPower 
 			if unit == 'player' and UnitPowerType(unit) ~= POWERTYPE_MANA then
@@ -340,7 +342,7 @@ local function InitFrame(settings, self)
 		self.Portrait = portrait
 	
 		barContainer = CreateFrame("Frame", nil, self)
-		barContainer:SetPoint("TOP"..left, portrait, "TOP"..right, -GAP*dir)
+		barContainer:SetPoint("TOP"..left, portrait, "TOP"..right, GAP*dir, 0)
 		barContainer:SetPoint("BOTTOM"..right)
 	else
 		barContainer = self
@@ -369,8 +371,7 @@ local function InitFrame(settings, self)
 		local incomingHeal = CreateFrame("StatusBar", nil, self)
 		incomingHeal:SetAllPoints(health)
 		incomingHeal:SetFrameLevel(health:GetFrameLevel()-1)
-		incomingHeal.PostTextureUpdate = PostIncomingHealTextureUpdate
-		oUF:RegisterStatusBarTexture(incomingHeal)
+		self:RegisterStatusBarTexture(incomingHeal, PostIncomingHealTextureUpdate)
 
 		self.IncomingHeal = incomingHeal
 		self.UpdateIncomingHeal = UpdateIncomingHeal
@@ -457,15 +458,15 @@ local function InitFrame(settings, self)
 		local buffs = CreateFrame("Frame", nil, self)
 		buffs:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, FRAME_MARGIN)
 		buffs:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, FRAME_MARGIN)
-		buffs:SetHeight(16 * 2)
+		buffs:SetHeight(AURA_SIZE * 2)
 		self.Buffs = buffs
 		self.CustomAuraFilter = playerBuffFilter
 	elseif unit == "target" or unit == "player" or unit == "focus" then
 		local buffs = CreateFrame("Frame", nil, self)
 		buffs:SetPoint("BOTTOM"..right, self, "BOTTOM"..left, -FRAME_MARGIN*dir, 0)
 		buffs.num = 12
-		buffs:SetWidth(12 * 16)
-		buffs:SetHeight(16)
+		buffs:SetWidth(12 * AURA_SIZE)
+		buffs:SetHeight(AURA_SIZE)
 		buffs.onlyShowPlayer = (unit == "player")		
 		buffs.showType = (unit ~= "player")
 		buffs.initialAnchor = "BOTTOM"..right
@@ -478,8 +479,8 @@ local function InitFrame(settings, self)
 			debuffs:SetPoint("TOP"..right, self, "TOP"..left, -FRAME_MARGIN*dir, 0)
 			debuffs.num = 24
 			debuffs.showType = true
-			debuffs:SetWidth(12 * 16)
-			debuffs:SetHeight(2 * 16)	
+			debuffs:SetWidth(12 * AURA_SIZE)
+			debuffs:SetHeight(2 * AURA_SIZE)	
 			debuffs.initialAnchor = "TOP"..right
 			debuffs['growth-x'] = left
 			debuffs['growth-y'] = "DOWN"
@@ -488,8 +489,13 @@ local function InitFrame(settings, self)
 			self.CustomAuraFilter = playerBuffFilter
 		end
 	end
-	
-	if self.Buffs or self.Debuffs then
+
+	if self.Buffs then
+		self.Buffs.size = AURA_SIZE
+		self.PostCreateAuraIcon = PostCreateAuraIcon
+	end
+	if self.Debuffs then
+		self.Debuffs.size = AURA_SIZE
 		self.PostCreateAuraIcon = PostCreateAuraIcon
 	end
 	

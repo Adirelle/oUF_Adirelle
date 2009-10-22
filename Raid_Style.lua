@@ -545,16 +545,14 @@ local function InitFrame(settings, self)
 	-- Health bar
 	local hp = CreateFrame("StatusBar", nil, self)
 	hp:SetAllPoints(self)
-	hp.PostTextureUpdate = PostHealthBareTextureUpdate
 	hp.frequentUpdates = true
+	self:RegisterStatusBarTexture(hp, PostHealthBareTextureUpdate)
 
 	local hpbg = hp:CreateTexture(nil, "BACKGROUND")
 	hpbg:SetAllPoints(hp)
 	hpbg:SetAlpha(1)
+	self:RegisterStatusBarTexture(hpbg)
 	hp.bg = hpbg
-	
-	oUF:RegisterStatusBarTexture(hp)
-	oUF:RegisterStatusBarTexture(hp.bg)
 
 	-- Death icon
 	local death = hp:CreateTexture(nil, "OVERLAY")
