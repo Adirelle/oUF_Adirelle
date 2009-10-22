@@ -13,7 +13,7 @@ local GAP = 2
 local FRAME_MARGIN = BORDER_WIDTH + GAP
 	
 local borderBackdrop = {
-	edgeFile = [[Interface\Addons\oUF_Adirelle\white16x16]],
+	edgeFile = [[Interface\Addons\oUF_Adirelle\media\white16x16]],
 	edgeSize = BORDER_WIDTH,
 	insets = {left = 0, right = 0, top = 0, bottom = 0},
 }
@@ -440,7 +440,7 @@ local function InitFrame(settings, self)
 		for i = 0, 4 do
 			local cpoint = SpawnTexture(indicators, 8)
 			cpoint:SetPoint("BOTTOM"..left, indicators, "BOTTOM"..right, FRAME_MARGIN*dir, i*9)
-			cpoint:SetTexture([[Interface\AddOns\oUF_Adirelle\combo]])
+			cpoint:SetTexture([[Interface\AddOns\oUF_Adirelle\media\combo]])
 			cpoint:SetTexCoord(3/16, 13/16, 5/16, 14/16)
 			tinsert(cpoints, cpoint)
 		end
