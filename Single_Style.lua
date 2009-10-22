@@ -208,7 +208,12 @@ if playerClass == 'DEATHKNIGHT' then
 		end
 	
 		local function Update(self, event, index)
-			if not index then
+			if event == 'PLAYER_ENTERING_WORLD' then
+				if self.unit ~= 'player' then
+					return self.RuneBar:Hide()
+				else
+					self.RuneBar:Show()
+				end
 				for index = 1, 6 do 
 					RuneUpdate(self, event, index) 
 				end
@@ -264,22 +269,15 @@ elseif playerClass == "DRUID" then
 		
 		self.PostUpdatePower = function(self, event, unit)
 			local power, altPower = self.Power, self.AltPower 
-			if UnitPowerType(unit) ~= POWERTYPE_MANA then
+			if unit == 'player' and UnitPowerType(unit) ~= POWERTYPE_MANA then
 				local current, max = UnitPower(unit, POWERTYPE_MANA), UnitPowerMax(unit, POWERTYPE_MANA)
 				if max and max > 0 then
 					altPower:SetMinMaxValues(0, max)
 					altPower:SetValue(current)
-					if not altPower:IsShown() then
-						power:SetPoint("BOTTOMRIGHT", altPower, "TOPRIGHT", 0, GAP)
-						altPower:Show()
-					end
-					return
+					return altPower:Show()
 				end
 			end
-			if altPower:IsShown() then
-				power:SetPoint("BOTTOMRIGHT", self.BarContainer)
-				altPower:Hide()
-			end
+			altPower:Hide()
 		end	
 		
 		return altPower
@@ -380,6 +378,7 @@ local function InitFrame(settings, self)
 	-- Power bar
 	if not settings.noPower then
 		local power = SpawnStatusBar(self, false, "TOPLEFT", health, "BOTTOMLEFT", 0, -GAP)
+		power:SetPoint("BOTTOMRIGHT", barContainer)
 		power.colorDisconnected = true
 		power.colorPower = true
 		power.frequentUpdates = true
@@ -398,10 +397,14 @@ local function InitFrame(settings, self)
 			local altPower = SetupAltPower(self) 
 			altPower:SetPoint("BOTTOMRIGHT", barContainer)
 			altPower:SetPoint("BOTTOMLEFT", barContainer)
+			altPower:Hide()
+			altPower:SetScript('OnShow', function()
+				power:SetPoint("BOTTOMRIGHT", altPower, "TOPRIGHT", 0, GAP)
+			end)
+			altPower:SetScript('OnHide', function()
+				power:SetPoint("BOTTOMRIGHT", barContainer)
+			end)
 			self.AltPower = altPower
-			power:SetPoint("BOTTOMRIGHT", self.AltPower, "TOPRIGHT", 0, GAP)
-		else
-			power:SetPoint("BOTTOMRIGHT", barContainer)
 		end
 	else
 		health:SetPoint("BOTTOMRIGHT", barContainer)
