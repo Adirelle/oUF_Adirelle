@@ -43,13 +43,13 @@ backdrop = {
 }
 
 local borderBackdrop = {
-	edgeFile = [[Interface\Addons\oUF_Adirelle\white16x16]],
+	edgeFile = [[Interface\Addons\oUF_Adirelle\media\white16x16]],
 	edgeSize = BORDER_WIDTH,
 	insets = {left = 0, right = 0, top = 0, bottom = 0},
 }
 
 local squareBackdrop = {
-	bgFile = [[Interface\Addons\oUF_Adirelle\white16x16]], tile = true, tileSize = 16,
+	bgFile = [[Interface\Addons\oUF_Adirelle\media\white16x16]], tile = true, tileSize = 16,
 }
 
 local UnitClass = UnitClass
