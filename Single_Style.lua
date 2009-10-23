@@ -458,12 +458,13 @@ local function InitFrame(settings, self)
 	
 	-- Combo points
 	if unit == "target" or unit == "focus" then
+		local DOT_SIZE = 10
 		local cpoints = {}
 		for i = 0, 4 do
-			local cpoint = SpawnTexture(indicators, 8)
-			cpoint:SetPoint("BOTTOM"..left, indicators, "BOTTOM"..right, FRAME_MARGIN*dir, i*9)
+			local cpoint = SpawnTexture(indicators, DOT_SIZE)
 			cpoint:SetTexture([[Interface\AddOns\oUF_Adirelle\media\combo]])
-			cpoint:SetTexCoord(3/16, 13/16, 5/16, 14/16)
+			cpoint:SetTexCoord(3/16, 13/16, 5/16, 15/16)
+			cpoint:SetPoint("LEFT", health, "BOTTOMLEFT", i*(DOT_SIZE+GAP), 0)
 			tinsert(cpoints, cpoint)
 		end
 		self.CPoints = cpoints
