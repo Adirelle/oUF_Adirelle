@@ -298,6 +298,11 @@ local DROPDOWN_MENUS = {
 	focus = FocusFrameDropDown,
 }
 
+local DRAGON_TEXTURES = {
+	rare  = { [[Interface\Addons\oUF_Adirelle\media\rare_graphic]],  6/128, 123/128, 17/128, 112/128, },
+	elite = { [[Interface\Addons\oUF_Adirelle\media\elite_graphic]], 6/128, 123/128, 17/128, 112/128, },
+}
+
 local function ToggleMenu(self, unit, button, actionType)
 	ToggleDropDownMenu(1, nil, DROPDOWN_MENUS[unit], self:GetName(), 0, 0) 
 end
@@ -510,36 +515,25 @@ local function InitFrame(settings, self)
 		self.PostCreateAuraIcon = PostCreateAuraIcon
 	end
 	
-	-- Elite/rare status
-	--[[
+	-- Classification dragon
 	if unit == "target" or unit == "focus" then
-		local textures = { rate = 'rare', rareelite = 'rare', elite = 'elite', worldboss = 'elite', boss = 'elite' }
-		local dragon = indicators:CreateTexture(nil, "OVERLAY")
-		dragon:SetHeight(70)
-		dragon:SetWidth(70)
-		dragon:SetPoint("CENTER", self, "TOPLEFT", 8, -18)
-		self.Dragon = dragon		
-		local function UpdateDragon(self)
-			local dragon = self.Dragon
-			local texture = textures[UnitClassification(self.unit) or false]
-			if texture then
-				dragon:SetTexture([[Interface\\AddOns\\TipTop\\media\\]]..texture..[[_graphic]])
-				dragon:Show()
-			else
-				dragon:Hide()
-			end
-		end
-		local function Enable() end
-		self:RegisterEvent('UNIT_CLASSIFICATION_CHANGED', UpdateDragon)
-		self:RegisterEvent('PLAYER_ENTERING_WORLD', UpdateDragon)
+		local dragon = indicators:CreateTexture(nil, "ARTWORK")
+		local DRAGON_HEIGHT = 45*95/80+2
+		dragon:SetWidth(DRAGON_HEIGHT*117/95)
+		dragon:SetHeight(DRAGON_HEIGHT)
+		dragon:SetPoint('TOPLEFT', self, 'TOPLEFT', -44*DRAGON_HEIGHT/95-1, 15*DRAGON_HEIGHT/95+1)
+		dragon.elite = DRAGON_TEXTURES.elite
+		dragon.rare = DRAGON_TEXTURES.rare
+		self.Dragon = dragon
 	end
-	--]]
 	
 	-- Range fading
 	self.XRange = true
 	
 	self:HookScript('OnSizeChanged', OnSizeChanged)
-	OnSizeChanged(self)	
+	if self:IsShown() and self:GetWidth() and self:GetHeight() then
+		OnSizeChanged(self)	
+	end
 end
 
 local single_style = setmetatable({
