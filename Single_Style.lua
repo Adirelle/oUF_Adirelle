@@ -311,10 +311,6 @@ local function OoC_UnitFrame_OnEnter(...)
 	if not InCombatLockdown() then return UnitFrame_OnEnter(...) end	
 end
 
-local function OoC_UnitFrame_OnLeave(...)
-	if not InCombatLockdown() then return UnitFrame_OnLeave(...) end	
-end
-
 local function InitFrame(settings, self)
 	local unit = self.unit
 	
@@ -322,7 +318,7 @@ local function InitFrame(settings, self)
 	self:SetAttribute("type", "target");
 
 	self:SetScript("OnEnter", OoC_UnitFrame_OnEnter)
-	self:SetScript("OnLeave", OoC_UnitFrame_OnLeave)
+	self:SetScript("OnLeave", UnitFrame_OnLeave)
 
 	if DROPDOWN_MENUS[unit] then
 		self:SetAttribute("*type2", "menu");
