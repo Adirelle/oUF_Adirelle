@@ -39,8 +39,20 @@ local RAID_LAYOUTS = {
 
 oUF:SetActiveStyle("Adirelle_Raid")
 
+-- Raid anchor
+local anchor = CreateFrame("Frame", "oUF_Raid_Anchor", UIParent, "SecureFrameTemplate")
+local ANCHOR_BORDER_WIDTH = 0
+anchor:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, 230)
+anchor:SetHeight(0.1)
+
+local mask = CreateFrame("Frame", nil, anchor)
+mask:SetPoint("BOTTOM")
+mask:SetWidth(SPACING * 4 + WIDTH * 5)
+mask:SetHeight(SPACING * 7 + LAYOUTS[40].height * 8 + ANCHOR_BORDER_WIDTH * 2)
+
 -- Raid groups
 local raid = {}
+
 for group = 1, 8 do
 	local header = oUF:Spawn("header", "oUF_Raid" .. group)
 	header.isParty = (group == 1)
@@ -51,10 +63,12 @@ for group = 1, 8 do
 		"xOffset", SPACING
 	)
 	header:SetScale(SCALE)
+	header:SetParent(anchor)
 	if group > 1 then
 		header:SetPoint("BOTTOMLEFT", raid[group - 1], "TOPLEFT", 0, SPACING)
+	else
+		header:SetPoint("BOTTOMLEFT", anchor, ANCHOR_BORDER_WIDTH, ANCHOR_BORDER_WIDTH)
 	end
-	header:Show()
 	raid[group] = header
 end
 
@@ -78,7 +92,7 @@ do
 	header.isPets = true
 	header:SetScale(SCALE)
 	header:SetPoint("BOTTOMLEFT", raid[1], "TOPLEFT", 0, SPACING)
-	header:Show()
+	header:SetParent(anchor)
 	raid['PartyPets'] = header
 end
 
@@ -143,39 +157,39 @@ function oUF:SetRaidLayout(layoutType)
 	end
 end
 
-local function UpdateLayout(...)
+local function UpdateLayout(self)
+	self:Hide()
 	if InCombatLockdown() then return end
+	print('Updating layout')
 	local layoutType = GetLayoutType()
 	if layoutType ~= lastLayoutType then
 		lastLayoutType = layoutType
 		oUF:SetRaidLayout(layoutType)
 	end
-	local numColumns = 1 + GetNumPartyMembers()
+	local width = 0, 0, 0
 	for name, header in pairs(raid) do
 		if header:IsVisible() then
-			local n = 0
-			for i = 1, 5 do
-				local frame = header:GetAttribute('child'..i)
-				if frame and frame:IsVisible() then
-					n = n + 1
-				end
-			end
-			numColumns = math.max(numColumns, n)
+			width = math.max(width, header:GetWidth())
 		end
 	end
-	if lastNumColumns ~= numColumns then
-		lastNumColumns = numColumns
-		local width = WIDTH * numColumns + SPACING * (numColumns - 1)
-		local header = raid[1]
-		local scale = header:GetScale() or 1.0
-		header:SetPoint("BOTTOMLEFT", UIParent, "BOTTOM", -width/2/scale, 230/scale)
-	end
+	anchor:SetWidth(width + ANCHOR_BORDER_WIDTH * 2)
 end
 
 local updateFrame = CreateFrame("Frame")
-updateFrame:SetScript('OnEvent', UpdateLayout)
-updateFrame:RegisterEvent('PARTY_MEMBERS_CHANGED')
-updateFrame:RegisterEvent('VARIABLES_LOADED')
+updateFrame:Hide()
+updateFrame:SetScript('OnUpdate', UpdateLayout)
+updateFrame:SetScript('OnEvent', updateFrame.Show)
 updateFrame:RegisterEvent('PLAYER_REGEN_ENABLED')
 updateFrame:RegisterEvent('PLAYER_ENTERING_WORLD')
+
+for _, header in pairs(raid) do
+	header:HookScript('OnShow', updateFrame.Show)
+	header:HookScript('OnHide', updateFrame.Show)
+	header:HookScript('OnSizeChanged', updateFrame.Show)
+end
+
+local libmovable = LibStub('LibMovable-1.0', true)
+if libmovable then
+	libmovable.RegisterMovable(oUF_Adirelle, anchor, nil, "Party/raid frames", mask)
+end
 
