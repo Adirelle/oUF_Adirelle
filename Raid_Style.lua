@@ -117,7 +117,10 @@ local function UpdateHealth(self, event, unit, bar, current, max)
 		if not UnitIsPlayer(classUnit) then
 			classUnit = (classUnit == 'pet') and 'player' or classUnit:gsub('pet', '')
 		end
-		r, g, b = unpack(self.colors.class[select(2, UnitClass(classUnit))])
+		local unitClass = select(2, UnitClass(classUnit))
+		if unitClass then
+			r, g, b = unpack(self.colors.class[unitClass])
+		end
 	end
 	self.bgColor[1], self.bgColor[2], self.bgColor[3] = r, g, b
 	bar.bg:SetVertexColor(r, g, b, 1)
