@@ -157,10 +157,8 @@ function oUF:SetRaidLayout(layoutType)
 	end
 end
 
-local function UpdateLayout(self)
-	self:Hide()
-	if InCombatLockdown() then return end
-	print('Updating layout')
+local function UpdateLayout(self)	
+	if InCombatLockdown() then return self:Hide() end
 	local layoutType = GetLayoutType()
 	if layoutType ~= lastLayoutType then
 		lastLayoutType = layoutType
@@ -173,6 +171,7 @@ local function UpdateLayout(self)
 		end
 	end
 	anchor:SetWidth(width + ANCHOR_BORDER_WIDTH * 2)
+	self:Hide()
 end
 
 local updateFrame = CreateFrame("Frame")
@@ -181,6 +180,8 @@ updateFrame:SetScript('OnUpdate', UpdateLayout)
 updateFrame:SetScript('OnEvent', updateFrame.Show)
 updateFrame:RegisterEvent('PLAYER_REGEN_ENABLED')
 updateFrame:RegisterEvent('PLAYER_ENTERING_WORLD')
+updateFrame:RegisterEvent('PARTY_MEMBERS_CHANGED')
+updateFrame:RegisterEvent('RAID_ROSTER_UPDATE')
 
 for _, header in pairs(raid) do
 	header:HookScript('OnShow', updateFrame.Show)
