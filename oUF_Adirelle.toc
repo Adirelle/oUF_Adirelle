@@ -5,6 +5,7 @@
 ## Notes: Grid-like raid frames
 ## RequiredDeps: oUF
 ## OptionalDeps: LibSharedMedia-3.0, LibHealComm-4.0, DRData-1.0, LibMovable-1.0, SharedMedia, SharedMedia_MyMedia
+## SavedVariablas: oUF_Adirelle_DB
 
 elements\Border.lua
 elements\Dragon.lua

@@ -210,6 +210,26 @@ end
 
 local libmovable = LibStub('LibMovable-1.0', true)
 if libmovable then
-	libmovable.RegisterMovable(oUF_Adirelle, anchor, nil, "Party/raid frames", mask)
+	anchor:RegisterEvent('ADDON_LOADED')
+	anchor:SetScript('OnEvent', function(_, event, name)
+		if name:lower() ~= "ouf_adirelle" then return end
+		anchor:UnregisterEvent('ADDON_LOADED')
+		anchor:SetScript('OnEvent', nil)
+		
+		_G.oUF_Adirelle_DB = _G.oUF_Adirelle_DB or {}
+		local db = _G.oUF_Adirelle_DB
+		db.anchor = db.anchor or {}
+		libmovable.RegisterMovable('oUF_Adirelle', anchor, db.anchor, "Party/raid frames", mask)		
+	end)
+	
+	_G.SLASH_OUFADIRELLE1 = "/ouf_adirelle"
+	_G.SLASH_OUFADIRELLE2 = "/oufa"
+	_G.SlashCmdList.OUFADIRELLE = function()
+		if libmovable.IsLocked('oUF_Adirelle') then
+			libmovable.Unlock('oUF_Adirelle')
+		else
+			libmovable.Lock('oUF_Adirelle')
+		end
+	end
 end
 

@@ -31,8 +31,10 @@ frames.focus:SetPoint('BOTTOM', frames.targettarget, "TOP", 0, 15)
 
 local libmovable = LibStub('LibMovable-1.0', true)
 if libmovable then
+	local db = _G.oUF_Adirelle_DB
 	for unit, frame in pairs(frames) do
-		libmovable.RegisterMovable(oUF_Adirelle, frame, nil, unit.." frame")
+		db[unit] = db[unit] or {}
+		libmovable.RegisterMovable('oUF_Adirelle', frame, db[unit], unit.." frame")
 	end
 end
 
