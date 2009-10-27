@@ -125,7 +125,7 @@ end
 
 local lastLayoutType, lastNumColumns
 
-function oUF:SetRaidLayout(layoutType)
+local function ApplyRaidLayout(layoutType)
 	local layout = layoutType and LAYOUTS[layoutType]
 	if layout then
 		if layout.pets then
@@ -157,36 +157,55 @@ function oUF:SetRaidLayout(layoutType)
 	end
 end
 
-local function UpdateLayout(self)	
-	if InCombatLockdown() then return self:Hide() end
-	local layoutType = GetLayoutType()
-	if layoutType ~= lastLayoutType then
-		lastLayoutType = layoutType
-		oUF:SetRaidLayout(layoutType)
-	end
-	local width = 0, 0, 0
-	for name, header in pairs(raid) do
-		if header:IsVisible() then
-			width = math.max(width, header:GetWidth())
-		end
-	end
-	anchor:SetWidth(width + ANCHOR_BORDER_WIDTH * 2)
-	self:Hide()
-end
-
 local updateFrame = CreateFrame("Frame")
 updateFrame:Hide()
-updateFrame:SetScript('OnUpdate', UpdateLayout)
-updateFrame:SetScript('OnEvent', updateFrame.Show)
+
+local dirtyLayout, dirtyPosition
+
+local function OnUpdate()	
+	if not InCombatLockdown() then
+		if dirtyLayout then
+			dirtyLayout = nil
+			local layoutType = GetLayoutType()
+			if layoutType ~= lastLayoutType then
+				lastLayoutType = layoutType
+				ApplyRaidLayout(layoutType)
+			end
+		end
+		if dirtyPosition then
+			dirtyPosition = nil
+			local width = 0, 0, 0
+			for name, header in pairs(raid) do
+				if header:IsVisible() then
+					width = math.max(width, header:GetWidth())
+				end
+			end
+			anchor:SetWidth(width + ANCHOR_BORDER_WIDTH * 2)
+		end
+	end
+	updateFrame:Hide()
+end
+
+local function CheckLayout()
+	dirtyLayout = true
+	updateFrame:Show()
+end
+
+local function CheckPosition()
+	dirtyPosition = true
+	updateFrame:Show()
+end
+
+updateFrame:SetScript('OnUpdate', OnUpdate)
+updateFrame:SetScript('OnEvent', CheckLayout)
 updateFrame:RegisterEvent('PLAYER_REGEN_ENABLED')
 updateFrame:RegisterEvent('PLAYER_ENTERING_WORLD')
 updateFrame:RegisterEvent('PARTY_MEMBERS_CHANGED')
-updateFrame:RegisterEvent('RAID_ROSTER_UPDATE')
 
 for _, header in pairs(raid) do
-	header:HookScript('OnShow', updateFrame.Show)
-	header:HookScript('OnHide', updateFrame.Show)
-	header:HookScript('OnSizeChanged', updateFrame.Show)
+	header:HookScript('OnShow', CheckPosition)
+	header:HookScript('OnHide', CheckPosition)
+	header:HookScript('OnSizeChanged', CheckPosition)
 end
 
 local libmovable = LibStub('LibMovable-1.0', true)
