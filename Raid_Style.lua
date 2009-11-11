@@ -62,6 +62,7 @@ local GetTime = GetTime
 local strformat = string.format
 local strsub = string.sub
 local mmin = math.min
+local mmax = math.max
 
 -- ------------------------------------------------------------------------------
 -- Health bar and name updates
@@ -91,16 +92,30 @@ local function UpdateName(self, unit, current, max, incomingHeal)
 	self.Name:SetTextColor(r, g, b, 1)
 end
 
-local function UpdateHealBar(self, current, max, incomingHeal)
-	local heal = self.IncomingHeal
-	if incomingHeal > 0 and current < max then
-		local bar = self.Health
-		local pixelPerHP = bar:GetWidth() / max
-		heal:SetPoint('LEFT', bar, 'LEFT', current * pixelPerHP, 0)
-		heal:SetPoint('RIGHT', bar, 'LEFT', mmin(current + incomingHeal, max) * pixelPerHP, 0)
-		heal:Show()
+local function UpdateHealBar(self, current, max, incomingHeal, incomingOthersHeal)
+	local healBar, othersHealBar = self.IncomingHeal, self.IncomingOthersHeal
+	if max == 0 or current >= max then
+		healBar:Hide()
+		othersHealBar:Hide()
+		return
+	end
+	local healthBar = self.Health
+	local pixelPerHP = healthBar:GetWidth() / max
+	if incomingOthersHeal > 0 then
+		local newCurrent = mmin(current + incomingOthersHeal, max)
+		othersHealBar:SetPoint('LEFT', healthBar, 'LEFT', current * pixelPerHP, 0)
+		othersHealBar:SetWidth((newCurrent-current) * pixelPerHP)
+		othersHealBar:Show()
+		current = newCurrent
 	else
-		heal:Hide()
+		othersHealBar:Hide()
+	end
+	if incomingHeal > 0 and current < max then
+		healBar:SetPoint('LEFT', healthBar, 'LEFT', current * pixelPerHP, 0)
+		healBar:SetWidth(mmin(max-current, incomingHeal) * pixelPerHP)
+		healBar:Show()
+	else
+		healBar:Hide()
 	end
 end
 
@@ -130,18 +145,22 @@ local function UpdateHealth(self, event, unit, bar, current, max)
 		self.DeathIcon:Hide()
 	end
 	self.currentHealth, self.maxHealth = current, max
-	UpdateName(self, unit, current, max, self.incomingHeal)
+	UpdateName(self, unit, current, max, (self.incomingHeal or 0) + (self.incomingOthersHeal or 0))
 end
 
-local function UpdateIncomingHeal(self, event, unit, heal, incomingHeal)
-	local current, max = self.currentHealth, self.maxHealth
+local function UpdateIncomingHeal(self, event, unit, heal, incomingHeal, incomingOthersHeal)
+	local current, max = self.currentHealth or 0, self.maxHealth or 0
 	self.incomingHeal = incomingHeal
-	UpdateName(self, unit, current, max, incomingHeal)
-	UpdateHealBar(self, current, max, incomingHeal)
+	self.incomingOthersHeal = incomingOthersHeal
+	--[[if incomingOthersHeal > 0 then
+		print('UpdateIncomingHeal', event, unit, current, max, incomingHeal, incomingOthersHeal)	
+	end]]
+	UpdateName(self, unit, current, max, incomingHeal + incomingOthersHeal)
+	UpdateHealBar(self, current, max, incomingHeal, incomingOthersHeal)
 end
 
 local function PostUpdateHealth(self, event, unit, bar, current, max)
-	UpdateHealBar(self, current, max, self.incomingHeal)
+	UpdateHealBar(self, current, max, self.incomingHeal or 0, self.incomingOthersHeal or 0)
 end
 
 local function UnitFlagChanged(self, event, unit)
@@ -427,7 +446,7 @@ end
 local drdata, drdata_minor = LibStub('DRData-1.0', true)
 local GetCCIcon
 if drdata then
-	print('oUF_Adirelle DRData-1.0 version', drdata_minor, 'support enabled')
+	--print('DRData-1.0 version', drdata_minor, 'support enabled')
 
 	local IGNORED = -1
 	local SPELL_CATEGORIES = {}
@@ -577,6 +596,15 @@ local function InitFrame(settings, self)
 		heal:SetPoint("BOTTOM")
 		heal:Hide()
 		self.IncomingHeal = heal
+		
+		local othersHeal = hp:CreateTexture(nil, "OVERLAY")
+		othersHeal:SetTexture(0, 0.5, 0.5, 0.5)
+		othersHeal:SetBlendMode("BLEND")
+		othersHeal:SetPoint("TOP")
+		othersHeal:SetPoint("BOTTOM")
+		othersHeal:Hide()
+		self.IncomingOthersHeal = othersHeal		
+
 		self.UpdateIncomingHeal = UpdateIncomingHeal
 		self.PostUpdateHealth = PostUpdateHealth
 	end
