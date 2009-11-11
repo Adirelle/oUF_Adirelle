@@ -9,6 +9,8 @@ if not lhc4 then return end
 
 local objects = {}
 local incomingHeals = {}
+local incomingOthersHeals = {}
+local playerHealEndTime
 
 local pairs = pairs
 local next = next
@@ -16,27 +18,35 @@ local type = type
 local band = bit.band
 local select = select
 local floor = math.floor
+local mmax = math.max
 local GetTime = GetTime
 local UnitIsConnected = UnitIsConnected
 local UnitIsDeadOrGhost = UnitIsDeadOrGhost
 local UnitGUID = UnitGUID
 
-local HEALTYPE_FILTER = lhc4.ALL_HEALS -- lhc4.BOMB_HEALS
+local TIME_BAND = 3
+local ALL_HEALS = lhc4.ALL_HEALS
+local OTHERS_HEALS = lhc4.DIRECT_HEALS
 
 local function Update(self, event, unit)
 	if not objects[self] or (unit and unit ~= self.unit) then return end
-	local incomingHeal
+	local incomingHeal, incomingOthersHeal = 0, 0
 	unit = self.unit
 	if UnitIsConnected(unit) and not UnitIsDeadOrGhost(unit) then
 		local guid = UnitGUID(unit)
-		incomingHeal = lhc4:GetHealAmount(guid, HEALTYPE_FILTER, GetTime()+3)
-		if incomingHeal then
-			incomingHeal = incomingHeal * lhc4:GetHealModifier(guid)
+		incomingHeal = lhc4:GetHealAmount(guid, ALL_HEALS, GetTime()+TIME_BAND) or 0
+		if self.IncomingOthersHeal and playerHealEndTime then
+			incomingOthersHeal = lhc4:GetOthersHealAmount(guid, OTHERS_HEALS, playerHealEndTime) or 0
+			incomingHeal = mmax(0, incomingHeal - incomingOthersHeal)
 		end
+		local modifier = lhc4:GetHealModifier(guid)
+		incomingHeal = incomingHeal * modifier
+		incomingOthersHeal = incomingOthersHeal * modifier
 	end
-	if incomingHeals[self] ~= incomingHeal or event == 'PLAYER_ENTERING_WORLD' then
+	if incomingHeals[self] ~= incomingHeal or incomingOthersHeals[self] ~= incomingOthersHeal or event == 'PLAYER_ENTERING_WORLD' then
 		incomingHeals[self] = incomingHeal
-		self:UpdateIncomingHeal(event, unit, self.IncomingHeal, incomingHeal or 0)
+		incomingOthersHeals[self] = incomingOthersHeal
+		self:UpdateIncomingHeal(event, unit, self.IncomingHeal, incomingHeal, incomingOthersHeal)
 	end
 end
 
@@ -47,8 +57,16 @@ local function OnSingleUpdate(self, event, guid)
 end
 
 local tmp = {}
-local function OnMultipleUpdate(event, _, _, healType, _, ...)
-	if healType and band(healType, HEALTYPE_FILTER) == 0 then return end
+local function OnMultipleUpdate(event, casterGUID, spellId, healType, endTime, ...)
+	if healType and band(healType, OTHERS_HEALS) ~= 0 and casterGUID == UnitGUID('player') then
+		if event ~= 'HealComm_HealStopped' then
+			playerHealEndTime = tonumber(endTime)
+		else
+			playerHealEndTime = nil
+		end
+		-- print('Player heal update:', event, spellId, playerHealEndTime)
+	end
+	--if healType and band(healType, HEALTYPE_FILTER) == 0 then return end
 	for i = 1, select('#', ...) do
 		tmp[tostring(select(i, ...))] = true
 	end
