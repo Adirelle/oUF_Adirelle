@@ -31,21 +31,21 @@ local OTHERS_HEALS = lhc4.DIRECT_HEALS
 local function Update(self, event, unit)
 	if not objects[self] or (unit and unit ~= self.unit) then return end
 	local incomingHeal, incomingOthersHeal = 0, 0
-	unit = self.unit
-	if UnitIsConnected(unit) and not UnitIsDeadOrGhost(unit) then
+	unit = self.unit or unit
+	if unit and UnitIsConnected(unit) and not UnitIsDeadOrGhost(unit) then
 		local guid = UnitGUID(unit)
+		local modifier = lhc4:GetHealModifier(guid)
 		incomingHeal = lhc4:GetHealAmount(guid, ALL_HEALS, GetTime()+TIME_BAND) or 0
 		if self.IncomingOthersHeal and playerHealEndTime then
 			incomingOthersHeal = lhc4:GetOthersHealAmount(guid, OTHERS_HEALS, playerHealEndTime) or 0
 			incomingHeal = mmax(0, incomingHeal - incomingOthersHeal)
+			incomingOthersHeal = incomingOthersHeal * modifier
 		end
-		local modifier = lhc4:GetHealModifier(guid)
 		incomingHeal = incomingHeal * modifier
-		incomingOthersHeal = incomingOthersHeal * modifier
 	end
 	if incomingHeals[self] ~= incomingHeal or incomingOthersHeals[self] ~= incomingOthersHeal or event == 'PLAYER_ENTERING_WORLD' then
 		incomingHeals[self] = incomingHeal
-		incomingOthersHeals[self] = incomingOthersHeal
+		incomingOthersHeals[self] = incomingOthersHseal
 		self:UpdateIncomingHeal(event, unit, self.IncomingHeal, incomingHeal, incomingOthersHeal)
 	end
 end
@@ -85,7 +85,7 @@ local function Enable(self)
 				lhc4.RegisterCallback('oUF_IncomingHeal', 'HealComm_HealStarted', OnMultipleUpdate)
 				lhc4.RegisterCallback('oUF_IncomingHeal', 'HealComm_HealUpdated', OnMultipleUpdate)
 				lhc4.RegisterCallback('oUF_IncomingHeal', 'HealComm_HealDelayed', OnMultipleUpdate)
-				lhc4.RegisterCallback('oUF_IncomingHeal', 'HealComm_HealStopped', OnMultipleUpdate)			
+				lhc4.RegisterCallback('oUF_IncomingHeal', 'HealComm_HealStopped', OnMultipleUpdate)
 			end
 			objects[self] = true
 			lhc4.RegisterCallback(self, 'HealComm_GUIDDisappeared', OnSingleUpdate, self)
@@ -96,7 +96,7 @@ local function Enable(self)
 end
 
 local function Disable(self)
-	if objects[self] then	
+	if objects[self] then
 		lhc4.UnregisterAllCallbacks(self)
 		incomingHeals[self] = nil
 		objects[self] = nil
