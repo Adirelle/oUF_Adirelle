@@ -32,7 +32,7 @@ HEIGHT = 25
 BORDER_WIDTH = 1
 ICON_SIZE = 14
 SQUARE_SIZE = 5
-	
+
 local _, playerClass = UnitClass("player")
 
 backdrop = {
@@ -92,7 +92,7 @@ local function UpdateName(self, unit, current, max, incomingHeal)
 	self.Name:SetTextColor(r, g, b, 1)
 end
 
-local function UpdateHealBar(self, current, max, incomingHeal, incomingOthersHeal)
+local function UpdateHealBar(self, event, current, max, incomingHeal, incomingOthersHeal)
 	local healBar, othersHealBar = self.IncomingHeal, self.IncomingOthersHeal
 	if max == 0 or current >= max then
 		healBar:Hide()
@@ -152,15 +152,12 @@ local function UpdateIncomingHeal(self, event, unit, heal, incomingHeal, incomin
 	local current, max = self.currentHealth or 0, self.maxHealth or 0
 	self.incomingHeal = incomingHeal
 	self.incomingOthersHeal = incomingOthersHeal
-	--[[if incomingOthersHeal > 0 then
-		print('UpdateIncomingHeal', event, unit, current, max, incomingHeal, incomingOthersHeal)	
-	end]]
 	UpdateName(self, unit, current, max, incomingHeal + incomingOthersHeal)
-	UpdateHealBar(self, current, max, incomingHeal, incomingOthersHeal)
+	UpdateHealBar(self, event, current, max, incomingHeal, incomingOthersHeal)
 end
 
 local function PostUpdateHealth(self, event, unit, bar, current, max)
-	UpdateHealBar(self, current, max, self.incomingHeal or 0, self.incomingOthersHeal or 0)
+	UpdateHealBar(self, event, current, max, self.incomingHeal or 0, self.incomingOthersHeal or 0)
 end
 
 local function UnitFlagChanged(self, event, unit)
@@ -287,7 +284,6 @@ do
 		square:SetHeight(size)
 		square:SetBackdrop(squareBackdrop)
 		square:SetBackdropBorderColor(0,0,0,0)
-		square:SetFrameLevel(self.Health:GetFrameLevel() + 5)
 
 		square.SetTexture = NOOP
 		square.SetCooldown = NOOP
@@ -558,11 +554,12 @@ local function InitFrame(settings, self)
 	self:SetBackdrop(backdrop)
 	self:SetBackdropColor(0, 0, 0, 1)
 	self:SetBackdropBorderColor(0, 0, 0, 1)
-	
+
 	self.SpawnIcon = SpawnIcon
 	self.SpawnSquare = SpawnSquare
-	
+
 	self.bgColor = { 1, 1, 1 }
+
 
 	-- Health bar
 	local hp = CreateFrame("StatusBar", nil, self)
@@ -576,8 +573,13 @@ local function InitFrame(settings, self)
 	self:RegisterStatusBarTexture(hpbg)
 	hp.bg = hpbg
 
+	local overlay = CreateFrame("Frame", nil, self)
+	overlay:SetAllPoints(self)
+	overlay:SetFrameLevel(hp:GetFrameLevel()+2)
+	self.Overlay = overlay
+
 	-- Death icon
-	local death = hp:CreateTexture(nil, "OVERLAY")
+	local death = overlay:CreateTexture(nil, "OVERLAY")
 	death:SetWidth(HEIGHT*2)
 	death:SetHeight(HEIGHT)
 	death:SetTexture([[Interface\TargetingFrame\UI-TargetingFrame-Skull]])
@@ -590,20 +592,20 @@ local function InitFrame(settings, self)
 	-- Incoming heals
 	if oUF.HasIncomingHeal then
 		local heal = hp:CreateTexture(nil, "OVERLAY")
-		heal:SetTexture(0, 0.5, 0, 0.5)
+		heal:SetTexture(0, 1, 0, 0.5)
 		heal:SetBlendMode("BLEND")
 		heal:SetPoint("TOP")
 		heal:SetPoint("BOTTOM")
 		heal:Hide()
 		self.IncomingHeal = heal
-		
+
 		local othersHeal = hp:CreateTexture(nil, "OVERLAY")
-		othersHeal:SetTexture(0, 0.5, 0.5, 0.5)
+		othersHeal:SetTexture(0.5, 0, 1, 0.5)
 		othersHeal:SetBlendMode("BLEND")
 		othersHeal:SetPoint("TOP")
 		othersHeal:SetPoint("BOTTOM")
 		othersHeal:Hide()
-		self.IncomingOthersHeal = othersHeal		
+		self.IncomingOthersHeal = othersHeal
 
 		self.UpdateIncomingHeal = UpdateIncomingHeal
 		self.PostUpdateHealth = PostUpdateHealth
@@ -614,7 +616,7 @@ local function InitFrame(settings, self)
 	self.incomingHeal = 0
 
 	-- Name
-	local name = hp:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+	local name = overlay:CreateFontString(nil, "ARTWORK", "GameFontNormal")
 	name:SetAllPoints(self)
 	name:SetJustifyH("CENTER")
 	name:SetJustifyV("MIDDLE")
@@ -636,7 +638,7 @@ local function InitFrame(settings, self)
 	self.Border = border
 
 	-- ReadyCheck icon
-	local rc = CreateFrame("Frame", nil, self)
+	local rc = CreateFrame("Frame", nil, overlay)
 	rc:SetFrameLevel(self:GetFrameLevel()+5)
 	rc:SetPoint('CENTER', self)
 	rc:SetWidth(HEIGHT)
@@ -648,23 +650,23 @@ local function InitFrame(settings, self)
 	self.ReadyCheck = rc
 
 	-- Per-class aura icons
-	local importantBuff = SpawnIcon(self)
+	local importantBuff = SpawnIcon(overlay)
 	importantBuff:SetPoint("CENTER", self, "LEFT", WIDTH * 0.4, 0)
 	self:AuraIcon(importantBuff, GetImportantBuff)
 
-	local debuff = SpawnIcon(self)
+	local debuff = SpawnIcon(overlay)
 	debuff:SetPoint("CENTER", self, "LEFT", WIDTH * 0.6, 0)
 	self:AuraIcon(debuff, GetCureableDebuff)
-	
+
 	local INSET, SMALL_ICON_SIZE = 1, 8
 	local function SpawnSmallIcon(...)
-		local icon = SpawnIcon(self, SMALL_ICON_SIZE, true, true, true)
+		local icon = SpawnIcon(overlay, SMALL_ICON_SIZE, true, true, true)
 		icon:SetPoint(...)
 		return icon
 	end
 
 	if playerClass == "HUNTER" then
-		local misdirection = SpawnIcon(self)
+		local misdirection = SpawnIcon(overlay)
 		misdirection:SetPoint("CENTER", self, "LEFT", WIDTH * 0.25, 0)
 		self:AuraIcon(misdirection, TestAnyAura(34477, "HELPFUL"))
 
@@ -672,7 +674,7 @@ local function InitFrame(settings, self)
 		debuff:SetPoint("CENTER", self, "LEFT", WIDTH * 0.75, 0)
 
 	elseif playerClass == "DRUID" then
-		
+
 		-- Rejuvenation
 		self:AuraIcon(
 			SpawnSmallIcon("TOPLEFT", self, "TOPLEFT", INSET, -INSET),
@@ -684,7 +686,7 @@ local function InitFrame(settings, self)
 			SpawnSmallIcon("TOP", self, "TOP", 0, -INSET),
 			TestMyAura(8936, 0, 0.6, 0)
 		)
-		
+
 		-- Lifebloom
 		for i = 1, 3 do
 			self:AuraIcon(
@@ -693,7 +695,7 @@ local function InitFrame(settings, self)
 			)
 		end
 
-		-- Wild Growth		
+		-- Wild Growth
 		self:AuraIcon(
 			SpawnSmallIcon("BOTTOMLEFT", self, "BOTTOMLEFT", INSET, INSET),
 			TestMyAura(53248, 0, 1, 0)
@@ -701,16 +703,16 @@ local function InitFrame(settings, self)
 
 		-- Abolish Poison
 		self:AuraIcon(
-			SpawnSmallIcon("BOTTOMRIGHT", self, "BOTTOMRIGHT", -INSET, INSET), 
+			SpawnSmallIcon("BOTTOMRIGHT", self, "BOTTOMRIGHT", -INSET, INSET),
 			TestMyAura(2893)
 		)
 
 	elseif playerClass == 'PALADIN' then
-		local beacon = SpawnIcon(self)
+		local beacon = SpawnIcon(overlay)
 		beacon:SetPoint("CENTER", self, "LEFT", WIDTH * 0.2, 0)
 		self:AuraIcon(beacon, TestMyAura(53563))
 
-		local sacredShield = SpawnIcon(self)
+		local sacredShield = SpawnIcon(overlay)
 		sacredShield:SetPoint("CENTER", self, "LEFT", WIDTH * 0.4, 0)
 		self:AuraIcon(sacredShield, TestMyAura(53601))
 
@@ -718,28 +720,28 @@ local function InitFrame(settings, self)
 		debuff:SetPoint("CENTER", self, "LEFT", WIDTH * 0.8, 0)
 
 	elseif playerClass == "SHAMAN" then
-		local earthShield = SpawnIcon(self)
+		local earthShield = SpawnIcon(overlay)
 		earthShield:SetPoint("CENTER", self, "LEFT", WIDTH * 0.25, 0)
 		self:AuraIcon(earthShield, TestMyAura(49284))
 
 		importantBuff:SetPoint("CENTER")
 		debuff:SetPoint("CENTER", self, "LEFT", WIDTH * 0.75, 0)
-		
+
 		-- Riptide
 		self:AuraIcon(
 			SpawnSmallIcon("TOPRIGHT", self, "TOPRIGHT", -INSET, -INSET),
 			TestMyAura(61301)
 		)
-		
+
 		-- Sated/Exhausted
 		self:AuraIcon(
 			SpawnSmallIon("TOPLEFT", self, "TOPLEFT", INSET, -INSET),
 			TestAnyAura((UnitFactionGroup("player") == "Alliance") and 29650 or 57724, "HARMFUL")
 		)
 
-	elseif playerClass == 'WARLOCK' then	
+	elseif playerClass == 'WARLOCK' then
 		self:AuraIcon(debuff, GetDebuffByType("Magic"))
-		
+
 	elseif playerClass == 'PRIEST' then
 		-- PW:Shield or Weakened Soul
 		local PWSHIELD, WEAKENEDSOUL = GetSpellInfo(17), GetSpellInfo(6788)
@@ -755,25 +757,25 @@ local function InitFrame(settings, self)
 					end
 				end
 				if texture then
-					return texture, 1, expirationTime-duration, duration			
+					return texture, 1, expirationTime-duration, duration
 				end
 			end
 		)
-		
+
 		-- Renew
 		self:AuraIcon(
-			SpawnSmallIcon("TOPRIGHT", self, "TOPRIGHT", -INSET, -INSET), 
+			SpawnSmallIcon("TOPRIGHT", self, "TOPRIGHT", -INSET, -INSET),
 			TestMyAura(139)
 		)
 
 		-- Prayer of Mending
 		self:AuraIcon(
-			SpawnSmallIcon("BOTTOMRIGHT", self, "BOTTOMRIGHT", -INSET, INSET), 
+			SpawnSmallIcon("BOTTOMRIGHT", self, "BOTTOMRIGHT", -INSET, INSET),
 			TestMyAura(48113)
 		)
 
 	end
-	
+
 	--[[ Targetting thing
 	local tc = SpawnSquare(self, 5)
 	tc:SetPoint("LEFT", self ,"LEFT", 1, 0)
