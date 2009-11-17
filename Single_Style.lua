@@ -189,7 +189,10 @@ if playerClass == 'DEATHKNIGHT' then
 		}
 
 		local function UpdateRuneColor(rune)
-			rune:SetStatusBarColor(unpack(oUF.colors.runes[GetRuneType(rune.index)]))
+			local color = oUF.colors.runes[GetRuneType(rune.index) or false]
+			if color then
+				rune:SetStatusBarColor(unpack(color))
+			end
 		end
 	
 		local GetTime = GetTime
