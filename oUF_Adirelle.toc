@@ -4,7 +4,7 @@
 ## Title: Adirelle's oUF-based raid frames
 ## Notes: Grid-like raid frames
 ## RequiredDeps: oUF
-## OptionalDeps: LibSharedMedia-3.0, LibHealComm-4.0, DRData-1.0, LibMovable-1.0, SharedMedia, SharedMedia_MyMedia
+## OptionalDeps: LibSharedMedia-3.0, LibHealComm-4.0, DRData-1.0, LibMovable-1.0, SharedMedia, SharedMedia_MyMedia, tekDebug
 ## SavedVariablas: oUF_Adirelle_DB
 
 elements\Border.lua
@@ -14,6 +14,7 @@ elements\IncomingHeal.lua
 elements\Icon.lua
 elements\VehicleSwap.lua
 elements\XRange.lua
+elements\RuneBar.lua
 
 StatusBarTexture.lua
 
