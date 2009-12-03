@@ -17,7 +17,8 @@ local function UpdateTexture(object)
 	end
 end
 
-function oUF:RegisterStatusBarTexture(object, callback)
+local frame_prototype = oUF.frame_metatable and oUF.frame_metatable.__index or oUF
+function frame_prototype:RegisterStatusBarTexture(object, callback)
 	local setter = object.SetStatusBarTexture or object.SetTexture
 	assert(type(setter) == "function", "object has neither :SetTexture nor :SetStatusBarTexture") 
 	assert(callback == nil or type(callback) == "function", "callback should be either nil or a function")
