@@ -708,16 +708,18 @@ local function InitFrame(settings, self)
 		)
 
 	elseif playerClass == 'PALADIN' then
-		local beacon = SpawnIcon(overlay)
-		beacon:SetPoint("CENTER", self, "LEFT", WIDTH * 0.2, 0)
-		self:AuraIcon(beacon, TestMyAura(53563))
+	
+		-- Beacon of light
+		self:AuraIcon(
+			SpawnSmallIcon("TOPRIGHT", self, "TOPRIGHT", -INSET, -INSET),
+			TestMyAura(53563)
+		)
 
-		local sacredShield = SpawnIcon(overlay)
-		sacredShield:SetPoint("CENTER", self, "LEFT", WIDTH * 0.4, 0)
-		self:AuraIcon(sacredShield, TestMyAura(53601))
-
-		importantBuff:SetPoint("CENTER", self, "LEFT", WIDTH * 0.6, 0)
-		debuff:SetPoint("CENTER", self, "LEFT", WIDTH * 0.8, 0)
+		-- Sacred Shield
+		self:AuraIcon(
+			SpawnSmallIcon("TOPLEFT", self, "TOPLEFT", INSET, -INSET),
+			TestMyAura(53601)
+		)
 
 	elseif playerClass == "SHAMAN" then
 		local earthShield = SpawnIcon(overlay)
