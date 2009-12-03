@@ -108,7 +108,8 @@ local function Disable(self)
 	end
 end
 
-local function AuraIcon(self, icon, func, ...)
+local frame_prototype = oUF.frame_metatable and oUF.frame_metatable.__index or oUF
+function frame_prototype:AuraIcon(icon, func, ...)
 	assert(type(icon) == "table", "icon should be a table, not "..type(icon))
 	assert(type(func) == "function", "func should be a function ,not "..type(func))
 	self.AuraIcons = self.AuraIcons or {}
@@ -116,6 +117,5 @@ local function AuraIcon(self, icon, func, ...)
 	return icon
 end
 
-oUF.AuraIcon = AuraIcon
 oUF:AddElement('AuraIcons', Update, Enable, Disable)
 
