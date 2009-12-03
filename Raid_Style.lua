@@ -502,7 +502,7 @@ if drdata then
 	end
 
 	function GetCCIcon(unit)
-		if not UnitIsPVP(unit) then return end
+		if not UnitIsPVP(unit) or GetNumRaidMembers() > 5 then return end
 		local _, className = UnitClass(unit)
 		local classPriorities = CLASS_PRIORITIES[className] or DEFAULT_PRIORITIES
 		local curPrio, curTexture, curCount, curExpTime, curDuration, curDebuffType = IGNORED
@@ -781,6 +781,8 @@ local function InitFrame(settings, self)
 	tc:SetPoint("LEFT", self ,"LEFT", 1, 0)
 	self.TargetColor = tc
 	--]]
+	
+	-- 
 
 	-- Crowd control icon
 	local header = self:GetParent()
@@ -790,9 +792,19 @@ local function InitFrame(settings, self)
 		ccicon.doNotBlink = true
 		self:AuraIcon(ccicon, GetCCIcon)
 	end
-
+	
+	-- Aura icon blinking setting
 	self.iconBlinkThreshold = 3
 
+	-- RaidIcon
+	local raidIcon = overlay:CreateTexture(nil, "OVERLAY")
+	raidIcon = overlay:CreateTexture(nil, "OVERLAY")
+	raidIcon:SetWidth(8)
+	raidIcon:SetHeight(8)
+	raidIcon:SetPoint("LEFT", self, INSET, 0)
+	self.RaidIcon = raidIcon
+	
+	-- Event requiring to update name and color
 	self:RegisterEvent('UNIT_FLAGS', UnitFlagChanged)
 	self:RegisterEvent('UNIT_ENTERED_VEHICLE', UnitFlagChanged)
 	self:RegisterEvent('UNIT_EXITED_VEHICLE', UnitFlagChanged)
