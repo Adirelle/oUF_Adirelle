@@ -319,6 +319,7 @@ local function InitFrame(settings, self)
 	name:SetPoint("BOTTOMLEFT", health, "BOTTOMLEFT", TEXT_MARGIN)
 	name:SetPoint("RIGHT", health.Text, "LEFT")
 	self:Tag(name, (unit == "player" or unit == "pet") and "[name]" or "[name][( <)status(>)]")
+	self.Name = name
 	
 	-- Incoming heals
 	if oUF.HasIncomingHeal then
@@ -477,7 +478,7 @@ end
 
 local single_style = setmetatable({
 	["initial-width"] = 190,
-	["initial-height"] = 45,
+	["initial-height"] = 47,
 }, {
 	__call = InitFrame,
 })
