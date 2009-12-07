@@ -71,8 +71,8 @@ end
 local function GetRangeAlpha(self, unit)
 	if UnitIsUnit(unit, 'player') or not UnitIsConnected(unit) then 
 		return self.inRangeAlpha
-	elseif not UnitIsVisible(unit) then
-		return self.notVisibleAlpha
+	--	elseif not UnitIsVisible(unit) then
+	--	return self.notVisibleAlpha
 	end
 	local spell =  GetRangeSpell(unit)
 	local spellInRange = spell and IsSpellInRange(spell, unit)
