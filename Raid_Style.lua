@@ -139,11 +139,11 @@ local function UpdateHealth(self, event, unit, bar, current, max)
 	end
 	self.bgColor[1], self.bgColor[2], self.bgColor[3] = r, g, b
 	bar.bg:SetVertexColor(r, g, b, 1)
-	if isDead then
+	--[[if isDead then
 		self.DeathIcon:Show()
 	else
 		self.DeathIcon:Hide()
-	end
+	end]]
 	self.currentHealth, self.maxHealth = current, max
 	UpdateName(self, unit, current, max, (self.incomingHeal or 0) + (self.incomingOthersHeal or 0))
 end
@@ -530,6 +530,102 @@ local function PostHealthBareTextureUpdate(self)
 end
 
 -- ------------------------------------------------------------------------------
+-- Status icon
+-- ------------------------------------------------------------------------------
+do
+	local icons = {
+		disconnected = { [[Interface\Icons\INV_Sigil_Thorim]], 0.05, 0.95, 0.5-0.25*0.9, 0.5+0.25*0.9, false },
+		outOfScope = { [[Interface\Icons\Spell_Frost_Stun]], 0.05, 0.95, 0.5-0.25*0.9, 0.5+0.25*0.9, true },
+		dead = { [[Interface\TargetingFrame\UI-TargetingFrame-Skull]], 4/32, 26/32, 9/32, 20/32, false },
+	}
+
+	local force = 0
+	
+	local function Update(self, event, unit)
+		if unit and unit ~= self.unit then return end
+		local icon = nil
+		if not UnitIsConnected(self.unit) or force == 1 then
+			icon = icons.disconnected
+		elseif UnitIsDeadOrGhost(self.unit) or force == 2 then
+			icon = icons.dead
+		elseif not UnitIsVisible(self.unit) or force == 3 then
+			icon = icons.outOfScope
+		else
+			return self.StatusIcon:Hide()
+		end
+		local tex = self.StatusIcon
+		local texturePath, x0, x1, y0, y1, desat, r, g, b = unpack(icon)
+		tex:SetTexture(texturePath)
+		tex:SetTexCoord(x0, x1, y0, y1)
+		tex:SetDesaturated(desat)
+		tex:SetVertexColor(r or 1, g or 1, b or 1)
+		tex:Show()
+	end
+
+	local objects = {}
+	
+	_G.testBla = function()
+		force = (force + 1) % 4
+		for frame in pairs(objects) do
+			Update(frame)
+		end
+	end
+	
+	local isVisible = {}
+	local delay = 0
+	local function UpdateVisibility(_, elapsed) 
+		if delay > 0 then
+			delay = delay - elapsed
+			return
+		end
+		delay = 0.25
+		for frame in pairs(objects) do
+			if frame:IsShown() and frame.unit then
+				local visible = UnitIsVisible(frame.unit)
+				if isVisible[frame] ~= visible then
+					isVisible[frame] = visible
+					Update(frame)
+				end
+			end
+		end
+	end
+	
+	local checkFrame
+	local function Enable(self)
+		if self.StatusIcon then
+			self:RegisterEvent('UNIT_FLAGS', Update)
+			self:RegisterEvent('PLAYER_DEAD', Update)
+			self:RegisterEvent('PLAYER_ALIVE', Update)
+			self:RegisterEvent('PLAYER_UNGHOST', Update)
+			if not next(objects) then
+				if not checkFrame then
+					checkFrame = CreateFrame("Frame")
+					checkFrame:SetScript('OnUpdate', UpdateVisibility)
+				end
+				checkFrame:Show()
+			end
+			objects[self] = true
+			return true
+		end
+	end
+	
+	local function Disable(self)
+		if self.StatusIcon then
+			self:UnregisterEvent('UNIT_FLAGS', Update)
+			self:UnregisterEvent('PLAYER_DEAD', Update)
+			self:UnregisterEvent('PLAYER_ALIVE', Update)
+			self:UnregisterEvent('PLAYER_UNGHOST', Update)
+			objects[self] = nil
+			if not next(objects) then
+				checkFrame:Hide()
+			end
+		end
+	end
+	
+	oUF:AddElement('StatusIcon', Update, Enable, Disable)
+end
+
+-- ------------------------------------------------------------------------------
 -- Unit frame initialization
 -- ------------------------------------------------------------------------------
 
@@ -540,8 +636,14 @@ local function OnSizeChanged(self, width, height)
 	self.Border:SetHeight(height + 2 * BORDER_WIDTH)
 	self.ReadyCheck:SetWidth(height)
 	self.ReadyCheck:SetHeight(height)
-	self.DeathIcon:SetWidth(height*2)
-	self.DeathIcon:SetHeight(height)
+	if self.DeathIcon then
+		self.DeathIcon:SetWidth(height*2)
+		self.DeathIcon:SetHeight(height)
+	end
+	if self.StatusIcon then
+		self.StatusIcon:SetWidth(height*2)
+		self.StatusIcon:SetHeight(height)
+	end
 end
 
 local function InitFrame(settings, self)
@@ -579,6 +681,7 @@ local function InitFrame(settings, self)
 	self.Overlay = overlay
 
 	-- Death icon
+	--[=[
 	local death = overlay:CreateTexture(nil, "OVERLAY")
 	death:SetWidth(HEIGHT*2)
 	death:SetHeight(HEIGHT)
@@ -588,7 +691,17 @@ local function InitFrame(settings, self)
 	death:SetPoint("CENTER")
 	death:Hide()
 	self.DeathIcon = death
-
+	--]=]
+	
+	local status = overlay:CreateTexture(nil, "OVERLAY")
+	status:SetWidth(HEIGHT)
+	status:SetHeight(HEIGHT)
+	status:SetAlpha(0.75)
+	status:SetPoint("CENTER")
+	status:SetBlendMode("ADD")
+	status:Hide()
+	self.StatusIcon = status
+	
 	-- Incoming heals
 	if oUF.HasIncomingHeal then
 		local heal = hp:CreateTexture(nil, "OVERLAY")
