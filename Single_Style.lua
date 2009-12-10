@@ -396,9 +396,9 @@ local function InitFrame(settings, self)
 	end
 	
 	-- Combo points
-	if unit == "target" or unit == "focus" then
+	if unit == "target" then
 		local DOT_SIZE = 10
-		local cpoints = {}
+		local cpoints = { unit = "player" }
 		for i = 0, 4 do
 			local cpoint = SpawnTexture(indicators, DOT_SIZE)
 			cpoint:SetTexture([[Interface\AddOns\oUF_Adirelle\media\combo]])
