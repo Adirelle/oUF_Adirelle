@@ -1,4 +1,4 @@
-## Interface: 30200
+## Interface: 30300
 ## Author: Adirelle
 ## Version: 1.0
 ## Title: Adirelle's oUF-based raid frames
