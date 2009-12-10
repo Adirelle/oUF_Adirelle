@@ -6,14 +6,6 @@ All rights reserved.
 Elements handled: .RuneBar
 --]=]
 
-local _debug
-if tekDebug then
-	local f = tekDebug:GetFrame("oUF_Adirelle_RuneBar")
-	_debug = function(...) f:AddMessage(string.join(", ", tostringall(...)):gsub("([=:]), ", "%1")) end
-else
-	_debug = function() end
-end
-
 oUF.colors.runes = oUF.colors.runes or {
 	{ 1, 0, 0  },
 	{ 0, 0.5, 0 },
@@ -38,7 +30,6 @@ local function OnUpdate(rune)
 end
 
 local function RuneUpdate(self, event, index)
-	_debug('RuneUpdate', self, event, index)
 	local rune = self.RuneBar[index]
 	if not rune then return end
 	UpdateRuneColor(rune)
@@ -54,7 +45,6 @@ local function RuneUpdate(self, event, index)
 end
 
 local function Update(self, event, index, ...)
-	_debug('Update, self=', self, 'event=', event, 'index=', index, 'stack=', debugstack())
 	if not tonumber(index) then
 		if self.unit ~= 'player' then 
 			return self.RuneBar:Hide()
@@ -71,7 +61,6 @@ end
 
 local function Enable(self)
 	if self.RuneBar then
-		_debug('Enable', self)
 		self:RegisterEvent('RUNE_POWER_UPDATE', Update)
 		self:RegisterEvent('RUNE_TYPE_UPDATE', Update)		
 		RuneFrame:Hide()
@@ -83,7 +72,6 @@ end
 
 local function Disable(self)
 	if self.RuneBar then
-		_debug('Disable', self)
 		self:UnregisterEvent('RUNE_POWER_UPDATE', Update)
 		self:UnregisterEvent('RUNE_TYPE_UPDATE', Update)		
 	end
