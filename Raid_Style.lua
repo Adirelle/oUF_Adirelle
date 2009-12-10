@@ -538,7 +538,7 @@ do
 		outOfScope = { [[Interface\Icons\Spell_Frost_Stun]], 0.05, 0.95, 0.5-0.25*0.9, 0.5+0.25*0.9, true },
 		dead = { [[Interface\TargetingFrame\UI-TargetingFrame-Skull]], 4/32, 26/32, 9/32, 20/32, false },
 	}
-
+	
 	local force = 0
 	
 	local function Update(self, event, unit)
@@ -584,19 +584,22 @@ do
 				local visible = UnitIsVisible(frame.unit)
 				if isVisible[frame] ~= visible then
 					isVisible[frame] = visible
-					Update(frame)
+					Update(frame, "Visibility", frame.unit)
 				end
 			end
 		end
 	end
+
+	local function PlayerUpdate(self, event) return Update(self, event, "player") end
 	
 	local checkFrame
 	local function Enable(self)
 		if self.StatusIcon then
 			self:RegisterEvent('UNIT_FLAGS', Update)
-			self:RegisterEvent('PLAYER_DEAD', Update)
-			self:RegisterEvent('PLAYER_ALIVE', Update)
-			self:RegisterEvent('PLAYER_UNGHOST', Update)
+			self:RegisterEvent('UNIT_DYNAMIC_FLAGS', Update)
+			self:RegisterEvent('PLAYER_DEAD', PlayerUpdate)
+			self:RegisterEvent('PLAYER_ALIVE', PlayerUpdate)
+			self:RegisterEvent('PLAYER_UNGHOST', PlayerUpdate)
 			if not next(objects) then
 				if not checkFrame then
 					checkFrame = CreateFrame("Frame")
@@ -612,9 +615,10 @@ do
 	local function Disable(self)
 		if self.StatusIcon then
 			self:UnregisterEvent('UNIT_FLAGS', Update)
-			self:UnregisterEvent('PLAYER_DEAD', Update)
-			self:UnregisterEvent('PLAYER_ALIVE', Update)
-			self:UnregisterEvent('PLAYER_UNGHOST', Update)
+			self:UnregisterEvent('UNIT_DYNAMIC_FLAGS', Update)
+			self:UnregisterEvent('PLAYER_DEAD', PlayerUpdate)
+			self:UnregisterEvent('PLAYER_ALIVE', PlayerUpdate)
+			self:UnregisterEvent('PLAYER_UNGHOST', PlayerUpdate)
 			objects[self] = nil
 			if not next(objects) then
 				checkFrame:Hide()
