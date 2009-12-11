@@ -854,7 +854,7 @@ local function InitFrame(settings, self)
 
 		-- Sated/Exhausted
 		self:AuraIcon(
-			SpawnSmallIon("TOPLEFT", self, "TOPLEFT", INSET, -INSET),
+			SpawnSmallIcon("TOPLEFT", self, "TOPLEFT", INSET, -INSET),
 			TestAnyAura((UnitFactionGroup("player") == "Alliance") and 29650 or 57724, "HARMFUL")
 		)
 
