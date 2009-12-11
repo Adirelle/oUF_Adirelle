@@ -396,17 +396,18 @@ local function InitFrame(settings, self)
 	end
 	
 	-- Combo points
-	if unit == "target" then
+	if unit == "target" or unit == "focus" then
 		local DOT_SIZE = 10
-		local cpoints = { unit = "player" }
+		local cpoints = {}
 		for i = 0, 4 do
 			local cpoint = SpawnTexture(indicators, DOT_SIZE)
 			cpoint:SetTexture([[Interface\AddOns\oUF_Adirelle\media\combo]])
 			cpoint:SetTexCoord(3/16, 13/16, 5/16, 15/16)
 			cpoint:SetPoint("LEFT", health, "BOTTOMLEFT", i*(DOT_SIZE+GAP), 0)
+			cpoint:Hide()
 			tinsert(cpoints, cpoint)
 		end
-		self.CPoints = cpoints
+		self.ComboPoints = cpoints
 	end
 	
 	-- Auras
