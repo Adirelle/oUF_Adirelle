@@ -1,4 +1,4 @@
---[=[
+ --[=[
 Adirelle's oUF layout
 (c) 2009 Adirelle (adirelle@tagada-team.net)
 All rights reserved.
@@ -6,7 +6,8 @@ All rights reserved.
 Elements handled: .Border	
 --]=]
 
-local oUF = assert(_G.oUF, "oUF_Adirelle requires oUF")
+local parent, ns = ...
+local oUF = assert(ns.oUF, "oUF is undefined in "..parent.." namespace")
 
 local UnitThreatSituation = UnitThreatSituation
 local GetThreatStatusColor = GetThreatStatusColor

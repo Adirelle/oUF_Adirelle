@@ -1,15 +1,7 @@
 -- Slightly modified CPoints that should properly handle units
 
 local parent, ns = ...
-local oUF
-if ns then
-	oUF = ns.oUF
-else
-	parent = debugstack():match[[\AddOns\(.-)\]]
-	local global = GetAddOnMetadata(parent, 'X-oUF')
-	assert(global, 'X-oUF needs to be defined in the parent add-on.')
-	oUF = _G[global]
-end
+local oUF = assert(ns.oUF, "oUF is undefined in "..parent.." namespace")
 
 local GetComboPoints = GetComboPoints
 local MAX_COMBO_POINTS = MAX_COMBO_POINTS

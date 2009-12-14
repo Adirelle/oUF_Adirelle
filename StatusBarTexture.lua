@@ -4,7 +4,8 @@ Adirelle's oUF layout
 All rights reserved.
 --]=]
 
-local oUF = assert(_G.oUF, "oUF_Adirelle requires oUF")
+-- Use our own namespace
+setfenv(1, _G.oUF_Adirelle)
 
 local texture = [[Interface\TargetingFrame\UI-StatusBar]]
 local objects = {}

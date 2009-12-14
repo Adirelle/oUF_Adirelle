@@ -4,7 +4,8 @@ Adirelle's oUF layout
 All rights reserved.
 --]=]
 
-local oUF = assert(_G.oUF, "oUF_Adirelle requires oUF")
+local parent, ns = ...
+local oUF = assert(ns.oUF, "oUF is undefined in "..parent.." namespace")
 
 local CreateBlinkingFrame
 do
