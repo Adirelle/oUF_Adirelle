@@ -6,10 +6,10 @@ All rights reserved.
 
 local _G, parent, ns = _G, ...
 
--- Get a reference to oUF
+-- If we have no embedded oUF, try to get one from standalonne oUF
 if not ns.oUF then
-	local global = assert(GetAddOnMetadata(parent, 'X-oUF'), "x-oUF must be defined in "..parent.." TOC file.")
-	ns.oUF = assert(_G[global], "oUF_Adirelle requires oUF")
+	local global = GetAddOnMetadata('oUF', 'X-oUF')
+	ns.oUF = assert(global and _G[global], parent.." requires oUF.")
 end
 
 -- Have namespace defaults to globals
