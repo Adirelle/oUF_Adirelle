@@ -1,0 +1,29 @@
+package-as: oUF_Adirelle
+
+license-output: LICENSE.txt
+
+externals:
+  libs/LibStub: 
+    url: svn://svn.wowace.com/wow/libstub/mainline/trunk
+    tag: latest
+  libs/CallbackHandler-1.0: 
+    url: svn://svn.wowace.com/wow/callbackhandler/mainline/trunk/CallbackHandler-1.0
+    tag: latest
+	libs/LibMovable-1.0:
+		url: git://github.com/Adirelle/LibMovable-1.0.git
+		tag: latest
+	libs/LibSharedMedia-3.0:
+		url: svn://svn.wowace.com/wow/libsharedmedia-3-0/mainline/trunk/LibSharedMedia-3.0
+		tag: latest
+	libs/LibHealComm-4.0:
+		url: git://git.wowace.com/wow/libhealcomm-4-0/mainline.git
+		tag: latest
+	libs/DRData-1.0:
+		url: git://git.wowace.com/wow/drdata-1-0/mainline.git
+		tag: latest
+	oUF: 
+		url: git://github.com/haste/oUF.git
+		tag: 1.3.24
+
+move-folders:
+    oUF_Adirelle/oUF_Adirelle_Single: oUF_Adirelle_Single
