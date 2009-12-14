@@ -1,6 +1,6 @@
 ## Interface: 30300
 ## Author: Adirelle
-## Version: 1.0 (oUF-1.3.24)
+## Version: 1.0
 ## Title: Adirelle's raid unit frames
 ## Notes: Grid-like unit frames based on oUF.
 ## OptionalDeps: oUF, LibStub, CallbackHandler-1.0, LibSharedMedia-3.0, LibHealComm-4.0, DRData-1.0, LibMovable-1.0, SharedMedia, SharedMedia_MyMedia, !SurfaceControl, tekDebug
