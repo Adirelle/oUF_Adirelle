@@ -505,5 +505,3 @@ local single_style_health = setmetatable({
 })
 
 oUF:RegisterStyle("Adirelle_Single_Health", single_style_health)
-
-

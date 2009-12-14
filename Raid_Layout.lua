@@ -210,9 +210,11 @@ end
 
 local libmovable = LibStub('LibMovable-1.0', true)
 if libmovable then
+	local addonName = ...
+	addonName = addonName:lower()
 	anchor:RegisterEvent('ADDON_LOADED')
 	anchor:SetScript('OnEvent', function(_, event, name)
-		if name:lower() ~= "ouf_adirelle" then return end
+		if name:lower() ~= addonName then return end
 		anchor:UnregisterEvent('ADDON_LOADED')
 		anchor:SetScript('OnEvent', nil)
 		
