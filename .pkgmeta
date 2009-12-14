@@ -25,3 +25,6 @@ externals:
 
 move-folders:
   oUF_Adirelle/oUF_Adirelle_Single: oUF_Adirelle_Single
+
+ignore:
+  - README.textile

@@ -1,0 +1,55 @@
+oUF_Adirelle provides both raid and single unit frames built on top of oUF.
+
+This addon has been originally written for personal use and taste. 
+It borrows ideas from existing raid and unit frame addons.
+
+It has been tested and includes specific settings for the following classes: 
+hunter, druid, paladin, warlock, priest, shaman, death knight.
+
+I do not plan to add configuration options. Nevertheless, one can easily move 
+and resize the frames using the "/oufa" chat command.
+
+Though oUF_Adirelle embeds and uses some libraries, they are all optional and 
+could be safely removed (just delete the "libs" directory).
+
+h2. Features
+
+h3. Common features
+
+* chat-command /oufa allows to move and resize the frames ; also supports ConfigMode.
+* colored border:
+** white: current target,
+** blue: low mana,
+** red/orange/yellow: threat status. 
+* shows visual incoming heal overlays, thanks to LibHealComm-4.0 ; this includes casted heals as well as HoTs.
+* display raid target icons,
+* uses default LibSharedMedia texture (this can be changed using SurfaceControl),
+* fades out of range targets, using spell range checks (which is a bit more accurate than generic range checking). 
+
+h3. Group unit frames
+
+* automatically chooses best layout given the group status and/or instance, amongst:
+** party and pets (solo, party, arena),
+** 10, 15, 25 or 40-man layout given the raid size or instance size. 
+* health bar fills from right to left when unit looses life,
+* displays important buffs,
+* displays curable debuffs,
+* displays small icons in corners for heal related auras,
+* in PvP party (arena), displays CC icons below party frames, using DRData-1.0.
+* ready check icon,
+* special status icon:
+** skull: dead unit,
+** lightning: disconnected unit,
+** whirlwind: out of view (either really far unit or unit in another instance). 
+
+h3. Single unit frames
+
+* frames for player, pet, target, target of target and focus,
+* class-colored health bar for players, happiness-color health bar for hunters' pet,
+* displays numerical health and power values,
+* displays percentage health for elite/boss units,
+* shows unit level and classification/class,
+* shows elite/rare dragon decoration,
+* integrated DK rune bar,
+* also shows druid mana in cat/bear form,
+* shows raid/party roles and PvP status. 
