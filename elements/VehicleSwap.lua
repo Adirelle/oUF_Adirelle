@@ -4,6 +4,9 @@ Adirelle's oUF layout
 All rights reserved.
 --]=]
 
+local parent, ns = ...
+local oUF = assert(ns.oUF, "oUF is undefined in "..parent.." namespace")
+
 local function Update(self, event)
 	local unit = SecureButton_GetModifiedUnit(self)
 	if unit and unit ~= self.unit then

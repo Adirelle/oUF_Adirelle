@@ -1,12 +1,19 @@
 ## Interface: 30300
 ## Author: Adirelle
-## Version: 1.0
+## Version: 1.0 (oUF-1.3.24)
 ## Title: Adirelle's oUF-based raid frames
 ## Notes: Grid-like raid frames
-## RequiredDeps: oUF
-## OptionalDeps: LibSharedMedia-3.0, LibHealComm-4.0, DRData-1.0, LibMovable-1.0, SharedMedia, SharedMedia_MyMedia, tekDebug
+## OptionalDeps: oUF, LibSharedMedia-3.0, LibHealComm-4.0, DRData-1.0, LibMovable-1.0, SharedMedia, SharedMedia_MyMedia, tekDebug
 ## SavedVariablas: oUF_Adirelle_DB
 
+# Embedded oUF
+## X-oUF: oUF
+oUF\oUF.xml
+
+# Setup namespace
+oUF_Adirelle.lua
+
+# Own elements 
 elements\Border.lua
 elements\Dragon.lua
 elements\ReadyCheck.lua
@@ -16,8 +23,10 @@ elements\VehicleSwap.lua
 elements\XRange.lua
 elements\RuneBar.lua
 
+# Texture helper
 StatusBarTexture.lua
 
+# Raid unit frames
 Raid_Style.lua
 Raid_Layout.lua
 

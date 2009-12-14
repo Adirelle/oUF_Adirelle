@@ -6,7 +6,8 @@ All rights reserved.
 Elements handled: .ReadyCheck
 --]=]
 
-local oUF = assert(_G.oUF, "oUF_Adirelle requires oUF")
+local parent, ns = ...
+local oUF = assert(ns.oUF, "oUF is undefined in "..parent.." namespace")
 
 local textures = {
 	waiting  = READY_CHECK_WAITING_TEXTURE,

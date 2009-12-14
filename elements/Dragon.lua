@@ -6,6 +6,9 @@ All rights reserved.
 Elements handled: .Dragon	
 --]=]
 
+local parent, ns = ...
+local oUF = assert(ns.oUF, "oUF is undefined in "..parent.." namespace")
+
 local classifMap = {
 	rare = 'rare',
 	rareelite = 'rare',

@@ -4,8 +4,8 @@ Adirelle's oUF layout
 All rights reserved.
 --]=]
 
-local oUF = assert(_G.oUF, "oUF_Adirelle requires oUF")
-setfenv(1, oUF_Adirelle)
+-- Use our own namespace
+setfenv(1, _G.oUF_Adirelle)
 
 local BORDER_WIDTH = 2
 local TEXT_MARGIN = 2

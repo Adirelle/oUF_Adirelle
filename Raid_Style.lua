@@ -4,7 +4,8 @@ Adirelle's oUF layout
 All rights reserved.
 --]=]
 
-local oUF = assert(_G.oUF, "oUF_Adirelle requires oUF")
+-- Use our own namespace
+setfenv(1, _G.oUF_Adirelle)
 
 oUF.colors.power.MANA = { 0.3, 0.5, 1.0 }
 
@@ -21,9 +22,6 @@ local strsub = string.sub
 local mmin = math.min
 local tostring = tostring
 local unpack = unpack
-
-oUF_Adirelle = setmetatable({}, {__index = _G})
-setfenv(1, oUF_Adirelle)
 
 SCALE = 1.0
 WIDTH = 80

@@ -6,6 +6,9 @@ All rights reserved.
 Elements handled: .RuneBar
 --]=]
 
+local parent, ns = ...
+local oUF = assert(ns.oUF, "oUF is undefined in "..parent.." namespace")
+
 oUF.colors.runes = oUF.colors.runes or {
 	{ 1, 0, 0  },
 	{ 0, 0.5, 0 },
