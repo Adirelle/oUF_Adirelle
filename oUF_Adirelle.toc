@@ -28,9 +28,10 @@ elements\Dragon.lua
 elements\ReadyCheck.lua
 elements\IncomingHeal.lua
 elements\Icon.lua
+elements\RuneBar.lua
+elements\StatusIcon.lua
 elements\VehicleSwap.lua
 elements\XRange.lua
-elements\RuneBar.lua
 
 # Texture helper
 StatusBarTexture.lua
