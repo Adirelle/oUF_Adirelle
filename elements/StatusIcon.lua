@@ -6,6 +6,9 @@ All rights reserved.
 Elements handled: .StatusIcon
 --]=]
 
+local parent, ns = ...
+local oUF = assert(ns.oUF, "oUF is undefined in "..parent.." namespace")
+
 local icons = {
 	disconnected = { [[Interface\Icons\INV_Sigil_Thorim]], 0.05, 0.95, 0.5-0.25*0.9, 0.5+0.25*0.9, false },
 	outOfScope = { [[Interface\Icons\Spell_Frost_Stun]], 0.05, 0.95, 0.5-0.25*0.9, 0.5+0.25*0.9, true },
