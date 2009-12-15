@@ -28,6 +28,7 @@ elements\Dragon.lua
 elements\ReadyCheck.lua
 elements\IncomingHeal.lua
 elements\Icon.lua
+elements\RoleOrIcon.lua
 elements\RuneBar.lua
 elements\StatusIcon.lua
 elements\VehicleSwap.lua

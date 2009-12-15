@@ -797,14 +797,6 @@ local function InitFrame(settings, self)
 
 	end
 
-	--[[ Targetting thing
-	local tc = SpawnSquare(self, 5)
-	tc:SetPoint("LEFT", self ,"LEFT", 1, 0)
-	self.TargetColor = tc
-	--]]
-	
-	-- 
-
 	-- Crowd control icon
 	local header = self:GetParent()
 	if GetCCIcon and header.isParty and not header.isPets then
@@ -817,13 +809,13 @@ local function InitFrame(settings, self)
 	-- Aura icon blinking setting
 	self.iconBlinkThreshold = 3
 
-	-- RaidIcon
-	local raidIcon = overlay:CreateTexture(nil, "OVERLAY")
-	raidIcon = overlay:CreateTexture(nil, "OVERLAY")
-	raidIcon:SetWidth(8)
-	raidIcon:SetHeight(8)
-	raidIcon:SetPoint("LEFT", self, INSET, 0)
-	self.RaidIcon = raidIcon
+	-- Role/Raid icon
+	local roleIcon = overlay:CreateTexture(nil, "OVERLAY")
+	roleIcon = overlay:CreateTexture(nil, "OVERLAY")
+	roleIcon:SetWidth(8)
+	roleIcon:SetHeight(8)
+	roleIcon:SetPoint("LEFT", self, INSET, 0)
+	self.RoleIcon = roleIcon
 	
 	-- Event requiring to update name and color
 	self:RegisterEvent('UNIT_FLAGS', UnitFlagChanged)
@@ -857,6 +849,5 @@ raid_style = setmetatable(
 )
 
 oUF:RegisterStyle("Adirelle_Raid", raid_style)
-
 
 
