@@ -61,6 +61,7 @@ local strformat = string.format
 local strsub = string.sub
 local mmin = math.min
 local mmax = math.max
+local abs = math.abs
 
 -- ------------------------------------------------------------------------------
 -- Health bar and name updates
@@ -70,20 +71,23 @@ local function GetShortUnitName(unit)
 	return strsub(tostring(UnitName(unit)),1,10)
 end
 
+local function SmartHPValue(value)
+	if abs(value) >= 1000 then
+		return strformat("%.1fk", value/1000)
+	else
+		return strformat("%d", value)
+	end
+end
+
 local function UpdateName(self, unit, current, max, incomingHeal)
 	local r, g, b = unpack(self.bgColor)
 	local unitName = GetShortUnitName(SecureButton_GetUnit(self))
 	if UnitIsConnected(unit) and not UnitIsDeadOrGhost(unit) then
-		if incomingHeal > 0 then
-			unitName, r, g, b = strformat("+%.1fk", incomingHeal/1000), 0, 1, 0
-		elseif current < max then
-			local hpPercent = current/max
-			if hpPercent < 0.9 then
-				unitName = strformat("-%.1fk", (max-current)/1000)
-				if hpPercent < 0.4 then
-					r, g, b = 1, 0, 0
-				end
-			end
+		local overHeal = current + incomingHeal - max
+		if overHeal > 0 then
+			unitName, r, g, b = "+"..SmartHPValue(overHeal), 0, 1, 0
+		elseif current < 0.4 * max then
+			unitName, r, g, b = SmartHPValue(current), 1, 0, 0
 		end
 	end
 	self.Name:SetText(unitName)
