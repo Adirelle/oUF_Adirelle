@@ -173,7 +173,7 @@ local function OnSizeChanged(self, width, height)
 			self.AltPower:SetHeight((height-2*GAP)*0.20)
 		end
 	end
-end
+	end
 
 local _, playerClass = UnitClass('player')
 
@@ -233,11 +233,11 @@ elseif playerClass == "DRUID" then
 	end
 end
 
-local DROPDOWN_MENUS = {
-	player = PlayerFrameDropDown,
-	pet = PetFrameDropDown,
-	target = TargetFrameDropDown,
-	focus = FocusFrameDropDown,
+local DROPDOWN_FRAMES = {
+	player = "PlayerFrame",
+	pet = "PetFrame",
+	target = "TargetFrame",
+	focus = "FocusFrame",
 }
 
 local DRAGON_TEXTURES = {
@@ -262,9 +262,14 @@ local function InitFrame(settings, self)
 	self:SetScript("OnEnter", OoC_UnitFrame_OnEnter)
 	self:SetScript("OnLeave", UnitFrame_OnLeave)
 
-	if DROPDOWN_MENUS[unit] then
-		self:SetAttribute("*type2", "menu");
-		self.menu = ToggleMenu
+	local dropdownButton = DROPDOWN_FRAMES[unit]
+	if dropdownButton then
+		-- Hacky workaround
+		local f = _G[dropdownButton]
+		self:SetAttribute("*type2", "click")
+		self:SetAttribute("*clickbutton2", f)
+		f:ClearAllPoints()
+		f:SetAllPoints(self)
 	end
 
 	self:SetBackdrop(backdrop)
@@ -296,6 +301,7 @@ local function InitFrame(settings, self)
 		self.Portrait = portrait
 	
 		barContainer = CreateFrame("Frame", nil, self)
+	
 		barContainer:SetPoint("TOP"..left, portrait, "TOP"..right, GAP*dir, 0)
 		barContainer:SetPoint("BOTTOM"..right)
 	else
@@ -377,8 +383,8 @@ local function InitFrame(settings, self)
 	self.MasterLooter = SpawnTexture(indicators, 16, "TOP"..left, 16*dir)
 	self.Combat = SpawnTexture(indicators, 16, "BOTTOM"..left)
 
-	self.RaidIcon = SpawnTexture(indicators, 16)
-	self.RaidIcon:SetPoint("CENTER", barContainer)
+	self.RoleIcon = SpawnTexture(indicators, 16)
+	self.RoleIcon:SetPoint("CENTER", barContainer)
 
 	if unit == "pet" then
 		self.Happiness = SpawnTexture(indicators, 16, "BOTTOMRIGHT")
