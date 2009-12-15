@@ -18,3 +18,16 @@ setmetatable(ns, {__index=_G})
 
 -- Export our namespace for standalone modules
 _G.oUF_Adirelle = ns
+
+-- Debugging stuff
+if tekDebug then
+	local frame = tekDebug:GetFrame("oUF_Adirelle")	
+	function Debug(...) frame:AddMessage(string.join(", ", tostringall(...)):gsub("([:=]), ", "%1")) end 
+	oUF.frame_metatable.__tostring = function(self) return self:GetName()..'['..tostring(self.unit)..']' end
+	getmetatable(oUF).__tostring = "oUF"
+else
+	function Debug() end
+end
+oUF.Debug = Debug
+oUF.frame_metatable.__index.Debug = Debug
+
