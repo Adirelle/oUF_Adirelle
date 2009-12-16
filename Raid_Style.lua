@@ -83,8 +83,8 @@ local function UpdateName(self, unit, current, max, incomingHeal)
 	local r, g, b = unpack(self.bgColor)
 	local unitName = GetShortUnitName(SecureButton_GetUnit(self))
 	if UnitIsConnected(unit) and not UnitIsDeadOrGhost(unit) then
-		local overHeal = current + incomingHeal - max
-		if overHeal > 0 then
+		local overHeal = current and max and incomingHeal and (current + incomingHeal - max)
+		if overHeal and overHeal > 0 then
 			unitName, r, g, b = "+"..SmartHPValue(overHeal), 0, 1, 0
 		elseif current < 0.4 * max then
 			unitName, r, g, b = SmartHPValue(current), 1, 0, 0
