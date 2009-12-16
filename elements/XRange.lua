@@ -72,8 +72,6 @@ end
 local function GetRangeAlpha(self, unit)
 	if UnitIsUnit(unit, 'player') or not UnitIsConnected(unit) then 
 		return self.inRangeAlpha
-	--	elseif not UnitIsVisible(unit) then
-	--	return self.notVisibleAlpha
 	end
 	local spell =  GetRangeSpell(unit)
 	local spellInRange = spell and IsSpellInRange(spell, unit)
@@ -117,7 +115,6 @@ local function Enable(self)
 		updateFrame:Show()
 		self.inRangeAlpha = self.inRangeAlpha or 1.0
 		self.outsideRangeAlpha = self.outsideRangeAlpha or 0.4
-		self.notVisibleAlpha = notVisibleAlpha or 0.2
 		objects[self] = true
 		return true
 	end
