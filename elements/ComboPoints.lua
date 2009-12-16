@@ -1,3 +1,9 @@
+--[=[
+Adirelle's oUF layout
+(c) 2009 Adirelle (adirelle@tagada-team.net)
+All rights reserved.
+--]=]
+
 -- Slightly modified CPoints that should properly handle units
 
 local parent, ns = ...
@@ -7,7 +13,7 @@ local GetComboPoints = GetComboPoints
 local MAX_COMBO_POINTS = MAX_COMBO_POINTS
 
 local function GetSourceUnit(target)
-	if target == 'focus' or target == 'player' then
+	if target == 'focus' or target == 'target' then
 		return UnitHasVehicleUI('player') and 'vehicle' or 'player'
 	else
 		local prefix, index = target:match('^(.-)target(.-)$')
@@ -20,17 +26,19 @@ end
 local Update = function(self, event, unit)
 	local source = GetSourceUnit(self.unit)
 	if not source or (unit and unit ~= self.unit and unit ~= source) then return end
-	local cpoints = self.ComboPoints
-	local cp = GetComboPoints(source, self.unit)
-
-	if(#cpoints == 0) then
-		cpoints:SetText((cp > 0) and cp)
+	local count = GetComboPoints(source, self.unit)
+	if count == 5 then
+		for _, point in pairs(self.ComboPoints) do
+			point:SetVertexColor(1, 0, 0)
+			point:Show()
+		end
 	else
-		for i=1, MAX_COMBO_POINTS do
-			if(i <= cp) then
-				cpoints[i]:Show()
+		for i, point in ipairs(self.ComboPoints) do
+			if i <= count then
+				point:SetVertexColor(1, 1, 1)
+				point:Show()
 			else
-				cpoints[i]:Hide()
+				point:Hide()
 			end
 		end
 	end
