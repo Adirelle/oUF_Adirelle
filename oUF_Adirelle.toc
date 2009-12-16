@@ -24,10 +24,11 @@ oUF_Adirelle.lua
 
 # Own elements 
 elements\Border.lua
+elements\ComboPoints.lua
 elements\Dragon.lua
-elements\ReadyCheck.lua
-elements\IncomingHeal.lua
 elements\Icon.lua
+elements\IncomingHeal.lua
+elements\ReadyCheck.lua
 elements\RoleOrIcon.lua
 elements\RuneBar.lua
 elements\StatusIcon.lua
