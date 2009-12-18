@@ -18,7 +18,32 @@ local strmatch = string.match
 
 local groupType
 
-local function Update(self, event, unit)
+local GetGroupRole, RoleUpdated, Update
+local lgt, lgtVer = LibStub('LibGroupTalents-1.0', true)
+if lgt then
+	oUF.Debug("Using LibGroupTalents-1.0", lgtVer)
+	function GetGroupRole(unit)
+		local role = lgt:GetUnitRole(unit)
+		return (role == 'caster' or role == 'melee') and "damage" or role
+	end
+	
+	function RoleUpdated(self, event, guid, unit, ...)
+		if unit == self.unit then
+			oUF.Debug(self, event, guid, unit, ...)
+			return Update(self, event, unit)
+		end
+	end
+else
+	local UnitInParty, UnitGroupRolesAssigned = UnitInParty, UnitGroupRolesAssigned
+	function GetGroupRole(unit)
+		if groupType == "party" and UnitInParty(unit) then
+			local isTank, isHealer, isDamage = UnitGroupRolesAssigned(unit)
+			return (isTank and "tank") or (isHealer and "healer") or (isDamage and "damage")
+		end
+	end
+end
+
+function Update(self, event, unit)
 	if unit and unit ~= self.unit then return end
 	local icon = self.RoleIcon
 	local index = GetRaidTargetIndex(self.unit)	
@@ -48,18 +73,18 @@ local function Update(self, event, unit)
 			texture = [[Interface\GroupFrame\UI-Group-MainTankIcon]]
 		end
 
-	elseif event == 'PLAYER_REGEN_DISABLED' or InCombatLockdown() then
-		-- NOOP
+	--[[elseif event == 'PLAYER_REGEN_DISABLED' or InCombatLockdown() then
+		-- NOOP]]
 
-	elseif groupType == "party" and UnitInParty(self.unit) then
-		local isTank, isHealer, isDamage = UnitGroupRolesAssigned(self.unit)
+	else
+		local role = GetGroupRole(self.unit)
 		local num
-		if isTank then
+		if role == "tank" then
 			num,r,g,b = 2, 0.3, 1, 1
-		elseif isHealer then
+		elseif role == "healer" then
 			num,r,g,b = 3, 1, 0.3, 0.3
-		elseif isDamage then
-			num,r,g,b = 1, 1, 1, 0.3
+		--[[elseif role == "damage" then
+			num,r,g,b = 1, 1, 1, 0.3]]
 		end
 		if num then
 			texture, x0, x1, y0, y1 = [[Interface\LFGFrame\LFGRole_BW]], (1+num*16)/64, (15+num*16)/64, 1/16, 15/16
@@ -69,7 +94,6 @@ local function Update(self, event, unit)
 	if texture then
 		icon:SetTexture(texture)
 		if x0 then
-			self:Debug("x0=", x0, "x1=", x1, "y0=", y0, "y1=", y1) 
 			icon:SetTexCoord(x0, x1, y0, y1)
 		end
 		icon:SetVertexColor(r, g, b)
@@ -95,13 +119,17 @@ local function UpdateEvents(self, ...)
 		if groupType == "raid" then
 			self:UnregisterEvent('RAID_ROSTER_UPDATE', Update)				
 		elseif groupType == "party" then
-			self:UnregisterEvent('LFG_ROLE_UPDATE', Update)				
+			if not lgt then
+				self:UnregisterEvent('LFG_ROLE_UPDATE', Update)				
+			end
 		end
 		groupType = newGroupType
 		if groupType == "raid" then
 			self:RegisterEvent('RAID_ROSTER_UPDATE', Update)				
 		elseif groupType == "party" then
-			self:RegisterEvent('LFG_ROLE_UPDATE', Update)				
+			if not lgt then
+				self:RegisterEvent('LFG_ROLE_UPDATE', Update)				
+			end
 		end
 	end
 	return Update(self, ...)
@@ -112,6 +140,9 @@ local function Enable(self)
 		self:RegisterEvent('PARTY_MEMBERS_CHANGED', UpdateEvents)
 		self:RegisterEvent('PLAYER_REGEN_ENABLED', Update)
 		self:RegisterEvent('PLAYER_REGEN_DISABLED', Update)
+		if lgt then
+			lgt.RegisterCallback(self, 'LibGroupTalents_RoleChange', RoleUpdated)
+		end
 		
 		self.RoleIcon:Hide()
 		return true
@@ -119,7 +150,17 @@ local function Enable(self)
 end
 
 local function Disable(self)
-	self.RoleIcon:Hide()
+	if self.RoleIcon then
+		self:UnregisterEvent('PARTY_MEMBERS_CHANGED', UpdateEvents)
+		self:UnregisterEvent('PLAYER_REGEN_ENABLED', Update)
+		self:UnregisterEvent('PLAYER_REGEN_DISABLED', Update)
+		self:UnregisterEvent('LFG_ROLE_UPDATE', Update)
+		self:UnregisterEvent('RAID_ROSTER_UPDATE', Update)				
+		if lgt then		
+			lgt.UnregisterCallback(self, 'LibGroupTalents_RoleChange')
+		end
+		self.RoleIcon:Hide()
+	end
 end
 
 oUF:AddElement('RoleIcon', UpdateEvents, Enable, Disable)
