@@ -22,6 +22,10 @@ externals:
   oUF: 
     url: git://github.com/Adirelle/oUF.git
     tag: 1.3.25
+		
+optional-dependencies:
+  - libgrouptalents-1-0
+	- libtalentquery-1-0
 
 move-folders:
   oUF_Adirelle/oUF_Adirelle_Single: oUF_Adirelle_Single
