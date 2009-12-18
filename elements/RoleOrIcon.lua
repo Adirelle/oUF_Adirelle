@@ -46,15 +46,19 @@ end
 function Update(self, event, unit)
 	if unit and unit ~= self.unit then return end
 	local icon = self.RoleIcon
-	local index = GetRaidTargetIndex(self.unit)	
+	if not UnitIsPlayer(self.unit) then return icon:Hide() end
 	local texture, x0, x1, y0, y1, r, g, b = nil, 0, 1, 0, 1, 1, 1, 1
 	
-	if index then
+	-- Check raid target icons
+	local raidTarget = GetRaidTargetIndex(self.unit)
+	if raidTarget then
 		texture = [[Interface\TargetingFrame\UI-RaidTargetingIcons]]
 		x0 = nil
-		SetRaidTargetIconTexture(icon, index)		
+		SetRaidTargetIconTexture(icon, raidTarget)
+	end
 
-	elseif groupType == "raid" and UnitInRaid(self.unit) then
+	-- Check assigned raid roles
+	if not texture and groupType == "raid" and UnitInRaid(self.unit) then
 		local index = tonumber(strmatch(self.unit, "raid(%d+)"))
 		local role
 		if index then
@@ -72,25 +76,25 @@ function Update(self, event, unit)
 		elseif role == "MAINTANK" then
 			texture = [[Interface\GroupFrame\UI-Group-MainTankIcon]]
 		end
+	end
 
-	--[[elseif event == 'PLAYER_REGEN_DISABLED' or InCombatLockdown() then
-		-- NOOP]]
-
-	else
+	-- Check LFG role or LibGroupTalents roles
+	if not texture and groupType ~= "solo" then
 		local role = GetGroupRole(self.unit)
 		local num
 		if role == "tank" then
 			num,r,g,b = 2, 0.3, 1, 1
 		elseif role == "healer" then
 			num,r,g,b = 3, 1, 0.3, 0.3
-		--[[elseif role == "damage" then
-			num,r,g,b = 1, 1, 1, 0.3]]
+		elseif role == "damage" then
+			num,r,g,b = 1, 1, 1, 0.3
 		end
 		if num then
 			texture, x0, x1, y0, y1 = [[Interface\LFGFrame\LFGRole_BW]], (1+num*16)/64, (15+num*16)/64, 1/16, 15/16
 		end
 	end
 	
+	-- Display if any texture found
 	if texture then
 		icon:SetTexture(texture)
 		if x0 then
@@ -117,18 +121,18 @@ local function UpdateEvents(self, ...)
 	local newGroupType = GetGroupType()
 	if newGroupType ~= groupType then
 		if groupType == "raid" then
-			self:UnregisterEvent('RAID_ROSTER_UPDATE', Update)				
+			self:UnregisterEvent('RAID_ROSTER_UPDATE', Update)
 		elseif groupType == "party" then
 			if not lgt then
-				self:UnregisterEvent('LFG_ROLE_UPDATE', Update)				
+				self:UnregisterEvent('LFG_ROLE_UPDATE', Update)
 			end
 		end
 		groupType = newGroupType
 		if groupType == "raid" then
-			self:RegisterEvent('RAID_ROSTER_UPDATE', Update)				
+			self:RegisterEvent('RAID_ROSTER_UPDATE', Update)
 		elseif groupType == "party" then
 			if not lgt then
-				self:RegisterEvent('LFG_ROLE_UPDATE', Update)				
+				self:RegisterEvent('LFG_ROLE_UPDATE', Update)
 			end
 		end
 	end
@@ -138,12 +142,9 @@ end
 local function Enable(self)
 	if self.RoleIcon then
 		self:RegisterEvent('PARTY_MEMBERS_CHANGED', UpdateEvents)
-		self:RegisterEvent('PLAYER_REGEN_ENABLED', Update)
-		self:RegisterEvent('PLAYER_REGEN_DISABLED', Update)
 		if lgt then
-			lgt.RegisterCallback(self, 'LibGroupTalents_RoleChange', RoleUpdated)
+			lgt.RegisterCallback(self, 'LibGroupTalents_RoleChange', RoleUpdated, self)
 		end
-		
 		self.RoleIcon:Hide()
 		return true
 	end
@@ -152,11 +153,9 @@ end
 local function Disable(self)
 	if self.RoleIcon then
 		self:UnregisterEvent('PARTY_MEMBERS_CHANGED', UpdateEvents)
-		self:UnregisterEvent('PLAYER_REGEN_ENABLED', Update)
-		self:UnregisterEvent('PLAYER_REGEN_DISABLED', Update)
 		self:UnregisterEvent('LFG_ROLE_UPDATE', Update)
-		self:UnregisterEvent('RAID_ROSTER_UPDATE', Update)				
-		if lgt then		
+		self:UnregisterEvent('RAID_ROSTER_UPDATE', Update)
+		if lgt then
 			lgt.UnregisterCallback(self, 'LibGroupTalents_RoleChange')
 		end
 		self.RoleIcon:Hide()
