@@ -9,6 +9,10 @@ Elements handled: .StatusIcon
 local parent, ns = ...
 local oUF = assert(ns.oUF, "oUF is undefined in "..parent.." namespace")
 
+local UnitIsConnected = UnitIsConnected
+local UnitIsDeadOrGhost = UnitIsDeadOrGhost
+local UnitIsVisible = UnitIsVisible
+
 local icons = {
 	disconnected = { [[Interface\Icons\INV_Sigil_Thorim]], 0.05, 0.95, 0.5-0.25*0.9, 0.5+0.25*0.9, false },
 	outOfScope = { [[Interface\Icons\Spell_Frost_Stun]], 0.05, 0.95, 0.5-0.25*0.9, 0.5+0.25*0.9, true },
@@ -36,10 +40,7 @@ local function Update(self, event, unit)
 	tex:Show()
 end
 
---[[
 local objects = {}
-
-local isVisible = {}
 local delay = 0
 local function UpdateVisibility(_, elapsed) 
 	if delay > 0 then
@@ -49,22 +50,8 @@ local function UpdateVisibility(_, elapsed)
 	delay = 0.25
 	for frame in pairs(objects) do
 		if frame:IsShown() and frame.unit then
-			local visible = UnitIsVisible(frame.unit)
-			if isVisible[frame] ~= visible then
-				isVisible[frame] = visible
-				Update(frame, "Visibility", frame.unit)
-			end
+			Update(frame, "OnUpdate", frame.unit)
 		end
-	end
-end
---]]
-
-local function UpdateVisibility(self, event, unit)
-	if unit and unit ~= self.unit then return end
-	local isVisible = UnitIsVisible(self.unit)
-	if isVisible ~= self.__isVisible then
-		self.__isVisible = isVisible
-		return Update(self, event, unit)
 	end
 end
 
@@ -75,11 +62,10 @@ local function Enable(self)
 	if self.StatusIcon then
 		self:RegisterEvent('UNIT_FLAGS', Update)
 		self:RegisterEvent('UNIT_DYNAMIC_FLAGS', Update)
-		self:RegisterEvent('UNIT_AURA', UpdateVisibility)
 		self:RegisterEvent('PLAYER_DEAD', PlayerUpdate)
 		self:RegisterEvent('PLAYER_ALIVE', PlayerUpdate)
 		self:RegisterEvent('PLAYER_UNGHOST', PlayerUpdate)
-		--[[if not next(objects) then
+		if not next(objects) then
 			if not checkFrame then
 				checkFrame = CreateFrame("Frame")
 				checkFrame:SetScript('OnUpdate', UpdateVisibility)
@@ -87,7 +73,6 @@ local function Enable(self)
 			checkFrame:Show()
 		end
 		objects[self] = true
-		--]]
 		return true
 	end
 end
@@ -96,16 +81,13 @@ local function Disable(self)
 	if self.StatusIcon then
 		self:UnregisterEvent('UNIT_FLAGS', Update)
 		self:UnregisterEvent('UNIT_DYNAMIC_FLAGS', Update)
-		self:UnregisterEvent('UNIT_AURA', UpdateVisibility)
 		self:UnregisterEvent('PLAYER_DEAD', PlayerUpdate)
 		self:UnregisterEvent('PLAYER_ALIVE', PlayerUpdate)
 		self:UnregisterEvent('PLAYER_UNGHOST', PlayerUpdate)
-		--[[
 		objects[self] = nil
 		if not next(objects) then
 			checkFrame:Hide()
 		end
-		--]]
 	end
 end
 
