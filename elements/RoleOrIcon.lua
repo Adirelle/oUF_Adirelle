@@ -21,7 +21,7 @@ local groupType
 local GetGroupRole, RoleUpdated, Update
 local lgt, lgtVer = LibStub('LibGroupTalents-1.0', true)
 if lgt then
-	oUF.Debug("Using LibGroupTalents-1.0", lgtVer)
+	oUF.Debug("RoleOrIcon using LibGroupTalents-1.0", lgtVer)
 	function GetGroupRole(unit)
 		local role = lgt:GetUnitRole(unit)
 		return (role == 'caster' or role == 'melee') and "damage" or role
@@ -34,6 +34,7 @@ if lgt then
 		end
 	end
 else
+	oUF.Debug("RoleOrIcon using built-in UnitGroupRolesAssigned()")
 	local UnitInParty, UnitGroupRolesAssigned = UnitInParty, UnitGroupRolesAssigned
 	function GetGroupRole(unit)
 		if groupType == "party" and UnitInParty(unit) then
@@ -43,68 +44,69 @@ else
 	end
 end
 
+local ROLE_ICON_INDEXES = {
+--	damage = 1,
+	tank = 2,
+	healer = 3,
+}
+
 function Update(self, event, unit)
 	if unit and unit ~= self.unit then return end
 	local icon = self.RoleIcon
-	if not UnitIsPlayer(self.unit) then return icon:Hide() end
-	local texture, x0, x1, y0, y1, r, g, b = nil, 0, 1, 0, 1, 1, 1, 1
 	
 	-- Check raid target icons
 	local raidTarget = GetRaidTargetIndex(self.unit)
 	if raidTarget then
-		texture = [[Interface\TargetingFrame\UI-RaidTargetingIcons]]
-		x0 = nil
+		icon:SetTexture([[Interface\TargetingFrame\UI-RaidTargetingIcons]])
+		icon:SetVertexcolor(1, 1, 1, 1)
 		SetRaidTargetIconTexture(icon, raidTarget)
+		return icon:Show()
 	end
 
-	-- Check assigned raid roles
-	if not texture and groupType == "raid" and UnitInRaid(self.unit) then
-		local index = tonumber(strmatch(self.unit, "raid(%d+)"))
-		local role
-		if index then
-			role = select(10, GetRaidRosterInfo(index))
-		else
-			for index = 1, GetNumRaidMembers() do
-				if UnitIsUnit('raid'..index, self.unit) then
-					role = select(10, GetRaidRosterInfo(index))
-					break
+	-- Only players may have a role in the group
+	if UnitIsPlayer(self.unit) then
+
+		-- Check assigned raid roles
+		if groupType == "raid" and UnitInRaid(self.unit) then
+			local index = tonumber(strmatch(self.unit, "raid(%d+)"))
+			local role
+			if index then
+				role = select(10, GetRaidRosterInfo(index))
+			else
+				for index = 1, GetNumRaidMembers() do
+					if UnitIsUnit('raid'..index, self.unit) then
+						role = select(10, GetRaidRosterInfo(index))
+						break
+					end
 				end
 			end
+			if role then
+				if role == "MAINASSIST" then
+					icon:SetTexture([[Interface\GroupFrame\UI-Group-MainAssistIcon]])
+				elseif role == "MAINTANK" then
+					icon:SetTexture([[Interface\GroupFrame\UI-Group-MainTankIcon]])
+				end
+				icon:SetTexCoord(0, 1, 0, 1)
+				icon:SetVertexcolor(1, 1, 1, 1)
+				return icon:Show()
+			end
 		end
-		if role == "MAINASSIST" then
-			texture = [[Interface\GroupFrame\UI-Group-MainAssistIcon]]
-		elseif role == "MAINTANK" then
-			texture = [[Interface\GroupFrame\UI-Group-MainTankIcon]]
+
+		-- Check LFG role or LibGroupTalents roles
+		if groupType ~= "solo" then
+			local index = ROLE_ICON_INDEXES[GetGroupRole(self.unit) or "none"]
+			if index then
+				icon:SetTexture([[Interface\LFGFrame\LFGRole_BW]])
+				icon:SetTexCoord((1+index*16)/64, (15+index*16)/64, 1/16, 15/16)
+				icon:SetVertexColor(1, 0.82, 0, 1)
+				return icon:Show()
+			end
 		end
+		
 	end
 
-	-- Check LFG role or LibGroupTalents roles
-	if not texture and groupType ~= "solo" then
-		local role = GetGroupRole(self.unit)
-		local num
-		if role == "tank" then
-			num,r,g,b = 2, 0.3, 1, 1
-		elseif role == "healer" then
-			num,r,g,b = 3, 1, 0.3, 0.3
-		elseif role == "damage" then
-			num,r,g,b = 1, 1, 1, 0.3
-		end
-		if num then
-			texture, x0, x1, y0, y1 = [[Interface\LFGFrame\LFGRole_BW]], (1+num*16)/64, (15+num*16)/64, 1/16, 15/16
-		end
-	end
-	
-	-- Display if any texture found
-	if texture then
-		icon:SetTexture(texture)
-		if x0 then
-			icon:SetTexCoord(x0, x1, y0, y1)
-		end
-		icon:SetVertexColor(r, g, b)
-		icon:Show()
-	else
-		icon:Hide()
-	end
+	-- Nothing to show
+	return icon:Hide()
 end
 
 local function GetGroupType()
