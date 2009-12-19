@@ -58,7 +58,7 @@ function Update(self, event, unit)
 	local raidTarget = GetRaidTargetIndex(self.unit)
 	if raidTarget then
 		icon:SetTexture([[Interface\TargetingFrame\UI-RaidTargetingIcons]])
-		icon:SetVertexcolor(1, 1, 1, 1)
+		icon:SetVertexColor(1, 1, 1, 1)
 		SetRaidTargetIconTexture(icon, raidTarget)
 		return icon:Show()
 	end
