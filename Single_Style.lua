@@ -317,7 +317,7 @@ local function InitFrame(settings, self)
 	health.colorHappiness = true
 	health.colorClass = true	
 	health.colorSmooth = true	
-	health.frequentUpdates = true	
+	--health.frequentUpdates = true	-- let LibQuickHealth handle this
 	self.Health = health
 	
 	-- Name
