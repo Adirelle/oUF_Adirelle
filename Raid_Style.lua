@@ -572,7 +572,7 @@ local function InitFrame(settings, self)
 	-- Health bar
 	local hp = CreateFrame("StatusBar", nil, self)
 	hp:SetAllPoints(self)
-	hp.frequentUpdates = true
+	--hp.frequentUpdates = true -- let LibQuickHealth handle this
 	self:RegisterStatusBarTexture(hp, PostHealthBareTextureUpdate)
 
 	local hpbg = hp:CreateTexture(nil, "BACKGROUND")
