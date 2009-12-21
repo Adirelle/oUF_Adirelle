@@ -144,6 +144,7 @@ end
 local function Enable(self)
 	if self.RoleIcon then
 		self:RegisterEvent('PARTY_MEMBERS_CHANGED', UpdateEvents)
+		self:RegisterEvent("RAID_TARGET_UPDATE", Update)
 		if lgt then
 			lgt.RegisterCallback(self, 'LibGroupTalents_RoleChange', RoleUpdated, self)
 		end
@@ -155,6 +156,7 @@ end
 local function Disable(self)
 	if self.RoleIcon then
 		self:UnregisterEvent('PARTY_MEMBERS_CHANGED', UpdateEvents)
+		self:UnregisterEvent("RAID_TARGET_UPDATE", Update)
 		self:UnregisterEvent('LFG_ROLE_UPDATE', Update)
 		self:UnregisterEvent('RAID_ROSTER_UPDATE', Update)
 		if lgt then
