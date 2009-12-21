@@ -25,13 +25,14 @@ h3. Common features
 * display raid target icons,
 * uses default LibSharedMedia texture (this can be changed using SurfaceControl),
 * fades out of range targets, using spell range checks (which is a bit more accurate than generic range checking). 
+* fast health updates using LibQuickHealth-2.0.
 
 h3. Group unit frames
 
 * automatically chooses best layout given the group status and/or instance, amongst:
 ** party and pets (solo, party, arena),
 ** 10, 15, 25 or 40-man layout given the raid size or instance size. 
-* health bar fills from right to left when unit looses life,
+* health bar fills from right to left when unit loses life,
 * displays important buffs,
 * displays curable debuffs,
 * displays small icons in corners for heal related auras,
@@ -52,4 +53,4 @@ h3. Single unit frames
 * shows elite/rare dragon decoration,
 * integrated DK rune bar,
 * also shows druid mana in cat/bear form,
-* shows raid/party roles and PvP status. 
+* shows raid/party roles and PvP status.
