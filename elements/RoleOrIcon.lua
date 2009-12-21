@@ -13,7 +13,10 @@ local GetRaidTargetIndex = GetRaidTargetIndex
 local SetRaidTargetIconTexture = SetRaidTargetIconTexture
 local GetRealNumRaidMembers = GetRealNumRaidMembers
 local GetRealNumPartyMembers = GetRealNumPartyMembers
-local InCombatLockdown = InCombatLockdown
+local GetRaidRosterInfo = GetRaidRosterInfo
+local GetNumRaidMembers = GetNumRaidMembers
+local UnitInRaid = UnitInRaid
+local UnitIsUnit = UnitIsUnit
 local strmatch = string.match
 
 local groupType
@@ -53,9 +56,10 @@ local ROLE_ICON_INDEXES = {
 function Update(self, event, unit)
 	if unit and unit ~= self.unit then return end
 	local icon = self.RoleIcon
+	unit = self.unit
 	
 	-- Check raid target icons
-	local raidTarget = GetRaidTargetIndex(self.unit)
+	local raidTarget = GetRaidTargetIndex(unit)
 	if raidTarget then
 		icon:SetTexture([[Interface\TargetingFrame\UI-RaidTargetingIcons]])
 		icon:SetVertexColor(1, 1, 1, 1)
@@ -64,17 +68,17 @@ function Update(self, event, unit)
 	end
 
 	-- Only players may have a role in the group
-	if UnitIsPlayer(self.unit) then
+	if UnitIsPlayer(unit) then
 
 		-- Check assigned raid roles
-		if groupType == "raid" and UnitInRaid(self.unit) then
-			local index = tonumber(strmatch(self.unit, "raid(%d+)"))
+		if groupType == "raid" and UnitInRaid(unit) then
+			local index = tonumber(strmatch(unit, "raid(%d+)"))
 			local role
 			if index then
 				role = select(10, GetRaidRosterInfo(index))
 			else
 				for index = 1, GetNumRaidMembers() do
-					if UnitIsUnit('raid'..index, self.unit) then
+					if UnitIsUnit('raid'..index, unit) then
 						role = select(10, GetRaidRosterInfo(index))
 						break
 					end
@@ -94,7 +98,7 @@ function Update(self, event, unit)
 
 		-- Check LFG role or LibGroupTalents roles
 		if groupType ~= "solo" then
-			local index = ROLE_ICON_INDEXES[GetGroupRole(self.unit) or "none"]
+			local index = ROLE_ICON_INDEXES[GetGroupRole(unit) or "none"]
 			if index then
 				icon:SetTexture([[Interface\LFGFrame\LFGRole_BW]])
 				icon:SetTexCoord((1+index*16)/64, (15+index*16)/64, 1/16, 15/16)
@@ -144,6 +148,7 @@ end
 local function Enable(self)
 	if self.RoleIcon then
 		self:RegisterEvent('PARTY_MEMBERS_CHANGED', UpdateEvents)
+		self:RegisterEvent("RAID_TARGET_UPDATE", Update)
 		if lgt then
 			lgt.RegisterCallback(self, 'LibGroupTalents_RoleChange', RoleUpdated, self)
 		end
@@ -155,6 +160,7 @@ end
 local function Disable(self)
 	if self.RoleIcon then
 		self:UnregisterEvent('PARTY_MEMBERS_CHANGED', UpdateEvents)
+		self:UnregisterEvent("RAID_TARGET_UPDATE", Update)
 		self:UnregisterEvent('LFG_ROLE_UPDATE', Update)
 		self:UnregisterEvent('RAID_ROSTER_UPDATE', Update)
 		if lgt then
