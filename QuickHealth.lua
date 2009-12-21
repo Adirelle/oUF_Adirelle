@@ -6,11 +6,12 @@ All rights reserved.
 
 local lqh, lqh_minor = LibStub('LibQuickHealth-2.0', true)
 if not lqh then return end
-oUF.Debug("OuF using LibQuickHealth-2.0", lqh_minor)
 
 -- Use our own namespace
-local parent, ns = ...
+local _G, parent, ns = _G, ...
 setfenv(1, ns)
+
+Debug("oUF_Adirelle using LibQuickHealth-2.0 minor:", lqh_minor)
 
 -- Prepare an environment where lqh.UnitHealth replaces built-in UnitHealth
 local lqhEnv = setmetatable({
@@ -22,23 +23,32 @@ local lqhEnv = setmetatable({
 	end
 })
 
-local function Update(self, event, unit)
-	if self.unit == unit and self.UNIT_HEALTH then
-		self:Debug(event, unit)
-		return self:UNIT_HEALTH(event, unit)
+local function SetHandlerEnv(self, ...)
+	for i = 1, select('#', ...) do
+		local handler = select(i, ...)
+		if type(handler) == "function" then
+			if getfenv(handler) ~= lqhEnv then
+				setfenv(handler, lqhEnv)
+			end
+		elseif type(handler) == "table" then
+			for index, v in pairs(handler) do
+				if type(v) == "function" and getfenv(v) ~= lqhEnv then
+					setfenv(v, lqhEnv)
+				end
+			end
+		end
 	end
 end
 
+local function Update(self, event, unit) 
+	return self:UNIT_MAXHEALTH(event, unit)
+end
+
 -- Update Health element to use QuickHealth
-oUF:RegisterCallback(function(self)
+oUF:RegisterInitCallback(function(self)
 	if self.Health then
-		if type(self.UNIT_HEALTH) == "function" then
-			oUF.Debug(self, "Using QuickHealth")
-			setfenv(self.UNIT_HEALTH, lqhEnv)
-			lqh.RegisterCallback(self, "UnitHealthUpdated", Update, self)
-		elseif self.UNIT_HEALTH then
-			oUF.Debug(self, "Not using QuickHealth because this is not a function:", self.UNIT_HEALTH)
-		end
+		SetHandlerEnv(self, self.UNIT_HEALTH, self.UNIT_MAXHEALTH)
+		lqh.RegisterCallback(self, "UnitHealthUpdated", Update, self)
 	end
 end)
 
