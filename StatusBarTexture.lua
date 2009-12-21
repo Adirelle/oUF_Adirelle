@@ -5,7 +5,8 @@ All rights reserved.
 --]=]
 
 -- Use our own namespace
-setfenv(1, _G.oUF_Adirelle)
+local parent, ns = ...
+setfenv(1, ns)
 
 local texture = [[Interface\TargetingFrame\UI-StatusBar]]
 local objects = {}
