@@ -68,7 +68,7 @@ local abs = math.abs
 -- ------------------------------------------------------------------------------
 
 local function GetShortUnitName(unit)
-	return strsub(tostring(UnitName(unit)),1,10)
+	return unit and strsub(tostring(UnitName(unit)),1,10) or UNKNOWN
 end
 
 local function SmartHPValue(value)
@@ -81,7 +81,7 @@ end
 
 local function UpdateName(self, unit, current, max, incomingHeal)
 	local r, g, b = unpack(self.bgColor)
-	local unitName = GetShortUnitName(SecureButton_GetUnit(self))
+	local unitName = GetShortUnitName(SecureButton_GetUnit(self) or unit)
 	if UnitIsConnected(unit) and not UnitIsDeadOrGhost(unit) then
 		local overHeal = current and max and incomingHeal and (current + incomingHeal - max)
 		if overHeal and overHeal > 0 then
