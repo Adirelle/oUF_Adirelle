@@ -235,7 +235,7 @@ end
 
 local function PostUpdatePower(self, event, unit, bar, min, max)
 	if bar.disconnected or UnitIsDeadOrGhost(unit) then
-		bar:Setvalue(0)
+		bar:SetValue(0)
 	end
 end
 
