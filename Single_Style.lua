@@ -233,6 +233,12 @@ elseif playerClass == "DRUID" then
 	end
 end
 
+local function PostUpdatePower(self, event, unit, bar, min, max)
+	if bar.disconnected or UnitIsDeadOrGhost(unit) then
+		bat:Setvalue(0)
+	end
+end
+
 local DROPDOWN_FRAMES = {
 	player = "PlayerFrame",
 	pet = "PetFrame",
@@ -346,6 +352,7 @@ local function InitFrame(settings, self)
 		power.colorDisconnected = true
 		power.colorPower = true
 		power.frequentUpdates = true
+		self.PostUpdatePower = PostUpdatePower
 		self.Power = power
 
 		-- Unit level and class (or creature family)
