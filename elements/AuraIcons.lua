@@ -116,6 +116,7 @@ function oUF:AddAuraFilter(name, func)
 	assert(not filters[name], "aura filter by the same name already exists: "..name)
 	assert(type(func) == "function", "func should be a function, not "..type(func))
 	filters[name] = func
+	oUF.Debug("New aura filter:", name, func)
 	return name
 end
 
@@ -126,9 +127,10 @@ end
 local frame_prototype = oUF.frame_metatable and oUF.frame_metatable.__index or oUF
 function frame_prototype:AddAuraIcon(icon, filter, ...)
 	assert(type(icon) == "table", "icon should be a table, not "..type(icon))
-	assert(type(filters[filter]) == "function", "unknown aura filter: "..type(filter))
+	local func = filters[tostring(filter)]
+	assert(type(func) == "function", "unknown aura filter: "..type(filter))
 	self.AuraIcons = self.AuraIcons or {}
-	self.AuraIcons[icon] = filters[filter]
+	self.AuraIcons[icon] = func
 	return icon
 end
 
