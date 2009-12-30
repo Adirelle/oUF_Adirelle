@@ -4,14 +4,14 @@ Adirelle's oUF layout
 All rights reserved.
 --]=]
 
-local lqh, lqh_minor = LibStub('LibQuickHealth-2.0', true)
+local lqh = LibStub and LibStub('LibQuickHealth-2.0', true)
 if not lqh then return end
 
 -- Use our own namespace
 local _G, parent, ns = _G, ...
 setfenv(1, ns)
 
-Debug("oUF_Adirelle using LibQuickHealth-2.0 minor:", lqh_minor)
+Debug("Using LibQuickHealth-2.0 minor")
 
 -- Prepare an environment where lqh.UnitHealth replaces built-in UnitHealth
 local lqhEnv = setmetatable({
