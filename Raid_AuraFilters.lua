@@ -37,7 +37,7 @@ end
 function GetOwnAuraFilter(spellId, r, g, b)	
 	local spellName = GetSpellInfo(spellId)
 	assert(spellName, "invalid spell id: "..spellId)
-	local filter, exists = GetGenericFilter("OwnAura", spellId, r, g, b)
+	local filter, exists = GetGenericFilter("OwnAura", spellName, r, g, b)
 	if not exists then 
 		oUF:AddAuraFilter(filter, function(unit)
 			local name, _, texture, count, _, duration, expirationTime, caster = UnitAura(unit, spellName)
@@ -52,7 +52,7 @@ end
 function GetAnyAuraFilter(spellId, filter, r, g, b)
 	local spellName = GetSpellInfo(spellId)
 	assert(spellName, "invalid spell id: "..spellId)
-	local filter, exists = GetGenericFilter("AnyAura", spellId, filter, r, g, b)
+	local filter, exists = GetGenericFilter("AnyAura", spellName, filter, r, g, b)
 	if not exists then
 		oUF:AddAuraFilter(filter, function(unit)
 			local name, _, texture, count, _, duration, expirationTime, caster = UnitAura(unit, spellName, nil, filter)
@@ -68,7 +68,7 @@ function GetOwnStackedAuraFilter(spellId, countThreshold, r, g, b)
 	local spellName = GetSpellInfo(spellId)
 	assert(spellName, "invalid spell id: "..spellId)
 	assert(type(countThreshold) == "number", "invalid count threshold: "..tostring(countThreshold))
-	local filter, exists = GetGenericFilter("OwnStackedAura", spellId, countThreshold, r, g, b)
+	local filter, exists = GetGenericFilter("OwnStackedAura", spellName, countThreshold, r, g, b)
 	if not exists then
 		oUF:AddAuraFilter(filter, function(unit)
 			local name, _, texture, count, _, duration, expirationTime, caster = UnitAura(unit, spellName)
@@ -93,7 +93,7 @@ function GetDebuffTypeFilter(debuffType, r, g, b)
 					return texture, count, expirationTime-duration, duration, r, g, b
 				end
 			end
-		end
+		end)
 	end
 	return filter
 end
@@ -207,23 +207,23 @@ if drdata then
 	local IGNORED = -1
 	local SPELL_CATEGORIES = {}
 	local DEFAULT_PRIORITIES = {
-		["banish"] = 100,
-		["cyclone"] = 100,
-		["mc"] = 100,
-		["ctrlstun"] = 90,
-		["rndstun"] = 90,
-		["cheapshot"] = 90,
-		["charge"] = 90,
-		["fear"] = 80,
-		["horror"] = 80,
-		["sleep"] = 60,
-		["disorient"] = 60,
-		["scatters"] = 60,
-		["silence"] = 50,
-		["disarm"] = 50,
-		["ctrlroot"] = 40,
-		["rndroot"] = 40,
-		["entrapment"] = 40,
+		banish = 100,
+		cyclon = 100,
+		mc = 100,
+		ctrlstun = 90,
+		rndstun = 90,
+		cheapshot = 90,
+		charge = 90,
+		fear = 80,
+		horror = 80,
+		sleep = 60,
+		disorient = 60,
+		scatters = 60,
+		silence = 50,
+		disarm = 50,
+		ctrlroot = 40,
+		rndroot = 40,
+		entrapment = 40,
 	}
 	local CLASS_PRIORITIES = {
 		HUNTER = {
@@ -297,7 +297,70 @@ if select(2, UnitClass('player')) == "PRIEST" then
 			end
 		end
 		if texture then
-			return texture, 1, expirationTime-duration, duration
+			return texture, 0, expirationTime-duration, duration
+		end
+	end)
+end
+
+-- ------------------------------------------------------------------------------
+-- PvE encounter debuffs
+-- ------------------------------------------------------------------------------
+
+do
+	local DEBUFFS_STR = [=[		
+		Forge of Souls
+			Devourer of Souls
+				Mirrored Soul: 69051 = 100
+		Pit of Saron
+			Krick and Ick
+				Pursuit: 68987 = 100
+			Scourgelord Tyrannus
+				Mark of Rimefang: 69275 = 80
+				Overlords' Brand: 69172 = 100
+		Halls of Reflection
+			Marwyn
+				Corrupted Touch: 72383 = 100
+		Icecrown Citadel
+			Lord Marrowgar
+				Coldflame: 69146, 70823, 70824, 70825 = 100
+			Lady Deathwhisper
+				Death and Decay: 71001 = 80
+				Dominate Mind: 71289 = 100
+			Saurfang
+				Boiling Blood: 72385, 72441, 72442, 72443 = 60
+				Rune of Blood: 72408, 72409, 72410, 72447, 72448, 72449 = 80
+				Mark: 72293 = 100
+	]=]
+	
+	-- Convert string data to table
+	local DEBUFFS = {}
+	for def, ids, priority in DEBUFFS_STR:gmatch('(([%d%s,]+)%s*=%s*(%d+))') do
+		priority = tonumber(priority)
+		for id in ids:gmatch("(%d+)") do
+			local name = GetSpellInfo(tonumber(id))
+			if name then
+				DEBUFFS[name] = priority
+			else
+				geterrorhandler()("InlineAura: unknown spell #"..id.." in "..def)
+			end
+		end
+	end
+
+	oUF:AddAuraFilter("EncounterDebuff", function(unit)
+		local currentPrio, currentTexture, currentCount, currentDuration, currentExpirationTime
+		for i = 1, 255 do
+			local name, _, texture, count, _, duration, expirationTime = UnitDebuff(unit, i)
+			if not name then
+				break
+			else
+				local prio = DEBUFFS[name]
+				if prio and (not currentPrio or prio > currentPrio) then
+					currentPrio, currentTexture, currentTexture, currentDuration, currentExpirationTime = prio, texture, count, duration, expirationTime
+				end 
+			end
+		end
+		if currentTexture then
+			return currentTexture, currentTexture, currentExpirationTime-currentDuration, currentDuration
 		end
 	end)
 end
