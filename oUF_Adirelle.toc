@@ -23,10 +23,10 @@ oUF\oUF.xml
 oUF_Adirelle.lua
 
 # Own elements 
+elements\AuraIcons.lua
 elements\Border.lua
 elements\ComboPoints.lua
 elements\Dragon.lua
-elements\Icon.lua
 elements\IncomingHeal.lua
 elements\ReadyCheck.lua
 elements\RoleOrIcon.lua
@@ -43,6 +43,7 @@ QuickHealth.lua
 StatusBarTexture.lua
 
 # Raid unit frames
+Raid_AuraFilters.lua
 Raid_Style.lua
 Raid_Layout.lua
 
