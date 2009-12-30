@@ -50,7 +50,7 @@ local function OnStatusBarUpdate(bar)
 end
 
 local fontPath, fontSize, fontFlags = GameFontWhiteSmall:GetFont()
-local lsm = LibStub('LibSharedMedia-3.0', true)
+local lsm = LibStub and LibStub('LibSharedMedia-3.0', true)
 if lsm then
 	local altFont = lsm:Fetch("font", "ABF", true)
 	if altFont then

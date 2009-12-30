@@ -7,7 +7,7 @@ All rights reserved.
 local parent, ns = ...
 local oUF = assert(ns.oUF, "oUF is undefined in "..parent.." namespace")
 
-local lhc4 = LibStub('LibHealComm-4.0', true)
+local lhc4 = LibStub and LibStub('LibHealComm-4.0', true)
 if not lhc4 then return end
 
 local objects = {}

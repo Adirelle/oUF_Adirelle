@@ -208,7 +208,7 @@ for _, header in pairs(raid) do
 	header:HookScript('OnSizeChanged', CheckPosition)
 end
 
-local libmovable = LibStub('LibMovable-1.0', true)
+local libmovable = LibStub and LibStub('LibMovable-1.0', true)
 if libmovable then
 	local addonName = ...
 	addonName = addonName:lower()

@@ -22,9 +22,9 @@ local strmatch = string.match
 local groupType
 
 local GetGroupRole, RoleUpdated, Update
-local lgt, lgtVer = LibStub('LibGroupTalents-1.0', true)
+local lgt = LibStub and LibStub('LibGroupTalents-1.0', true)
 if lgt then
-	oUF.Debug("RoleOrIcon using LibGroupTalents-1.0", lgtVer)
+	oUF.Debug("RoleOrIcon using LibGroupTalents-1.0")
 	function GetGroupRole(unit)
 		local role = lgt:GetUnitRole(unit)
 		return (role == 'caster' or role == 'melee') and "damage" or role
