@@ -33,7 +33,7 @@ do
 				UnregisterIcon(self, icon)
 			elseif icon.expireTime - now < icon.threshold then
 				icon:SetAlpha(alpha)
-			else
+			elseif icon:GetAlpha() < 1 then
 				icon:SetAlpha(1)
 			end
 		end
@@ -109,12 +109,26 @@ local function Disable(self)
 	end
 end
 
+local filters = {}
+
+function oUF:AddAuraFilter(name, func)
+	name = tostring(name)
+	assert(not filters[name], "aura filter by the same name already exists: "..name)
+	assert(type(func) == "function", "func should be a function, not "..type(func))
+	filters[name] = func
+	return name
+end
+
+function oUF:HasAuraFilter(name)
+	return type(filters[tostring(name)]) == "function"
+end
+
 local frame_prototype = oUF.frame_metatable and oUF.frame_metatable.__index or oUF
-function frame_prototype:AuraIcon(icon, func, ...)
+function frame_prototype:AddAuraIcon(icon, filter, ...)
 	assert(type(icon) == "table", "icon should be a table, not "..type(icon))
-	assert(type(func) == "function", "func should be a function ,not "..type(func))
+	assert(type(filters[filter]) == "function", "unknown aura filter: "..type(filter))
 	self.AuraIcons = self.AuraIcons or {}
-	self.AuraIcons[icon] = func
+	self.AuraIcons[icon] = filters[filter]
 	return icon
 end
 
