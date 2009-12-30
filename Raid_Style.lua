@@ -4,8 +4,6 @@ Adirelle's oUF layout
 All rights reserved.
 --]=]
 
-oUF.colors.power.MANA = { 0.3, 0.5, 1.0 }
-
 local UnitClass = UnitClass
 local UnitIsConnected = UnitIsConnected
 local UnitIsDeadOrGhost = UnitIsDeadOrGhost
@@ -21,6 +19,8 @@ local unpack = unpack
 
 -- Use our own namespace
 setfenv(1, _G.oUF_Adirelle)
+
+oUF.colors.power.MANA = { 0.3, 0.5, 1.0 }
 
 SCALE = 1.0
 WIDTH = 80
