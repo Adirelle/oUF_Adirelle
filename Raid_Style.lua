@@ -358,7 +358,7 @@ local function InitFrame(settings, self)
 	death:Hide()
 	self.DeathIcon = death
 	--]=]
-	
+
 	local status = overlay:CreateTexture(nil, "OVERLAY")
 	status:SetWidth(HEIGHT)
 	status:SetHeight(HEIGHT)
@@ -367,7 +367,7 @@ local function InitFrame(settings, self)
 	status:SetBlendMode("ADD")
 	status:Hide()
 	self.StatusIcon = status
-	
+
 	-- Incoming heals
 	if oUF.HasIncomingHeal then
 		local heal = hp:CreateTexture(nil, "OVERLAY")
@@ -428,15 +428,22 @@ local function InitFrame(settings, self)
 	rc.icon:SetAllPoints(rc)
 	self.ReadyCheck = rc
 
-	-- Per-class aura icons
+	-- Important class buffs (left)
 	local importantBuff = SpawnIcon(overlay)
-	importantBuff:SetPoint("CENTER", self, "LEFT", WIDTH * 0.4, 0)
+	importantBuff:SetPoint("CENTER", self, "LEFT", WIDTH * 0.25, 0)
 	self:AddAuraIcon(importantBuff, "ClassImportantBuff")
 
+	-- Cureable debuffs
 	local debuff = SpawnIcon(overlay)
-	debuff:SetPoint("CENTER", self, "LEFT", WIDTH * 0.6, 0)
+	debuff:SetPoint("CENTER")
 	self:AddAuraIcon(debuff, "CureableDebuff")
 
+	-- Encounter debuffs
+	local encounterDebuff = SpawnIcon(overlay)
+	encounterDebuff:SetPoint("CENTER", self, "RIGHT", WIDTH * 0.25, 0)
+	self:AddAuraIcon(encounterDebuff, "EncounterDebuff")
+
+	-- Per-class aura icons
 	local INSET, SMALL_ICON_SIZE = 1, 8
 	local function SpawnSmallIcon(...)
 		local icon = SpawnIcon(overlay, SMALL_ICON_SIZE, true, true, true)
@@ -445,19 +452,16 @@ local function InitFrame(settings, self)
 	end
 
 	if playerClass == "DRUID" then
-
 		-- Rejuvenation
 		self:AddAuraIcon(
 			SpawnSmallIcon("TOPLEFT", self, "TOPLEFT", INSET, -INSET),
 			GetOwnAuraFilter(774, 0.6, 0, 1)
 		)
-
 		-- Regrowth
 		self:AddAuraIcon(
 			SpawnSmallIcon("TOP", self, "TOP", 0, -INSET),
 			GetOwnAuraFilter(8936, 0, 0.6, 0)
 		)
-
 		-- Lifebloom
 		for i = 1, 3 do
 			self:AddAuraIcon(
@@ -465,13 +469,11 @@ local function InitFrame(settings, self)
 				GetOwnStackedAuraFilter(33763, i, 0, 1, 0)
 			)
 		end
-
 		-- Wild Growth
 		self:AddAuraIcon(
 			SpawnSmallIcon("BOTTOMLEFT", self, "BOTTOMLEFT", INSET, INSET),
 			GetOwnAuraFilter(53248, 0, 1, 0)
 		)
-
 		-- Abolish Poison
 		self:AddAuraIcon(
 			SpawnSmallIcon("BOTTOMRIGHT", self, "BOTTOMRIGHT", -INSET, INSET),
@@ -479,13 +481,11 @@ local function InitFrame(settings, self)
 		)
 
 	elseif playerClass == 'PALADIN' then
-	
 		-- Beacon of light
 		self:AddAuraIcon(
 			SpawnSmallIcon("TOPRIGHT", self, "TOPRIGHT", -INSET, -INSET),
 			GetOwnAuraFilter(53563)
 		)
-
 		-- Sacred Shield
 		self:AddAuraIcon(
 			SpawnSmallIcon("TOPLEFT", self, "TOPLEFT", INSET, -INSET),
@@ -493,19 +493,26 @@ local function InitFrame(settings, self)
 		)
 
 	elseif playerClass == "SHAMAN" then
+		-- Earth shield
+		--[[
 		local earthShield = SpawnIcon(overlay)
 		earthShield:SetPoint("CENTER", self, "LEFT", WIDTH * 0.25, 0)
 		self:AddAuraIcon(earthShield, GetOwnAuraFilter(49284))
 
 		importantBuff:SetPoint("CENTER")
 		debuff:SetPoint("CENTER", self, "LEFT", WIDTH * 0.75, 0)
-
+		--]]
+		for i = 1, 6 do
+			self:AddAuraIcon(
+				SpawnSmallIcon("BOTTOMRIGHT", self, "BOTTOMRIGHT", -INSET - SMALL_ICON_SIZE*(i-1), INSET),
+				GetOwnStackedAuraFilter(49284, i)
+			)
+		end
 		-- Riptide
 		self:AddAuraIcon(
 			SpawnSmallIcon("TOPRIGHT", self, "TOPRIGHT", -INSET, -INSET),
 			GetOwnAuraFilter(61301)
 		)
-
 		-- Sated/Exhausted
 		self:AddAuraIcon(
 			SpawnSmallIcon("TOPLEFT", self, "TOPLEFT", INSET, -INSET),
@@ -513,21 +520,22 @@ local function InitFrame(settings, self)
 		)
 
 	elseif playerClass == 'WARLOCK' then
+		-- Display magic debuffs (for the Felhunter)
 		self:AddAuraIcon(debuff, GetDebuffTypeFilter("Magic"))
+		-- Soulstone
+		self:AddAuraIcon(SpawnSmallIcon("BOTTOMLEFT", self, "BOTTOMLEFT", INSET, INSET), GetAnyAuraFilter(20763, "HELPFUL"))
 
 	elseif playerClass == 'PRIEST' then
 		-- PW:Shield or Weakened Soul
 		self:AddAuraIcon(
-			SpawnSmallIcon("TOPLEFT", self, "TOPLEFT", INSET, -INSET), 
+			SpawnSmallIcon("TOPLEFT", self, "TOPLEFT", INSET, -INSET),
 			"PW:Shield"
 		)
-
 		-- Renew
 		self:AddAuraIcon(
 			SpawnSmallIcon("TOPRIGHT", self, "TOPRIGHT", -INSET, -INSET),
 			GetOwnAuraFilter(139)
 		)
-
 		-- Prayer of Mending
 		self:AddAuraIcon(
 			SpawnSmallIcon("BOTTOMRIGHT", self, "BOTTOMRIGHT", -INSET, INSET),
@@ -543,7 +551,7 @@ local function InitFrame(settings, self)
 		ccicon.doNotBlink = true
 		self:AddAuraIcon(ccicon, "PvPDebuff")
 	end
-	
+
 	-- Aura icon blinking setting
 	self.iconBlinkThreshold = 3
 
@@ -554,7 +562,7 @@ local function InitFrame(settings, self)
 	roleIcon:SetHeight(8)
 	roleIcon:SetPoint("LEFT", self, INSET, 0)
 	self.RoleIcon = roleIcon
-	
+
 	-- Event requiring to update name and color
 	self:RegisterEvent('UNIT_FLAGS', UnitFlagChanged)
 	self:RegisterEvent('UNIT_ENTERED_VEHICLE', UnitFlagChanged)
