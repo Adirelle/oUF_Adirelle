@@ -322,19 +322,19 @@ do
 				Corrupted Touch: 72383 = 100
 		Icecrown Citadel
 			Lord Marrowgar
-				Coldflame: 69146, 70823, 70824, 70825 = 100
+				Coldflame: 69146 = 100
 			Lady Deathwhisper
 				Death and Decay: 71001 = 80
 				Dominate Mind: 71289 = 100
 			Saurfang
-				Boiling Blood: 72385, 72441, 72442, 72443 = 60
-				Rune of Blood: 72408, 72409, 72410, 72447, 72448, 72449 = 80
+				Boiling Blood: 72385 = 60
+				Rune of Blood: 72408 = 80
 				Mark: 72293 = 100
 	]=]
 	
 	-- Convert string data to table
 	local DEBUFFS = {}
-	for def, ids, priority in DEBUFFS_STR:gmatch('(([%d%s,]+)%s*=%s*(%d+))') do
+	for def, ids, priority in DEBUFFS_STR:gmatch('((%d[%d%s,]*)%s*=%s*(%d+))') do
 		priority = tonumber(priority)
 		for id in ids:gmatch("(%d+)") do
 			local name = GetSpellInfo(tonumber(id))
