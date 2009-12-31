@@ -347,20 +347,21 @@ do
 	end
 
 	oUF:AddAuraFilter("EncounterDebuff", function(unit)
-		local currentPrio, currentTexture, currentCount, currentDuration, currentExpirationTime
+		local curPrio, curTexture, curCount, curDebuffType, curDuration, curExpirationTime
 		for i = 1, 255 do
-			local name, _, texture, count, _, duration, expirationTime = UnitDebuff(unit, i)
+			local name, _, texture, count, debuffType, duration, expirationTime = UnitDebuff(unit, i)
 			if not name then
 				break
 			else
 				local prio = DEBUFFS[name]
-				if prio and (not currentPrio or prio > currentPrio) then
-					currentPrio, currentTexture, currentTexture, currentDuration, currentExpirationTime = prio, texture, count, duration, expirationTime
+				if prio and (not curPrio or prio > curPrio) then
+					curPrio, curTexture, curCount, curDebuffType, curDuration, curExpirationTime = prio, texture, count, debuffType, duration, expirationTime
 				end 
 			end
 		end
-		if currentTexture then
-			return currentTexture, currentTexture, currentExpirationTime-currentDuration, currentDuration
+		if curTexture then
+			local color = DebuffTypeColor[curDebuffType or "none"]
+			return curTexture, curCount, curExpirationTime-curDuration, curDuration, color.r, color.g, color.b
 		end
 	end)
 end
