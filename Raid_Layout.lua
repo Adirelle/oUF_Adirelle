@@ -74,8 +74,8 @@ end
 
 raid[1]:SetManyAttributes(
 	"showParty", true,
-	"showPlayer", true,
-	"showSolo", true
+	--"showSolo", true,
+	"showPlayer", true
 )
 
 do
@@ -84,7 +84,7 @@ do
 	header:SetManyAttributes(
 		"showParty", true,
 		"showPlayer", true,
-		"showSolo", true,
+		--"showSolo", true,
 		"groupFilter", 1,
 		"point", "LEFT",
 		"xOffset", SPACING
