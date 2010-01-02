@@ -307,6 +307,8 @@ end
 -- ------------------------------------------------------------------------------
 
 do
+	-- Data gathered from various sources, including BigWigs modules, Wowhead, Wowwiki and mmo-champion
+	-- Most are untested too
 	local DEBUFFS_STR = [=[		
 		Forge of Souls
 			Devourer of Souls
@@ -320,6 +322,28 @@ do
 		Halls of Reflection
 			Marwyn
 				Corrupted Touch: 72383 = 100
+		Ulduar
+			XT-002 Deconstructor
+				Gravity Bomb: 63024, 64234 = 100
+				Light Bomb: 63018, 65121 = 100
+			Ignis the Furnace Master
+				SlagPot: 62717, 63477 = 100
+			The Iron Council
+				Overwhelm: 64637, 61888 = 100
+			Kologarn
+				Grip: 64290, 64292 = 100
+			Freya
+				Root: 62861, 62930, 62283, 62438 = 100
+				Fury: 62589, 63571 = 100
+			Hodir
+				Flash-freezed: 61969, 61990 = 100
+			Thorim
+				Hammer: 62042 = 100
+				Detonation: 62526 = 100
+			Yogg-Saron
+				Squeeze: 64125, 64126 = 80
+				Linked: 63802 = 100
+				Insane: 63120 = 100
 		Coliseum
 			Gormok
 				Impale: 67477 = 100
