@@ -26,6 +26,7 @@ externals:
 optional-dependencies: [libgrouptalents-1-0, libtalentquery-1-0]
 
 move-folders:
+  oUF_Adirelle/oUF_Adirelle_Raid: oUF_Adirelle_Raid
   oUF_Adirelle/oUF_Adirelle_Single: oUF_Adirelle_Single
 
 ignore:

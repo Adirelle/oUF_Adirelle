@@ -42,8 +42,3 @@ QuickHealth.lua
 # Texture helper
 StatusBarTexture.lua
 
-# Raid unit frames
-Raid_AuraFilters.lua
-Raid_Style.lua
-Raid_Layout.lua
-
