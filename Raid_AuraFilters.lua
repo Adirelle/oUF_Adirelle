@@ -349,6 +349,19 @@ do
 				Boiling Blood: 72385 = 60
 				Rune of Blood: 72408 = 80
 				Mark: 72293 = 100
+			Rotface
+				Infection: 69674, 71224 = 100
+			Precious
+				Wound: 71127 = 100
+			Professor Putricide
+				Gaseous Bloat: 72455 = 100
+				Volatile Ooze Adhesive: 70447 = 100	
+			Blood-Queen Lana'thel
+				Pact: 71340, 71390 = 100
+			Sindragosa
+				Frost Beacon: 70126 = 100
+			Stinky
+				Wound: 71127 = 100
 	]=]
 	
 	-- Convert string data to table
