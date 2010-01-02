@@ -320,6 +320,25 @@ do
 		Halls of Reflection
 			Marwyn
 				Corrupted Touch: 72383 = 100
+		Coliseum
+			Gormok
+				Impale: 67477 = 100
+			Jormungars
+				Toxin: 67618, 67619, 67620, 66823 = 100
+				Burn: 66869, 66870 = 100	
+			Lord Jaraxxus			
+				Legion Flame: 68123, 68124, 68125, 66197 = 80
+				Incinerate Flesh: 67049, 67050, 67051, 66237 = 100
+			Faction Champions
+				Blind: 65960 = 100
+				Polymorph: 65801 = 100			
+				Wyvern: 65877 = 100
+			The Twin Val'kyr
+				Light/Dark Essence: 65686, 67222, 67223, 67224, 67176, 67177, 67178, 65684 = 80
+				Light/Dark Touch: 67281, 67282, 67283, 67296, 67297, 67298 = 100
+			Anub'arak
+				ColdDebuff: 66013, 67700, 68509, 68510 = 80
+				Pursue: 67574 = 100
 		Icecrown Citadel
 			Lord Marrowgar
 				Coldflame: 69146 = 100
