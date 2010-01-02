@@ -1,8 +1,8 @@
 ## Interface: 30300
 ## Author: Adirelle
 ## Version: 1.0
-## Title: Adirelle's unit frames - party/raid
-## Notes: Grid-like party and raid unit frames
+## Title: oUF_Adirelle - party/raid frames
+## Notes: Grid-like party and raid display
 ## RequiredDeps: oUF_Adirelle
 
 ..\oUF_Adirelle\raid.xml

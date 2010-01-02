@@ -1,8 +1,8 @@
 ## Interface: 30300
 ## Author: Adirelle
 ## Version: 1.0
-## Title: Adirelle's unit frames - single
-## Notes: Player, pet, target and focus unit frames.
+## Title: oUF_Adirelle - single unit frames
+## Notes: Unit frames for player, pet, target, target of target and focus.
 ## RequiredDeps: oUF_Adirelle
 
 ..\oUF_Adirelle\single.xml
