@@ -37,8 +37,8 @@ elements\XRange.lua
 
 # QuickHealth integration
 libs\LibQuickHealth-2.0.lua
-QuickHealth.lua
+support\QuickHealth.lua
 
 # Texture helper
-StatusBarTexture.lua
+support\StatusBarTexture.lua
 

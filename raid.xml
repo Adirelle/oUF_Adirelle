@@ -1,5 +1,0 @@
-<Ui xmlns="http://www.blizzard.com/wow/ui/">
-	<Script file="Raid_AuraFilters.lua"/>
-	<Script file="Raid_Style.lua"/>
-	<Script file="Raid_Layout.lua"/>
-</Ui>
