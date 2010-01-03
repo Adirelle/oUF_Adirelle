@@ -18,7 +18,7 @@ local UnitManaMax = UnitManaMax
 
 local function Update(self, event, unit)
 	if unit and unit ~= self.unit then return end
-	unit = unit or self.unit
+	unit = self.unit
 	local border = self.Border
 	local r, g, b
 	if border.blackByDefault then
@@ -46,6 +46,7 @@ end
 
 local function Enable(self)
 	if self.Border then
+		self:RegisterEvent("UNIT_THREAT_LIST_UPDATE", Update)
 		self:RegisterEvent("UNIT_THREAT_SITUATION_UPDATE", Update)
 		self:RegisterEvent("UNIT_MANA", Update)
 		self:RegisterEvent("UNIT_MAXMANA", Update)
@@ -58,6 +59,7 @@ end
 local function Disable(self)
 	local border = self.Border
 	if border then
+		self:UnregisterEvent("UNIT_THREAT_LIST_UPDATE", Update)
 		self:UnregisterEvent("UNIT_THREAT_SITUATION_UPDATE", Update)
 		self:UnregisterEvent("UNIT_MANA", Update)
 		self:UnregisterEvent("UNIT_MAXMANA", Update)
