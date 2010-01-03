@@ -34,11 +34,11 @@ local function GetGenericFilter(...)
 	return name, oUF:HasAuraFilter(name)
 end
 
-function GetOwnAuraFilter(spellId, r, g, b)	
+function GetOwnAuraFilter(spellId, r, g, b)
 	local spellName = GetSpellInfo(spellId)
 	assert(spellName, "invalid spell id: "..spellId)
 	local filter, exists = GetGenericFilter("OwnAura", spellName, r, g, b)
-	if not exists then 
+	if not exists then
 		oUF:AddAuraFilter(filter, function(unit)
 			local name, _, texture, count, _, duration, expirationTime, caster = UnitAura(unit, spellName)
 			if name and IsMeOrMine(caster) then
@@ -87,8 +87,8 @@ function GetDebuffTypeFilter(debuffType, r, g, b)
 		oUF:AddAuraFilter(filter, function(unit)
 			for i = 1, 255 do
 				local name, _, texture, count, debuffType, duration, expirationTime = UnitAura(unit, i, "HARMFUL")
-				if not name then 
-					return 
+				if not name then
+					return
 				elseif debuffType == debuffType then
 					return texture, count, expirationTime-duration, duration, r, g, b
 				end
@@ -309,7 +309,7 @@ end
 do
 	-- Data gathered from various sources, including BigWigs modules, Wowhead, Wowwiki and mmo-champion
 	-- Most are untested too
-	local DEBUFFS_STR = [=[		
+	local DEBUFFS_STR = [=[
 		Forge of Souls
 			Devourer of Souls
 				Mirrored Soul: 69051 = 100
@@ -350,13 +350,13 @@ do
 				Snobolled: 66406 = 100
 			Jormungars
 				Toxin: 67618, 67619, 67620, 66823 = 100
-				Burn: 66869, 66870 = 100	
-			Lord Jaraxxus		
+				Burn: 66869, 66870 = 100
+			Lord Jaraxxus
 				Legion Flame: 68123, 68124, 68125, 66197 = 80
 				Incinerate Flesh: 67049, 67050, 67051, 66237 = 100
 			Faction Champions
 				Blind: 65960 = 100
-				Polymorph: 65801 = 100			
+				Polymorph: 65801 = 100
 				Wyvern: 65877 = 100
 			The Twin Val'kyr
 				Light/Dark Essence: 65686, 67222, 67223, 67224, 67176, 67177, 67178, 65684 = 80
@@ -381,7 +381,7 @@ do
 				Wound: 71127 = 100
 			Professor Putricide
 				Gaseous Bloat: 72455 = 100
-				Volatile Ooze Adhesive: 70447 = 100	
+				Volatile Ooze Adhesive: 70447 = 100
 			Blood-Queen Lana'thel
 				Pact: 71340, 71390 = 100
 			Sindragosa
@@ -389,7 +389,7 @@ do
 			Stinky
 				Wound: 71127 = 100
 	]=]
-	
+
 	-- Convert string data to table
 	local DEBUFFS = {}
 	for def, ids, priority in DEBUFFS_STR:gmatch('((%d[%d%s,]*)%s*=%s*(%d+))') do
@@ -414,10 +414,10 @@ do
 				local prio = DEBUFFS[name]
 				if prio and (not curPrio or prio > curPrio) then
 					curPrio, curName, curTexture, curCount, curDebuffType, curDuration, curExpirationTime = prio, name, texture, count, debuffType, duration, expirationTime
-				end 
+				end
 			end
 		end
-		if curTexture then		
+		if curTexture then
 			--Debug("Encounter debuff", "target=", UnitName(unit), "prio=", curPrio, "debuff=", curName, "texture=", curTexture, "count=", curCount, "type=", curDebuffType, "duration=", curDuration, "expTime=", curExpirationTime)
 			local color = DebuffTypeColor[curDebuffType or "none"]
 			local r, g, b
