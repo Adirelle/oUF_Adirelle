@@ -91,7 +91,7 @@ function Update(self, event, unit)
 					icon:SetTexture([[Interface\GroupFrame\UI-Group-MainTankIcon]])
 				end
 				icon:SetTexCoord(0, 1, 0, 1)
-				icon:SetVertexcolor(1, 1, 1, 1)
+				icon:SetVertexColor(1, 1, 1, 1)
 				return icon:Show()
 			end
 		end
