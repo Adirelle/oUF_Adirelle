@@ -28,7 +28,6 @@ SPACING = 2
 HEIGHT = 25
 BORDER_WIDTH = 1
 ICON_SIZE = 14
-SQUARE_SIZE = 5
 
 local _, playerClass = UnitClass("player")
 
@@ -44,141 +43,6 @@ local borderBackdrop = {
 	edgeSize = BORDER_WIDTH,
 	insets = {left = 0, right = 0, top = 0, bottom = 0},
 }
-
-local squareBackdrop = {
-	bgFile = [[Interface\Addons\oUF_Adirelle\media\white16x16]], tile = true, tileSize = 16,
-}
-
-
--- ------------------------------------------------------------------------------
--- Aura indicators
--- ------------------------------------------------------------------------------
-
-local SpawnIcon, SpawnSquare
-do
-	local function NOOP() end
-
-	local function SetTexture(self, path)
-		local texture = self.Texture
-		if path then
-			texture:SetTexture(path)
-			texture:Show()
-		else
-			texture:Hide()
-		end
-	end
-
-	local function SetCooldown(self, start, duration)
-		local cooldown = self.Cooldown
-		if start and duration then
-			cooldown:SetCooldown(start, duration)
-			cooldown:Show()
-		else
-			cooldown:Hide()
-		end
-	end
-
-	local function SetStack(self, count)
-		local stack = self.Stack
-		if count and count > 1 then
-			stack:SetText(count)
-			stack:Show()
-		else
-			stack:Hide()
-		end
-	end
-
-	local function SetBackdropBorderColor(self, r, g, b)
-		local border = self.Border
-		if r and g and b then
-			border:SetBackdropBorderColor(r, g, b)
-			border:Show()
-		else
-			border:Hide()
-		end
-	end
-
-	function SpawnIcon(self, size, noCooldown, noStack, noBorder, noTexture)
-		local	icon = CreateFrame("Frame", nil, self)
-		size = size or ICON_SIZE
-		icon:SetWidth(size)
-		icon:SetHeight(size)
-
-		if not noTexture then
-			local texture = icon:CreateTexture(nil, "OVERLAY")
-			texture:SetAllPoints(icon)
-			texture:SetTexCoord(0.05, 0.95, 0.05, 0.95)
-			texture:SetTexture(1,1,1,0)
-			icon.Texture = texture
-			icon.SetTexture = SetTexture
-		else
-			icon.SetTexture = NOOP
-		end
-
-		if not noCooldown then
-			local cooldown = CreateFrame("Cooldown", nil, icon, "CooldownFrameTemplate")
-			cooldown:SetAllPoints(icon.Texture or icon)
-			cooldown:SetDrawEdge(true)
-			cooldown:SetReverse(true)
-			icon.Cooldown = cooldown
-			icon.SetCooldown = SetCooldown
-		else
-			icon.SetCooldown = NOOP
-		end
-
-		if not noStack then
-			local stack = icon:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-			stack:SetAllPoints(icon.Texture or icon)
-			stack:SetJustifyH("CENTER")
-			stack:SetJustifyV("MIDDLE")
-			stack:SetFont(GameFontNormal:GetFont(), 10, "OUTLINE")
-			stack:SetTextColor(1, 1, 1, 1)
-			icon.Stack = stack
-			icon.SetStack = SetStack
-		else
-			icon.SetStack = NOOP
-		end
-
-		if not noBorder then
-			local border = CreateFrame("Frame", nil, icon)
-			border:SetPoint("CENTER", icon)
-			border:SetWidth(size + 2)
-			border:SetHeight(size + 2)
-			border:SetBackdrop(borderBackdrop)
-			border:SetBackdropColor(0, 0, 0, 0)
-			border:SetBackdropBorderColor(1, 1, 1, 1)
-			border:Hide()
-			icon.Border = border
-			icon.SetColor = SetBackdropBorderColor
-		else
-			icon.SetColor = NOOP
-		end
-
-		icon:Hide()
-		return icon
-	end
-
-	local function SetSquareColor(self, r, g, b)
-		self:SetBackdropColor(r, g, b, 1)
-	end
-
-	function SpawnSquare(self, size)
-		local	square = CreateFrame("Frame", nil, self)
-		size = size or SQUARE_SIZE
-		square:SetWidth(size)
-		square:SetHeight(size)
-		square:SetBackdrop(squareBackdrop)
-		square:SetBackdropBorderColor(0,0,0,0)
-
-		square.SetTexture = NOOP
-		square.SetCooldown = NOOP
-		square.SetStack = NOOP
-		square.SetColor = SetSquareColor
-
-		square:Hide()
-		return square
-	end
-end
 
 -- ------------------------------------------------------------------------------
 -- Health bar and name updates
@@ -317,11 +181,7 @@ end
 local CreateAuraIcons
 do
 	local INSET, SMALL_ICON_SIZE = 1, 8
-	local function SpawnSmallIcon(self, ...)
-		local icon = SpawnIcon(self.Overlay, SMALL_ICON_SIZE, true, true, true)
-		icon:SetPoint(...)
-		return icon
-	end
+	local function SpawnSmallIcon(self, ...) return self:SpawnAuraIcon(self.Overlay, SMALL_ICON_SIZE, true, true, true, false, ...)	end
 	
 	-- Create the specific icons depending on player class
 	local CreateClassAuraIcons
@@ -432,17 +292,17 @@ do
 		self.iconBlinkThreshold = 3
 	
 		-- Show important class buffs
-		local importantBuff = SpawnIcon(overlay)
+		local importantBuff = self:SpawnAuraIcon(self.Overlay, ICON_SIZE)
 		self:AddAuraIcon(importantBuff, "ClassImportantBuff")
 
 		-- Show encounter debuffs
-		local encounterDebuff = SpawnIcon(overlay)
+		local encounterDebuff = self:SpawnAuraIcon(self.Overlay, ICON_SIZE)
 		self:AddAuraIcon(encounterDebuff, "EncounterDebuff")
 
 		local cureableDebuffFilter = CreateClassAuraIcons and CreateClassAuraIcons(self)		
 		if cureableDebuffFilter then
 			-- Show cureable debuffs
-			local debuff = SpawnIcon(overlay)
+			local debuff = self:SpawnAuraIcon(self.Overlay, ICON_SIZE)
 			self:AddAuraIcon(debuff, type(cureableDebuffFilter) == "string" and cureableDebuffFilter or "CureableDebuff")
 
 			-- Layout icons
@@ -472,9 +332,6 @@ local function InitFrame(settings, self)
 	self:SetBackdrop(backdrop)
 	self:SetBackdropColor(0, 0, 0, 1)
 	self:SetBackdropBorderColor(0, 0, 0, 1)
-
-	self.SpawnIcon = SpawnIcon
-	self.SpawnSquare = SpawnSquare
 
 	self.bgColor = { 1, 1, 1 }
 
@@ -570,7 +427,7 @@ local function InitFrame(settings, self)
 	-- Crowd control icon
 	local header = self:GetParent()
 	if oUF:HasAuraFilter("PvPDebuff") and header.isParty and not header.isPets then
-		local ccicon = SpawnIcon(self, 32)
+		local ccicon = self:SpawnAuraIcon(self, 32)
 		ccicon:SetPoint("TOP", self, "BOTTOM", 0, -SPACING)
 		ccicon.doNotBlink = true
 		self:AddAuraIcon(ccicon, "PvPDebuff")
@@ -578,7 +435,6 @@ local function InitFrame(settings, self)
 
 	-- Role/Raid icon
 	local roleIcon = overlay:CreateTexture(nil, "OVERLAY")
-	roleIcon = overlay:CreateTexture(nil, "OVERLAY")
 	roleIcon:SetWidth(8)
 	roleIcon:SetHeight(8)
 	roleIcon:SetPoint("LEFT", self, INSET, 0)
