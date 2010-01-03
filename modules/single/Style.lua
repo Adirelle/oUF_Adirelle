@@ -302,14 +302,20 @@ local function InitFrame(settings, self)
 
 	-- Portrait
 	if not settings.noPortrait then
+		-- Spawn the player model
 		local portrait = CreateFrame("PlayerModel", nil, self)
 		portrait:SetPoint(left)
 		self.Portrait = portrait
 	
-		barContainer = CreateFrame("Frame", nil, self)
-	
+		-- Spawn an PvE encounter debuff that spans all over the portrait
+		local encounterDebuff = self:SpawnAuraIcon(portrait)
+		encounterDebuff:SetAllPoints(portrait)
+		self:AddAuraIcon(encounterDebuff, "EncounterDebuff")		
+		
+		-- Spawn a container frame that spans remaining space 
+		barContainer = CreateFrame("Frame", nil, self)	
 		barContainer:SetPoint("TOP"..left, portrait, "TOP"..right, GAP*dir, 0)
-		barContainer:SetPoint("BOTTOM"..right)
+		barContainer:SetPoint("BOTTOM"..right)		
 	else
 		barContainer = self
 	end
