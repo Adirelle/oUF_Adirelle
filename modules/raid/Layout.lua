@@ -218,3 +218,5 @@ if libmovable then
 	RegisterMovable(anchor, 'anchor', "Party/raid frames", mask)
 end
 
+CheckLayout()
+
