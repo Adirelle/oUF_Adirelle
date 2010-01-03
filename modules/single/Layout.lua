@@ -9,34 +9,31 @@ setfenv(1, _G.oUF_Adirelle)
 
 local frames = {}
 
-local function Spawn(style, ...)
+local function Spawn(style, unit, ...)
 	oUF:SetActiveStyle(style)
-	for i = 1, select('#', ...) do
-		local unit = select(i, ...)
-		local realUnit = unit:lower()
-		frames[realUnit] = oUF:Spawn(realUnit, "oUF_Adirelle_"..unit)
+	local realUnit = unit:lower()
+	local frame = oUF:Spawn(realUnit, "oUF_Adirelle_"..unit)
+	frames[frame] = unit
+	if select('#', ...) > 0 then
+		return frame, Spawn(style, ...)
+	else
+		return frame
 	end
 end
 
-Spawn("Adirelle_Single", "Player", "Pet")
-Spawn("Adirelle_Single_Right", "Target", "Focus")
-Spawn("Adirelle_Single_Health", "TargetTarget")
+local player, pet = Spawn("Adirelle_Single", "Player", "Pet")
+local target, focus = Spawn("Adirelle_Single_Right", "Target", "Focus")
+local targettarget = Spawn("Adirelle_Single_Health", "TargetTarget")
 
-frames.player:SetPoint('BOTTOMRIGHT', UIParent, "BOTTOM", -250, 180)
-frames.pet:SetPoint('BOTTOM', frames.player, "TOP", 0, 15)
-frames.pet:SetHeight(40)
-frames.target:SetPoint('BOTTOMLEFT', UIParent, "BOTTOM", 250, 180)
-frames.targettarget:SetPoint('BOTTOM', frames.target, "TOP", 0, 15)
-frames.focus:SetPoint('BOTTOM', frames.targettarget, "TOP", 0, 15)
+player:SetPoint('BOTTOMRIGHT', UIParent, "BOTTOM", -250, 180)
+pet:SetPoint('BOTTOM', player, "TOP", 0, 15)
+pet:SetHeight(40)
+target:SetPoint('BOTTOMLEFT', UIParent, "BOTTOM", 250, 180)
+targettarget:SetPoint('BOTTOM', target, "TOP", 0, 15)
+focus:SetPoint('BOTTOM', targettarget, "TOP", 0, 15)
 
-local libmovable = LibStub and LibStub('LibMovable-1.0', true)
-if libmovable then
-	local db = _G.oUF_Adirelle_DB
-	for unit, frame in pairs(frames) do
-		db[unit] = db[unit] or {}
-		libmovable.RegisterMovable('oUF_Adirelle', frame, db[unit], unit.." frame")
-	end
+for frame, unit in next, frames do
+	RegisterMovable(frame, unit, unit.." frame")
 end
-
 frames = nil
 

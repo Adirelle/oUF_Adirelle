@@ -4,6 +4,14 @@ Adirelle's oUF layout
 All rights reserved.
 --]=]
 
+local LibStub = LibStub
+local GetInstanceInfo = GetInstanceInfo
+local GetNumRaidMembers = GetNumRaidMembers
+local GetNumPartyMembers = GetNumPartyMembers
+local GetRaidRosterInfo = GetRaidRosterInfo
+local pairs = pairs
+local ipairs = ipairs
+
 -- Use our own namespace
 setfenv(1, _G.oUF_Adirelle)
 
@@ -45,11 +53,6 @@ local ANCHOR_BORDER_WIDTH = 0
 anchor:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, 230)
 anchor:SetHeight(0.1)
 
-local mask = CreateFrame("Frame", nil, anchor)
-mask:SetPoint("BOTTOM")
-mask:SetWidth(SPACING * 4 + WIDTH * 5)
-mask:SetHeight(SPACING * 7 + LAYOUTS[40].height * 8 + ANCHOR_BORDER_WIDTH * 2)
-
 -- Raid groups
 local raid = {}
 
@@ -74,7 +77,6 @@ end
 
 raid[1]:SetManyAttributes(
 	"showParty", true,
-	--"showSolo", true,
 	"showPlayer", true
 )
 
@@ -84,7 +86,6 @@ do
 	header:SetManyAttributes(
 		"showParty", true,
 		"showPlayer", true,
-		--"showSolo", true,
 		"groupFilter", 1,
 		"point", "LEFT",
 		"xOffset", SPACING
@@ -162,7 +163,7 @@ updateFrame:Hide()
 
 local dirtyLayout, dirtyPosition
 
-local function OnUpdate()	
+local function OnUpdate()
 	if not InCombatLockdown() then
 		if dirtyLayout then
 			dirtyLayout = nil
@@ -210,28 +211,10 @@ end
 
 local libmovable = LibStub and LibStub('LibMovable-1.0', true)
 if libmovable then
-	local addonName = ...
-	addonName = addonName:lower()
-	anchor:RegisterEvent('ADDON_LOADED')
-	anchor:SetScript('OnEvent', function(_, event, name)
-		if name:lower() ~= addonName then return end
-		anchor:UnregisterEvent('ADDON_LOADED')
-		anchor:SetScript('OnEvent', nil)
-		
-		_G.oUF_Adirelle_DB = _G.oUF_Adirelle_DB or {}
-		local db = _G.oUF_Adirelle_DB
-		db.anchor = db.anchor or {}
-		libmovable.RegisterMovable('oUF_Adirelle', anchor, db.anchor, "Party/raid frames", mask)		
-	end)
-	
-	_G.SLASH_OUFADIRELLE1 = "/ouf_adirelle"
-	_G.SLASH_OUFADIRELLE2 = "/oufa"
-	_G.SlashCmdList.OUFADIRELLE = function()
-		if libmovable.IsLocked('oUF_Adirelle') then
-			libmovable.Unlock('oUF_Adirelle')
-		else
-			libmovable.Lock('oUF_Adirelle')
-		end
-	end
+	local mask = CreateFrame("Frame", nil, anchor)
+	mask:SetPoint("BOTTOM")
+	mask:SetWidth(SPACING * 4 + WIDTH * 5)
+	mask:SetHeight(SPACING * 7 + LAYOUTS[40].height * 8 + ANCHOR_BORDER_WIDTH * 2)
+	RegisterMovable(anchor, 'anchor', "Party/raid frames", mask)
 end
 
