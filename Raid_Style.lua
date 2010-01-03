@@ -49,109 +49,6 @@ local squareBackdrop = {
 	bgFile = [[Interface\Addons\oUF_Adirelle\media\white16x16]], tile = true, tileSize = 16,
 }
 
--- ------------------------------------------------------------------------------
--- Health bar and name updates
--- ------------------------------------------------------------------------------
-
-local function GetShortUnitName(unit)
-	return unit and strsub(tostring(UnitName(unit)),1,10) or UNKNOWN
-end
-
-local function SmartHPValue(value)
-	if abs(value) >= 1000 then
-		return strformat("%.1fk", value/1000)
-	else
-		return strformat("%d", value)
-	end
-end
-
-local function UpdateName(self, unit, current, max, incomingHeal)
-	local r, g, b = unpack(self.bgColor)
-	local unitName = GetShortUnitName(SecureButton_GetUnit(self) or unit)
-	if UnitIsConnected(unit) and not UnitIsDeadOrGhost(unit) then
-		local overHeal = current and max and incomingHeal and (current + incomingHeal - max)
-		if overHeal and overHeal > 0 then
-			unitName, r, g, b = "+"..SmartHPValue(overHeal), 0, 1, 0
-		elseif current < 0.4 * max then
-			unitName, r, g, b = SmartHPValue(current), 1, 0, 0
-		end
-	end
-	self.Name:SetText(unitName)
-	self.Name:SetTextColor(r, g, b, 1)
-end
-
-local function UpdateHealBar(self, event, current, max, incomingHeal, incomingOthersHeal)
-	local healBar, othersHealBar = self.IncomingHeal, self.IncomingOthersHeal
-	if max == 0 or current >= max then
-		healBar:Hide()
-		othersHealBar:Hide()
-		return
-	end
-	local healthBar = self.Health
-	local pixelPerHP = healthBar:GetWidth() / max
-	if incomingOthersHeal > 0 then
-		local newCurrent = mmin(current + incomingOthersHeal, max)
-		othersHealBar:SetPoint('LEFT', healthBar, 'LEFT', current * pixelPerHP, 0)
-		othersHealBar:SetWidth((newCurrent-current) * pixelPerHP)
-		othersHealBar:Show()
-		current = newCurrent
-	else
-		othersHealBar:Hide()
-	end
-	if incomingHeal > 0 and current < max then
-		healBar:SetPoint('LEFT', healthBar, 'LEFT', current * pixelPerHP, 0)
-		healBar:SetWidth(mmin(max-current, incomingHeal) * pixelPerHP)
-		healBar:Show()
-	else
-		healBar:Hide()
-	end
-end
-
-local function UpdateHealth(self, event, unit, bar, current, max)
-	local isDisconnected, isDead = not UnitIsConnected(unit), UnitIsDeadOrGhost(unit)
-	local r, g, b = 0.5, 0.5, 0.5
-	if isDisconnected or isDead then
-		bar:SetValue(max)
-		r, g, b = unpack(self.colors.disconnected)
-	elseif UnitHasVehicleUI(SecureButton_GetUnit(self)) then
-		r, g, b = 0.2, 0.6, 0
-	elseif UnitName(unit) ~= UNKNOWN then
-		local classUnit = unit
-		if not UnitIsPlayer(classUnit) then
-			classUnit = (classUnit == 'pet') and 'player' or classUnit:gsub('pet', '')
-		end
-		local unitClass = select(2, UnitClass(classUnit))
-		if unitClass then
-			r, g, b = unpack(self.colors.class[unitClass])
-		end
-	end
-	self.bgColor[1], self.bgColor[2], self.bgColor[3] = r, g, b
-	bar.bg:SetVertexColor(r, g, b, 1)
-	--[[if isDead then
-		self.DeathIcon:Show()
-	else
-		self.DeathIcon:Hide()
-	end]]
-	self.currentHealth, self.maxHealth = current, max
-	UpdateName(self, unit, current, max, (self.incomingHeal or 0) + (self.incomingOthersHeal or 0))
-end
-
-local function UpdateIncomingHeal(self, event, unit, heal, incomingHeal, incomingOthersHeal)
-	local current, max = self.currentHealth or 0, self.maxHealth or 0
-	self.incomingHeal = incomingHeal
-	self.incomingOthersHeal = incomingOthersHeal
-	UpdateName(self, unit, current, max, incomingHeal + incomingOthersHeal)
-	UpdateHealBar(self, event, current, max, incomingHeal, incomingOthersHeal)
-end
-
-local function PostUpdateHealth(self, event, unit, bar, current, max)
-	UpdateHealBar(self, event, current, max, self.incomingHeal or 0, self.incomingOthersHeal or 0)
-end
-
-local function UnitFlagChanged(self, event, unit)
-	if unit and unit ~= self.unit then return end
-	UpdateHealth(self, event, unit, self.Health, self.currentHealth, self.maxHealth)
-end
 
 -- ------------------------------------------------------------------------------
 -- Aura indicators
@@ -284,17 +181,118 @@ do
 end
 
 -- ------------------------------------------------------------------------------
--- Statusbar texturing
+-- Health bar and name updates
 -- ------------------------------------------------------------------------------
 
+-- Return the truncated name of unit
+local function GetShortUnitName(unit)
+	return unit and strsub(tostring(UnitName(unit)),1,10) or UNKNOWN
+end
+
+-- Health point formatting
+local function SmartHPValue(value)
+	if abs(value) >= 1000 then
+		return strformat("%.1fk", value/1000)
+	else
+		return strformat("%d", value)
+	end
+end
+
+-- Update name display
+local function UpdateName(self, unit, current, max, incomingHeal)
+	local r, g, b = unpack(self.bgColor)
+	local unitName = GetShortUnitName(SecureButton_GetUnit(self) or unit)
+	if UnitIsConnected(unit) and not UnitIsDeadOrGhost(unit) then
+		local overHeal = current and max and incomingHeal and (current + incomingHeal - max)
+		if overHeal and overHeal > 0 then
+			unitName, r, g, b = "+"..SmartHPValue(overHeal), 0, 1, 0
+		elseif current < 0.4 * max then
+			unitName, r, g, b = SmartHPValue(current), 1, 0, 0
+		end
+	end
+	self.Name:SetText(unitName)
+	self.Name:SetTextColor(r, g, b, 1)
+end
+
+-- Update incoming heal display
+local function UpdateHealBar(self, event, current, max, incomingHeal, incomingOthersHeal)
+	local healBar, othersHealBar = self.IncomingHeal, self.IncomingOthersHeal
+	if max == 0 or current >= max then
+		healBar:Hide()
+		othersHealBar:Hide()
+		return
+	end
+	local healthBar = self.Health
+	local pixelPerHP = healthBar:GetWidth() / max
+	if incomingOthersHeal > 0 then
+		local newCurrent = mmin(current + incomingOthersHeal, max)
+		othersHealBar:SetPoint('LEFT', healthBar, 'LEFT', current * pixelPerHP, 0)
+		othersHealBar:SetWidth((newCurrent-current) * pixelPerHP)
+		othersHealBar:Show()
+		current = newCurrent
+	else
+		othersHealBar:Hide()
+	end
+	if incomingHeal > 0 and current < max then
+		healBar:SetPoint('LEFT', healthBar, 'LEFT', current * pixelPerHP, 0)
+		healBar:SetWidth(mmin(max-current, incomingHeal) * pixelPerHP)
+		healBar:Show()
+	else
+		healBar:Hide()
+	end
+end
+
+-- Update name and health bar on health change
+local function UpdateHealth(self, event, unit, bar, current, max)
+	local isDisconnected, isDead = not UnitIsConnected(unit), UnitIsDeadOrGhost(unit)
+	local r, g, b = 0.5, 0.5, 0.5
+	if isDisconnected or isDead then
+		bar:SetValue(max)
+		r, g, b = unpack(self.colors.disconnected)
+	elseif UnitHasVehicleUI(SecureButton_GetUnit(self)) then
+		r, g, b = 0.2, 0.6, 0
+	elseif UnitName(unit) ~= UNKNOWN then
+		local classUnit = unit
+		if not UnitIsPlayer(classUnit) then
+			classUnit = (classUnit == 'pet') and 'player' or classUnit:gsub('pet', '')
+		end
+		local unitClass = select(2, UnitClass(classUnit))
+		if unitClass then
+			r, g, b = unpack(self.colors.class[unitClass])
+		end
+	end
+	self.bgColor[1], self.bgColor[2], self.bgColor[3] = r, g, b
+	bar.bg:SetVertexColor(r, g, b, 1)
+	self.currentHealth, self.maxHealth = current, max
+	UpdateName(self, unit, current, max, (self.incomingHeal or 0) + (self.incomingOthersHeal or 0))
+end
+
+-- Update name and incoming heal bar on incoming heal change
+local function UpdateIncomingHeal(self, event, unit, heal, incomingHeal, incomingOthersHeal)
+	local current, max = self.currentHealth or 0, self.maxHealth or 0
+	self.incomingHeal = incomingHeal
+	self.incomingOthersHeal = incomingOthersHeal
+	UpdateName(self, unit, current, max, incomingHeal + incomingOthersHeal)
+	UpdateHealBar(self, event, current, max, incomingHeal, incomingOthersHeal)
+end
+
+-- Update incoming heal bar on health change
+local function PostUpdateHealth(self, event, unit, bar, current, max)
+	UpdateHealBar(self, event, current, max, self.incomingHeal or 0, self.incomingOthersHeal or 0)
+end
+
+-- Cleaning up health on certain status changes
+local function UnitFlagChanged(self, event, unit)
+	if unit and unit ~= self.unit then return end
+	UpdateHealth(self, event, unit, self.Health, self.currentHealth, self.maxHealth)
+end
+
+-- Statusbar texturing
 local function PostHealthBareTextureUpdate(self)
 	self:SetStatusBarColor(0, 0, 0, 0.75)
 end
 
--- ------------------------------------------------------------------------------
--- Unit frame initialization
--- ------------------------------------------------------------------------------
-
+-- Layout internal frames on size change
 local function OnSizeChanged(self, width, height)
 	width = width or self:GetWidth()
 	height = height or self:GetHeight()
@@ -312,6 +310,158 @@ local function OnSizeChanged(self, width, height)
 	end
 end
 
+-- ------------------------------------------------------------------------------
+-- Aura icon initialization
+-- ------------------------------------------------------------------------------
+
+local CreateAuraIcons
+do
+	local INSET, SMALL_ICON_SIZE = 1, 8
+	local function SpawnSmallIcon(self, ...)
+		local icon = SpawnIcon(self.Overlay, SMALL_ICON_SIZE, true, true, true)
+		icon:SetPoint(...)
+		return icon
+	end
+	
+	-- Create the specific icons depending on player class
+	local CreateClassAuraIcons
+	if playerClass == "DRUID" then
+		function CreateClassAuraIcons(self)
+			-- Rejuvenation
+			self:AddAuraIcon(
+				SpawnSmallIcon(self, "TOPLEFT", self, "TOPLEFT", INSET, -INSET),
+				GetOwnAuraFilter(774, 0.6, 0, 1)
+			)
+			-- Regrowth
+			self:AddAuraIcon(
+				SpawnSmallIcon(self, "TOP", self, "TOP", 0, -INSET),
+				GetOwnAuraFilter(8936, 0, 0.6, 0)
+			)
+			-- Lifebloom
+			for i = 1, 3 do
+				self:AddAuraIcon(
+					SpawnSmallIcon(self, "TOPRIGHT", self, "TOPRIGHT", -INSET - SMALL_ICON_SIZE*(i-1), -INSET),
+					GetOwnStackedAuraFilter(33763, i, 0, 1, 0)
+				)
+			end
+			-- Wild Growth
+			self:AddAuraIcon(
+				SpawnSmallIcon(self, "BOTTOMLEFT", self, "BOTTOMLEFT", INSET, INSET),
+				GetOwnAuraFilter(53248, 0, 1, 0)
+			)
+			-- Abolish Poison
+			self:AddAuraIcon(
+				SpawnSmallIcon(self, "BOTTOMRIGHT", self, "BOTTOMRIGHT", -INSET, INSET),
+				GetOwnAuraFilter(2893)
+			)
+			-- Display cureable debuffs
+			return true
+		end
+
+	elseif playerClass == 'PALADIN' then
+		function CreateClassAuraIcons(self)
+			-- Beacon of light
+			self:AddAuraIcon(
+				SpawnSmallIcon(self, "TOPRIGHT", self, "TOPRIGHT", -INSET, -INSET),
+				GetOwnAuraFilter(53563)
+			)
+			-- Sacred Shield
+			self:AddAuraIcon(
+				SpawnSmallIcon(self, "TOPLEFT", self, "TOPLEFT", INSET, -INSET),
+				GetOwnAuraFilter(53601)
+			)
+			-- Display cureable debuffs
+			return true
+		end
+
+	elseif playerClass == "SHAMAN" then
+		function CreateClassAuraIcons(self)
+			for i = 1, 6 do
+				self:AddAuraIcon(
+					SpawnSmallIcon(self, "BOTTOMRIGHT", self, "BOTTOMRIGHT", -INSET - SMALL_ICON_SIZE*(i-1), INSET),
+					GetOwnStackedAuraFilter(49284, i)
+				)
+			end
+			-- Riptide
+			self:AddAuraIcon(
+				SpawnSmallIcon(self, "TOPRIGHT", self, "TOPRIGHT", -INSET, -INSET),
+				GetOwnAuraFilter(61301)
+			)
+			-- Sated/Exhausted
+			self:AddAuraIcon(
+				SpawnSmallIcon(self, "TOPLEFT", self, "TOPLEFT", INSET, -INSET),
+				GetAnyAuraFilter((UnitFactionGroup("player") == "Alliance") and 29650 or 57724, "HARMFUL")
+			)
+			-- Display cureable debuffs
+			return true
+		end
+
+	elseif playerClass == 'WARLOCK' then
+		function CreateClassAuraIcons(self)
+			-- Soulstone
+			self:AddAuraIcon(SpawnSmallIcon(self, "BOTTOMLEFT", self, "BOTTOMLEFT", INSET, INSET), GetAnyAuraFilter(20763, "HELPFUL"))
+			-- Display magic debuffs (for the Felhunter)
+			return GetDebuffTypeFilter("Magic")
+		end
+
+	elseif playerClass == 'PRIEST' then
+		function CreateClassAuraIcons(self)
+			-- PW:Shield or Weakened Soul
+			self:AddAuraIcon(
+				SpawnSmallIcon(self, "TOPLEFT", self, "TOPLEFT", INSET, -INSET),
+				"PW:Shield"
+			)
+			-- Renew
+			self:AddAuraIcon(
+				SpawnSmallIcon(self, "TOPRIGHT", self, "TOPRIGHT", -INSET, -INSET),
+				GetOwnAuraFilter(139)
+			)
+			-- Prayer of Mending
+			self:AddAuraIcon(
+				SpawnSmallIcon(self, "BOTTOMRIGHT", self, "BOTTOMRIGHT", -INSET, INSET),
+				GetOwnAuraFilter(48113)
+			)
+			-- Display cureable debuffs
+			return true
+		end
+		
+	end
+	
+	-- Main creation function
+	function CreateAuraIcons(self)
+		self.iconBlinkThreshold = 3
+	
+		-- Show important class buffs
+		local importantBuff = SpawnIcon(overlay)
+		self:AddAuraIcon(importantBuff, "ClassImportantBuff")
+
+		-- Show encounter debuffs
+		local encounterDebuff = SpawnIcon(overlay)
+		self:AddAuraIcon(encounterDebuff, "EncounterDebuff")
+
+		local cureableDebuffFilter = CreateClassAuraIcons and CreateClassAuraIcons(self)		
+		if cureableDebuffFilter then
+			-- Show cureable debuffs
+			local debuff = SpawnIcon(overlay)
+			self:AddAuraIcon(debuff, type(cureableDebuffFilter) == "string" and cureableDebuffFilter or "CureableDebuff")
+
+			-- Layout icons
+			importantBuff:SetPoint("CENTER", self, "LEFT", WIDTH * 0.25, 0)
+			debuff:SetPoint("CENTER")
+			encounterDebuff:SetPoint("CENTER", self, "LEFT", WIDTH * 0.75, 0)			
+		else
+			-- Layout icons
+			importantBuff:SetPoint("CENTER", self, "LEFT", WIDTH * 0.33, 0)
+			encounterDebuff:SetPoint("CENTER", self, "LEFT", WIDTH * 0.66, 0)			
+		end
+
+	end
+end
+
+-- ------------------------------------------------------------------------------
+-- Unit frame initialization
+-- ------------------------------------------------------------------------------
+
 local function InitFrame(settings, self)
 	self:EnableMouse(true)
 	self:RegisterForClicks("anyup")
@@ -328,45 +478,19 @@ local function InitFrame(settings, self)
 
 	self.bgColor = { 1, 1, 1 }
 
-
 	-- Health bar
 	local hp = CreateFrame("StatusBar", nil, self)
 	hp:SetAllPoints(self)
-	--hp.frequentUpdates = true -- let LibQuickHealth handle this
 	self:RegisterStatusBarTexture(hp, PostHealthBareTextureUpdate)
+	self.Health = hp
+	self.OverrideUpdateHealth = UpdateHealth
+	self.incomingHeal = 0
 
 	local hpbg = hp:CreateTexture(nil, "BACKGROUND")
 	hpbg:SetAllPoints(hp)
 	hpbg:SetAlpha(1)
 	self:RegisterStatusBarTexture(hpbg)
 	hp.bg = hpbg
-
-	local overlay = CreateFrame("Frame", nil, self)
-	overlay:SetAllPoints(self)
-	overlay:SetFrameLevel(hp:GetFrameLevel()+2)
-	self.Overlay = overlay
-
-	-- Death icon
-	--[=[
-	local death = overlay:CreateTexture(nil, "OVERLAY")
-	death:SetWidth(HEIGHT*2)
-	death:SetHeight(HEIGHT)
-	death:SetTexture([[Interface\TargetingFrame\UI-TargetingFrame-Skull]])
-	death:SetTexCoord(0, 1, 0.30, 0.80)
-	death:SetAlpha(0.5)
-	death:SetPoint("CENTER")
-	death:Hide()
-	self.DeathIcon = death
-	--]=]
-
-	local status = overlay:CreateTexture(nil, "OVERLAY")
-	status:SetWidth(HEIGHT)
-	status:SetHeight(HEIGHT)
-	status:SetAlpha(0.75)
-	status:SetPoint("CENTER")
-	status:SetBlendMode("ADD")
-	status:Hide()
-	self.StatusIcon = status
 
 	-- Incoming heals
 	if oUF.HasIncomingHeal then
@@ -390,9 +514,11 @@ local function InitFrame(settings, self)
 		self.PostUpdateHealth = PostUpdateHealth
 	end
 
-	self.Health = hp
-	self.OverrideUpdateHealth = UpdateHealth
-	self.incomingHeal = 0
+	-- Indicator overlays
+	local overlay = CreateFrame("Frame", nil, self)
+	overlay:SetAllPoints(self)
+	overlay:SetFrameLevel(hp:GetFrameLevel()+2)
+	self.Overlay = overlay
 
 	-- Name
 	local name = overlay:CreateFontString(nil, "ARTWORK", "GameFontNormal")
@@ -416,6 +542,16 @@ local function InitFrame(settings, self)
 	border:Hide()
 	self.Border = border
 
+	-- Big status icon
+	local status = overlay:CreateTexture(nil, "OVERLAY")
+	status:SetWidth(HEIGHT)
+	status:SetHeight(HEIGHT)
+	status:SetAlpha(0.75)
+	status:SetPoint("CENTER")
+	status:SetBlendMode("ADD")
+	status:Hide()
+	self.StatusIcon = status
+
 	-- ReadyCheck icon
 	local rc = CreateFrame("Frame", nil, overlay)
 	rc:SetFrameLevel(self:GetFrameLevel()+5)
@@ -427,121 +563,9 @@ local function InitFrame(settings, self)
 	rc.icon = rc:CreateTexture()
 	rc.icon:SetAllPoints(rc)
 	self.ReadyCheck = rc
-
-	-- Important class buffs (left)
-	local importantBuff = SpawnIcon(overlay)
-	importantBuff:SetPoint("CENTER", self, "LEFT", WIDTH * 0.25, 0)
-	self:AddAuraIcon(importantBuff, "ClassImportantBuff")
-
-	-- Cureable debuffs
-	local debuff = SpawnIcon(overlay)
-	debuff:SetPoint("CENTER")
-	self:AddAuraIcon(debuff, "CureableDebuff")
-
-	-- Encounter debuffs
-	local encounterDebuff = SpawnIcon(overlay)
-	encounterDebuff:SetPoint("CENTER", self, "LEFT", WIDTH * 0.75, 0)
-	self:AddAuraIcon(encounterDebuff, "EncounterDebuff")
-
-	-- Per-class aura icons
-	local INSET, SMALL_ICON_SIZE = 1, 8
-	local function SpawnSmallIcon(...)
-		local icon = SpawnIcon(overlay, SMALL_ICON_SIZE, true, true, true)
-		icon:SetPoint(...)
-		return icon
-	end
-
-	if playerClass == "DRUID" then
-		-- Rejuvenation
-		self:AddAuraIcon(
-			SpawnSmallIcon("TOPLEFT", self, "TOPLEFT", INSET, -INSET),
-			GetOwnAuraFilter(774, 0.6, 0, 1)
-		)
-		-- Regrowth
-		self:AddAuraIcon(
-			SpawnSmallIcon("TOP", self, "TOP", 0, -INSET),
-			GetOwnAuraFilter(8936, 0, 0.6, 0)
-		)
-		-- Lifebloom
-		for i = 1, 3 do
-			self:AddAuraIcon(
-				SpawnSmallIcon("TOPRIGHT", self, "TOPRIGHT", -INSET - SMALL_ICON_SIZE*(i-1), -INSET),
-				GetOwnStackedAuraFilter(33763, i, 0, 1, 0)
-			)
-		end
-		-- Wild Growth
-		self:AddAuraIcon(
-			SpawnSmallIcon("BOTTOMLEFT", self, "BOTTOMLEFT", INSET, INSET),
-			GetOwnAuraFilter(53248, 0, 1, 0)
-		)
-		-- Abolish Poison
-		self:AddAuraIcon(
-			SpawnSmallIcon("BOTTOMRIGHT", self, "BOTTOMRIGHT", -INSET, INSET),
-			GetOwnAuraFilter(2893)
-		)
-
-	elseif playerClass == 'PALADIN' then
-		-- Beacon of light
-		self:AddAuraIcon(
-			SpawnSmallIcon("TOPRIGHT", self, "TOPRIGHT", -INSET, -INSET),
-			GetOwnAuraFilter(53563)
-		)
-		-- Sacred Shield
-		self:AddAuraIcon(
-			SpawnSmallIcon("TOPLEFT", self, "TOPLEFT", INSET, -INSET),
-			GetOwnAuraFilter(53601)
-		)
-
-	elseif playerClass == "SHAMAN" then
-		-- Earth shield
-		--[[
-		local earthShield = SpawnIcon(overlay)
-		earthShield:SetPoint("CENTER", self, "LEFT", WIDTH * 0.25, 0)
-		self:AddAuraIcon(earthShield, GetOwnAuraFilter(49284))
-
-		importantBuff:SetPoint("CENTER")
-		debuff:SetPoint("CENTER", self, "LEFT", WIDTH * 0.75, 0)
-		--]]
-		for i = 1, 6 do
-			self:AddAuraIcon(
-				SpawnSmallIcon("BOTTOMRIGHT", self, "BOTTOMRIGHT", -INSET - SMALL_ICON_SIZE*(i-1), INSET),
-				GetOwnStackedAuraFilter(49284, i)
-			)
-		end
-		-- Riptide
-		self:AddAuraIcon(
-			SpawnSmallIcon("TOPRIGHT", self, "TOPRIGHT", -INSET, -INSET),
-			GetOwnAuraFilter(61301)
-		)
-		-- Sated/Exhausted
-		self:AddAuraIcon(
-			SpawnSmallIcon("TOPLEFT", self, "TOPLEFT", INSET, -INSET),
-			GetAnyAuraFilter((UnitFactionGroup("player") == "Alliance") and 29650 or 57724, "HARMFUL")
-		)
-
-	elseif playerClass == 'WARLOCK' then
-		-- Display magic debuffs (for the Felhunter)
-		self:AddAuraIcon(debuff, GetDebuffTypeFilter("Magic"))
-		-- Soulstone
-		self:AddAuraIcon(SpawnSmallIcon("BOTTOMLEFT", self, "BOTTOMLEFT", INSET, INSET), GetAnyAuraFilter(20763, "HELPFUL"))
-
-	elseif playerClass == 'PRIEST' then
-		-- PW:Shield or Weakened Soul
-		self:AddAuraIcon(
-			SpawnSmallIcon("TOPLEFT", self, "TOPLEFT", INSET, -INSET),
-			"PW:Shield"
-		)
-		-- Renew
-		self:AddAuraIcon(
-			SpawnSmallIcon("TOPRIGHT", self, "TOPRIGHT", -INSET, -INSET),
-			GetOwnAuraFilter(139)
-		)
-		-- Prayer of Mending
-		self:AddAuraIcon(
-			SpawnSmallIcon("BOTTOMRIGHT", self, "BOTTOMRIGHT", -INSET, INSET),
-			GetOwnAuraFilter(48113)
-		)
-	end
+	
+	-- Aura icons
+	CreateAuraIcons(self)
 
 	-- Crowd control icon
 	local header = self:GetParent()
@@ -551,9 +575,6 @@ local function InitFrame(settings, self)
 		ccicon.doNotBlink = true
 		self:AddAuraIcon(ccicon, "PvPDebuff")
 	end
-
-	-- Aura icon blinking setting
-	self.iconBlinkThreshold = 3
 
 	-- Role/Raid icon
 	local roleIcon = overlay:CreateTexture(nil, "OVERLAY")
@@ -568,6 +589,7 @@ local function InitFrame(settings, self)
 	self:RegisterEvent('UNIT_ENTERED_VEHICLE', UnitFlagChanged)
 	self:RegisterEvent('UNIT_EXITED_VEHICLE', UnitFlagChanged)
 
+	-- Hook OnSizeChanged to layout internal on size change
 	self:HookScript('OnSizeChanged', OnSizeChanged)
 
 	-- Range fading
