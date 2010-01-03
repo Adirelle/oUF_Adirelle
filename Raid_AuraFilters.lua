@@ -347,10 +347,11 @@ do
 		Coliseum
 			Gormok
 				Impale: 67477 = 100
+				Snobolled: 66406 = 100
 			Jormungars
 				Toxin: 67618, 67619, 67620, 66823 = 100
 				Burn: 66869, 66870 = 100	
-			Lord Jaraxxus			
+			Lord Jaraxxus		
 				Legion Flame: 68123, 68124, 68125, 66197 = 80
 				Incinerate Flesh: 67049, 67050, 67051, 66237 = 100
 			Faction Champions
@@ -365,7 +366,8 @@ do
 				Pursue: 67574 = 100
 		Icecrown Citadel
 			Lord Marrowgar
-				Coldflame: 69146 = 100
+				Coldflame: 69146 = 80
+				Impale: 69065 = 100
 			Lady Deathwhisper
 				Death and Decay: 71001 = 80
 				Dominate Mind: 71289 = 100
@@ -403,7 +405,7 @@ do
 	end
 
 	oUF:AddAuraFilter("EncounterDebuff", function(unit)
-		local curPrio, curTexture, curCount, curDebuffType, curDuration, curExpirationTime
+		local curPrio, curName, curTexture, curCount, curDebuffType, curDuration, curExpirationTime
 		for i = 1, 255 do
 			local name, _, texture, count, debuffType, duration, expirationTime = UnitDebuff(unit, i)
 			if not name then
@@ -411,13 +413,18 @@ do
 			else
 				local prio = DEBUFFS[name]
 				if prio and (not curPrio or prio > curPrio) then
-					curPrio, curTexture, curCount, curDebuffType, curDuration, curExpirationTime = prio, texture, count, debuffType, duration, expirationTime
+					curPrio, curName, curTexture, curCount, curDebuffType, curDuration, curExpirationTime = prio, name, texture, count, debuffType, duration, expirationTime
 				end 
 			end
 		end
-		if curTexture then
+		if curTexture then		
+			--Debug("Encounter debuff", "target=", UnitName(unit), "prio=", curPrio, "debuff=", curName, "texture=", curTexture, "count=", curCount, "type=", curDebuffType, "duration=", curDuration, "expTime=", curExpirationTime)
 			local color = DebuffTypeColor[curDebuffType or "none"]
-			return curTexture, curCount, curExpirationTime-curDuration, curDuration, color.r, color.g, color.b
+			local r, g, b
+			if color then
+				r, g, b = color.r, color.g, color.b
+			end
+			return curTexture, curCount, curExpirationTime-curDuration, curDuration, r, g, b
 		end
 	end)
 end
