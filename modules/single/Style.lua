@@ -175,8 +175,6 @@ local function OnSizeChanged(self, width, height)
 	end
 	end
 
-local _, playerClass = UnitClass('player')
-
 local SetupAltPower
 if playerClass == 'DEATHKNIGHT' then
 

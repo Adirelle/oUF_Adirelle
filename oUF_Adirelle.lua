@@ -31,3 +31,20 @@ end
 oUF.Debug = Debug
 oUF.frame_metatable.__index.Debug = Debug
 
+-- Some common "constants"
+
+-- Recolor mana
+oUF.colors.power.MANA = { 0.3, 0.5, 1.0 }
+
+-- Get player class once
+playerClass = select(2, UnitClass("player"))
+
+-- Frame background
+backdrop = {
+	bgFile = [[Interface\Tooltips\UI-Tooltip-Background]],
+	tile = true,
+	tileSize = 16,
+	insets = {left = 0, right = 0, top = 0, bottom = 0},
+}
+
+

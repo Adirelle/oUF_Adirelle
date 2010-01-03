@@ -20,23 +20,12 @@ local unpack = unpack
 -- Use our own namespace
 setfenv(1, _G.oUF_Adirelle)
 
-oUF.colors.power.MANA = { 0.3, 0.5, 1.0 }
-
 SCALE = 1.0
 WIDTH = 80
 SPACING = 2
 HEIGHT = 25
 BORDER_WIDTH = 1
 ICON_SIZE = 14
-
-local _, playerClass = UnitClass("player")
-
-backdrop = {
-	bgFile = [[Interface\Tooltips\UI-Tooltip-Background]],
-	tile = true,
-	tileSize = 16,
-	insets = {left = 0, right = 0, top = 0, bottom = 0},
-}
 
 local borderBackdrop = {
 	edgeFile = [[Interface\Addons\oUF_Adirelle\media\white16x16]],
