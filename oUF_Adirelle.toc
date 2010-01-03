@@ -6,11 +6,10 @@
 ## OptionalDeps: oUF, LibStub, CallbackHandler-1.0, LibSharedMedia-3.0, LibHealComm-4.0, DRData-1.0, LibMovable-1.0, SharedMedia, SharedMedia_MyMedia, !SurfaceControl, tekDebug, !ClassColors, LibGroupTalents-1.0, LibTalentQuery-1.0, LibQuickHealh-2.0
 ## SavedVariables: oUF_Adirelle_DB
 
-# Embedded, optional libraries
+# Libraries
 #@no-lib-strip@
 libs\LibStub\LibStub.lua
 libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
-libs\LibMovable-1.0\LibMovable-1.0.lua
 libs\LibSharedMedia-3.0\lib.xml
 libs\LibHealComm-4.0\LibHealComm-4.0.xml
 libs\DRData-1.0\DRData-1.0.xml
@@ -22,7 +21,18 @@ oUF\oUF.xml
 # Setup namespace
 oUF_Adirelle.lua
 
-# Own elements 
+# LibQuickHealth integration
+libs\LibQuickHealth-2.0.lua
+support\QuickHealth.lua
+
+# LibMovable integration
+libs\LibMovable-1.0\LibMovable-1.0.lua
+support\Movable.lua
+
+# Texture helper
+support\StatusBarTexture.lua
+
+# Our elements
 elements\AuraIcons.lua
 elements\Border.lua
 elements\ComboPoints.lua
@@ -34,11 +44,4 @@ elements\RuneBar.lua
 elements\StatusIcon.lua
 elements\VehicleSwap.lua
 elements\XRange.lua
-
-# QuickHealth integration
-libs\LibQuickHealth-2.0.lua
-support\QuickHealth.lua
-
-# Texture helper
-support\StatusBarTexture.lua
 
