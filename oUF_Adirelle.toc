@@ -45,3 +45,6 @@ elements\StatusIcon.lua
 elements\VehicleSwap.lua
 elements\XRange.lua
 
+# As the filename says
+support\CommonAuraFilters.lua
+
