@@ -131,6 +131,8 @@ end
 local frame_prototype = oUF.frame_metatable and oUF.frame_metatable.__index or oUF
 
 do
+	local BORDER_WIDTH = 1
+
 	local borderBackdrop = {
 		edgeFile = [[Interface\Addons\oUF_Adirelle\media\white16x16]],
 		edgeSize = BORDER_WIDTH,
@@ -150,6 +152,7 @@ do
 	end
 
 	local function SetCooldown(self, start, duration)
+		start, duration = tonumber(start), tonumber(duration)
 		local cooldown = self.Cooldown
 		if start and duration then
 			cooldown:SetCooldown(start, duration)
@@ -160,6 +163,7 @@ do
 	end
 
 	local function SetStack(self, count)
+		count = tonumber(count)
 		local stack = self.Stack
 		if count and count > 1 then
 			stack:SetText(count)
@@ -170,6 +174,7 @@ do
 	end
 
 	local function SetBackdropBorderColor(self, r, g, b)
+		r, g, b = tonumber(r), tonumber(g), tonumber(b)
 		local border = self.Border
 		if r and g and b then
 			border:SetBackdropBorderColor(r, g, b)
@@ -180,6 +185,8 @@ do
 	end
 
 	function frame_prototype:SpawnAuraIcon(parent, size, noCooldown, noStack, noBorder, noTexture, ...)
+		assert(parent and type(parent.IsObjectType) == "function" and parent:IsObjectType("Frame"), "SpawnAuraIcon: parent should be a Frame")
+		assert(type(size) == "nil" or type(size) == "number", "SpawnAuraIcon: size should be a number")
 		local	icon = CreateFrame("Frame", nil, parent)
 		size = size or parent.auraIconSize or self.auraIconSize or 14
 		icon:SetWidth(size)
@@ -222,9 +229,8 @@ do
 
 		if not noBorder then
 			local border = CreateFrame("Frame", nil, icon)
-			border:SetPoint("CENTER", icon)
-			border:SetWidth(size + 2)
-			border:SetHeight(size + 2)
+			border:SetPoint("TOPLEFT", icon, "TOPLEFT", -BORDER_WIDTH, BORDER_WIDTH)
+			border:SetPoint("BOTTOMRIGHT", icon, "BOTTOMRIGHT", BORDER_WIDTH, -BORDER_WIDTH)
 			border:SetBackdrop(borderBackdrop)
 			border:SetBackdropColor(0, 0, 0, 0)
 			border:SetBackdropBorderColor(1, 1, 1, 1)
@@ -234,7 +240,7 @@ do
 		else
 			icon.SetColor = NOOP
 		end
-		
+
 		if select('#', ...) > 0 then
 			icon:SetPoint(...)
 		end
