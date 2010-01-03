@@ -64,7 +64,7 @@ local function UpdateIcon(self, unit, icon, texture, count, start, duration, r, 
 	icon:SetCooldown(start, duration)
 	icon:SetStack(count)
 	icon:SetColor(r, g, b)
-	if self.iconBlinkThreshold and start and duration and not icon.doNotBlink then
+	if self.iconBlinkThreshold and start and duration and duration > 0 and not icon.doNotBlink then
 		blinkingFrame = blinkingFrame or CreateBlinkingFrame()
 		blinkingFrame:RegisterIcon(icon, start+duration, self.iconBlinkThreshold)
 	elseif blinkingFrame then
@@ -154,7 +154,7 @@ do
 	local function SetCooldown(self, start, duration)
 		start, duration = tonumber(start), tonumber(duration)
 		local cooldown = self.Cooldown
-		if start and duration then
+		if start and duration and duration > 0 then
 			cooldown:SetCooldown(start, duration)
 			cooldown:Show()
 		else
