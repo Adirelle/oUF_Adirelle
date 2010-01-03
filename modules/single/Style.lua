@@ -12,7 +12,7 @@ local TEXT_MARGIN = 2
 local GAP = 2
 local FRAME_MARGIN = BORDER_WIDTH + GAP
 local AURA_SIZE = 15
-	
+
 local borderBackdrop = {
 	edgeFile = [[Interface\Addons\oUF_Adirelle\media\white16x16]],
 	edgeSize = BORDER_WIDTH,
@@ -78,7 +78,7 @@ local function SpawnText(object, layer, from, to, xOffset, yOffset)
 	SetFont(text)
 	text:SetWidth(0)
 	text:SetHeight(0)
-	text:SetJustifyV("MIDDLE")			
+	text:SetJustifyV("MIDDLE")
 	if from then
 		text:SetPoint(from, object, to or from, xOffset or 0, yOffset or 0)
 		if from:match("RIGHT") then
@@ -123,7 +123,7 @@ if oUF.HasIncomingHeal then
 			bar.incomingHeal, bar.currentHealth, bar.maxHealth = incomingHeal, current, max
 			if current and incomingHeal and incomingHeal > 0 and max and max > 0 then
 				bar:SetMinMaxValues(0, max)
-				bar:SetValue(current + incomingHeal)		
+				bar:SetValue(current + incomingHeal)
 				bar:Show()
 			else
 				bar:Hide()
@@ -134,12 +134,12 @@ if oUF.HasIncomingHeal then
 	function UpdateIncomingHeal(self, event, unit, bar, incomingHeal)
 		UpdateHealBar(bar, bar.currentHealth, bar.maxHealth, incomingHeal)
 	end
-		
+
 	function PostUpdateHealth(self, event, unit, _, current, max)
 		local bar = self.IncomingHeal
 		UpdateHealBar(bar, current, max, bar.incomingHeal)
 	end
-	
+
 	function PostIncomingHealTextureUpdate(bar)
 		bar:SetStatusBarColor(0, 1, 0, 0.75)
 	end
@@ -179,7 +179,7 @@ local _, playerClass = UnitClass('player')
 
 local SetupAltPower
 if playerClass == 'DEATHKNIGHT' then
-	
+
 	local function LayoutRunes(runeBar)
 		local spacing = (runeBar:GetWidth() + GAP) / 6
 		local runeWidth = spacing - GAP
@@ -191,7 +191,7 @@ if playerClass == 'DEATHKNIGHT' then
 			rune:SetHeight(runeHeight)
 		end
 	end
-		
+
 	function SetupAltPower(self)
 		local runeBar = CreateFrame("Frame", nil, self)
 		runeBar:HookScript('OnShow', LayoutRunes)
@@ -211,13 +211,13 @@ elseif playerClass == "DRUID" then
 	function SetupAltPower(self)
 		local POWERTYPE_MANA = 0
 
-		local altPower = SpawnStatusBar(self) 
+		local altPower = SpawnStatusBar(self)
 		altPower.PostTextureUpdate = function()
 			altPower:SetStatusBarColor(unpack(oUF.colors.power.MANA))
 		end
 
 		self.PostUpdatePower = function(self, event, unit)
-			local power, altPower = self.Power, self.AltPower 
+			local power, altPower = self.Power, self.AltPower
 			if unit == 'player' and UnitPowerType(unit) ~= POWERTYPE_MANA then
 				local current, max = UnitPower(unit, POWERTYPE_MANA), UnitPowerMax(unit, POWERTYPE_MANA)
 				if max and max > 0 then
@@ -227,8 +227,8 @@ elseif playerClass == "DRUID" then
 				end
 			end
 			altPower:Hide()
-		end	
-		
+		end
+
 		return altPower
 	end
 end
@@ -252,16 +252,16 @@ local DRAGON_TEXTURES = {
 }
 
 local function ToggleMenu(self, unit, button, actionType)
-	ToggleDropDownMenu(1, nil, DROPDOWN_MENUS[unit], self:GetName(), 0, 0) 
+	ToggleDropDownMenu(1, nil, DROPDOWN_MENUS[unit], self:GetName(), 0, 0)
 end
 
 local function OoC_UnitFrame_OnEnter(...)
-	if not InCombatLockdown() then return UnitFrame_OnEnter(...) end	
+	if not InCombatLockdown() then return UnitFrame_OnEnter(...) end
 end
 
 local function InitFrame(settings, self)
 	local unit = self.unit
-	
+
 	self:RegisterForClicks("AnyUp")
 	self:SetAttribute("type", "target");
 
@@ -281,7 +281,7 @@ local function InitFrame(settings, self)
 	self:SetBackdrop(backdrop)
 	self:SetBackdropColor(0,0,0,1)
 	self:SetBackdropBorderColor(0,0,0,1)
-	
+
 	-- Border
 	local border = CreateFrame("Frame", nil, self)
 	border:SetFrameStrata("BACKGROUND")
@@ -292,8 +292,8 @@ local function InitFrame(settings, self)
 	border.SetColor = border.SetBackdropBorderColor
 	border.blackByDefault = true
 	border.noTarget = true
-	self.Border = border	
-	
+	self.Border = border
+
 	local barContainer
 	local left, right, dir = "LEFT", "RIGHT", 1
 	if settings.mirroredFrame then
@@ -306,39 +306,39 @@ local function InitFrame(settings, self)
 		local portrait = CreateFrame("PlayerModel", nil, self)
 		portrait:SetPoint(left)
 		self.Portrait = portrait
-	
+
 		-- Spawn an PvE encounter debuff that spans all over the portrait
 		local encounterDebuff = self:SpawnAuraIcon(portrait)
 		encounterDebuff:SetAllPoints(portrait)
-		self:AddAuraIcon(encounterDebuff, "EncounterDebuff")		
-		
-		-- Spawn a container frame that spans remaining space 
-		barContainer = CreateFrame("Frame", nil, self)	
+		self:AddAuraIcon(encounterDebuff, "EncounterDebuff")
+
+		-- Spawn a container frame that spans remaining space
+		barContainer = CreateFrame("Frame", nil, self)
 		barContainer:SetPoint("TOP"..left, portrait, "TOP"..right, GAP*dir, 0)
-		barContainer:SetPoint("BOTTOM"..right)		
+		barContainer:SetPoint("BOTTOM"..right)
 	else
 		barContainer = self
 	end
 	self.BarContainer = barContainer
-	
+
 	-- Health bar
 	local health = SpawnStatusBar(self, false, "TOPLEFT", barContainer)
 	health:SetPoint("TOPRIGHT", barContainer)
 	health.colorTapping = true
 	health.colorDisconnected = true
 	health.colorHappiness = true
-	health.colorClass = true	
-	health.colorSmooth = true	
+	health.colorClass = true
+	health.colorSmooth = true
 	--health.frequentUpdates = true	-- let LibQuickHealth handle this
 	self.Health = health
-	
+
 	-- Name
 	local name = SpawnText(health, "OVERLAY", "TOPLEFT", "TOPLEFT", TEXT_MARGIN)
 	name:SetPoint("BOTTOMLEFT", health, "BOTTOMLEFT", TEXT_MARGIN)
 	name:SetPoint("RIGHT", health.Text, "LEFT")
 	self:Tag(name, (unit == "player" or unit == "pet") and "[name]" or "[name][( <)status(>)]")
 	self.Name = name
-	
+
 	-- Incoming heals
 	if oUF.HasIncomingHeal then
 		local incomingHeal = CreateFrame("StatusBar", nil, self)
@@ -371,7 +371,7 @@ local function InitFrame(settings, self)
 		end
 
 		if unit == "player" and SetupAltPower then
-			local altPower = SetupAltPower(self) 
+			local altPower = SetupAltPower(self)
 			altPower:SetPoint("BOTTOMRIGHT", barContainer)
 			altPower:SetPoint("BOTTOMLEFT", barContainer)
 			altPower:Hide()
@@ -385,12 +385,12 @@ local function InitFrame(settings, self)
 		end
 	else
 		health:SetPoint("BOTTOMRIGHT", barContainer)
-	end	
-	
+	end
+
 	-- Various indicators
 	local indicators = CreateFrame("Frame", nil, self)
 	indicators:SetAllPoints(self)
-	indicators:SetFrameLevel(health:GetFrameLevel()+2)	
+	indicators:SetFrameLevel(health:GetFrameLevel()+2)
 	self.Leader = SpawnTexture(indicators, 16, "TOP"..left)
 	self.Assistant = SpawnTexture(indicators, 16, "TOP"..left)
 	self.MasterLooter = SpawnTexture(indicators, 16, "TOP"..left, 16*dir)
@@ -406,14 +406,14 @@ local function InitFrame(settings, self)
 	if unit == "player" then
 		self.Resting = SpawnTexture(indicators, 16, "BOTTOMLEFT")
 	end
-	
+
 	if self.Portrait then
-		local pvp = SpawnTexture(indicators, 12) 
+		local pvp = SpawnTexture(indicators, 12)
 		pvp:SetTexCoord(0, 0.6, 0, 0.6)
 		pvp:SetPoint("CENTER", self.Portrait, "BOTTOM"..right)
 		self.PvP = pvp
 	end
-	
+
 	-- Combo points
 	if unit == "target" or unit == "focus" then
 		local DOT_SIZE = 10
@@ -428,7 +428,7 @@ local function InitFrame(settings, self)
 		end
 		self.ComboPoints = cpoints
 	end
-	
+
 	-- Auras
 	if unit == "pet" then
 		local buffs = CreateFrame("Frame", nil, self)
@@ -443,7 +443,7 @@ local function InitFrame(settings, self)
 		buffs.num = 12
 		buffs:SetWidth(12 * AURA_SIZE)
 		buffs:SetHeight(AURA_SIZE)
-		buffs.onlyShowPlayer = (unit == "player")		
+		buffs.onlyShowPlayer = (unit == "player")
 		buffs.showType = (unit ~= "player")
 		buffs.initialAnchor = "BOTTOM"..right
 		buffs['growth-x'] = left
@@ -456,7 +456,7 @@ local function InitFrame(settings, self)
 			debuffs.num = 24
 			debuffs.showType = true
 			debuffs:SetWidth(12 * AURA_SIZE)
-			debuffs:SetHeight(2 * AURA_SIZE)	
+			debuffs:SetHeight(2 * AURA_SIZE)
 			debuffs.initialAnchor = "TOP"..right
 			debuffs['growth-x'] = left
 			debuffs['growth-y'] = "DOWN"
@@ -474,7 +474,7 @@ local function InitFrame(settings, self)
 		self.Debuffs.size = AURA_SIZE
 		self.PostCreateAuraIcon = PostCreateAuraIcon
 	end
-	
+
 	-- Classification dragon
 	if unit == "target" or unit == "focus" then
 		local dragon = indicators:CreateTexture(nil, "ARTWORK")
@@ -486,13 +486,13 @@ local function InitFrame(settings, self)
 		dragon.rare = DRAGON_TEXTURES.rare
 		self.Dragon = dragon
 	end
-	
+
 	-- Range fading
 	self.XRange = true
-	
+
 	self:HookScript('OnSizeChanged', OnSizeChanged)
 	if self:IsShown() and self:GetWidth() and self:GetHeight() then
-		OnSizeChanged(self)	
+		OnSizeChanged(self)
 	end
 end
 
