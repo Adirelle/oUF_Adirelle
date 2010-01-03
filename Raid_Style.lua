@@ -440,7 +440,7 @@ local function InitFrame(settings, self)
 
 	-- Encounter debuffs
 	local encounterDebuff = SpawnIcon(overlay)
-	encounterDebuff:SetPoint("CENTER", self, "RIGHT", WIDTH * 0.25, 0)
+	encounterDebuff:SetPoint("CENTER", self, "LEFT", WIDTH * 0.75, 0)
 	self:AddAuraIcon(encounterDebuff, "EncounterDebuff")
 
 	-- Per-class aura icons
