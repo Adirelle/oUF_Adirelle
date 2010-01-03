@@ -109,6 +109,9 @@ local function Disable(self)
 	end
 end
 
+oUF:AddElement('AuraIcons', Update, Enable, Disable)
+
+-- Add filter methods to oUF
 local filters = {}
 
 function oUF:AddAuraFilter(name, func)
@@ -124,8 +127,124 @@ function oUF:HasAuraFilter(name)
 	return type(filters[tostring(name)]) == "function"
 end
 
+-- Add icon initialization methods to unit frame prototype
 local frame_prototype = oUF.frame_metatable and oUF.frame_metatable.__index or oUF
-function frame_prototype:AddAuraIcon(icon, filter, ...)
+
+do
+	local borderBackdrop = {
+		edgeFile = [[Interface\Addons\oUF_Adirelle\media\white16x16]],
+		edgeSize = BORDER_WIDTH,
+		insets = {left = 0, right = 0, top = 0, bottom = 0},
+	}
+
+	local function NOOP() end
+
+	local function SetTexture(self, path)
+		local texture = self.Texture
+		if path then
+			texture:SetTexture(path)
+			texture:Show()
+		else
+			texture:Hide()
+		end
+	end
+
+	local function SetCooldown(self, start, duration)
+		local cooldown = self.Cooldown
+		if start and duration then
+			cooldown:SetCooldown(start, duration)
+			cooldown:Show()
+		else
+			cooldown:Hide()
+		end
+	end
+
+	local function SetStack(self, count)
+		local stack = self.Stack
+		if count and count > 1 then
+			stack:SetText(count)
+			stack:Show()
+		else
+			stack:Hide()
+		end
+	end
+
+	local function SetBackdropBorderColor(self, r, g, b)
+		local border = self.Border
+		if r and g and b then
+			border:SetBackdropBorderColor(r, g, b)
+			border:Show()
+		else
+			border:Hide()
+		end
+	end
+
+	function frame_prototype:SpawnAuraIcon(parent, size, noCooldown, noStack, noBorder, noTexture, ...)
+		local	icon = CreateFrame("Frame", nil, parent)
+		size = size or parent.auraIconSize or self.auraIconSize or 14
+		icon:SetWidth(size)
+		icon:SetHeight(size)
+
+		if not noTexture then
+			local texture = icon:CreateTexture(nil, "OVERLAY")
+			texture:SetAllPoints(icon)
+			texture:SetTexCoord(0.05, 0.95, 0.05, 0.95)
+			texture:SetTexture(1,1,1,0)
+			icon.Texture = texture
+			icon.SetTexture = SetTexture
+		else
+			icon.SetTexture = NOOP
+		end
+
+		if not noCooldown then
+			local cooldown = CreateFrame("Cooldown", nil, icon, "CooldownFrameTemplate")
+			cooldown:SetAllPoints(icon.Texture or icon)
+			cooldown:SetDrawEdge(true)
+			cooldown:SetReverse(true)
+			icon.Cooldown = cooldown
+			icon.SetCooldown = SetCooldown
+		else
+			icon.SetCooldown = NOOP
+		end
+
+		if not noStack then
+			local stack = icon:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+			stack:SetAllPoints(icon.Texture or icon)
+			stack:SetJustifyH("CENTER")
+			stack:SetJustifyV("MIDDLE")
+			stack:SetFont(GameFontNormal:GetFont(), 10, "OUTLINE")
+			stack:SetTextColor(1, 1, 1, 1)
+			icon.Stack = stack
+			icon.SetStack = SetStack
+		else
+			icon.SetStack = NOOP
+		end
+
+		if not noBorder then
+			local border = CreateFrame("Frame", nil, icon)
+			border:SetPoint("CENTER", icon)
+			border:SetWidth(size + 2)
+			border:SetHeight(size + 2)
+			border:SetBackdrop(borderBackdrop)
+			border:SetBackdropColor(0, 0, 0, 0)
+			border:SetBackdropBorderColor(1, 1, 1, 1)
+			border:Hide()
+			icon.Border = border
+			icon.SetColor = SetBackdropBorderColor
+		else
+			icon.SetColor = NOOP
+		end
+		
+		if select('#', ...) > 0 then
+			icon:SetPoint(...)
+		end
+
+		icon:Hide()
+		return icon
+	end
+end
+
+function frame_prototype:AddAuraIcon(icon, filter)
 	assert(type(icon) == "table", "icon should be a table, not "..type(icon))
 	local func = filters[tostring(filter)]
 	assert(type(func) == "function", "unknown aura filter: "..type(filter))
@@ -133,6 +252,4 @@ function frame_prototype:AddAuraIcon(icon, filter, ...)
 	self.AuraIcons[icon] = func
 	return icon
 end
-
-oUF:AddElement('AuraIcons', Update, Enable, Disable)
 
