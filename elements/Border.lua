@@ -28,10 +28,7 @@ local function Update(self, event, unit)
 		if not border.noTarget and UnitIsUnit('target', unit) then
 			r, g, b = 1, 1, 1
 		elseif not UnitIsDeadOrGhost(unit) then
-			local threat = UnitThreatSituation(unit)
-			if threat and threat > 0 then
-				r, g, b = GetThreatStatusColor(threat)
-			elseif UnitPowerType(unit) == 0 and UnitMana(unit) / UnitManaMax(unit) < 0.25 then
+			if UnitPowerType(unit) == 0 and UnitMana(unit) / UnitManaMax(unit) < 0.25 then
 				r, g, b = unpack(oUF.colors.power.MANA)
 			end
 		end

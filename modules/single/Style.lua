@@ -13,11 +13,7 @@ local GAP = 2
 local FRAME_MARGIN = BORDER_WIDTH + GAP
 local AURA_SIZE = 15
 
-local borderBackdrop = {
-	edgeFile = [[Interface\Addons\oUF_Adirelle\media\white16x16]],
-	edgeSize = BORDER_WIDTH,
-	insets = {left = 0, right = 0, top = 0, bottom = 0},
-}
+local borderBackdrop = { edgeFile = [[Interface\Addons\oUF_Adirelle\media\white16x16]], edgeSize = BORDER_WIDTH }
 
 local floor = math.floor
 local strformat = string.format
@@ -33,9 +29,10 @@ local function smartValue(value)
 end
 
 local function OnStatusBarUpdate(bar)
+	if not bar:IsShown() then return end
 	local text = bar.Text
 	if not text then return end
-	local value, _, max = bar:GetValue(), bar:GetMinMaxValues()
+	local value, min, max = bar:GetValue(), bar:GetMinMaxValues()
 	if max == 100 then
 		text:SetFormattedText("%d%%", floor(value))
 	elseif max == 0 then
@@ -100,6 +97,7 @@ local function SpawnStatusBar(self, noText, from, anchor, to, xOffset, yOffset)
 		local text = SpawnText(bar, "OVERLAY", "TOPRIGHT", "TOPRIGHT", -TEXT_MARGIN, 0)
 		text:SetPoint("BOTTOMRIGHT", bar, "BOTTOMRIGHT", -TEXT_MARGIN, 0)
 		bar.Text = text
+		bar:SetScript('OnShow', OnStatusBarUpdate)
 		bar:SetScript('OnValueChanged', OnStatusBarUpdate)
 		bar:SetScript('OnMinMaxChanged', OnStatusBarUpdate)
 	end
@@ -278,7 +276,7 @@ local function InitFrame(settings, self)
 
 	self:SetBackdrop(backdrop)
 	self:SetBackdropColor(0,0,0,1)
-	self:SetBackdropBorderColor(0,0,0,1)
+	self:SetBackdropBorderColor(0,0,0,0)
 
 	-- Border
 	local border = CreateFrame("Frame", nil, self)
@@ -384,11 +382,49 @@ local function InitFrame(settings, self)
 	else
 		health:SetPoint("BOTTOMRIGHT", barContainer)
 	end
-
+	
+	if unit == "target" then
+		-- Add a simple threat bar on the target
+		local threatBar = SpawnStatusBar(self, false, "TOPRIGHT", self, "BOTTOMRIGHT", 0, -FRAME_MARGIN)
+		threatBar:SetBackdrop(backdrop)
+		threatBar:SetBackdropColor(0,0,0,1)
+		threatBar:SetBackdropBorderColor(0,0,0,1)
+		threatBar:SetWidth(190*0.5)
+		threatBar:SetHeight(16)
+		threatBar:SetMinMaxValues(0, 100)
+		self.PostThreatBarUpdate = function(self, event, unit, bar, isTanking, status, scaledPercent, rawPercent, threatValue)
+			if not bar.Text then return end
+			self:Debug(event, unit, bar, isTanking, status, scaledPercent, rawPercent, threatValue)
+			if threatValue then
+				local value, unit = threatValue / 100, ""
+				if value > 1000000 then
+					value, unit = value / 1000000, "m"
+				elseif value > 1000 then
+					value, unit = value / 1000, "k"
+				end
+				bar.Text:SetFormattedText("%d%% (%.1f%s)", scaledPercent, value, unit)
+				bar.Text:Show()
+			else
+				bar.Text:Hide()
+			end
+		end
+		self.ThreatBar = threatBar		
+	end
+	
+	-- Threat glow
+	local threat = CreateFrame("Frame", nil, self)
+	threat:SetAllPoints(self.Border)
+	threat:SetBackdrop(glowBorderBackdrop)
+	threat:SetBackdropColor(0,0,0,0)
+	threat.SetVertexColor = threat.SetBackdropBorderColor
+	threat:SetAlpha(0.75)
+	threat:SetFrameLevel(self:GetFrameLevel()+2)
+	self.Threat = threat
+	
 	-- Various indicators
 	local indicators = CreateFrame("Frame", nil, self)
 	indicators:SetAllPoints(self)
-	indicators:SetFrameLevel(health:GetFrameLevel()+2)
+	indicators:SetFrameLevel(health:GetFrameLevel()+3)
 	self.Leader = SpawnTexture(indicators, 16, "TOP"..left)
 	self.Assistant = SpawnTexture(indicators, 16, "TOP"..left)
 	self.MasterLooter = SpawnTexture(indicators, 16, "TOP"..left, 16*dir)
@@ -396,7 +432,7 @@ local function InitFrame(settings, self)
 
 	self.RoleIcon = SpawnTexture(indicators, 16)
 	self.RoleIcon:SetPoint("CENTER", barContainer)
-
+	
 	if unit == "pet" then
 		self.Happiness = SpawnTexture(indicators, 16, "BOTTOMRIGHT")
 	end
