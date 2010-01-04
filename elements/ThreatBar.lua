@@ -12,6 +12,7 @@ local oUF = assert(ns.oUF, "oUF is undefined in "..parent.." namespace")
 local function Update(self, event, unit)
 	if unit and (unit ~= self.unit and unit ~= "player") then return end
 	local bar = self.ThreatBar
+	if GetRealNumPartyMembers() == 0 and GetRealNumRaidMembers() == 0 then return bar:Hide() end
 	local isTanking, status, scaledPercent, rawPercent, threatValue = UnitDetailedThreatSituation("player", self.unit)
 	self:Debug("ThreatBar:Update", event, unit, isTanking, status, scaledPercent, rawPercent, threatValue)
 	if status then 
@@ -32,6 +33,7 @@ end
 
 local function Enable(self)
 	if self.ThreatBar then
+		self:RegisterEvent("PARTY_MEMBERs_CHANGED", Update)
 		self:RegisterEvent("UNIT_THREAT_LIST_UPDATE", Update)
 		self:RegisterEvent("UNIT_THREAT_SITUATION_UPDATE", Update)
 		self.ThreatBar:Hide()
@@ -41,6 +43,7 @@ end
 
 local function Disable(self)
 	if self.ThreatBar then
+		self:UnregisterEvent("PARTY_MEMBERS_CHANGED", Update)
 		self:UnregisterEvent("UNIT_THREAT_LIST_UPDATE", Update)
 		self:UnregisterEvent("UNIT_THREAT_SITUATION_UPDATE", Update)
 		self.ThreatBar:Hide()	
