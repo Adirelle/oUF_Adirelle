@@ -9,8 +9,6 @@ Elements handled: .Border
 local parent, ns = ...
 local oUF = assert(ns.oUF, "oUF is undefined in "..parent.." namespace")
 
-local UnitThreatSituation = UnitThreatSituation
-local GetThreatStatusColor = GetThreatStatusColor
 local UnitIsUnit = UnitIsUnit
 local UnitPowerType = UnitPowerType
 local UnitMana = UnitMana
@@ -43,8 +41,6 @@ end
 
 local function Enable(self)
 	if self.Border then
-		self:RegisterEvent("UNIT_THREAT_LIST_UPDATE", Update)
-		self:RegisterEvent("UNIT_THREAT_SITUATION_UPDATE", Update)
 		self:RegisterEvent("UNIT_MANA", Update)
 		self:RegisterEvent("UNIT_MAXMANA", Update)
 		self:RegisterEvent("PLAYER_TARGET_CHANGED", Update)			
@@ -56,8 +52,6 @@ end
 local function Disable(self)
 	local border = self.Border
 	if border then
-		self:UnregisterEvent("UNIT_THREAT_LIST_UPDATE", Update)
-		self:UnregisterEvent("UNIT_THREAT_SITUATION_UPDATE", Update)
 		self:UnregisterEvent("UNIT_MANA", Update)
 		self:UnregisterEvent("UNIT_MAXMANA", Update)
 		self:UnregisterEvent("PLAYER_TARGET_CHANGED", Update)			
