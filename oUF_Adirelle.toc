@@ -43,6 +43,7 @@ elements\ReadyCheck.lua
 elements\RoleOrIcon.lua
 elements\RuneBar.lua
 elements\StatusIcon.lua
+elements\ThreatBar.lua
 elements\VehicleSwap.lua
 elements\XRange.lua
 

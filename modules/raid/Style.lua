@@ -27,11 +27,7 @@ HEIGHT = 25
 BORDER_WIDTH = 1
 ICON_SIZE = 14
 
-local borderBackdrop = {
-	edgeFile = [[Interface\Addons\oUF_Adirelle\media\white16x16]],
-	edgeSize = BORDER_WIDTH,
-	insets = {left = 0, right = 0, top = 0, bottom = 0},
-}
+local borderBackdrop = { edgeFile = [[Interface\Addons\oUF_Adirelle\media\white16x16]], edgeSize = BORDER_WIDTH }
 
 -- ------------------------------------------------------------------------------
 -- Health bar and name updates
@@ -363,7 +359,7 @@ local function InitFrame(settings, self)
 	-- Indicator overlays
 	local overlay = CreateFrame("Frame", nil, self)
 	overlay:SetAllPoints(self)
-	overlay:SetFrameLevel(hp:GetFrameLevel()+2)
+	overlay:SetFrameLevel(hp:GetFrameLevel()+3)
 	self.Overlay = overlay
 
 	-- Name
@@ -422,6 +418,16 @@ local function InitFrame(settings, self)
 		self:AddAuraIcon(ccicon, "PvPDebuff")
 	end
 
+	-- Threat glow
+	local threat = CreateFrame("Frame", nil, self)
+	threat:SetAllPoints(self.Border)
+	threat:SetBackdrop(glowBorderBackdrop)
+	threat:SetBackdropColor(0,0,0,0)
+	threat.SetVertexColor = threat.SetBackdropBorderColor
+	threat:SetAlpha(0.75)
+	threat:SetFrameLevel(self:GetFrameLevel()+2)
+	self.Threat = threat
+	
 	-- Role/Raid icon
 	local roleIcon = overlay:CreateTexture(nil, "OVERLAY")
 	roleIcon:SetWidth(8)
