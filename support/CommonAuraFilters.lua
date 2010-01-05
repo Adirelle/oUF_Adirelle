@@ -38,12 +38,13 @@ do
 			Ignis the Furnace Master
 				SlagPot: 62717, 63477, 65720, 65722, 65723 = 100
 			The Iron Council
-				Overwhelm: 64637, 61888 = 100
+				Overwhelming Power: 64637, 61888 = 100
 			Kologarn
-				Grip: 64290, 64292 = 100
+				Stone Grip: 64290, 64292, 62056, 62166, 63985, 62166, 63981 = 80
+				Crunch Armor: 63355, 64002 = 100
 			Freya
-				Root: 62861, 62930, 62283, 62438 = 100
-				Fury: 62589, 63571 = 100
+				Iron Roots: 62861, 62930, 62283, 62438 = 80
+				Nature's Fury: 62589, 63571 = 100
 			Hodir
 				Flash-freezed: 61969, 61990 = 100
 			Thorim
