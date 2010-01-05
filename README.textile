@@ -1,15 +1,19 @@
 oUF_Adirelle provides both raid and single unit frames built on top of oUF.
 
-This addon has been originally written for personal use and taste. 
+This addon has been originally written for personal use and taste.
 It borrows ideas from existing raid and unit frame addons.
 
-It has been tested and includes specific settings for the following classes: 
-hunter, druid, paladin, warlock, priest, shaman, death knight.
+It has been tested and includes specific settings for the following classes:
+hunter, druid, paladin, warlock, priest, shaman, death knight. It should
+obviously work fine with other classes as well.
 
-I do not plan to add configuration options. Nevertheless, one can easily move 
+I do not plan to add configuration options. Nevertheless, one can move
 and resize the frames using the "/oufa" chat command.
 
-Though oUF_Adirelle embeds and uses some libraries, they are all optional and 
+Single unit frames and party/raid unit frames could be disabled separately by
+disabling corresponding addons.
+
+Though oUF_Adirelle embeds and uses some libraries, they are all optional and
 could be safely removed (just delete the "libs" directory).
 
 h2. Features
@@ -20,28 +24,25 @@ h3. Common features
 * colored border:
 ** white: current target,
 ** blue: low mana,
-** red/orange/yellow: threat status. 
-* shows visual incoming heal overlays, thanks to LibHealComm-4.0 ; this includes casted heals as well as HoTs.
+** red/orange/yellow: threat status.
 * display raid target icons,
-* uses default LibSharedMedia texture (this can be changed using SurfaceControl),
-* fades out of range targets, using spell range checks (which is a bit more accurate than generic range checking). 
-* fast health updates using LibQuickHealth-2.0.
+* displays important debuff for some PvE encounters (Ulduar, Coliseum and Ice Crown Citadel).
+* fades out of range targets, using spell range checks (which is a bit more accurate than generic range checking).
 
 h3. Group unit frames
 
 * automatically chooses best layout given the group status and/or instance, amongst:
-** party and pets (solo, party, arena),
-** 10, 15, 25 or 40-man layout given the raid size or instance size. 
+** party and pets (party and arena),
+** 10, 15, 25 or 40-man layout given the raid size or instance size.
 * health bar fills from right to left when unit loses life,
 * displays important buffs,
 * displays curable debuffs,
 * displays small icons in corners for heal related auras,
-* in PvP party (arena), displays CC icons below party frames, using DRData-1.0.
 * ready check icon,
 * special status icon:
 ** skull: dead unit,
 ** lightning: disconnected unit,
-** whirlwind: out of view (either really far unit or unit in another instance). 
+** whirlwind: out of view (either really far unit or unit in another instance).
 
 h3. Single unit frames
 
@@ -53,4 +54,17 @@ h3. Single unit frames
 * shows elite/rare dragon decoration,
 * integrated DK rune bar,
 * also shows druid mana in cat/bear form,
-* shows raid/party roles and PvP status.
+* shows raid/party roles and PvP status,
+* when in group, displays a small threat bar on target frame.
+
+h2. Library related features
+
+The following feature are available using libraries:
+
+* fast health updating: LibQuickHealth-2.0 (provided).
+* visual incoming heal display: LibHealComm-4.0 (provided).
+* bar texturing: LibSharedMedia-3.0 (provided).
+* frame positionning and ConfigMode support: LibMovable-1.0 (provided).
+* PvP crowd control icons: DRData-1.0 (provided).
+* spec-based role icons: LibGroupTalents-1.0 (optional ; if you would like to enable this feature, you should install both LibTalentQuery-1.0 and LibGroupTalents-1.0).
+
