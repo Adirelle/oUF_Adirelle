@@ -108,12 +108,6 @@ local function SpawnStatusBar(self, noText, from, anchor, to, xOffset, yOffset)
 	return bar
 end
 
-local function PostCreateAuraIcon(self, button, icons, index, debuff)
-	button.icon:SetTexCoord(0.05, 0.95, 0.05, 0.95)
-	button.cd:SetReverse(true)
-	button.cd:SetDrawEdge(true)
-end
-
 local UpdateIncomingHeal, PostUpdateHealth, PostIncomingHealTextureUpdate
 if oUF.HasIncomingHeal then
 	local function UpdateHealBar(bar, current, max, incomingHeal)
@@ -143,15 +137,82 @@ if oUF.HasIncomingHeal then
 	end
 end
 
-local function playerBuffFilter(icons, unit, icon, name, rank, texture, count, dtype, duration, timeLeft, caster)
-	if name then
-		if icon.debuff then return true end
-		icon.isPlayer = (caster == 'player' or caster == 'vehicle' or caster == 'pet')
-		icon.owner = caster
-		duration = tonumber(duration) or 0
-		return icon.isPlayer and duration > 0 and duration < 30
-	else
-		icon.isPlayer, icon.owner = nil, nil
+local function PostCreateAuraIcon(self, button, icons, index, debuff)
+	--button.icon:SetTexCoord(0.05, 0.95, 0.05, 0.95)
+	button.cd.noCooldownCount = true
+	button.cd:SetReverse(true)
+	button.cd:SetDrawEdge(true)
+end
+
+
+local CUREABLE_DEBUFF_TYPE = {
+	Curse = (playerClass == "DRUID" or playerClass == "MAGE"),
+	Disease = (playerClass == "PRIEST" or playerClass == "PALADIN" or playerClass == "SHAMAN"),
+	Magic = (playerClass == "PRIEST" or playerClass == "PALADIN" or playerClass == "WARLOCK"),
+	Poison = (playerClass == "DRUID" or playerClass == "PALADIN" or playerClass == "SHAMAN"),
+}
+
+local OFFENSIVE_DISPELL = (playerClass == "SHAMAN" or playerClass == "PRIEST" or playerClass == "HUNTER" or playerClass == "WARLOCK")
+
+local function CustomAuraFilter(icons, unit, icon, name, rank, texture, count, dtype, duration, timeLeft, caster, isStealable, shouldConsolidate, spellID)
+	if not name then
+		icon.isPlayer, icon.owner, icon.bigger = nil, nil, nil
+		return
+	end
+	icon.owner, icon.isPlayer = caster, (caster == 'player' or caster == 'vehicle' or caster == 'pet')
+	icon.bigger = icon.isPlayer
+	if UnitCanAttack("player", unit) then
+		-- Enemy
+		if not icon.debuff then
+			icon.bigger = (dtype == "Magic" and OFFENSIVE_DISPELL) or (playerClass == "MAGE" and isStealable)
+		end
+	elseif UnitCanAssist("player", unit) then		
+		-- Friend
+		if not duration or duration == 0 then
+			return false
+		elseif icon.debuff then
+			icon.bigger = dtype and CUREABLE_DEBUFF_TYPE[dtype]
+		elseif InCombatLockdown() and shouldConsolidate then 
+			return false 
+		end
+	end
+	return true
+end
+
+local function SetAuraPosition(self, icons, numIcons)
+	if not icons or numIcons == 0 then return end
+	local spacing = icons.spacing or 0
+	local defaultSize = icons.size or 16
+	local anchor = icons.initialAnchor or "BOTTOMLEFT"
+	local growthx = (icons["growth-x"] == "LEFT" and -1) or 1
+	local growthy = (icons["growth-y"] == "DOWN" and -1) or 1
+	local x = 0
+	local y = 0
+	local rowHeight = defaultSize
+	local width = icons:GetWidth()
+	local height = icons:GetHeight()
+
+	for i = 1, #icons do
+		local button = icons[i]
+		if button and button:IsShown() then
+			local size = defaultSize
+			if button.bigger then
+				size = icons.bigSize or size * 1.5
+				rowHeight = size
+			end
+
+			if x >= width  then
+				x, y, rowSize = 0, y + rowHeight + spacing, defaultSize
+			end
+			button:ClearAllPoints()
+			button:SetPoint(anchor, icons, anchor, x * growthx, y * growthy)
+			button:SetWidth(size)
+			button:SetHeight(size)
+
+			x = x + size + spacing
+		elseif(not button) then
+			break
+		end
 	end
 end
 
@@ -417,7 +478,7 @@ local function InitFrame(settings, self)
 	threat:SetBackdrop(glowBorderBackdrop)
 	threat:SetBackdropColor(0,0,0,0)
 	threat.SetVertexColor = threat.SetBackdropBorderColor
-	threat:SetAlpha(0.75)
+	threat:SetAlpha(glowBorderBackdrop.alpha)
 	threat:SetFrameLevel(self:GetFrameLevel()+2)
 	self.Threat = threat
 	
@@ -470,8 +531,8 @@ local function InitFrame(settings, self)
 		buffs:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, FRAME_MARGIN)
 		buffs:SetHeight(AURA_SIZE * 2)
 		self.Buffs = buffs
-		self.CustomAuraFilter = playerBuffFilter
-	elseif unit == "target" or unit == "player" or unit == "focus" then
+		--self.CustomAuraFilter = PetBuffFilter
+	elseif unit == "target" or unit == "focus" then
 		local buffs = CreateFrame("Frame", nil, self)
 		buffs:SetPoint("BOTTOM"..right, self, "BOTTOM"..left, -FRAME_MARGIN*dir, 0)
 		buffs.num = 12
@@ -484,21 +545,20 @@ local function InitFrame(settings, self)
 		buffs['growth-y'] = "UP"
 		self.Buffs = buffs
 
-		if unit ~= "player" then
-			local debuffs = CreateFrame("Frame", nil, self)
-			debuffs:SetPoint("TOP"..right, self, "TOP"..left, -FRAME_MARGIN*dir, 0)
-			debuffs.num = 24
-			debuffs.showType = true
-			debuffs:SetWidth(12 * AURA_SIZE)
-			debuffs:SetHeight(2 * AURA_SIZE)
-			debuffs.initialAnchor = "TOP"..right
-			debuffs['growth-x'] = left
-			debuffs['growth-y'] = "DOWN"
-			self.Debuffs = debuffs
-		else
-			self.CustomAuraFilter = playerBuffFilter
-		end
+		local debuffs = CreateFrame("Frame", nil, self)
+		debuffs:SetPoint("TOP"..right, self, "TOP"..left, -FRAME_MARGIN*dir, 0)
+		debuffs.num = 24
+		debuffs.showType = true
+		debuffs:SetWidth(12 * AURA_SIZE)
+		debuffs:SetHeight(2 * AURA_SIZE)
+		debuffs.initialAnchor = "TOP"..right
+		debuffs['growth-x'] = left
+		debuffs['growth-y'] = "DOWN"
+		self.Debuffs = debuffs
+		
 	end
+	self.CustomAuraFilter = CustomAuraFilter
+	self.SetAuraPosition = SetAuraPosition
 
 	if self.Buffs then
 		self.Buffs.size = AURA_SIZE
