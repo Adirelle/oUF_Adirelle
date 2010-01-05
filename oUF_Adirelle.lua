@@ -49,6 +49,6 @@ backdrop = {
 
 -- Glow border backdrop
 glowBorderBackdrop = {
-	edgeFile = [[Interface\AddOns\oUF_Adirelle\media\glowborder]], 
-	edgeSize = 5,
+	edgeFile = [[Interface\AddOns\oUF_Adirelle\media\glowborder]], edgeSize = 3, alpha = 1,
+	--edgeFile = [[Interface\AddOns\oUF_Adirelle\media\white16x16]], edgeSize = 2, alpha = 0.5,
 }
