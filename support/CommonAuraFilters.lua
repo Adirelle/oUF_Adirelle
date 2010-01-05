@@ -21,22 +21,22 @@ do
 	local DEBUFFS_STR = [=[
 		Forge of Souls
 			Devourer of Souls
-				Mirrored Soul: 69051 = 100
+				Mirrored Soul: 69051, 69023, 69034 = 100
 		Pit of Saron
 			Krick and Ick
 				Pursuit: 68987 = 100
 			Scourgelord Tyrannus
 				Mark of Rimefang: 69275 = 80
-				Overlords' Brand: 69172 = 100
+				Overlords' Brand: 69190, 69189, 69172 = 100
 		Halls of Reflection
 			Marwyn
-				Corrupted Touch: 72383 = 100
+				Corrupted Touch: 72383, 72450 = 100
 		Ulduar
 			XT-002 Deconstructor
-				Gravity Bomb: 63024, 64234 = 100
-				Light Bomb: 63018, 65121 = 100
+				Gravity Bomb: 63024, 63025, 64234, 64233 = 100
+				Seearing Light: 63018, 63023, 65120, 65121 = 100
 			Ignis the Furnace Master
-				SlagPot: 62717, 63477 = 100
+				SlagPot: 62717, 63477, 65720, 65722, 65723 = 100
 			The Iron Council
 				Overwhelm: 64637, 61888 = 100
 			Kologarn
