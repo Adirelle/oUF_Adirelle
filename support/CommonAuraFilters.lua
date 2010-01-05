@@ -33,14 +33,14 @@ do
 				Corrupted Touch: 72383, 72450 = 100
 		Ulduar
 			XT-002 Deconstructor
-				Gravity Bomb: 63024, 63025, 64234, 64233 = 100
-				Seearing Light: 63018, 63023, 65120, 65121 = 100
+				Gravity Bomb: 63024, 64234 = 100
+				Seearing Light: 63018, 65121 = 100
 			Ignis the Furnace Master
-				SlagPot: 62717, 63477, 65720, 65722, 65723 = 100
+				SlagPot: 62717, 63477 = 100
 			The Iron Council
 				Overwhelming Power: 64637, 61888 = 100
 			Kologarn
-				Stone Grip: 64290, 64292, 62056, 62166, 63985, 62166, 63981 = 80
+				Stone Grip: 64290, 64292 = 80
 				Crunch Armor: 63355, 64002 = 100
 			Freya
 				Iron Roots: 62861, 62930, 62283, 62438 = 80
@@ -56,7 +56,7 @@ do
 				Insane: 63120 = 100
 		Coliseum
 			Gormok
-				Impale: 67477 = 100
+				Impale: 67477, 66331, 67478, 67479 = 100
 				Snobolled: 66406 = 100
 			Jormungars
 				Toxin: 67618, 67619, 67620, 66823 = 100
@@ -76,14 +76,12 @@ do
 				Pursue: 67574 = 100
 		Icecrown Citadel
 			Lord Marrowgar
-				Coldflame: 69146 = 80
 				Impale: 69065 = 100
 			Lady Deathwhisper
-				Death and Decay: 71001 = 80
 				Dominate Mind: 71289 = 100
 			Saurfang
-				Boiling Blood: 72385 = 60
-				Rune of Blood: 72408 = 80
+				Boiling Blood: 72385, 72441, 72442, 72443 = 60
+				Rune of Blood: 72408, 72409, 72410, 72447, 72448, 72449 = 80
 				Mark: 72293 = 100
 			Rotface
 				Infection: 69674, 71224 = 100
@@ -105,12 +103,7 @@ do
 	for def, ids, priority in DEBUFFS_STR:gmatch('((%d[%d%s,]*)%s*=%s*(%d+))') do
 		priority = tonumber(priority)
 		for id in ids:gmatch("(%d+)") do
-			local name = GetSpellInfo(tonumber(id))
-			if name then
-				DEBUFFS[name] = priority
-			else
-				geterrorhandler()("InlineAura: unknown spell #"..id.." in "..def)
-			end
+			DEBUFFS[tonumber(id)] = priority
 		end
 	end
 
@@ -119,11 +112,11 @@ do
 		if iType ~= 'party' and iType ~= 'raid' then return end
 		local curPrio, curName, curTexture, curCount, curDebuffType, curDuration, curExpirationTime
 		for i = 1, 255 do
-			local name, _, texture, count, debuffType, duration, expirationTime = UnitDebuff(unit, i)
+			local name, _, texture, count, debuffType, duration, expirationTime, _, _, _, spellId = UnitDebuff(unit, i)
 			if not name then
 				break
 			else
-				local prio = DEBUFFS[name]
+				local prio = DEBUFFS[spellId]
 				if prio and (not curPrio or prio > curPrio) then
 					curPrio, curName, curTexture, curCount, curDebuffType, curDuration, curExpirationTime = prio, name, texture, count, debuffType, duration, expirationTime
 				end
