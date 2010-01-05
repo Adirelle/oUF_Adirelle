@@ -420,11 +420,11 @@ local function InitFrame(settings, self)
 
 	-- Threat glow
 	local threat = CreateFrame("Frame", nil, self)
-	threat:SetAllPoints(self.Border)
+	threat:SetAllPoints(self)
 	threat:SetBackdrop(glowBorderBackdrop)
 	threat:SetBackdropColor(0,0,0,0)
 	threat.SetVertexColor = threat.SetBackdropBorderColor
-	threat:SetAlpha(0.75)
+	threat:SetAlpha(glowBorderBackdrop.alpha)
 	threat:SetFrameLevel(self:GetFrameLevel()+2)
 	self.Threat = threat
 	
