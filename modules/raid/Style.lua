@@ -98,6 +98,8 @@ local function UpdateHealth(self, event, unit, bar, current, max)
 	if isDisconnected or isDead then
 		bar:SetValue(max)
 		r, g, b = unpack(self.colors.disconnected)
+	elseif UnitCanAttack("player", unit) then
+		r, g, b = 1, 0.2, 0
 	elseif UnitHasVehicleUI(SecureButton_GetUnit(self)) then
 		r, g, b = 0.2, 0.6, 0
 	elseif UnitName(unit) ~= UNKNOWN then
