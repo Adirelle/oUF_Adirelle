@@ -16,9 +16,9 @@ local ipairs = ipairs
 setfenv(1, _G.oUF_Adirelle)
 
 local LAYOUTS = {
-	[1] = { '1', pets = true },
-	[5] = { '1', pets = true },
-	[10] = { '1', '2' },
+	[1] = { '1', pets = "party" },
+	[5] = { '1', pets = "party" },
+	[10] = { '1', '2', pets = "raid" },
 	[15] = { '1', '2', '3' },
 	[20] = { '1', '2', '3', '4' },
 	[25] = { '1', '2', '3', '4', '5' },
@@ -54,7 +54,8 @@ anchor:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, 230)
 anchor:SetHeight(0.1)
 
 -- Raid groups
-local raid = {}
+local headers = {}
+local petHeaders = {}
 
 for group = 1, 8 do
 	local header = oUF:Spawn("header", "oUF_Raid" .. group)
@@ -68,14 +69,14 @@ for group = 1, 8 do
 	header:SetScale(SCALE)
 	header:SetParent(anchor)
 	if group > 1 then
-		header:SetPoint("BOTTOMLEFT", raid[group - 1], "TOPLEFT", 0, SPACING)
+		header:SetPoint("BOTTOMLEFT", headers[group - 1], "TOPLEFT", 0, SPACING)
 	else
 		header:SetPoint("BOTTOMLEFT", anchor, ANCHOR_BORDER_WIDTH, ANCHOR_BORDER_WIDTH)
 	end
-	raid[group] = header
+	headers[group] = header
 end
 
-raid[1]:SetManyAttributes(
+headers[1]:SetManyAttributes(
 	"showParty", true,
 	"showPlayer", true
 )
@@ -90,11 +91,32 @@ do
 		"point", "LEFT",
 		"xOffset", SPACING
 	)
-	header.isPets = true
+	header.isPets = "party"
+	header.petGroupFilter = 1
 	header:SetScale(SCALE)
-	header:SetPoint("BOTTOMLEFT", raid[1], "TOPLEFT", 0, SPACING)
+	header:SetAllPoints(headers[2])
 	header:SetParent(anchor)
-	raid['PartyPets'] = header
+	header:Hide()
+	petHeaders.party = header
+	
+	-- Raid pets
+	for group = 1, 2 do
+		local header = oUF:Spawn("header", "oUF_Raid"..group.."Pets", "SecureGroupPetHeaderTemplate")
+		header:SetManyAttributes(
+			"showRaid", true,
+			"showPlayer", true,
+			"groupFilter", group,
+			"point", "LEFT",
+			"xOffset", SPACING
+		)
+		header.isPets = "raid"
+		header.petGroupFilter = group
+		header:SetScale(SCALE)
+		header:SetAllPoints(headers[group+2])
+		header:SetParent(anchor)
+		header:Hide()
+		petHeaders['raid'..group] = header
+	end
 end
 
 local function GetLayoutType()
@@ -129,28 +151,32 @@ local lastLayoutType, lastNumColumns
 local function ApplyRaidLayout(layoutType)
 	local layout = layoutType and LAYOUTS[layoutType]
 	if layout then
-		if layout.pets then
-			raid.PartyPets:Show()
-		else
-			raid.PartyPets:Hide()
+		for _, header in pairs(petHeaders) do
+			if header.isPets == layout.pets then
+				header:SetAttribute('groupFilter', header.petGroupFilter)
+				header:Show()
+			else
+				header:SetAttribute('groupFilter', '')
+				header:Hide()
+			end
 		end
 		local height = layout.height or HEIGHT
 		raid_style['initial-height'] = height
-		for groupNum = 1, 8 do
-			local group, filter = raid[groupNum], layout[groupNum]
+		for group = 1, 8 do
+			local header, filter = headers[group], layout[group]
 			if filter then
-				group:SetAttribute('groupFilter', filter)
-				group:Show()
+				header:SetAttribute('groupFilter', filter)
+				header:Show()
 				for i = 1, 5 do
-					local frame = _G[group:GetName().."UnitButton"..i]
+					local frame = _G[header:GetName().."UnitButton"..i]
 					if frame then
 						frame:SetAttribute('initial-height', height)
 						frame:SetHeight(height)
 					end
 				end
 			else
-				group:SetAttribute('groupFilter', '')
-				group:Hide()
+				header:SetAttribute('groupFilter', '')
+				header:Hide()
 			end
 		end
 	else
@@ -176,7 +202,7 @@ local function OnUpdate()
 		if dirtyPosition then
 			dirtyPosition = nil
 			local width = 0, 0, 0
-			for name, header in pairs(raid) do
+			for _, header in pairs(headers) do
 				if header:IsVisible() then
 					width = math.max(width, header:GetWidth())
 				end
@@ -203,7 +229,13 @@ updateFrame:RegisterEvent('PLAYER_REGEN_ENABLED')
 updateFrame:RegisterEvent('PLAYER_ENTERING_WORLD')
 updateFrame:RegisterEvent('PARTY_MEMBERS_CHANGED')
 
-for _, header in pairs(raid) do
+for _, header in pairs(headers) do
+	header:HookScript('OnShow', CheckPosition)
+	header:HookScript('OnHide', CheckPosition)
+	header:HookScript('OnSizeChanged', CheckPosition)
+end
+
+for _, header in pairs(petHeaders) do
 	header:HookScript('OnShow', CheckPosition)
 	header:HookScript('OnHide', CheckPosition)
 	header:HookScript('OnSizeChanged', CheckPosition)
