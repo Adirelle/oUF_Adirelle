@@ -6,5 +6,6 @@
 ## RequiredDeps: oUF_Adirelle
 ## LoadManagers: AddonLoader
 ## X-LoadOn-Group: true
+## X-ConfigMode: true
 
 ..\oUF_Adirelle\modules\raid\module.xml
