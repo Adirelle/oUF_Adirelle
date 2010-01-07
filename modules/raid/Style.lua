@@ -280,9 +280,9 @@ do
 		local importantBuff = self:SpawnAuraIcon(self.Overlay, ICON_SIZE)
 		self:AddAuraIcon(importantBuff, "ClassImportantBuff")
 
-		-- Show encounter debuffs
-		local encounterDebuff = self:SpawnAuraIcon(self.Overlay, ICON_SIZE)
-		self:AddAuraIcon(encounterDebuff, "EncounterDebuff")
+		-- Show important debuffs
+		local importantDebuff = self:SpawnAuraIcon(self.Overlay, ICON_SIZE)
+		self:AddAuraIcon(importantDebuff, "ImportantDebuff")
 
 		local cureableDebuffFilter = CreateClassAuraIcons and CreateClassAuraIcons(self)		
 		if cureableDebuffFilter then
@@ -293,11 +293,11 @@ do
 			-- Layout icons
 			importantBuff:SetPoint("CENTER", self, "LEFT", WIDTH * 0.25, 0)
 			debuff:SetPoint("CENTER")
-			encounterDebuff:SetPoint("CENTER", self, "LEFT", WIDTH * 0.75, 0)			
+			importantDebuff:SetPoint("CENTER", self, "LEFT", WIDTH * 0.75, 0)			
 		else
 			-- Layout icons
 			importantBuff:SetPoint("CENTER", self, "LEFT", WIDTH * 0.33, 0)
-			encounterDebuff:SetPoint("CENTER", self, "LEFT", WIDTH * 0.66, 0)			
+			importantDebuff:SetPoint("CENTER", self, "LEFT", WIDTH * 0.66, 0)			
 		end
 
 	end
@@ -409,7 +409,8 @@ local function InitFrame(settings, self)
 	-- Aura icons
 	CreateAuraIcons(self)
 
-	-- Crowd control icon
+	--[[ Crowd control icon
+	-- Now handled by the "ImportantDebuff" filter
 	local header = self:GetParent()
 	if oUF:HasAuraFilter("PvPDebuff") and header.isParty and not header.isPets then
 		local ccicon = self:SpawnAuraIcon(self, 32)
@@ -417,6 +418,7 @@ local function InitFrame(settings, self)
 		ccicon.doNotBlink = true
 		self:AddAuraIcon(ccicon, "PvPDebuff")
 	end
+	--]]
 
 	-- Threat glow
 	local threat = CreateFrame("Frame", nil, self)

@@ -11,6 +11,8 @@ local DebuffTypeColor = DebuffTypeColor
 -- Use our own namespace
 setfenv(1, _G.oUF_Adirelle)
 
+local EncounterDebuff, PvPDebuff
+
 -- ------------------------------------------------------------------------------
 -- PvE encounter debuffs
 -- ------------------------------------------------------------------------------
@@ -106,8 +108,8 @@ do
 			DEBUFFS[tonumber(id)] = priority
 		end
 	end
-
-	oUF:AddAuraFilter("EncounterDebuff", function(unit)
+	
+	function EncounterDebuff(unit)
 		local _, iType = IsInInstance()
 		if iType ~= 'party' and iType ~= 'raid' then return end
 		local curPrio, curName, curTexture, curCount, curDebuffType, curDuration, curExpirationTime
@@ -131,6 +133,111 @@ do
 			end
 			return curTexture, curCount, curExpirationTime-curDuration, curDuration, r, g, b
 		end
-	end)
+	end
+
+	oUF:AddAuraFilter("EncounterDebuff", EncounterDebuff)
 end
 
+-- ------------------------------------------------------------------------------
+-- PvP control debuff filter
+-- ------------------------------------------------------------------------------
+
+local drdata = LibStub and LibStub('DRData-1.0', true)
+if drdata then
+	Debug('Using DRData-1.0')
+
+	local IGNORED = -1
+	local SPELL_CATEGORIES = {}
+	local DEFAULT_PRIORITIES = {
+		banish = 100,
+		cyclon = 100,
+		mc = 100,
+		ctrlstun = 90,
+		rndstun = 90,
+		cheapshot = 90,
+		charge = 90,
+		fear = 80,
+		horror = 80,
+		sleep = 60,
+		disorient = 60,
+		scatters = 60,
+		silence = 50,
+		disarm = 50,
+		ctrlroot = 40,
+		rndroot = 40,
+		entrapment = 40,
+	}
+	local CLASS_PRIORITIES = {
+		HUNTER = {
+			silence = IGNORED,
+		},
+		WARRIOR = {
+			silence = IGNORED,
+		},
+		ROGUE = {
+			silence = IGNORED,
+		},
+		DRUID = {
+			disarm = IGNORED,
+		},
+		PRIEST = {
+			disarm = IGNORED,
+		},
+		WARLOCK = {
+			disarm = IGNORED,
+		},
+		MAGE = {
+			disarm = IGNORED,
+		},
+	}
+	for id, cat in pairs(drdata:GetSpells()) do
+		local name = GetSpellInfo(id)
+		if name and DEFAULT_PRIORITIES[cat] then
+			SPELL_CATEGORIES[name] = cat
+		end
+	end
+	do
+		local meta = { __index = DEFAULT_PRIORITIES }
+		for name, t in pairs(CLASS_PRIORITIES) do
+			CLASS_PRIORITIES[name] = setmetatable(t, meta)
+		end
+	end
+	
+	function PvPDebuff(unit)
+		if not UnitIsPVP(unit) then return end 
+		local _, className = UnitClass(unit)
+		local classPriorities = CLASS_PRIORITIES[className] or DEFAULT_PRIORITIES
+		local curPrio, curTexture, curCount, curExpTime, curDuration, curDebuffType = IGNORED
+		for index = 1, 256 do
+			local name, _, icon, count, debuffType, duration, expirationTime = UnitDebuff(unit, index)
+			if not name then break end
+			local priority = classPriorities[SPELL_CATEGORIES[name] or false]
+			if priority and priority > curPrio then
+				curPrio, curTexture, curCount, curExpTime, curDuration, curDebuffType = priority, icon, count, expirationTime, duration, debuffType
+			end
+		end
+		if curTexture then
+			local color = DebuffTypeColor[curDebuffType or "none"]
+			return curTexture, curCount, curExpTime-curDuration, curDuration, color.r, color.g, color.b
+		end
+	end
+
+	oUF:AddAuraFilter("PvPDebuff", PvPDebuff)
+end
+
+-- ------------------------------------------------------------------------------
+-- Important debuff
+-- ------------------------------------------------------------------------------
+
+if PvPDebuff then
+	oUF:AddAuraFilter("ImportantDebuff", function(...)
+		local texture, count, start, duration, r, g, b = PvPDebuff(...) 
+		if texture then
+			return texture, count, start, duration, r, g, b
+		else
+			return EncounterDebuff(...)			
+		end
+	end)
+else
+	oUF:AddAuraFilter("ImportantDebuff", EncounterDebuff)
+end
