@@ -41,7 +41,7 @@ end
 -- Health point formatting
 local function SmartHPValue(value)
 	if abs(value) >= 1000 then
-		return strformat("%.1fk", value/1000)
+		return strformat("%dk", math.floor(value/1000+0.5))
 	else
 		return strformat("%d", value)
 	end
@@ -51,16 +51,15 @@ end
 local function UpdateName(self, unit, current, max, incomingHeal)
 	local r, g, b = unpack(self.bgColor)
 	local unitName = GetShortUnitName(SecureButton_GetUnit(self) or unit)
-	if UnitIsConnected(unit) and not UnitIsDeadOrGhost(unit) then
+	if UnitIsConnected(unit) and not UnitIsDeadOrGhost(unit) and not UnitCanAttack("player", unit) then
 		local overHeal = current and max and incomingHeal and (current + incomingHeal - max)
-		if overHeal and overHeal > 0 then
-			unitName, r, g, b = "+"..SmartHPValue(overHeal), 0, 1, 0
-		elseif current < 0.4 * max then
-			unitName, r, g, b = SmartHPValue(current), 1, 0, 0
+		if overHeal and overHeal > max / 10 then
+			local overHealStr = "+"..SmartHPValue(overHeal)
+			unitName = strsub(unitName, 1, 10-strlen(overHealStr))..'|cff00ff00'..overHealStr..'|r'
 		end
 	end
-	self.Name:SetText(unitName)
 	self.Name:SetTextColor(r, g, b, 1)
+	self.Name:SetText(unitName)
 end
 
 -- Update incoming heal display
@@ -93,9 +92,8 @@ end
 
 -- Update name and health bar on health change
 local function UpdateHealth(self, event, unit, bar, current, max)
-	local isDisconnected, isDead = not UnitIsConnected(unit), UnitIsDeadOrGhost(unit)
 	local r, g, b = 0.5, 0.5, 0.5
-	if isDisconnected or isDead then
+	if not UnitIsConnected(unit) or UnitIsDeadOrGhost(unit) then
 		bar:SetValue(max)
 		r, g, b = unpack(self.colors.disconnected)
 	elseif UnitCanAttack("player", unit) then
