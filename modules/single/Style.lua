@@ -364,10 +364,10 @@ local function InitFrame(settings, self)
 		portrait:SetPoint(left)
 		self.Portrait = portrait
 
-		-- Spawn an PvE encounter debuff that spans all over the portrait
-		local encounterDebuff = self:SpawnAuraIcon(portrait)
-		encounterDebuff:SetAllPoints(portrait)
-		self:AddAuraIcon(encounterDebuff, "EncounterDebuff")
+		-- Create an icon displaying important debuffs (either PvP or PvE) all over the portrait
+		local importantDebuff = self:SpawnAuraIcon(portrait)
+		importantDebuff:SetAllPoints(portrait)
+		self:AddAuraIcon(importantDebuff, "ImportantDebuff")
 
 		-- Spawn a container frame that spans remaining space
 		barContainer = CreateFrame("Frame", nil, self)
