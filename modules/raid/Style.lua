@@ -41,7 +41,7 @@ end
 -- Health point formatting
 local function SmartHPValue(value)
 	if abs(value) >= 1000 then
-		return strformat("%dk", math.floor(value/1000+0.5))
+		return strformat("%.1fk",value/1000)
 	else
 		return strformat("%d", value)
 	end
@@ -52,10 +52,13 @@ local function UpdateName(self, unit, current, max, incomingHeal)
 	local r, g, b = unpack(self.bgColor)
 	local unitName = GetShortUnitName(SecureButton_GetUnit(self) or unit)
 	if UnitIsConnected(unit) and not UnitIsDeadOrGhost(unit) and not UnitCanAttack("player", unit) then
-		local overHeal = current and max and incomingHeal and (current + incomingHeal - max)
-		if overHeal and overHeal > max / 10 then
-			local overHealStr = "+"..SmartHPValue(overHeal)
-			unitName = strsub(unitName, 1, 10-strlen(overHealStr))..'|cff00ff00'..overHealStr..'|r'
+		local overHeal = current and max and incomingHeal and (current + incomingHeal - max) or 0
+		local f = overHeal / max
+		if f > 0.1 then
+			r, g, b = 0, 1, 0
+			if f > 0.3 then
+				unitName = "+"..SmartHPValue(overHeal)
+			end
 		end
 	end
 	self.Name:SetTextColor(r, g, b, 1)
