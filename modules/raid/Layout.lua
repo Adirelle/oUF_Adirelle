@@ -94,7 +94,7 @@ do
 	header.isPets = "party"
 	header.petGroupFilter = 1
 	header:SetScale(SCALE)
-	header:SetAllPoints(headers[2])
+	header:SetPoint("BOTTOMLEFT", headers[1], "TOPLEFT", 0, SPACING)
 	header:SetParent(anchor)
 	header:Hide()
 	petHeaders.party = header
@@ -112,11 +112,12 @@ do
 		header.isPets = "raid"
 		header.petGroupFilter = group
 		header:SetScale(SCALE)
-		header:SetAllPoints(headers[group+2])
 		header:SetParent(anchor)
 		header:Hide()
 		petHeaders['raid'..group] = header
 	end
+	petHeaders.raid1:SetPoint("BOTTOMLEFT", headers[2], "TOPLEFT", 0, SPACING)
+	petHeaders.raid2:SetPoint("BOTTOMLEFT", petHeaders.raid1, "TOPLEFT", 0, SPACING)
 end
 
 local function GetLayoutType()
@@ -148,36 +149,33 @@ end
 
 local lastLayoutType, lastNumColumns
 
+local function SetHeaderLayout(header, filter, height)
+	if filter then	
+		for i = 1, 5 do
+			local frame = _G[header:GetName().."UnitButton"..i]
+			if frame then
+				frame:SetAttribute('initial-height', height)
+				frame:SetHeight(height)
+			end
+		end
+		header:Show()	
+		header:SetAttribute('groupFilter', filter)
+	else
+		header:SetAttribute('groupFilter', '')
+		header:Hide()		
+	end
+end
+
 local function ApplyRaidLayout(layoutType)
 	local layout = layoutType and LAYOUTS[layoutType]
 	if layout then
-		for _, header in pairs(petHeaders) do
-			if header.isPets == layout.pets then
-				header:SetAttribute('groupFilter', header.petGroupFilter)
-				header:Show()
-			else
-				header:SetAttribute('groupFilter', '')
-				header:Hide()
-			end
-		end
 		local height = layout.height or HEIGHT
 		raid_style['initial-height'] = height
+		for _, header in next, petHeaders do
+			SetHeaderLayout(header, (header.isPets == layout.pets) and header.petGroupFilter, height)
+		end
 		for group = 1, 8 do
-			local header, filter = headers[group], layout[group]
-			if filter then
-				header:SetAttribute('groupFilter', filter)
-				header:Show()
-				for i = 1, 5 do
-					local frame = _G[header:GetName().."UnitButton"..i]
-					if frame then
-						frame:SetAttribute('initial-height', height)
-						frame:SetHeight(height)
-					end
-				end
-			else
-				header:SetAttribute('groupFilter', '')
-				header:Hide()
-			end
+			SetHeaderLayout(headers[group], layout[group], height)
 		end
 	else
 		print('No data for layout', layoutType)
