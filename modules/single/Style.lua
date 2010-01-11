@@ -166,7 +166,7 @@ local function CustomAuraFilter(icons, unit, icon, name, rank, texture, count, d
 		if not icon.debuff then
 			icon.bigger = (dtype == "Magic" and OFFENSIVE_DISPELL) or (playerClass == "MAGE" and isStealable)
 		end
-	elseif UnitCanAssist("player", unit) then		
+	elseif unit == "player" or UnitCanAssist("player", unit) then		
 		-- Friend
 		if not duration or duration == 0 then
 			return false
