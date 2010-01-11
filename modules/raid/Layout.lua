@@ -77,6 +77,9 @@ for group = 1, 8 do
 end
 
 headers[1]:SetManyAttributes(
+--@debug@--
+	"showSolo", true,
+--@end-debug@--
 	"showParty", true,
 	"showPlayer", true
 )
@@ -85,6 +88,9 @@ do
 	-- Party pets
 	local header = oUF:Spawn("header", "oUF_PartyPets", "SecureGroupPetHeaderTemplate")
 	header:SetManyAttributes(
+--@debug@--
+		"showSolo", true,
+--@end-debug@--
 		"showParty", true,
 		"showPlayer", true,
 		"groupFilter", 1,
