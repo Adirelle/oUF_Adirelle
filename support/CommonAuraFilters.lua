@@ -87,7 +87,11 @@ do
 				Mark: 72293 = 100
 			Rotface
 				Infection: 69674, 71224 = 100
-			Precious
+			Festergut
+				Gastric Bloat: 72551, 72219 = 60
+				Spores: 69279 = 80
+				Vile Gas: 72272 = 100
+			Precious & Stinky
 				Wound: 71127 = 100
 			Professor Putricide
 				Gaseous Bloat: 72455 = 100
@@ -96,8 +100,6 @@ do
 				Pact: 71340, 71390 = 100
 			Sindragosa
 				Frost Beacon: 70126 = 100
-			Stinky
-				Wound: 71127 = 100
 	]=]
 
 	-- Convert string data to table
