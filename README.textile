@@ -35,7 +35,7 @@ h3. Group unit frames
 ** party and pets (party and arena),
 ** 10, 15, 25 or 40-man layout given the raid size or instance size.
 * health bar fills from right to left when unit loses life,
-* displays important buffs,
+* displays important buffs (like tank cooldowns, feign death, iceblock, ...),
 * displays curable debuffs,
 * displays small icons in corners for heal related auras,
 * ready check icon,
@@ -43,6 +43,7 @@ h3. Group unit frames
 ** skull: dead unit,
 ** lightning: disconnected unit,
 ** whirlwind: out of view (either really far unit or unit in another instance).
+* AddonLoader support: postpone loading of the party/raid module until you join a group.
 
 h3. Single unit frames
 
