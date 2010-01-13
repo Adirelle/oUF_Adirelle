@@ -166,14 +166,14 @@ local function CustomAuraFilter(icons, unit, icon, name, rank, texture, count, d
 		if not icon.debuff then
 			icon.bigger = (dtype == "Magic" and OFFENSIVE_DISPELL) or (playerClass == "MAGE" and isStealable)
 		end
-	elseif unit == "player" or UnitCanAssist("player", unit) then		
+	elseif unit == "player" or UnitCanAssist("player", unit) then
 		-- Friend
 		if not duration or duration == 0 then
 			return false
 		elseif icon.debuff then
 			icon.bigger = dtype and CUREABLE_DEBUFF_TYPE[dtype]
-		elseif InCombatLockdown() and shouldConsolidate then 
-			return false 
+		elseif InCombatLockdown() and shouldConsolidate then
+			return false
 		end
 	end
 	return true
@@ -236,6 +236,22 @@ local function OnSizeChanged(self, width, height)
 
 local SetupAltPower
 if playerClass == 'DEATHKNIGHT' then
+	-- Death Knight Runes
+
+	oUF.colors.runes = oUF.colors.runes or {
+		{ 1, 0, 0  },
+		{ 0, 0.5, 0 },
+		{ 0, 1, 1 },
+		{ 0.8, 0.1, 1 },
+	}
+
+	local function UpdateRuneColor(rune)
+		local color = oUF.colors.runes[GetRuneType(rune.index) or false]
+		if color then
+			rune:SetStatusBarColor(unpack(color))
+		end
+	end
+
 
 	local function LayoutRunes(runeBar)
 		local spacing = (runeBar:GetWidth() + GAP) / 6
@@ -257,6 +273,7 @@ if playerClass == 'DEATHKNIGHT' then
 		for index = 1, 6 do
 			local rune = CreateFrame("StatusBar", nil, runeBar)
 			rune.index = index
+			rune.UpdateRuneColor = UpdateRuneColor
 			self:RegisterStatusBarTexture(rune, UpdateRuneColor)
 			runeBar[index] = rune
 		end
@@ -265,6 +282,7 @@ if playerClass == 'DEATHKNIGHT' then
 
 elseif playerClass == "DRUID" then
 	-- Druid mana bar
+
 	function SetupAltPower(self)
 		local POWERTYPE_MANA = 0
 
@@ -288,6 +306,96 @@ elseif playerClass == "DRUID" then
 
 		return altPower
 	end
+
+elseif playerClass == "SHAMAN" then
+	-- Shaman totems
+
+	do -- Inline totembar implementation
+		local GetTime = GetTime
+		local function OnUpdate(totem)
+			local now = GetTime()
+			if now >= totem.expirationTime then
+				totem:Hide()
+			else
+				totem:SetValue(now)
+			end
+		end
+
+		local function Update(self, event)
+			for index = 1, MAX_TOTEMS do
+				local totem = self.TotemBar[index]
+				local haveTotem, name, start, duration = GetTotemInfo(totem.totemType)
+				if haveTotem and tonumber(start) and tonumber(duration) then
+					totem.expirationTime = start + duration
+					totem:SetMinMaxValues(start, totem.expirationTime)
+					totem:Show()
+				else
+					totem:Hide()
+				end
+			end
+		end
+
+		local function Enable(self)
+			if self.TotemBar then
+				self:RegisterEvent('PLAYER_TOTEM_UPDATE', Update)
+				for index = 1, MAX_TOTEMS do
+					local totem = self.TotemBar[index]
+					totem:HookScript('OnUpdate', OnUpdate)
+					totem:Hide()
+				end
+				return true
+			end
+		end
+
+		local function Disable(self)
+			if self.TotemBar then
+				self:UnregisterEvent('PLAYER_TOTEM_UPDATE', Update)
+			end
+		end
+
+		oUF:AddElement('TotemBar', Update, Enable, Disable)
+	end
+
+	oUF.colors.totems = oUF.colors.totems or {
+		[FIRE_TOTEM_SLOT] = { 1, 0.5, 0  },
+		[EARTH_TOTEM_SLOT] = { 0.8, 0.4, 0 },
+		[WATER_TOTEM_SLOT] = { 0, 0, 1 },
+		[AIR_TOTEM_SLOT] = { 0, 0.8, 1 },
+	}
+
+	local function UpdateTotemColor(totem)
+		local color = oUF.colors.totems[totem.totemType]
+		if color then
+			totem:SetStatusBarColor(unpack(color))
+		end
+	end
+
+	local function LayoutTotem(totemBar)
+		local spacing = (totemBar:GetWidth() + GAP) / MAX_TOTEMS
+		local totemWidth = spacing - GAP
+		local totemHeight = totemBar:GetHeight()
+		for index = 1, MAX_TOTEMS do
+			local totem = totemBar[index]
+			totem:SetPoint("TOPLEFT", totemBar, "TOPLEFT", spacing * (index-1), 0)
+			totem:SetWidth(totemWidth)
+			totem:SetHeight(totemHeight)
+		end
+	end
+
+	function SetupAltPower(self)
+		local totemBar = CreateFrame("Frame", nil, self)
+		totemBar:HookScript('OnShow', LayoutRunes)
+		totemBar:HookScript('OnSizeChanged', LayoutRunes)
+		self.TotemBar = totemBar
+		for index = 1, MAX_TOTEMS do
+			local totem = CreateFrame("StatusBar", nil, totemBar)
+			totem.totemType = TOTEM_PRIORITIES[index]
+			self:RegisterStatusBarTexture(totem, UpdateTotemColor)
+			totemBar[index] = totem
+		end
+		return totemBar
+	end
+
 end
 
 local function PostUpdatePower(self, event, unit, bar, min, max)
@@ -443,7 +551,7 @@ local function InitFrame(settings, self)
 	else
 		health:SetPoint("BOTTOMRIGHT", barContainer)
 	end
-	
+
 	if unit == "target" then
 		-- Add a simple threat bar on the target
 		local threatBar = SpawnStatusBar(self, false, "TOPRIGHT", self, "BOTTOMRIGHT", 0, -FRAME_MARGIN)
@@ -469,9 +577,9 @@ local function InitFrame(settings, self)
 				bar.Text:Hide()
 			end
 		end
-		self.ThreatBar = threatBar		
+		self.ThreatBar = threatBar
 	end
-	
+
 	-- Threat glow
 	local threat = CreateFrame("Frame", nil, self)
 	threat:SetAllPoints(self.Border)
@@ -481,7 +589,7 @@ local function InitFrame(settings, self)
 	threat:SetAlpha(glowBorderBackdrop.alpha)
 	threat:SetFrameLevel(self:GetFrameLevel()+2)
 	self.Threat = threat
-	
+
 	-- Various indicators
 	local indicators = CreateFrame("Frame", nil, self)
 	indicators:SetAllPoints(self)
@@ -493,7 +601,7 @@ local function InitFrame(settings, self)
 
 	self.RoleIcon = SpawnTexture(indicators, 16)
 	self.RoleIcon:SetPoint("CENTER", barContainer)
-	
+
 	if unit == "pet" then
 		self.Happiness = SpawnTexture(indicators, 16, "BOTTOMRIGHT")
 	end
@@ -555,7 +663,7 @@ local function InitFrame(settings, self)
 		debuffs['growth-x'] = left
 		debuffs['growth-y'] = "DOWN"
 		self.Debuffs = debuffs
-		
+
 	end
 	self.CustomAuraFilter = CustomAuraFilter
 	self.SetAuraPosition = SetAuraPosition
