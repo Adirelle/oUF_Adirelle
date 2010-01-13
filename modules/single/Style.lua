@@ -310,57 +310,11 @@ elseif playerClass == "DRUID" then
 elseif playerClass == "SHAMAN" then
 	-- Shaman totems
 
-	do -- Inline totembar implementation
-		local GetTime = GetTime
-		local function OnUpdate(totem)
-			local now = GetTime()
-			if now >= totem.expirationTime then
-				totem:Hide()
-			else
-				totem:SetValue(now)
-			end
-		end
-
-		local function Update(self, event)
-			for index = 1, MAX_TOTEMS do
-				local totem = self.TotemBar[index]
-				local haveTotem, name, start, duration = GetTotemInfo(totem.totemType)
-				if haveTotem and tonumber(start) and tonumber(duration) then
-					totem.expirationTime = start + duration
-					totem:SetMinMaxValues(start, totem.expirationTime)
-					totem:Show()
-				else
-					totem:Hide()
-				end
-			end
-		end
-
-		local function Enable(self)
-			if self.TotemBar then
-				self:RegisterEvent('PLAYER_TOTEM_UPDATE', Update)
-				for index = 1, MAX_TOTEMS do
-					local totem = self.TotemBar[index]
-					totem:HookScript('OnUpdate', OnUpdate)
-					totem:Hide()
-				end
-				return true
-			end
-		end
-
-		local function Disable(self)
-			if self.TotemBar then
-				self:UnregisterEvent('PLAYER_TOTEM_UPDATE', Update)
-			end
-		end
-
-		oUF:AddElement('TotemBar', Update, Enable, Disable)
-	end
-
 	oUF.colors.totems = oUF.colors.totems or {
-		[FIRE_TOTEM_SLOT] = { 1, 0.5, 0  },
-		[EARTH_TOTEM_SLOT] = { 0.8, 0.4, 0 },
-		[WATER_TOTEM_SLOT] = { 0, 0, 1 },
-		[AIR_TOTEM_SLOT] = { 0, 0.8, 1 },
+		[FIRE_TOTEM_SLOT] = { 1, 0.3, 0.0  },
+		[EARTH_TOTEM_SLOT] = { 0.3, 1, 0.2 },
+		[WATER_TOTEM_SLOT] = { 0.3, 0.2, 1 },
+		[AIR_TOTEM_SLOT] = { 0.2, 0.8, 1 },
 	}
 
 	local function UpdateTotemColor(totem)
@@ -370,7 +324,7 @@ elseif playerClass == "SHAMAN" then
 		end
 	end
 
-	local function LayoutTotem(totemBar)
+	local function LayoutTotems(totemBar)
 		local spacing = (totemBar:GetWidth() + GAP) / MAX_TOTEMS
 		local totemWidth = spacing - GAP
 		local totemHeight = totemBar:GetHeight()
@@ -384,8 +338,8 @@ elseif playerClass == "SHAMAN" then
 
 	function SetupAltPower(self)
 		local totemBar = CreateFrame("Frame", nil, self)
-		totemBar:HookScript('OnShow', LayoutRunes)
-		totemBar:HookScript('OnSizeChanged', LayoutRunes)
+		totemBar:HookScript('OnShow', LayoutTotems)
+		totemBar:HookScript('OnSizeChanged', LayoutTotems)
 		self.TotemBar = totemBar
 		for index = 1, MAX_TOTEMS do
 			local totem = CreateFrame("StatusBar", nil, totemBar)
