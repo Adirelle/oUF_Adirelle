@@ -9,10 +9,18 @@ local oUF = assert(ns.oUF, "oUF is undefined in "..parent.." namespace")
 
 local CreateBlinkingFrame
 do
-	local function RegisterIcon(self, icon, expireTime, threshold)
+	local GetTime = GetTime
+	local blinkingAlpha, now = 1.0, GetTime()
+
+	local function RegisterIcon(self, icon, start, duration, threshold)
 		self.icons[icon] = true
-		icon.expireTime = expireTime
-		icon.threshold = threshold
+		icon.expirationTime = start + duration
+		icon.thresholdTime = icon.expirationTime - math.min(threshold, duration * threshold / 10)
+		if now >= icon.thresholdTime then
+			icon:SetAlpha(blinkingAlpha)
+		else
+			icon:SetAlpha(1)
+		end
 		self:Show()
 	end
 
@@ -21,23 +29,25 @@ do
 		self.icons[icon] = nil
 	end
 
-	local function UpdateBlinking(self)
-		local now = GetTime()
-		local alpha = 2 * (now % 1)
-		if alpha > 1 then
-			alpha = 2 - alpha
+	local delay = 0
+	local function UpdateBlinking(self, elapsed)
+		if delay > elapsed then
+			delay = delay - elapsed
+			return
 		end
-		local icons = self.icons
-		for icon in pairs(icons) do
-			if not icon:IsShown() then
+		delay, now = 0.1, GetTime()
+		blinkingAlpha = 2 * (now % 1)
+		if blinkingAlpha > 1 then
+			blinkingAlpha = 2 - blinkingAlpha
+		end
+		for icon in next, self.icons do
+			if not icon:IsShown() or now >= icon.expirationTime then
 				UnregisterIcon(self, icon)
-			elseif icon.expireTime - now < icon.threshold then
-				icon:SetAlpha(alpha)
-			elseif icon:GetAlpha() < 1 then
-				icon:SetAlpha(1)
+			elseif now >= icon.thresholdTime then
+				icon:SetAlpha(blinkingAlpha)
 			end
 		end
-		if not next(icons) then
+		if not next(self.icons) then
 			self:Hide()
 		end
 	end
@@ -66,7 +76,7 @@ local function UpdateIcon(self, unit, icon, texture, count, start, duration, r, 
 	icon:SetColor(r, g, b)
 	if self.iconBlinkThreshold and start and duration and duration > 0 and not icon.doNotBlink then
 		blinkingFrame = blinkingFrame or CreateBlinkingFrame()
-		blinkingFrame:RegisterIcon(icon, start+duration, self.iconBlinkThreshold)
+		blinkingFrame:RegisterIcon(icon, start, duration, self.iconBlinkThreshold)
 	elseif blinkingFrame then
 		blinkingFrame:UnregisterIcon(icon)
 	end
