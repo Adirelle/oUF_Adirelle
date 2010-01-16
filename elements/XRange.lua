@@ -14,6 +14,7 @@ local UnitCanAttack = UnitCanAttack
 local UnitCanAssist = UnitCanAssist
 local UnitInRange = UnitInRange
 local UnitIsCorpse = UnitIsCorpse
+local UnitIsVisible = UnitIsVisible
 local CheckInteractDistance = CheckInteractDistance
 local GetSpellInfo = GetSpellInfo
 
@@ -29,36 +30,45 @@ if playerClass == 'PRIEST' then
 	friendlySpell = GetSpellInfo(2050) -- Lesser Heal
 	hostileSpell = GetSpellInfo(48127) -- Mind Blast
 	rezSpell = GetSpellInfo(2006) -- Resurrection
-	
+
 elseif playerClass == 'DRUID' then
-	friendlySpell = GetSpellInfo(48378) -- Healing Touch 
+	friendlySpell = GetSpellInfo(48378) -- Healing Touch
 	hostileSpell = GetSpellInfo(48461) -- Wrath
 	rezSpell = GetSpellInfo(20484) -- Rebirth
-	
+
 elseif playerClass == 'PALADIN' then
 	friendlySpell = GetSpellInfo(48782) -- Holy Light
 	hostileSpell = GetSpellInfo(62124) -- Hand of Reckoning
 	rezSpell = GetSpellInfo(7328) -- Redemption
-	
+
 elseif playerClass == 'HUNTER' then
 	hostileSpell = GetSpellInfo(75) -- Auto Shot
-	petSpell = GetSpellInfo(53271) -- Master's Call
-	
+	petSpell = GetSpellInfo(136) -- Mend Pet
+
 elseif playerClass == 'SHAMAN' then
 	friendlySpell = GetSpellInfo(49273) -- Healing Wave
 	hostileSpell = GetSpellInfo(529) -- Lightning Bolt
 	rezSpell = GetSpellInfo(2008) -- Ancestral Spirit
-	
+
 elseif playerClass == 'WARLOCK' then
 	hostileSpell = GetSpellInfo(686) -- Shadow Bolt
 	friendlySpell = GetSpellInfo(132) -- (buff) Detect Invisibility
-	
+
 elseif playerClass == 'MAGE' then
 	hostileSpell = GetSpellInfo(133) -- Fireball
-	friendlySpell = GetSpellInfo(1459) -- (buff) Arcane Intellect
-	
+	friendlySpell = GetSpellInfo(475) -- Remove Curse
+
 elseif playerClass == 'DEATHKNIGHT' then
 	hostileSpell = GetSpellInfo(49576) -- Death grip
+
+elseif playerClass == 'ROGUE' then
+	hostileSpell = GetSpellInfo(26679) -- Deadly Throw
+	friendlySpell = GetSpellInfo(57934) -- Tricks of the Trade
+
+elseif playerClass == 'WARRIOR' then
+	hostileSpell = GetSpellInfo(100) -- Charge
+	friendlySpell = GetSpellInfo(3411) -- Intervene
+
 end
 
 local function GetRangeSpell(unit)
@@ -70,10 +80,12 @@ local function GetRangeSpell(unit)
 end
 
 local function GetRangeAlpha(self, unit)
-	if UnitIsUnit(unit, 'player') or not UnitIsConnected(unit) then 
+	if UnitIsUnit(unit, 'player') or not UnitIsConnected(unit) then
 		return self.inRangeAlpha
+	elseif not UnitIsVisible(unit) then
+		return self.outsideRangeAlpha
 	end
-	local spell =  GetRangeSpell(unit)
+	local spell = GetRangeSpell(unit)
 	local spellInRange = spell and IsSpellInRange(spell, unit)
 	if spellInRange == 1 or (spellInRange == nil and (UnitInRange(unit) or CheckInteractDistance(unit, 4))) then
 		return self.inRangeAlpha
@@ -95,7 +107,7 @@ local function OnUpdate(self, elapsed)
 		timer = timer - elapsed
 	else
 		timer = 0.25
-		for frame in pairs(objects) do
+		for frame in next, objects do
 			if frame:IsShown() then
 				Update(frame, "OnUpdate", frame.unit)
 			end
