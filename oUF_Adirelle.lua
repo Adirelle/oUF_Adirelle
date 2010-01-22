@@ -38,15 +38,15 @@ _G.SLASH_OUFADIRELLEVER3 = "/oufav"
 
 local versions = {}
 do
-	local VERSION = GetAddOnMetadata(parent, 'version')
+	local VERSION = 'v'..GetAddOnMetadata(parent, 'version')
 	--@debug@
-	if VERSION == "\@project-version\@" then VERSION = "alpha" end
+	VERSION = "developer version"
 	--@end-debug@
 
 	_G.SlashCmdList.OUFADIRELLEVER = function()
-		print('oUF_Adirelle version '..VERSION)
+		print('oUF_Adirelle '..VERSION)
 		for major, minor in next, versions do
-			print('- '..major..' version '..minor)
+			print('- '..major..' v'..minor)
 		end
 	end
 end
