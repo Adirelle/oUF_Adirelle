@@ -1,4 +1,4 @@
-oUF_Adirelle provides both raid and single unit frames built on top of oUF.
+oUF_Adirelle provides both raid and single unit frames built on top of "oUF":http://www.wowinterface.com/downloads/info9994-oUF.html.
 
 This addon has been originally written for personal use and taste.
 It borrows ideas from existing raid and unit frame addons.
@@ -14,17 +14,17 @@ Single unit frames and party/raid unit frames could be disabled separately by
 disabling corresponding addons.
 
 Though oUF_Adirelle embeds and uses some libraries, they are all optional and
-could be safely removed (just delete the "libs" directory).
+could be safely removed (just delete the "libs" directory). Please note LibMovable-1.0
+is required for the "/oufa" chat command.
 
 h2. Features
 
 h3. Common features
 
-* chat-command /oufa allows to move and resize the frames ; also supports ConfigMode.
 * colored border:
 ** white: current target,
 ** blue: low mana,
-** red/orange/yellow: threat status.
+* glowing border based on threat status, using built-in Blizzard colors,
 * display raid target icons,
 * displays important debuff for some PvE encounters (Ulduar, Coliseum and Ice Crown Citadel).
 * fades out of range targets, using spell range checks (which is a bit more accurate than generic range checking).
@@ -32,8 +32,8 @@ h3. Common features
 h3. Group unit frames
 
 * automatically chooses best layout given the group status and/or instance, amongst:
-** party and pets (party and arena),
-** 10, 15, 25 or 40-man layout given the raid size or instance size.
+** party and pets,
+** 10 (including pets), 15, 25 or 40-man layout fitting raid or instance size.
 * health bar fills from right to left when unit loses life,
 * displays important buffs (like tank cooldowns, feign death, iceblock, ...),
 * displays curable debuffs,
@@ -43,7 +43,7 @@ h3. Group unit frames
 ** skull: dead unit,
 ** lightning: disconnected unit,
 ** whirlwind: out of view (either really far unit or unit in another instance).
-* AddonLoader support: postpone loading of the party/raid module until you join a group.
+* "AddonLoader":http://wow.curse.com/downloads/wow-addons/details/addon-loader.aspx support: postpone loading of the party/raid module until you join a group.
 
 h3. Single unit frames
 
@@ -54,8 +54,10 @@ h3. Single unit frames
 * shows unit level and classification/class,
 * shows elite/rare dragon decoration,
 * integrated DK rune bar,
+* integrated totem bar,
 * also shows druid mana in cat/bear form,
 * shows raid/party roles and PvP status,
+* smart aura display depending on unit reaction,
 * when in group, displays a small threat bar on target frame.
 
 h2. Library related features
@@ -63,9 +65,9 @@ h2. Library related features
 The following feature are available using libraries:
 
 * fast health updating: LibQuickHealth-2.0 (provided).
-* visual incoming heal display: LibHealComm-4.0 (provided).
-* bar texturing: LibSharedMedia-3.0 (provided).
-* frame positionning and ConfigMode support: LibMovable-1.0 (provided).
-* PvP crowd control icons: DRData-1.0 (provided).
-* spec-based role icons: LibGroupTalents-1.0 (optional ; if you would like to enable this feature, you should install both LibTalentQuery-1.0 and LibGroupTalents-1.0).
+* visual incoming heal display: "LibHealComm-4.0":http://wow.curse.com/downloads/wow-addons/details/libhealcomm-4-0.aspx (provided).
+* bar texturing: "LibSharedMedia-3.0":http://wow.curse.com/downloads/wow-addons/details/libsharedmedia-3-0.aspx (provided).
+* frame positionning and "ConfigMode":http://www.wowwiki.com/ConfigMode support: LibMovable-1.0 (provided).
+* PvP crowd control icons: "DRData-1.0":http://wow.curse.com/downloads/wow-addons/details/drdata-1-0.aspx (provided).
+* spec-based role icons: "LibGroupTalents-1.0":http://wow.curse.com/downloads/wow-addons/details/libgrouptalents-1-0.aspx (optional ; if you would like to enable this feature, you should install both "LibTalentQuery-1.0":http://wow.curse.com/downloads/wow-addons/details/libtalentquery-1-0.aspx and "LibGroupTalents-1.0":http://wow.curse.com/downloads/wow-addons/details/libgrouptalents-1-0.aspx).
 
