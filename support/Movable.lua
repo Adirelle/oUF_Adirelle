@@ -5,13 +5,13 @@ All rights reserved.
 --]=]
 
 local addonName = ...
-local LibStub = LibStub
 
 -- Use our own namespace
 setfenv(1, _G.oUF_Adirelle)
 
-local libmovable = LibStub and LibStub('LibMovable-1.0', true)
+local libmovable = GetLib('LibMovable-1.0')
 if libmovable then
+
 	-- Function used until our SV is loaded
 	local postponed = {}
 	RegisterMovable = function(frame, key, label, mask)

@@ -36,7 +36,7 @@ oUF:RegisterInitCallback(function(self)
 	end
 end)
 
-local lsm = LibStub and LibStub('LibSharedMedia-3.0', true)
+local lsm = GetLib('LibSharedMedia-3.0')
 if lsm then
 	texture = lsm:Fetch("statusbar", 'BantoBar')	
 	lsm.RegisterCallback(objects, 'LibSharedMedia_SetGlobal', function(_, media, value)
