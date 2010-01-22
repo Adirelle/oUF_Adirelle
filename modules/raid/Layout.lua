@@ -4,7 +4,6 @@ Adirelle's oUF layout
 All rights reserved.
 --]=]
 
-local LibStub = LibStub
 local GetInstanceInfo = GetInstanceInfo
 local GetNumRaidMembers = GetNumRaidMembers
 local GetNumPartyMembers = GetNumPartyMembers
@@ -245,7 +244,7 @@ for _, header in pairs(petHeaders) do
 	header:HookScript('OnSizeChanged', CheckPosition)
 end
 
-local libmovable = LibStub and LibStub('LibMovable-1.0', true)
+local libmovable = GetLib('LibMovable-1.0')
 if libmovable then
 	local mask = CreateFrame("Frame", nil, anchor)
 	mask:SetPoint("BOTTOM")
@@ -255,4 +254,3 @@ if libmovable then
 end
 
 CheckLayout()
-

@@ -144,9 +144,8 @@ end
 -- PvP control debuff filter
 -- ------------------------------------------------------------------------------
 
-local drdata = LibStub and LibStub('DRData-1.0', true)
+local drdata = GetLib('DRData-1.0')
 if drdata then
-	Debug('Using DRData-1.0')
 
 	local IGNORED = -1
 	local SPELL_CATEGORIES = {}

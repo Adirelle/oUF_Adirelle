@@ -31,6 +31,40 @@ end
 oUF.Debug = Debug
 oUF.frame_metatable.__index.Debug = Debug
 
+-- Version query command
+_G.SLASH_OUFADIRELLEVER1 = "/ouf_adirelle_ver"
+_G.SLASH_OUFADIRELLEVER2 = "/oufa_ver"
+_G.SLASH_OUFADIRELLEVER3 = "/oufav"
+
+local versions = {}
+do
+	local VERSION = GetAddOnMetadata(parent, 'version')
+	--@debug@
+	if VERSION == "\@project-version\@" then VERSION = "alpha" end
+	--@end-debug@
+
+	_G.SlashCmdList.OUFADIRELLEVER = function()
+		print('oUF_Adirelle version '..VERSION)
+		for major, minor in next, versions do
+			print('- '..major..' version '..minor)
+		end
+	end
+end
+
+-- Library helper
+local LibStub = _G.LibStub
+if LibStub then
+	function GetLib(major)
+		local lib, minor = LibStub(major, true)
+		if lib then
+			versions[major] = minor
+			return lib, minor	
+		end
+	end
+else
+	GetLib = function() end
+end
+
 -- Some common "constants"
 
 -- Recolor mana
@@ -49,6 +83,6 @@ backdrop = {
 
 -- Glow border backdrop
 glowBorderBackdrop = {
-	edgeFile = [[Interface\AddOns\oUF_Adirelle\media\glowborder]], edgeSize = 3, alpha = 1,
+	edgeFile = [[Interface\AddOns\oUF_Adirelle\media\glowborder]], edgeSize = 4, alpha = 1,
 	--edgeFile = [[Interface\AddOns\oUF_Adirelle\media\white16x16]], edgeSize = 2, alpha = 0.5,
 }

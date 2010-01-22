@@ -1,6 +1,6 @@
 ## Interface: 30300
 ## Author: Adirelle
-## Version: 1.0
+## Version: @project-version@
 ## Title: oUF_Adirelle - core
 ## Notes: Adirelle's unit frames, based on haste's oUF.
 ## OptionalDeps: oUF, LibStub, CallbackHandler-1.0, LibSharedMedia-3.0, LibHealComm-4.0, DRData-1.0, LibMovable-1.0, SharedMedia, SharedMedia_MyMedia, !SurfaceControl, tekDebug, !ClassColors, LibGroupTalents-1.0, LibTalentQuery-1.0, LibQuickHealh-2.0
