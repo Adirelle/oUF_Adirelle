@@ -51,7 +51,7 @@ end
 local function UpdateName(self, unit, current, max, incomingHeal)
 	local r, g, b = unpack(self.bgColor)
 	local unitName = GetShortUnitName(SecureButton_GetUnit(self) or unit)
-	if UnitIsConnected(unit) and not UnitIsDeadOrGhost(unit) and not UnitCanAttack("player", unit) then
+	if UnitIsConnected(unit) and not UnitIsDeadOrGhost(unit) and UnitPlayerControlled(unit) then
 		local overHeal = current and max and incomingHeal and (current + incomingHeal - max) or 0
 		local f = overHeal / max
 		if f > 0.1 then
@@ -99,7 +99,7 @@ local function UpdateHealth(self, event, unit, bar, current, max)
 	if not UnitIsConnected(unit) or UnitIsDeadOrGhost(unit) then
 		bar:SetValue(max)
 		r, g, b = unpack(self.colors.disconnected)
-	elseif UnitCanAttack("player", unit) then
+	elseif not UnitPlayerControlled(unit) then
 		r, g, b = 1, 0.2, 0
 	elseif UnitHasVehicleUI(SecureButton_GetUnit(self)) then
 		r, g, b = 0.2, 0.6, 0
