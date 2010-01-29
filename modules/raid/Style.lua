@@ -49,8 +49,9 @@ end
 local function UpdateName(self, unit, current, max, incomingHeal)
 	local r, g, b = unpack(self.bgColor)
 	local unitName = GetShortUnitName(SecureButton_GetUnit(self) or unit)
-	if not self.__unitState then
-		local overHeal = current and max and incomingHeal and (current + incomingHeal - max) or 0
+	local state = GetFrameUnitState(self, true)
+	if not state and current and max and incomingHeal then
+		local overHeal = (current + incomingHeal - max) or 0
 		local f = overHeal / max
 		if f > 0.1 then
 			r, g, b = 0, 1, 0
