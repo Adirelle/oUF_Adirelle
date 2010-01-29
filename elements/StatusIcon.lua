@@ -11,33 +11,54 @@ local oUF = assert(ns.oUF, "oUF is undefined in "..parent.." namespace")
 
 local UnitIsConnected = UnitIsConnected
 local UnitIsDeadOrGhost = UnitIsDeadOrGhost
+local UnitIsCharmed = UnitIsCharmed
+local UnitIsPossessed = UnitIsPossessed
+local UnitCanAttack = UnitCanAttack
 local UnitIsVisible = UnitIsVisible
 
+local function GetFrameUnitState(self, ignoreVisibility)
+	local unit = self.unit
+	if not UnitIsConnected(unit) then
+		return "DISCONNECTED"
+	elseif not ignoreVisibility and not UnitIsVisible(unit) then
+		return "OUTOFSCOPE"
+	elseif UnitIsDeadOrGhost(unit) then
+		return "DEAD"
+	elseif UnitIsCharmed(unit) then
+		return "CHARMED"
+	elseif UnitHasVehicleUI(SecureButton_GetUnit(self)) then
+		return "INVEHICLE"
+	end
+end
+ns.GetFrameUnitState = GetFrameUnitState
+
 local icons = {
-	disconnected = { [[Interface\Icons\INV_Sigil_Thorim]], 0.05, 0.95, 0.5-0.25*0.9, 0.5+0.25*0.9, false },
-	outOfScope = { [[Interface\Icons\Spell_Frost_Stun]], 0.05, 0.95, 0.5-0.25*0.9, 0.5+0.25*0.9, true },
-	dead = { [[Interface\TargetingFrame\UI-TargetingFrame-Skull]], 4/32, 26/32, 9/32, 20/32, false },
+	DISCONNECTED = { [[Interface\Icons\INV_Sigil_Thorim]], 0.05, 0.95, 0.5-0.25*0.9, 0.5+0.25*0.9, false },
+	OUTOFSCOPE = { [[Interface\Icons\Spell_Frost_Stun]], 0.05, 0.95, 0.5-0.25*0.9, 0.5+0.25*0.9, true },
+	DEAD = { [[Interface\TargetingFrame\UI-TargetingFrame-Skull]], 4/32, 26/32, 9/32, 20/32, false },
+	CHARMED = { [[Interface\Icons\Ability_DualWield]], 0.05, 0.95, 0.5-0.25*0.9, 0.5+0.25*0.9, false, 1, 0, 0 }
 }
 
 local function Update(self, event, unit)
 	if unit and unit ~= self.unit then return end
-	local icon = nil
-	if not UnitIsConnected(self.unit) then
-		icon = icons.disconnected
-	elseif UnitIsDeadOrGhost(self.unit) then
-		icon = icons.dead
-	elseif not UnitIsVisible(self.unit) then
-		icon = icons.outOfScope
+	local statusIcon = self.StatusIcon
+	local state = GetFrameUnitState(self) or "NONE"
+	if state == statusIcon.currentState then return end
+	statusIcon.currentState = state
+	local icon = icons[state]
+	if icon then
+		local texturePath, x0, x1, y0, y1, desat, r, g, b = unpack(icon)
+		statusIcon:SetTexture(texturePath)
+		statusIcon:SetTexCoord(x0, x1, y0, y1)
+		statusIcon:SetDesaturated(desat)
+		statusIcon:SetVertexColor(r or 1, g or 1, b or 1)
+		statusIcon:Show()
 	else
-		return self.StatusIcon:Hide()
+		statusIcon:Hide()
 	end
-	local tex = self.StatusIcon
-	local texturePath, x0, x1, y0, y1, desat, r, g, b = unpack(icon)
-	tex:SetTexture(texturePath)
-	tex:SetTexCoord(x0, x1, y0, y1)
-	tex:SetDesaturated(desat)
-	tex:SetVertexColor(r or 1, g or 1, b or 1)
-	tex:Show()
+	if self.PostStatusIconUpdate then
+		self:PostStatusIconUpdate(event, self.unit, state)
+	end
 end
 
 local objects = {}
@@ -61,6 +82,7 @@ local checkFrame
 local function Enable(self)
 	if self.StatusIcon then
 		self:RegisterEvent('UNIT_FLAGS', Update)
+		self:RegisterEvent('UNIT_AURA', Update)
 		self:RegisterEvent('UNIT_DYNAMIC_FLAGS', Update)
 		self:RegisterEvent('PLAYER_DEAD', PlayerUpdate)
 		self:RegisterEvent('PLAYER_ALIVE', PlayerUpdate)
@@ -80,6 +102,7 @@ end
 local function Disable(self)
 	if self.StatusIcon then
 		self:UnregisterEvent('UNIT_FLAGS', Update)
+		self:UnregisterEvent('UNIT_AURA', Update)
 		self:UnregisterEvent('UNIT_DYNAMIC_FLAGS', Update)
 		self:UnregisterEvent('PLAYER_DEAD', PlayerUpdate)
 		self:UnregisterEvent('PLAYER_ALIVE', PlayerUpdate)
