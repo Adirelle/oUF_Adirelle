@@ -5,8 +5,6 @@ All rights reserved.
 --]=]
 
 local UnitClass = UnitClass
-local UnitIsConnected = UnitIsConnected
-local UnitIsDeadOrGhost = UnitIsDeadOrGhost
 local UnitName = UnitName
 local GetTime = GetTime
 local strformat = string.format
@@ -51,7 +49,7 @@ end
 local function UpdateName(self, unit, current, max, incomingHeal)
 	local r, g, b = unpack(self.bgColor)
 	local unitName = GetShortUnitName(SecureButton_GetUnit(self) or unit)
-	if UnitIsConnected(unit) and not UnitIsDeadOrGhost(unit) and UnitPlayerControlled(unit) then
+	if not self.__unitState then
 		local overHeal = current and max and incomingHeal and (current + incomingHeal - max) or 0
 		local f = overHeal / max
 		if f > 0.1 then
@@ -96,12 +94,13 @@ end
 -- Update name and health bar on health change
 local function UpdateHealth(self, event, unit, bar, current, max)
 	local r, g, b = 0.5, 0.5, 0.5
-	if not UnitIsConnected(unit) or UnitIsDeadOrGhost(unit) then
+	local state = GetFrameUnitState(self, true)
+	if state == "DEAD" or state == "DISCONNECTED" then
 		bar:SetValue(max)
 		r, g, b = unpack(self.colors.disconnected)
-	elseif not UnitPlayerControlled(unit) then
-		r, g, b = 1, 0.2, 0
-	elseif UnitHasVehicleUI(SecureButton_GetUnit(self)) then
+	elseif state == "CHARMED" then
+		r, g, b = 1, 0.3, 0
+	elseif state == "INVEHICLE" then
 		r, g, b = 0.2, 0.6, 0
 	elseif UnitName(unit) ~= UNKNOWN then
 		local classUnit = unit
@@ -134,7 +133,7 @@ local function PostUpdateHealth(self, event, unit, bar, current, max)
 end
 
 -- Cleaning up health on certain status changes
-local function UnitFlagChanged(self, event, unit)
+local function PostStatusIconUpdate(self, event, unit, state)
 	if unit and unit ~= self.unit then return end
 	UpdateHealth(self, event, unit, self.Health, self.currentHealth, self.maxHealth)
 end
@@ -396,6 +395,7 @@ local function InitFrame(settings, self)
 	status:SetBlendMode("ADD")
 	status:Hide()
 	self.StatusIcon = status
+	self.PostStatusIconUpdate = PostStatusIconUpdate
 
 	-- ReadyCheck icon
 	local rc = CreateFrame("Frame", nil, overlay)
@@ -439,11 +439,6 @@ local function InitFrame(settings, self)
 	roleIcon:SetHeight(8)
 	roleIcon:SetPoint("LEFT", self, INSET, 0)
 	self.RoleIcon = roleIcon
-
-	-- Event requiring to update name and color
-	self:RegisterEvent('UNIT_FLAGS', UnitFlagChanged)
-	self:RegisterEvent('UNIT_ENTERED_VEHICLE', UnitFlagChanged)
-	self:RegisterEvent('UNIT_EXITED_VEHICLE', UnitFlagChanged)
 
 	-- Hook OnSizeChanged to layout internal on size change
 	self:HookScript('OnSizeChanged', OnSizeChanged)
