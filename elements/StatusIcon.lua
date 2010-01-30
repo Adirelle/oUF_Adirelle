@@ -43,7 +43,7 @@ local function Update(self, event, unit)
 	if unit and unit ~= self.unit then return end
 	local statusIcon = self.StatusIcon
 	local state = GetFrameUnitState(self) or "NONE"
-	if state == statusIcon.currentState then return end
+	if state == statusIcon.currentState and event ~= 'PLAYER_ENTERING_WORLD' then return end
 	statusIcon.currentState = state
 	local icon = icons[state]
 	if icon then
