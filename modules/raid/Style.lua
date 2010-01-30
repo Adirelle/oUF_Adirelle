@@ -46,26 +46,27 @@ local function SmartHPValue(value)
 end
 
 -- Update name display
-local function UpdateName(self, unit, current, max, incomingHeal)
-	local r, g, b = unpack(self.bgColor)
-	local unitName = GetShortUnitName(SecureButton_GetUnit(self) or unit)
-	local state = GetFrameUnitState(self, true)
-	if not state and current and max and incomingHeal then
-		local overHeal = (current + incomingHeal - max) or 0
+local function UpdateName(self)
+	local r, g ,b = unpack(self.bgColor)
+	local text
+	local max = self.maxHealth or 0
+	if not self.StatusIcon.currentState and max > 0 then
+		local overHeal = self.currentHealth + self.incomingHeal + self.incomingOthersHeal - max
 		local f = overHeal / max
 		if f > 0.1 then
 			r, g, b = 0, 1, 0
 			if f > 0.3 then
-				unitName = "+"..SmartHPValue(overHeal)
+				text = "+"..SmartHPValue(overHeal)
 			end
 		end
 	end
 	self.Name:SetTextColor(r, g, b, 1)
-	self.Name:SetText(unitName)
+	self.Name:SetText(text or GetShortUnitName(self.realUnit or self.unit))
 end
 
 -- Update incoming heal display
-local function UpdateHealBar(self, event, current, max, incomingHeal, incomingOthersHeal)
+local function UpdateHealBar(self)
+	local current, max = self.currentHealth, self.maxHealth
 	local healBar, othersHealBar = self.IncomingHeal, self.IncomingOthersHeal
 	if max == 0 or current >= max then
 		healBar:Hide()
@@ -74,6 +75,7 @@ local function UpdateHealBar(self, event, current, max, incomingHeal, incomingOt
 	end
 	local healthBar = self.Health
 	local pixelPerHP = healthBar:GetWidth() / max
+	local incomingHeal, incomingOthersHeal = self.incomingHeal, self.incomingOthersHeal
 	if incomingOthersHeal > 0 then
 		local newCurrent = mmin(current + incomingOthersHeal, max)
 		othersHealBar:SetPoint('LEFT', healthBar, 'LEFT', current * pixelPerHP, 0)
@@ -94,49 +96,43 @@ end
 
 -- Update name and health bar on health change
 local function UpdateHealth(self, event, unit, bar, current, max)
+	self.currentHealth = current or 0
+	self.maxHealth = max or 0
+	return UpdateName(self)
+end
+
+-- Update name and incoming heal bar on incoming heal change
+local function UpdateIncomingHeal(self, event, unit, heal, incomingHeal, incomingOthersHeal)
+	self.incomingHeal = incomingHeal or 0
+	self.incomingOthersHeal = incomingOthersHeal or 0
+	UpdateHealBar(self)
+	return UpdateName(self)
+end
+
+-- Cleaning up health on certain status changes
+local function PostStatusIconUpdate(self, event, unit, state)
+	if unit ~= self.unit then return end
 	local r, g, b = 0.5, 0.5, 0.5
-	local state = GetFrameUnitState(self, true)
 	if state == "DEAD" or state == "DISCONNECTED" then
-		bar:SetValue(max)
+		self.Health:SetValue(self.maxHealth)
 		r, g, b = unpack(self.colors.disconnected)
 	elseif state == "CHARMED" then
 		r, g, b = 1, 0.3, 0
 	elseif state == "INVEHICLE" then
 		r, g, b = 0.2, 0.6, 0
 	elseif UnitName(unit) ~= UNKNOWN then
-		local classUnit = unit
-		if not UnitIsPlayer(classUnit) then
-			classUnit = (classUnit == 'pet') and 'player' or classUnit:gsub('pet', '')
+		local refUnit = unit
+		if not UnitIsPlayer(refUnit) and refUnit:match('pet') then
+			refUnit = (refUnit == 'pet') and 'player' or refUnit:gsub('pet', '')
 		end
-		local unitClass = select(2, UnitClass(classUnit))
-		if unitClass then
-			r, g, b = unpack(self.colors.class[unitClass])
+		local class = select(2, UnitClass(refUnit))
+		if class then
+			r, g, b = unpack(self.colors.class[class])
 		end
 	end
 	self.bgColor[1], self.bgColor[2], self.bgColor[3] = r, g, b
-	bar.bg:SetVertexColor(r, g, b, 1)
-	self.currentHealth, self.maxHealth = current, max
-	UpdateName(self, unit, current, max, (self.incomingHeal or 0) + (self.incomingOthersHeal or 0))
-end
-
--- Update name and incoming heal bar on incoming heal change
-local function UpdateIncomingHeal(self, event, unit, heal, incomingHeal, incomingOthersHeal)
-	local current, max = self.currentHealth or 0, self.maxHealth or 0
-	self.incomingHeal = incomingHeal
-	self.incomingOthersHeal = incomingOthersHeal
-	UpdateName(self, unit, current, max, incomingHeal + incomingOthersHeal)
-	UpdateHealBar(self, event, current, max, incomingHeal, incomingOthersHeal)
-end
-
--- Update incoming heal bar on health change
-local function PostUpdateHealth(self, event, unit, bar, current, max)
-	UpdateHealBar(self, event, current, max, self.incomingHeal or 0, self.incomingOthersHeal or 0)
-end
-
--- Cleaning up health on certain status changes
-local function PostStatusIconUpdate(self, event, unit, state)
-	if unit and unit ~= self.unit then return end
-	UpdateHealth(self, event, unit, self.Health, self.currentHealth, self.maxHealth)
+	self.Health.bg:SetVertexColor(r, g, b, 1)
+	return UpdateName(self)
 end
 
 -- Statusbar texturing
@@ -321,15 +317,15 @@ local function InitFrame(settings, self)
 	self:SetBackdropColor(0, 0, 0, 1)
 	self:SetBackdropBorderColor(0, 0, 0, 1)
 
-	self.bgColor = { 1, 1, 1 }
-
 	-- Health bar
 	local hp = CreateFrame("StatusBar", nil, self)
 	hp:SetAllPoints(self)
 	self:RegisterStatusBarTexture(hp, PostHealthBareTextureUpdate)
 	self.Health = hp
 	self.OverrideUpdateHealth = UpdateHealth
-	self.incomingHeal = 0
+
+	self.bgColor = { 1, 1, 1 }
+	self.currentHealth, self.maxHealth, self.incomingHeal, self.incomingOthersHeal = 0, 0, 0, 0
 
 	local hpbg = hp:CreateTexture(nil, "BACKGROUND")
 	hpbg:SetAllPoints(hp)
@@ -356,7 +352,7 @@ local function InitFrame(settings, self)
 		self.IncomingOthersHeal = othersHeal
 
 		self.UpdateIncomingHeal = UpdateIncomingHeal
-		self.PostUpdateHealth = PostUpdateHealth
+		self.PostUpdateHealth = UpdateHealBar
 	end
 
 	-- Indicator overlays
