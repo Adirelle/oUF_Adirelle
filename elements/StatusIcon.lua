@@ -24,10 +24,10 @@ local function GetFrameUnitState(self, ignoreVisibility)
 		return "OUTOFSCOPE"
 	elseif UnitIsDeadOrGhost(unit) then
 		return "DEAD"
+	elseif UnitHasVehicleUI(self.realUnit or unit) then
+		return "INVEHICLE"
 	elseif UnitIsCharmed(unit) then
 		return "CHARMED"
-	elseif UnitHasVehicleUI(SecureButton_GetUnit(self)) then
-		return "INVEHICLE"
 	end
 end
 ns.GetFrameUnitState = GetFrameUnitState
