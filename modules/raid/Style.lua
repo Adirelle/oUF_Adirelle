@@ -45,12 +45,12 @@ local function SmartHPValue(value)
 	end
 end
 
--- Update name display
+-- Update name
 local function UpdateName(self)
-	local r, g ,b = unpack(self.bgColor)
+	local r, g, b = unpack(self.bgColor)
 	local text
-	local max = self.maxHealth or 0
-	if not self.StatusIcon.currentState and max > 0 then
+	local max = self.maxHealth
+	if max > 0 then
 		local overHeal = self.currentHealth + self.incomingHeal + self.incomingOthersHeal - max
 		local f = overHeal / max
 		if f > 0.1 then
@@ -111,7 +111,8 @@ end
 
 -- Cleaning up health on certain status changes
 local function PostStatusIconUpdate(self, event, unit, state)
-	if unit ~= self.unit then return end
+	if unit and unit ~= self.unit then return end
+	state = GetFrameUnitState(self, true)
 	local r, g, b = 0.5, 0.5, 0.5
 	if state == "DEAD" or state == "DISCONNECTED" then
 		self.Health:SetValue(self.maxHealth)
@@ -120,12 +121,10 @@ local function PostStatusIconUpdate(self, event, unit, state)
 		r, g, b = 1, 0.3, 0
 	elseif state == "INVEHICLE" then
 		r, g, b = 0.2, 0.6, 0
-	elseif UnitName(unit) ~= UNKNOWN then
-		local refUnit = unit
-		if not UnitIsPlayer(refUnit) and refUnit:match('pet') then
-			refUnit = (refUnit == 'pet') and 'player' or refUnit:gsub('pet', '')
-		end
-		local class = select(2, UnitClass(refUnit))
+	else
+		local refUnit = (self.realUnit or self.unit):gsub('pet', '')
+		if refUnit == '' then refUnit = 'player' end -- 'pet'
+		local class = UnitName(refUnit) ~= UNKNOWN and select(2, UnitClass(refUnit))
 		if class then
 			r, g, b = unpack(self.colors.class[class])
 		end
