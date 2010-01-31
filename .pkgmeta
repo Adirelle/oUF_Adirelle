@@ -15,6 +15,9 @@ externals:
   libs/LibHealComm-4.0:
     url: git://git.wowace.com/wow/libhealcomm-4-0/mainline.git
     tag: latest
+  libs/LibWrapperHealComm-1.0:
+    url: git://git.wowace.com/wow/libwrapperhealcomm-1-0/mainline.git
+    tag: latest
   libs/DRData-1.0:
     url: git://git.wowace.com/wow/drdata-1-0/mainline.git
     tag: latest
