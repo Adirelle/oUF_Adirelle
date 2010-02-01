@@ -12,9 +12,10 @@ local oUF = assert(ns.oUF, "oUF is undefined in "..parent.." namespace")
 local UnitIsConnected = UnitIsConnected
 local UnitIsDeadOrGhost = UnitIsDeadOrGhost
 local UnitIsCharmed = UnitIsCharmed
-local UnitIsPossessed = UnitIsPossessed
 local UnitCanAttack = UnitCanAttack
 local UnitIsVisible = UnitIsVisible
+local UnitIsPlayer = UnitIsPlayer
+local UnitHasVehicleUI = UnitHasVehicleUI
 
 local function GetFrameUnitState(self, ignoreVisibility)
 	local unit = self.unit
@@ -24,9 +25,9 @@ local function GetFrameUnitState(self, ignoreVisibility)
 		return "OUTOFSCOPE"
 	elseif UnitIsDeadOrGhost(unit) then
 		return "DEAD"
-	elseif UnitHasVehicleUI(self.realUnit or unit) then
+	elseif UnitHasVehicleUI(SecureButton_GetUnit(self) or unit) then
 		return "INVEHICLE"
-	elseif UnitIsCharmed(unit) then
+	elseif UnitIsPlayer(unit) and UnitIsCharmed(unit) then
 		return "CHARMED"
 	end
 end
