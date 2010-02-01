@@ -61,7 +61,7 @@ local function UpdateName(self)
 		end
 	end
 	self.Name:SetTextColor(r, g, b, 1)
-	self.Name:SetText(text or GetShortUnitName(self.realUnit or self.unit))
+	self.Name:SetText(text or GetShortUnitName(SecureButton_GetUnit(self) or self.unit))
 end
 
 -- Update incoming heal display
@@ -98,6 +98,9 @@ end
 local function UpdateHealth(self, event, unit, bar, current, max)
 	self.currentHealth = current or 0
 	self.maxHealth = max or 0
+	if UnitIsDeadOrGhost(unit) or not UnitIsConnected(unit) then
+		bar:SetValue(self.maxHealth)
+	end
 	return UpdateName(self)
 end
 
@@ -115,7 +118,6 @@ local function PostStatusIconUpdate(self, event, unit, state)
 	state = GetFrameUnitState(self, true)
 	local r, g, b = 0.5, 0.5, 0.5
 	if state == "DEAD" or state == "DISCONNECTED" then
-		self.Health:SetValue(self.maxHealth)
 		r, g, b = unpack(self.colors.disconnected)
 	elseif state == "CHARMED" then
 		r, g, b = 1, 0.3, 0
