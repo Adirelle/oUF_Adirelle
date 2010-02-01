@@ -112,10 +112,11 @@ local function UpdateIncomingHeal(self, event, unit, heal, incomingHeal, incomin
 	return UpdateName(self)
 end
 
--- Cleaning up health on certain status changes
-local function PostStatusIconUpdate(self, event, unit, state)
+-- Update health and name color
+local function UpdateColor(self, event, unit)
 	if unit and unit ~= self.unit then return end
-	state = GetFrameUnitState(self, true)
+	local state = GetFrameUnitState(self, true)
+	self:Debug('UpdateColor', event, unit, state)
 	local r, g, b = 0.5, 0.5, 0.5
 	if state == "DEAD" or state == "DISCONNECTED" then
 		r, g, b = unpack(self.colors.disconnected)
@@ -134,6 +135,12 @@ local function PostStatusIconUpdate(self, event, unit, state)
 	self.bgColor[1], self.bgColor[2], self.bgColor[3] = r, g, b
 	self.Health.bg:SetVertexColor(r, g, b, 1)
 	return UpdateName(self)
+end
+
+do
+	local function Enable() return true end
+	local function Disable() end
+	oUF:AddElement('Adirelle_Raid-BarColor', UpdateColor, Enable, Disable)
 end
 
 -- Statusbar texturing
@@ -393,7 +400,7 @@ local function InitFrame(settings, self)
 	status:SetBlendMode("ADD")
 	status:Hide()
 	self.StatusIcon = status
-	self.PostStatusIconUpdate = PostStatusIconUpdate
+	self.PostStatusIconUpdate = UpdateColor
 
 	-- ReadyCheck icon
 	local rc = CreateFrame("Frame", nil, overlay)
