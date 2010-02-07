@@ -115,7 +115,12 @@ end
 -- Update health and name color
 local function UpdateColor(self, event, unit)
 	if unit and unit ~= self.unit then return end
-	local state = GetFrameUnitState(self, true)
+	local refUnit = (self.realUnit or self.unit):gsub('pet', '')
+	if refUnit == '' then refUnit = 'player' end -- 'pet'
+	local class = UnitName(refUnit) ~= UNKNOWN and select(2, UnitClass(refUnit))
+	local state = oUF_Adirelle.GetFrameUnitState(self, true) or class or ""
+	if state == self.__stateColor then return end
+	self.__stateColor = state
 	self:Debug('UpdateColor', event, unit, state)
 	local r, g, b = 0.5, 0.5, 0.5
 	if state == "DEAD" or state == "DISCONNECTED" then
@@ -124,13 +129,8 @@ local function UpdateColor(self, event, unit)
 		r, g, b = 1, 0.3, 0
 	elseif state == "INVEHICLE" then
 		r, g, b = 0.2, 0.6, 0
-	else
-		local refUnit = (self.realUnit or self.unit):gsub('pet', '')
-		if refUnit == '' then refUnit = 'player' end -- 'pet'
-		local class = UnitName(refUnit) ~= UNKNOWN and select(2, UnitClass(refUnit))
-		if class then
-			r, g, b = unpack(self.colors.class[class])
-		end
+	elseif class then
+		r, g, b = unpack(self.colors.class[class])
 	end
 	self.bgColor[1], self.bgColor[2], self.bgColor[3] = r, g, b
 	self.Health.bg:SetVertexColor(r, g, b, 1)
@@ -138,8 +138,15 @@ local function UpdateColor(self, event, unit)
 end
 
 do
-	local function Enable() return true end
-	local function Disable() end
+	local function Enable(self)
+		self:RegisterEvent('PARTY_MEMBERS_CHANGED', UpdateColor)
+		self:RegisterEvent('UNIT_NAME_UPDATE', UpdateColor)
+		return true
+	end
+	local function Disable(self)
+		self:UnregisterEvent('PARTY_MEMBERS_CHANGED', UpdateColor)
+		self:UnregisterEvent('UNIT_NAME_UPDATE', UpdateColor)
+	end
 	oUF:AddElement('Adirelle_Raid-BarColor', UpdateColor, Enable, Disable)
 end
 
@@ -174,7 +181,7 @@ local CreateAuraIcons
 do
 	local INSET, SMALL_ICON_SIZE = 1, 8
 	local function SpawnSmallIcon(self, ...) return self:SpawnAuraIcon(self.Overlay, SMALL_ICON_SIZE, true, true, true, false, ...)	end
-	
+
 	-- Create the specific icons depending on player class
 	local CreateClassAuraIcons
 	if playerClass == "DRUID" then
@@ -276,13 +283,13 @@ do
 			-- Display cureable debuffs
 			return true
 		end
-		
+
 	end
-	
+
 	-- Main creation function
 	function CreateAuraIcons(self)
 		self.iconBlinkThreshold = 3
-	
+
 		-- Show important class buffs
 		local importantBuff = self:SpawnAuraIcon(self.Overlay, ICON_SIZE)
 		self:AddAuraIcon(importantBuff, "ClassImportantBuff")
@@ -291,7 +298,7 @@ do
 		local importantDebuff = self:SpawnAuraIcon(self.Overlay, ICON_SIZE)
 		self:AddAuraIcon(importantDebuff, "ImportantDebuff")
 
-		local cureableDebuffFilter = CreateClassAuraIcons and CreateClassAuraIcons(self)		
+		local cureableDebuffFilter = CreateClassAuraIcons and CreateClassAuraIcons(self)
 		if cureableDebuffFilter then
 			-- Show cureable debuffs
 			local debuff = self:SpawnAuraIcon(self.Overlay, ICON_SIZE)
@@ -300,11 +307,11 @@ do
 			-- Layout icons
 			importantBuff:SetPoint("CENTER", self, "LEFT", WIDTH * 0.25, 0)
 			debuff:SetPoint("CENTER")
-			importantDebuff:SetPoint("CENTER", self, "LEFT", WIDTH * 0.75, 0)			
+			importantDebuff:SetPoint("CENTER", self, "LEFT", WIDTH * 0.75, 0)
 		else
 			-- Layout icons
 			importantBuff:SetPoint("CENTER", self, "LEFT", WIDTH * 0.33, 0)
-			importantDebuff:SetPoint("CENTER", self, "LEFT", WIDTH * 0.66, 0)			
+			importantDebuff:SetPoint("CENTER", self, "LEFT", WIDTH * 0.66, 0)
 		end
 
 	end
@@ -413,7 +420,7 @@ local function InitFrame(settings, self)
 	rc.icon = rc:CreateTexture()
 	rc.icon:SetAllPoints(rc)
 	self.ReadyCheck = rc
-	
+
 	-- Aura icons
 	CreateAuraIcons(self)
 
@@ -437,7 +444,7 @@ local function InitFrame(settings, self)
 	threat:SetAlpha(glowBorderBackdrop.alpha)
 	threat:SetFrameLevel(self:GetFrameLevel()+2)
 	self.Threat = threat
-	
+
 	-- Role/Raid icon
 	local roleIcon = overlay:CreateTexture(nil, "OVERLAY")
 	roleIcon:SetWidth(8)
