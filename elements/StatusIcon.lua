@@ -62,6 +62,7 @@ local function Update(self, event, unit)
 	end
 end
 
+local visibility = {}
 local objects = {}
 local delay = 0
 local function UpdateVisibility(_, elapsed) 
@@ -72,22 +73,24 @@ local function UpdateVisibility(_, elapsed)
 	delay = 0.25
 	for frame in pairs(objects) do
 		if frame:IsShown() and frame.unit then
-			Update(frame, "OnUpdate", frame.unit)
+			local visible = UnitIsVisible(frame.unit)
+			if visible ~= visibility[frame] then
+				visibility[frame] = visible
+				Update(frame, "OnUpdate", frame.unit)
+			end
 		end
 	end
 end
 
-local function PlayerUpdate(self, event) return Update(self, event, "player") end
-
 local checkFrame
 local function Enable(self)
 	if self.StatusIcon then
-		self:RegisterEvent('UNIT_FLAGS', Update)
 		self:RegisterEvent('UNIT_AURA', Update)
+		self:RegisterEvent('UNIT_HEALTH', Update)
+		self:RegisterEvent('UNIT_FLAGS', Update)
 		self:RegisterEvent('UNIT_DYNAMIC_FLAGS', Update)
-		self:RegisterEvent('PLAYER_DEAD', PlayerUpdate)
-		self:RegisterEvent('PLAYER_ALIVE', PlayerUpdate)
-		self:RegisterEvent('PLAYER_UNGHOST', PlayerUpdate)
+		self:RegisterEvent('UNIT_ENTERED_VEHICLE', Update)
+		self:RegisterEvent('UNIT_EXITED_VEHICLE', Update)
 		if not next(objects) then
 			if not checkFrame then
 				checkFrame = CreateFrame("Frame")
@@ -102,12 +105,12 @@ end
 
 local function Disable(self)
 	if self.StatusIcon then
-		self:UnregisterEvent('UNIT_FLAGS', Update)
 		self:UnregisterEvent('UNIT_AURA', Update)
+		self:UnregisterEvent('UNIT_HEALTH', Update)
+		self:UnregisterEvent('UNIT_FLAGS', Update)
 		self:UnregisterEvent('UNIT_DYNAMIC_FLAGS', Update)
-		self:UnregisterEvent('PLAYER_DEAD', PlayerUpdate)
-		self:UnregisterEvent('PLAYER_ALIVE', PlayerUpdate)
-		self:UnregisterEvent('PLAYER_UNGHOST', PlayerUpdate)
+		self:UnregisterEvent('UNIT_ENTERED_VEHICLE', Update)
+		self:UnregisterEvent('UNIT_EXITED_VEHICLE', Update)
 		objects[self] = nil
 		if not next(objects) then
 			checkFrame:Hide()
