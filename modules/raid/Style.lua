@@ -137,11 +137,19 @@ local function UpdateColor(self, event, unit)
 	return UpdateName(self)
 end
 
-do
-	local function Enable() return true end
-	local function Disable() end
-	oUF:AddElement('Adirelle_Raid-BarColor', UpdateColor, Enable, Disable)
-end
+-- Add a pseudo-element to update the color
+oUF:AddElement('Adirelle_Raid:UpdateColor', 
+	UpdateColor, 
+	function(self) 
+		if self.Health and self.bgColor and self.style == "Adirelle_Raid" then
+			self:RegisterEvent('UNIT_NAME_UPDATE', UpdateColor)
+			self:RegisterEvent('RAID_ROSTER_UPDATE', UpdateColor)
+			self:RegisterEvent('PARTY_MEMBERS_CHANGED', UpdateColor)
+			return true
+		end
+	end,
+	function() end
+)
 
 -- Statusbar texturing
 local function PostHealthBareTextureUpdate(self)
@@ -473,5 +481,3 @@ raid_style = setmetatable(
 )
 
 oUF:RegisterStyle("Adirelle_Raid", raid_style)
-
-
