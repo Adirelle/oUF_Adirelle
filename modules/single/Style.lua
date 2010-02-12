@@ -168,11 +168,9 @@ local function CustomAuraFilter(icons, unit, icon, name, rank, texture, count, d
 		end
 	elseif unit == "player" or UnitCanAssist("player", unit) then
 		-- Friend
-		if not duration or duration == 0 then
-			return false
-		elseif icon.debuff then
+		if icon.debuff then
 			icon.bigger = dtype and CUREABLE_DEBUFF_TYPE[dtype]
-		elseif InCombatLockdown() and shouldConsolidate then
+		elseif InCombatLockdown() and (shouldConsolidate or (duration or 0) == 0) then
 			return false
 		end
 	end
