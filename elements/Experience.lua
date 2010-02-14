@@ -14,9 +14,9 @@ local UnitXPMax = UnitXPMax
 local GetXPExhaustion = GetXPExhaustion
 
 local colors = {
-	resting = { 0.0, 0.1, 0.75 }, -- green
-	normal = { 1.00, 0.0, 1.0 }, -- purple
-	rested = { 0.0, 0.75, 1.0 }, -- blue
+	resting = { 0.0, 1.0, 0.37 }, -- green
+	normal = { 0.0, 0.75, 1.0 }, -- blue
+	rested = { 0.0, 0.37, 0.5 }, -- darker blue
 }
 
 local function Update(self, event)
