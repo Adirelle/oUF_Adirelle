@@ -640,6 +640,53 @@ local function InitFrame(settings, self)
 		dragon.rare = DRAGON_TEXTURES.rare
 		self.Dragon = dragon
 	end
+	
+	-- Experience Bar for player
+	if unit == "player" then
+		local xpFrame = CreateFrame("Frame", nil, self)
+		xpFrame:SetPoint("TOPLEFT", self, "BOTTOMLEFT", 0, -FRAME_MARGIN)
+		xpFrame:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", 0, -FRAME_MARGIN-12)
+		xpFrame:SetBackdrop(backdrop)
+		xpFrame:SetBackdropColor(0,0,0,1)
+		xpFrame:SetBackdropBorderColor(0,0,0,1)
+		xpFrame:EnableMouse(false)
+
+		local xpBar = SpawnStatusBar(self, true)
+		xpBar:SetParent(xpFrame)
+		xpBar:SetAllPoints(xpFrame)
+		xpBar.Show = function() return xpFrame:Show() end
+		xpBar.Hide = function() return xpFrame:Hide() end
+		xpBar.IsShown = function() return xpFrame:IsShown() end
+		xpBar:EnableMouse(false)
+		xpBar.PostTextureUpdate = function() self:UpdateElement('Experience') end
+
+		local restedBar = SpawnStatusBar(self, true)
+		restedBar:SetParent(xpFrame)
+		restedBar:SetAllPoints(xpFrame)
+		restedBar:EnableMouse(false)
+		restedBar.PostTextureUpdate = xpBar.PostTextureUpdate
+		
+		local levelText = SpawnText(xpBar, "OVERLAY", "TOPLEFT", "TOPLEFT", TEXT_MARGIN, 0)
+		levelText:SetPoint("BOTTOMLEFT", xpBar, "BOTTOMLEFT", TEXT_MARGIN, 0)
+
+		local xpText = SpawnText(xpBar, "OVERLAY", "TOPRIGHT", "TOPRIGHT", -TEXT_MARGIN, 0)
+		xpText:SetPoint("BOTTOMRIGHT", xpBar, "BOTTOMRIGHT", -TEXT_MARGIN, 0)
+		
+		xpBar.UpdateText = function(self, bar, current, max, rested, level)
+			self:Debug("restedBar.UpdateText", self, bar, current, max, rested, level)
+			levelText:SetFormattedText(level)
+			if rested and rested > 0 then
+				xpText:SetFormattedText("%s(+%s)/%s", smartValue(current), smartValue(rested), smartValue(max))
+			else
+				xpText:SetFormattedText("%s/%s", smartValue(current), smartValue(max))
+			end
+		end
+
+		xpBar.Rested = restedBar
+		xpBar:SetFrameLevel(restedBar:GetFrameLevel()+1)
+		
+		self.ExperienceBar = xpBar
+	end
 
 	-- Range fading
 	self.XRange = true
