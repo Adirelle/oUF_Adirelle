@@ -97,7 +97,9 @@ do
 				Gaseous Bloat: 72455 = 100
 				Volatile Ooze Adhesive: 70447 = 100
 			Blood-Queen Lana'thel
-				Pact: 71340, 71390 = 100
+				Essence of the Blood Queen: 70867 = 80
+				Pact: 71340, 71390 = 90
+				Frenzied Bloodthirst: 70877 = 100
 			Sindragosa
 				Frost Beacon: 70126 = 100
 	]=]
