@@ -38,15 +38,21 @@ local function SetHandlerEnv(self, ...)
 	end
 end
 
-local function Update(self, event, unit) 
-	return self:UNIT_MAXHEALTH(event, unit)
+local function HealthUpdated(self, event, guid)
+	if guid == UnitGUID(self.unit or "") then
+		return self:UNIT_MAXHEALTH(event, self.unit)
+	end
 end
 
 -- Update Health element to use QuickHealth
 oUF:RegisterInitCallback(function(self)
 	if self.Health then
-		SetHandlerEnv(self, self.UNIT_HEALTH, self.UNIT_MAXHEALTH)
-		lqh.RegisterCallback(self, "UnitHealthUpdated", Update, self)
+		if self.Health.frequentUpdates then
+			Debug('QuickHealth support ignoring '..self:GetName()..' because of Health.frequentUpdates')
+		else
+			SetHandlerEnv(self, self.UNIT_HEALTH, self.UNIT_MAXHEALTH)
+			lqh.RegisterCallback(self, "HealthUpdated", HealthUpdated, self)
+		end
 	end
 end)
 

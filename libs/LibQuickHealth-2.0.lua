@@ -332,7 +332,7 @@ end
 
 do
 	local updatedUnitIDs = {
-		"player", "pet", 
+		"player", "pet", "vehicle",
 	}
 	for i=1,4 do
 		tinsert(updatedUnitIDs, 'party'..i)
