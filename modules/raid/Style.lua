@@ -236,6 +236,7 @@ do
 
 	elseif playerClass == "SHAMAN" then
 		function CreateClassAuraIcons(self)
+			-- Earth Shield
 			for i = 1, 6 do
 				self:AddAuraIcon(
 					SpawnSmallIcon(self, "BOTTOMRIGHT", self, "BOTTOMRIGHT", -INSET - SMALL_ICON_SIZE*(i-1), INSET),
@@ -246,11 +247,6 @@ do
 			self:AddAuraIcon(
 				SpawnSmallIcon(self, "TOPRIGHT", self, "TOPRIGHT", -INSET, -INSET),
 				GetOwnAuraFilter(61301)
-			)
-			-- Sated/Exhausted
-			self:AddAuraIcon(
-				SpawnSmallIcon(self, "TOPLEFT", self, "TOPLEFT", INSET, -INSET),
-				GetAnyAuraFilter((UnitFactionGroup("player") == "Alliance") and 29650 or 57724, "HARMFUL")
 			)
 			-- Display cureable debuffs
 			return true
