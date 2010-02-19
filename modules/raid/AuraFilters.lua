@@ -86,10 +86,10 @@ function GetDebuffTypeFilter(debuffType, r, g, b)
 	if not exists then
 		oUF:AddAuraFilter(filter, function(unit)
 			for i = 1, 255 do
-				local name, _, texture, count, debuffType, duration, expirationTime = UnitAura(unit, i, "HARMFUL")
+				local name, _, texture, count, dType, duration, expirationTime = UnitAura(unit, i, "HARMFUL")
 				if not name then
 					return
-				elseif debuffType == debuffType then
+				elseif dType == debuffType then
 					return texture, count, expirationTime-duration, duration, r, g, b
 				end
 			end
