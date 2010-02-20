@@ -152,8 +152,6 @@ local function GetLayoutType()
 	return 1
 end
 
-local lastLayoutType, lastNumColumns
-
 local function SetHeaderLayout(header, filter, height)
 	if filter then	
 		for i = 1, 5 do
@@ -187,61 +185,52 @@ local function ApplyRaidLayout(layoutType)
 	end
 end
 
+local lastLayoutType
 local updateFrame = CreateFrame("Frame")
 updateFrame:Hide()
 
-local dirtyLayout, dirtyPosition
-
-local function OnUpdate()
+local function UpdateLayout(_, event)
 	if not InCombatLockdown() then
-		if dirtyLayout then
-			dirtyLayout = nil
-			local layoutType = GetLayoutType()
-			if layoutType ~= lastLayoutType then
-				lastLayoutType = layoutType
-				ApplyRaidLayout(layoutType)
+		local layoutType = GetLayoutType()
+		if layoutType ~= lastLayoutType then
+			ApplyRaidLayout(layoutType)
+			lastLayoutType = layoutType
+		end
+		local width = 0
+		for _, header in pairs(headers) do
+			if header:IsVisible() then
+				width = math.max(width, header:GetWidth())
 			end
 		end
-		if dirtyPosition then
-			dirtyPosition = nil
-			local width = 0, 0, 0
-			for _, header in pairs(headers) do
-				if header:IsVisible() then
-					width = math.max(width, header:GetWidth())
-				end
-			end
-			anchor:SetWidth(width + ANCHOR_BORDER_WIDTH * 2)
-		end
+		anchor:SetWidth(width + ANCHOR_BORDER_WIDTH * 2)
 	end
 	updateFrame:Hide()
 end
 
-local function CheckLayout()
-	dirtyLayout = true
-	updateFrame:Show()
-end
-
-local function CheckPosition()
-	dirtyPosition = true
-	updateFrame:Show()
-end
-
-updateFrame:SetScript('OnUpdate', OnUpdate)
-updateFrame:SetScript('OnEvent', CheckLayout)
+updateFrame:SetScript('OnUpdate', UpdateLayout)
+updateFrame:SetScript('OnEvent', UpdateLayout)
 updateFrame:RegisterEvent('PLAYER_REGEN_ENABLED')
 updateFrame:RegisterEvent('PLAYER_ENTERING_WORLD')
 updateFrame:RegisterEvent('PARTY_MEMBERS_CHANGED')
 
+UpdateLayout()
+
+local function RequestUpdate()
+	if not InCombatLockdown() then
+		updateFrame:Show()
+	end
+end
+
 for _, header in pairs(headers) do
-	header:HookScript('OnShow', CheckPosition)
-	header:HookScript('OnHide', CheckPosition)
-	header:HookScript('OnSizeChanged', CheckPosition)
+	header:HookScript('OnShow', RequestUpdate)
+	header:HookScript('OnHide', RequestUpdate)
+	header:HookScript('OnSizeChanged', RequestUpdate)
 end
 
 for _, header in pairs(petHeaders) do
-	header:HookScript('OnShow', CheckPosition)
-	header:HookScript('OnHide', CheckPosition)
-	header:HookScript('OnSizeChanged', CheckPosition)
+	header:HookScript('OnShow', RequestUpdate)
+	header:HookScript('OnHide', RequestUpdate)
+	header:HookScript('OnSizeChanged', RequestUpdate)
 end
 
 local libmovable = GetLib('LibMovable-1.0')
@@ -253,4 +242,3 @@ if libmovable then
 	RegisterMovable(anchor, 'anchor', "Party/raid frames", mask)
 end
 
-CheckLayout()
