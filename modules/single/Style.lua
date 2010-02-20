@@ -673,7 +673,6 @@ local function InitFrame(settings, self)
 		xpText:SetPoint("BOTTOMRIGHT", xpBar, "BOTTOMRIGHT", -TEXT_MARGIN, 0)
 		
 		xpBar.UpdateText = function(self, bar, current, max, rested, level)
-			self:Debug("restedBar.UpdateText", self, bar, current, max, rested, level)
 			levelText:SetFormattedText(level)
 			if rested and rested > 0 then
 				xpText:SetFormattedText("%s(+%s)/%s", smartValue(current), smartValue(rested), smartValue(max))
