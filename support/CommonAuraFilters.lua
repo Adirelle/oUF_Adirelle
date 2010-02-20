@@ -90,7 +90,7 @@ do
 			Festergut
 				Gastric Bloat: 72551, 72219 = 60
 				Spores: 69279 = 80
-				Vile Gas: 72272 = 100
+				Vile Gas: 72272, 72273, 72274, 73020 = 100
 			Precious & Stinky
 				Wound: 71127 = 100
 			Professor Putricide
