@@ -23,7 +23,16 @@ _G.oUF_Adirelle = ns
 -- Debugging stuff
 if tekDebug then
 	local frame = tekDebug:GetFrame("oUF_Adirelle")	
-	function Debug(...) frame:AddMessage(string.join(", ", tostringall(...)):gsub("([:=]), ", "%1")) end 
+	local strformat = string.format
+	function Debug(self, ...)
+		local timestamp = "|cff777777["..date("%X")..strformat(".%d", (GetTime()%1)*100).."]|r"
+		if type(self) == "table" and type(self[0]) == "userdata" then
+			self = '|cffCC7700'..tostring(self)..'|r'
+		else
+			self = tostring(self)
+		end
+		frame:AddMessage(strjoin(" ", timestamp, self, tostringall(...)))
+	end 
 	oUF.frame_metatable.__tostring = function(self) return self:GetName()..'['..tostring(self.unit)..']' end
 else
 	function Debug() end
