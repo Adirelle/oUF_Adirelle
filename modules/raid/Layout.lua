@@ -49,7 +49,7 @@ local header = oUF:Spawn("header", "oUF_PartyPets", "SecureGroupPetHeaderTemplat
 header:SetManyAttributes("showParty", true, "showRaid", true, "showPlayer", true, "groupFilter", 1, "point", "LEFT", "xOffset", SPACING)
 header.isPets = true
 header:SetScale(SCALE)
-header:SetPoint("BOTTOM", headers[1], "TOP", 0, SPACING)
+header:SetPoint("BOTTOMLEFT", headers[1], "TOPLEFT", 0, SPACING)
 header:SetParent(anchor)
 headers.partypets = header
 
@@ -73,7 +73,7 @@ RegisterStateDriver(headers[6], "visibility", "[@raid26,exists] show; hide")
 RegisterStateDriver(headers[7], "visibility", "[@raid31,exists] show; hide")
 RegisterStateDriver(headers[8], "visibility", "[@raid36,exists] show; hide")
 
-RegisterStateDriver(headers.partypets, "visibility", "[nogroup:party] hide; show")
+RegisterStateDriver(headers.partypets, "visibility", "[@raid6,exists] hide; [group:party] show; hide")
 RegisterStateDriver(headers.raidpet1, "visibility", "[@raid11,exists] hide; [group:raid] show; hide")
 RegisterStateDriver(headers.raidpet2, "visibility", "[@raid11,exists] hide; [group:raid] show; hide")
 
@@ -91,7 +91,7 @@ local driver = CreateFrame("Frame", nil, nil, "SecureHandlerStateTemplate")
 driver:SetFrameRef('anchor', anchor)
 driver:SetAttribute('_onstate-width', [[ self:GetFrameRef('anchor'):SetWidth(newstate) ]])
 RegisterStateDriver(driver, "width", 
-	("[group:raid][@party4, exists] %d; [@party3, exists] %d; [@party2, exists] %d; [@party1, exists] %d; %d")
+	("[@raid6, exists][@party4, exists] %d; [@party3, exists] %d; [@party2, exists] %d; [@party1, exists] %d; %d")
 	:format(WIDTH * 5 + SPACING * 4, WIDTH * 4 + SPACING * 3, WIDTH * 3 + SPACING * 2, WIDTH * 2 + SPACING,	WIDTH)
 )
 
