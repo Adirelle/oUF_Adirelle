@@ -11,6 +11,9 @@ local GetRaidRosterInfo = GetRaidRosterInfo
 local pairs = pairs
 local ipairs = ipairs
 
+local ANCHOR_BORDER_WIDTH = 0
+local RAID40_HEIGHT = 20
+
 -- Use our own namespace
 setfenv(1, _G.oUF_Adirelle)
 
@@ -18,7 +21,6 @@ oUF:SetActiveStyle("Adirelle_Raid")
 
 -- Raid anchor
 local anchor = CreateFrame("Frame", "oUF_Raid_Anchor", UIParent, "SecureFrameTemplate")
-local ANCHOR_BORDER_WIDTH = 0
 anchor:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, 230)
 anchor:SetWidth(ANCHOR_BORDER_WIDTH * 2 + SPACING * 4 + WIDTH * 5)
 anchor:SetHeight(0.1)
@@ -34,9 +36,9 @@ for group = 1, 8 do
 	header:SetScale(SCALE)
 	header:SetParent(anchor)
 	if group > 1 then
-		header:SetPoint("BOTTOM", headers[group - 1], "TOP", 0, SPACING)
+		header:SetPoint("BOTTOMLEFT", headers[group - 1], "TOPLEFT", 0, SPACING)
 	else
-		header:SetPoint("BOTTOM", anchor, "TOP")
+		header:SetPoint("BOTTOMLEFT", anchor, "TOPLEFT")
 	end
 	headers[group] = header
 end
@@ -58,23 +60,22 @@ for group = 1, 2 do
 	header.isPets = true
 	header:SetScale(SCALE)
 	header:SetParent(anchor)
+	header:SetPoint("BOTTOMLEFT", headers[group+1], "TOPLEFT", 0, SPACING)
 	headers['raidpet'..group] = header
 end
-headers.raidpet1:SetPoint("BOTTOM", headers[2], "TOP", 0, SPACING)
-headers.raidpet2:SetPoint("BOTTOM", headers.raid1, "TOP", 0, SPACING)
 
 RegisterStateDriver(headers[1], "visibility", "[nogroup:party] hide; show")
 RegisterStateDriver(headers[2], "visibility", "[@raid6,exists] show; hide")
 RegisterStateDriver(headers[3], "visibility", "[@raid11,exists] show; hide")
-RegisterStateDriver(headers[4], "visibility", "[@raid11,exists] show; hide")
-RegisterStateDriver(headers[5], "visibility", "[@raid11,exists] show; hide")
+RegisterStateDriver(headers[4], "visibility", "[@raid16,exists] show; hide")
+RegisterStateDriver(headers[5], "visibility", "[@raid21,exists] show; hide")
 RegisterStateDriver(headers[6], "visibility", "[@raid26,exists] show; hide")
-RegisterStateDriver(headers[7], "visibility", "[@raid26,exists] show; hide")
-RegisterStateDriver(headers[8], "visibility", "[@raid26,exists] show; hide")
+RegisterStateDriver(headers[7], "visibility", "[@raid31,exists] show; hide")
+RegisterStateDriver(headers[8], "visibility", "[@raid36,exists] show; hide")
 
 RegisterStateDriver(headers.partypets, "visibility", "[nogroup:party] hide; show")
-RegisterStateDriver(headers.raidpet1, "visibility", "[@raid11,exists] hide; [@raid6,exists] show; hide")
-RegisterStateDriver(headers.raidpet2, "visibility", "[@raid11,exists] hide; [@raid6,exists] show; hide")
+RegisterStateDriver(headers.raidpet1, "visibility", "[@raid11,exists] hide; [group:raid] show; hide")
+RegisterStateDriver(headers.raidpet2, "visibility", "[@raid11,exists] hide; [group:raid] show; hide")
 
 --@debug@
 headers[1]:SetAttribute("showSolo", true)
@@ -83,31 +84,41 @@ RegisterStateDriver(headers[1], "visibility", "show")
 RegisterStateDriver(headers.partypets, "visibility", "show")
 --@end-debug@
 
--- Height update
-if HEIGHT ~= 20 then
-	local driver = CreateFrame("Frame", nil, nil, "SecureHandlerStateTemplate")
-	driver:Execute([[headers = newtable()]])
+-- State driver to dynamically adjust position and height
+local driver = CreateFrame("Frame", nil, nil, "SecureHandlerStateTemplate")
+
+-- Position updating
+driver:SetFrameRef('anchor', anchor)
+driver:SetAttribute('_onstate-width', [[ self:GetFrameRef('anchor'):SetWidth(newstate) ]])
+RegisterStateDriver(driver, "width", 
+	("[group:raid][@party4, exists] %d; [@party3, exists] %d; [@party2, exists] %d; [@party1, exists] %d; %d")
+	:format(WIDTH * 5 + SPACING * 4, WIDTH * 4 + SPACING * 3, WIDTH * 3 + SPACING * 2, WIDTH * 2 + SPACING,	WIDTH)
+)
+
+-- Height updating
+if HEIGHT ~= RAID40_HEIGHT then
+	local numHeaders = 0
 	for _, header in pairs(headers) do
-		driver:SetFrameRef('header', header)
-		driver:Execute([[	tinsert(headers, self:GetFrameRef('header')) ]])
+		numHeaders = numHeaders + 1
+		driver:SetFrameRef('header'..numHeaders, header)
 	end
+	driver:Execute([[numHeaders = ]]..numHeaders)
 	driver:SetAttribute('_onstate-height', [[
 		local height = newstate
-		for _, header in pairs(headers) do
-			control:RunFor(header, [=[
-			  local height = ...
-				self:SetAttribute('initial-height', height)
-				self:SetHeight(height)
-				for i = 1, 5 do
-				  local child = self:GetFrameRef('child'..i)
-				  if child then
-				  	child:SetHeight(height)
-				  end
-				end
-			]=], height)
+		for i = 1, numHeaders do
+			local header = self:GetFrameRef('header'..i)
+			header:SetAttribute('initial-height', height)
+			header:SetAttribute('minHeight', height)
+			header:SetHeight(height)
+			for i = 1, 5 do
+			  local child = header:GetFrameRef('child'..i)
+			  if child then
+			  	child:SetHeight(height)
+			  end
+			end
 		end
 	]])	
-	RegisterStateDriver(driver, "height", "[@raid26,exists] 20; "..HEIGHT)	
+	RegisterStateDriver(driver, "height", "[@raid26,exists] "..RAID40_HEIGHT.."; "..HEIGHT)
 end
 
 local libmovable = GetLib('LibMovable-1.0')
