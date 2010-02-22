@@ -230,7 +230,7 @@ local function OnSizeChanged(self, width, height)
 			self.AltPower:SetHeight((height-2*GAP)*0.20)
 		end
 	end
-	end
+end
 
 local SetupAltPower
 if playerClass == 'DEATHKNIGHT' then
@@ -280,26 +280,35 @@ if playerClass == 'DEATHKNIGHT' then
 
 elseif playerClass == "DRUID" then
 	-- Druid mana bar
+	
+	function UpdateAltPower(self, event, unit)
+		local power, altPower = self.Power, self.AltPower
+		if unit == 'player' and UnitPowerType(unit) ~= SPELL_POWER_MANA then
+			local current, max = UnitPower(unit, SPELL_POWER_MANA), UnitPowerMax(unit, SPELL_POWER_MANA)
+			if max and max > 0 then
+				altPower:SetMinMaxValues(0, max)
+				altPower:SetValue(current)
+				return altPower:Show()
+			end
+		end
+		return altPower:Hide()
+	end
 
 	function SetupAltPower(self)
-		local POWERTYPE_MANA = 0
 
 		local altPower = SpawnStatusBar(self)
 		altPower.PostTextureUpdate = function()
 			altPower:SetStatusBarColor(unpack(oUF.colors.power.MANA))
 		end
-
-		self.PostUpdatePower = function(self, event, unit)
-			local power, altPower = self.Power, self.AltPower
-			if unit == 'player' and UnitPowerType(unit) ~= POWERTYPE_MANA then
-				local current, max = UnitPower(unit, POWERTYPE_MANA), UnitPowerMax(unit, POWERTYPE_MANA)
-				if max and max > 0 then
-					altPower:SetMinMaxValues(0, max)
-					altPower:SetValue(current)
-					return altPower:Show()
-				end
+		
+		if self.PostUpdatePower then
+			local orig = self.PostUpdatePower
+			self.PostUpdatePower = function(...)
+				UpdateAltPower(...)
+				return orig(...)
 			end
-			altPower:Hide()
+		else
+			self.PostUpdatePower = UpdateAltPower
 		end
 
 		return altPower
@@ -515,7 +524,6 @@ local function InitFrame(settings, self)
 		threatBar:SetMinMaxValues(0, 100)
 		self.PostThreatBarUpdate = function(self, event, unit, bar, isTanking, status, scaledPercent, rawPercent, threatValue)
 			if not bar.Text then return end
-			self:Debug(event, unit, bar, isTanking, status, scaledPercent, rawPercent, threatValue)
 			if threatValue then
 				local value, unit = threatValue / 100, ""
 				if value > 1000000 then
