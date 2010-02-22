@@ -16,11 +16,6 @@ setfenv(1, _G.oUF_Adirelle)
 
 oUF:SetActiveStyle("Adirelle_Raid")
 
-local oldprinthandler = getprinthandler()
-if tekDebug then
-	setprinthandler(Debug)
-end
-
 -- Raid anchor
 local anchor = CreateFrame("Frame", "oUF_Raid_Anchor", UIParent, "SecureFrameTemplate")
 local ANCHOR_BORDER_WIDTH = 0
@@ -47,28 +42,26 @@ for group = 1, 8 do
 end
 headers[1]:SetManyAttributes("showParty", true, "showPlayer", true)
 
-do
-	-- Party pets
-	local header = oUF:Spawn("header", "oUF_PartyPets", "SecureGroupPetHeaderTemplate")
-	header:SetManyAttributes("showParty", true, "showRaid", true, "showPlayer", true, "groupFilter", 1, "point", "LEFT", "xOffset", SPACING)
+-- Party pets
+local header = oUF:Spawn("header", "oUF_PartyPets", "SecureGroupPetHeaderTemplate")
+header:SetManyAttributes("showParty", true, "showRaid", true, "showPlayer", true, "groupFilter", 1, "point", "LEFT", "xOffset", SPACING)
+header.isPets = true
+header:SetScale(SCALE)
+header:SetPoint("BOTTOM", headers[1], "TOP", 0, SPACING)
+header:SetParent(anchor)
+headers.partypets = header
+
+-- Raid pets
+for group = 1, 2 do
+	local header = oUF:Spawn("header", "oUF_Raid"..group.."Pets", "SecureGroupPetHeaderTemplate")
+	header:SetManyAttributes("showRaid", true, "groupFilter", group, "point", "LEFT", "xOffset", SPACING)
 	header.isPets = true
 	header:SetScale(SCALE)
-	header:SetPoint("BOTTOM", headers[1], "TOP", 0, SPACING)
 	header:SetParent(anchor)
-	headers.partypets = header
-	
-	-- Raid pets
-	for group = 1, 2 do
-		local header = oUF:Spawn("header", "oUF_Raid"..group.."Pets", "SecureGroupPetHeaderTemplate")
-		header:SetManyAttributes("showRaid", true, "groupFilter", group, "point", "LEFT", "xOffset", SPACING)
-		header.isPets = true
-		header:SetScale(SCALE)
-		header:SetParent(anchor)
-		headers['raidpet'..group] = header
-	end
-	headers.raidpet1:SetPoint("BOTTOM", headers[2], "TOP", 0, SPACING)
-	headers.raidpet2:SetPoint("BOTTOM", headers.raid1, "TOP", 0, SPACING)
+	headers['raidpet'..group] = header
 end
+headers.raidpet1:SetPoint("BOTTOM", headers[2], "TOP", 0, SPACING)
+headers.raidpet2:SetPoint("BOTTOM", headers.raid1, "TOP", 0, SPACING)
 
 RegisterStateDriver(headers[1], "visibility", "[nogroup:party] hide; show")
 RegisterStateDriver(headers[2], "visibility", "[@raid6,exists] show; hide")
@@ -125,6 +118,4 @@ if libmovable then
 	mask:SetHeight(SPACING * 7 + 20 * 8 + ANCHOR_BORDER_WIDTH * 2)
 	RegisterMovable(anchor, 'anchor', "Party/raid frames", mask)
 end
-
-setprinthandler(oldprinthandler)
 
