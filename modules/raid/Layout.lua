@@ -74,14 +74,14 @@ RegisterStateDriver(headers[7], "visibility", "[@raid31,exists] show; hide")
 RegisterStateDriver(headers[8], "visibility", "[@raid36,exists] show; hide")
 
 RegisterStateDriver(headers.partypets, "visibility", "[@raid6,exists] hide; [group:party] show; hide")
-RegisterStateDriver(headers.raidpet1, "visibility", "[@raid11,exists] hide; [group:raid] show; hide")
-RegisterStateDriver(headers.raidpet2, "visibility", "[@raid11,exists] hide; [group:raid] show; hide")
+RegisterStateDriver(headers.raidpet1, "visibility", "[@raid11,exists] hide; [@raid6,exists] show; hide")
+RegisterStateDriver(headers.raidpet2, "visibility", "[@raid11,exists] hide; [@raid6,exists] show; hide")
 
 --@debug@
 headers[1]:SetAttribute("showSolo", true)
 headers.partypets:SetAttribute("showSolo", true)
 RegisterStateDriver(headers[1], "visibility", "show")
-RegisterStateDriver(headers.partypets, "visibility", "[group:raid] hide; show")
+RegisterStateDriver(headers.partypets, "visibility", "[@raid6,exists] hide; show")
 --@end-debug@
 
 -- State driver to dynamically adjust position and height
