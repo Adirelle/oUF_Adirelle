@@ -214,24 +214,6 @@ local function SetAuraPosition(self, icons, numIcons)
 	end
 end
 
-local function OnSizeChanged(self, width, height)
-	width = width or self:GetWidth()
-	height = height or self:GetHeight()
-	self.Border:SetWidth(width + 2*BORDER_WIDTH)
-	self.Border:SetHeight(height + 2*BORDER_WIDTH)
-	local portrait = self.Portrait
-	if portrait then
-		portrait:SetWidth(height)
-		portrait:SetHeight(height)
-	end
-	if self.Power then
-		self.Health:SetHeight((height-GAP)*0.55)
-		if self.AltPower then
-			self.AltPower:SetHeight((height-2*GAP)*0.20)
-		end
-	end
-end
-
 local SetupAltPower
 if playerClass == 'DEATHKNIGHT' then
 	-- Death Knight Runes
@@ -365,6 +347,28 @@ local function PostUpdatePower(self, event, unit, bar, min, max)
 	end
 end
 
+local function LayoutBars(self, width, height)
+	if width == 0 or height == 0 then return end
+	self.Border:SetWidth(width + 2 * BORDER_WIDTH)
+	self.Border:SetHeight(height + 2 * BORDER_WIDTH)
+	local portrait = self.Portrait
+	if portrait then
+		portrait:SetWidth(height)
+		portrait:SetHeight(height)
+	end
+	if self.Power then
+		local powerHeight = height * 0.45
+		height = height - powerHeight
+		if self.AltPower and self.AltPower:IsShown() then
+			local altHeight = powerHeight * 0.45
+			powerHeight = powerHeight - altHeight
+			self.AltPower:SetHeight(altHeight - GAP)
+		end
+		self.Power:SetHeight(powerHeight - GAP)
+	end
+	self.Health:SetHeight(height)
+end
+
 local DROPDOWN_FRAMES = {
 	player = "PlayerFrame",
 	pet = "PetFrame",
@@ -377,12 +381,46 @@ local DRAGON_TEXTURES = {
 	elite = { [[Interface\Addons\oUF_Adirelle\media\elite_graphic]], 6/128, 123/128, 17/128, 112/128, },
 }
 
+local BAR_NAMES = { "Power", "AltPower", "Castbar" }
+
 local function ToggleMenu(self, unit, button, actionType)
 	ToggleDropDownMenu(1, nil, DROPDOWN_MENUS[unit], self:GetName(), 0, 0)
 end
 
 local function OoC_UnitFrame_OnEnter(...)
 	if not InCombatLockdown() then return UnitFrame_OnEnter(...) end
+end
+
+do
+	local function Update(self, event, name)
+		if event == "CVAR_UPDATE" and name ~= "SHOW_TARGET_CASTBAR" then return end
+		local enabled = not not GetCVarBool("showTargetCastbar")
+		if enabled == self.Castbar.enabled then return end
+		self.Castbar.enabled = enabled
+		self:Debug('UpdateCastbarDisplay', enabled, event, name)
+		if enabled then
+			self:EnableElement('Castbar')
+		else
+			self:DisableElement('Castbar')
+			self.Castbar:Hide()
+		end
+	end
+
+	local function Enable(self)
+		if self.Castbar and self.OptionalCastbar then
+			self.Castbar.enabled = true
+			self:RegisterEvent('CVAR_UPDATE', Update)
+			return true
+		end
+	end
+	
+	local function Disable(self)
+		if self.Castbar and self.OptionalCastbar then
+			self:UnregisterEvent('CVAR_UPDATE', Update)
+		end
+	end
+
+	oUF:AddElement('OptionalCastbar', Update, Enable, Disable)
 end
 
 local function InitFrame(settings, self)
@@ -447,9 +485,18 @@ local function InitFrame(settings, self)
 	end
 	self.BarContainer = barContainer
 
+	-- Dynamic bar layout 
+	local UpdateLayout = function() 
+		local width, height = self:GetWidth(), self:GetHeight()
+		if width and height then
+			return LayoutBars(self, width, height) 
+		end
+	end
+	
 	-- Health bar
 	local health = SpawnStatusBar(self, false, "TOPLEFT", barContainer)
 	health:SetPoint("TOPRIGHT", barContainer)
+	health.barSizePercent = 55
 	health.colorTapping = true
 	health.colorDisconnected = true
 	health.colorHappiness = true
@@ -464,7 +511,7 @@ local function InitFrame(settings, self)
 	name:SetPoint("RIGHT", health.Text, "LEFT")
 	self:Tag(name, (unit == "player" or unit == "pet") and "[name]" or "[name][( <)status(>)]")
 	self.Name = name
-
+	
 	-- Incoming heals
 	if oUF.HasIncomingHeal then
 		local incomingHeal = CreateFrame("StatusBar", nil, self)
@@ -476,46 +523,88 @@ local function InitFrame(settings, self)
 		self.UpdateIncomingHeal = UpdateIncomingHeal
 		self.PostUpdateHealth = PostUpdateHealth
 	end
-
+	
 	-- Power bar
 	if not settings.noPower then
 		local power = SpawnStatusBar(self, false, "TOPLEFT", health, "BOTTOMLEFT", 0, -GAP)
-		power:SetPoint("BOTTOMRIGHT", barContainer)
+		power:SetPoint('RIGHT', barContainer)
 		power.colorDisconnected = true
 		power.colorPower = true
 		power.frequentUpdates = true
 		self.PostUpdatePower = PostUpdatePower
 		self.Power = power
 
-		-- Unit level and class (or creature family)
-		if unit ~= "player" and unit ~= "pet" then
-			local classif = SpawnText(barContainer, "OVERLAY")
-			classif:SetPoint("TOPLEFT", power, "TOPLEFT", TEXT_MARGIN, 0)
-			classif:SetPoint("RIGHT", power.Text, "LEFT")
-			classif:SetPoint("BOTTOM", barContainer)
-			self:Tag(classif, "[smartlevel][( )smartclass]")
-		end
-
 		if unit == "player" and SetupAltPower then
 			local altPower = SetupAltPower(self)
-			altPower:SetPoint("BOTTOMRIGHT", barContainer)
-			altPower:SetPoint("BOTTOMLEFT", barContainer)
+			altPower:SetPoint('TOPLEFT', power, 'BOTTOMLEFT', 0, -GAP)
+			altPower:SetPoint('RIGHT', barContainer)
 			altPower:Hide()
-			altPower:SetScript('OnShow', function()
-				power:SetPoint("BOTTOMRIGHT", altPower, "TOPRIGHT", 0, GAP)
-			end)
-			altPower:SetScript('OnHide', function()
-				power:SetPoint("BOTTOMRIGHT", barContainer)
-			end)
+			altPower:SetScript('OnShow', UpdateLayout)
+			altPower:SetScript('OnHide', UpdateLayout)
 			self.AltPower = altPower
 		end
-	else
-		health:SetPoint("BOTTOMRIGHT", barContainer)
-	end
+		
+		-- Unit level and class (or creature family)
+		if unit ~= "player" and unit ~= "pet" then
+			local classif = SpawnText(power, "OVERLAY", "TOPLEFT", "TOPLEFT", TEXT_MARGIN, 0)
+			classif:SetPoint("BOTTOMLEFT", power)
+			classif:SetPoint("RIGHT", power.Text, "LEFT")
+			self:Tag(classif, "[smartlevel][( )smartclass]")
+		end		
+		
+		-- Casting Bar
+		if unit == 'pet' or unit == 'target' or unit == 'focus' then
+			local castbar = CreateFrame("StatusBar", nil, self)
+			castbar:Hide()
+			castbar:SetPoint('BOTTOMRIGHT', power)
+			self:RegisterStatusBarTexture(castbar)
+			self.Castbar = castbar
+			
+			self.PostCastStart = function()
+				castbar:SetStatusBarColor(1.0, 0.7, 0.0)
+			end
+			self.PostChannelStart = function()
+				castbar:SetStatusBarColor(0.0, 1.0, 0.0)
+			end
+			
+			local icon = castbar:CreateTexture(nil, "ARTWORK")
+			icon:SetPoint('TOPRIGHT', castbar, 'TOPLEFT', -GAP, 0)
+			icon:SetTexCoord(0.05, 0.95, 0.05, 0.95)
+			castbar.Icon = icon
 
+			local spellText = SpawnText(castbar, "OVERLAY")
+			spellText:SetPoint('TOPLEFT', castbar, 'TOPLEFT', TEXT_MARGIN, 0)
+			spellText:SetPoint('BOTTOMRIGHT', castbar, 'BOTTOMRIGHT', -TEXT_MARGIN, 0)
+			castbar.Text = spellText
+			
+			local UpdateSize = function()
+				local height = castbar:GetHeight()
+				if height and height ~= castbar.__height then
+					castbar.__height = height
+					castbar:SetPoint('TOPLEFT', power, 'TOPLEFT', GAP + height, 0)
+					icon:SetWidth(height)
+					icon:SetHeight(height)
+				end
+			end
+			castbar:SetScript('OnSizeChanged', UpdateSize)
+			castbar:SetScript('OnShow', function() power:Hide() UpdateSize() end)
+			castbar:SetScript('OnHide', function() power:Show() end)
+			UpdateSize()
+			
+			local ptFrame = CreateFrame("Frame", nil, self)
+			ptFrame:SetAllPoints(power)
+			ptFrame:SetFrameLevel(castbar:GetFrameLevel()+1)
+			power.Text:SetParent(ptFrame)
+			
+			-- Enable the element depending on a CVar
+			self.OptionalCastbar = true
+		end
+	end
+			
+	-- Threat Bar
 	if unit == "target" then
 		-- Add a simple threat bar on the target
-		local threatBar = SpawnStatusBar(self, false, "TOPRIGHT", self, "BOTTOMRIGHT", 0, -FRAME_MARGIN)
+		local threatBar = SpawnStatusBar(self, false)
 		threatBar:SetBackdrop(backdrop)
 		threatBar:SetBackdropColor(0,0,0,1)
 		threatBar:SetBackdropBorderColor(0,0,0,1)
@@ -698,10 +787,9 @@ local function InitFrame(settings, self)
 	-- Range fading
 	self.XRange = true
 
-	self:HookScript('OnSizeChanged', OnSizeChanged)
-	if self:IsShown() and self:GetWidth() and self:GetHeight() then
-		OnSizeChanged(self)
-	end
+	-- Update layout at least once
+	self:HookScript('OnSizeChanged', UpdateLayout)	
+	UpdateLayout()
 end
 
 local single_style = setmetatable({
