@@ -59,6 +59,7 @@ h3. Single unit frames
 * shows raid/party roles and PvP status,
 * smart aura display depending on unit reaction,
 * when in group, displays a small threat bar on target frame.
+* *new in 1.2-beta-3*: optional casting bars on target, focus and pet frames; controlled by the "show cast bars on targets" option in Blizzard combat panel.
 
 h2. Library related features
 

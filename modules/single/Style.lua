@@ -381,8 +381,6 @@ local DRAGON_TEXTURES = {
 	elite = { [[Interface\Addons\oUF_Adirelle\media\elite_graphic]], 6/128, 123/128, 17/128, 112/128, },
 }
 
-local BAR_NAMES = { "Power", "AltPower", "Castbar" }
-
 local function ToggleMenu(self, unit, button, actionType)
 	ToggleDropDownMenu(1, nil, DROPDOWN_MENUS[unit], self:GetName(), 0, 0)
 end
