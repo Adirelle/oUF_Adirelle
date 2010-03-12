@@ -818,9 +818,3 @@ local single_style_health = setmetatable({
 })
 
 oUF:RegisterStyle("Adirelle_Single_Health", single_style_health)
-
--- DiminishingReturns support
-if DiminishingReturns and DiminishingReturns.DeclareOUF then
-	DiminishingReturns:DeclareOUF('oUF_Adirelle', oUF)
-end
-

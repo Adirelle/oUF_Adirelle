@@ -4,6 +4,5 @@
 ## Title: oUF_Adirelle - single unit frames
 ## Notes: Unit frames for player, pet, target, target of target and focus.
 ## RequiredDeps: oUF_Adirelle
-## OptionalDeps: DiminishingReturns
 
 ..\oUF_Adirelle\modules\single\module.xml

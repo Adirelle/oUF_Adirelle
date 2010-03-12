@@ -7,6 +7,8 @@
 ## SavedVariables: oUF_Adirelle_DB
 ## LoadOnDemand: 1
 
+## X-DiminishingReturns-Callback: oUF_Adirelle:RegisterDiminishingReturns()
+
 # Libraries
 #@no-lib-strip@
 libs\LibStub\LibStub.lua
