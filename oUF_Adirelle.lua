@@ -74,6 +74,11 @@ else
 	GetLib = function() end
 end
 
+-- DiminishingReturns support
+function RegisterDiminishingReturns()
+	_G.DiminishingReturns:DeclareOUF(parent, oUF)
+end
+
 -- Some common "constants"
 
 -- Recolor mana
