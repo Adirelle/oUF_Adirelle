@@ -101,6 +101,10 @@ do
 				Pact: 71340, 71390 = 90
 				Frenzied Bloodthirst: 70877 = 100
 			Sindragosa
+				Chilled to the Bone: 70106 = 60
+				Instability: 69766 = 60
+				Mystic Buffet: 70127, 70128, 72528, 72529, 72530 = 80
+				Ice Tomb: 70157 = 100
 				Frost Beacon: 70126 = 100
 	]=]
 
