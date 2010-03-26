@@ -9,41 +9,47 @@ local parent, ns = ...
 setfenv(1, ns)
 
 local texture = [[Interface\TargetingFrame\UI-StatusBar]]
-local objects = {}
+local bars = {}
 
-local function UpdateTexture(object)
-	local setter, callback = object.SetStatusBarTexture or object.SetTexture, object.PostTextureUpdate
-	setter(object, texture)
-	if callback then
-		callback(object, texture)
+local function UpdateTexture(bar)
+	local textureObject = bar
+	if bar:IsObjectType("StatusBar") then
+		bar:SetStatusBarTexture(texture)
+		textureObject = bar:GetStatusBarTexture()
+	else
+		bar:SetTexture(texture)
+	end
+	textureObject:SetHorizTile(false)
+	textureObject:SetVertTile(false)
+	if bar.PostTextureUpdate then
+		bar:PostTextureUpdate(texture)
 	end
 end
 
 local frame_prototype = oUF.frame_metatable and oUF.frame_metatable.__index or oUF
-function frame_prototype:RegisterStatusBarTexture(object, callback)
-	local setter = object.SetStatusBarTexture or object.SetTexture
-	assert(type(setter) == "function", "object has neither :SetTexture nor :SetStatusBarTexture") 
+function frame_prototype:RegisterStatusBarTexture(bar, callback)
+	assert(bar:IsObjectType("StatusBar") or bar:IsObjectType("Texture"), "object should be a Texture or a StatusBar") 
 	assert(callback == nil or type(callback) == "function", "callback should be either nil or a function")
-	objects[object] = self
-	object.PostTextureUpdate = callback or object.PostTextureUpdate
+	bars[bar] = self
+	bar.PostTextureUpdate = callback or bar.PostTextureUpdate
 end
 
 oUF:RegisterInitCallback(function(self)
-	for object, frame in pairs(objects) do
+	for bar, frame in pairs(bars) do
 		if frame == self then
-			UpdateTexture(object)
+			UpdateTexture(bar)
 		end
 	end
 end)
 
-local lsm = GetLib('LibSharedMedia-3.0')
-if lsm then
-	texture = lsm:Fetch("statusbar", 'BantoBar')	
-	lsm.RegisterCallback(objects, 'LibSharedMedia_SetGlobal', function(_, media, value)
+local SharedMedia = GetLib('LibSharedMedia-3.0')
+if SharedMedia then
+	texture = SharedMedia:Fetch("statusbar", 'BantoBar')	
+	SharedMedia.RegisterCallback(bars, 'LibSharedMedia_SetGlobal', function(_, media, value)
 		if media == "statusbar" then
-			texture = lsm:Fetch("statusbar", value)
-			for object in pairs(objects) do
-				UpdateTexture(object)
+			texture = SharedMedia:Fetch("statusbar", value)
+			for bar in pairs(bars) do
+				UpdateTexture(bar)
 			end
 		end
 	end)
