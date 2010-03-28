@@ -66,9 +66,10 @@ elseif playerClass == 'ROGUE' then
 	friendlySpell = GetSpellInfo(57934) -- Tricks of the Trade
 
 elseif playerClass == 'WARRIOR' then
-	hostileSpell = GetSpellInfo(100) -- Charge
-	friendlySpell = GetSpellInfo(3411) -- Intervene
-
+	local charge = GetSpellInfo(100) -- Charge
+	local intervene = GetSpellInfo(3411)  -- Intervene
+	hostileSpell = function(unit) return (IsSpellInRange(charge, unit) == 1) or CheckInteractDistance(unit, 2) or 0 end
+	friendlySpell = function(unit) return (IsSpellInRange(intervene, unit) == 1) or CheckInteractDistance(unit, 2) or 0 end
 end
 
 local function GetRangeSpell(unit)
@@ -86,7 +87,12 @@ local function GetRangeAlpha(self, unit)
 		return self.outsideRangeAlpha
 	end
 	local spell = GetRangeSpell(unit)
-	local spellInRange = spell and IsSpellInRange(spell, unit)
+	local spellInRange
+	if type(spell) == "function" then
+		spellInRange = spell(unit)
+	elseif spell then
+		spellInRange = IsSpellInRange(spell, unit)
+	end
 	if spellInRange == 1 or (spellInRange == nil and (UnitInRange(unit) or CheckInteractDistance(unit, 4))) then
 		return self.inRangeAlpha
 	else
