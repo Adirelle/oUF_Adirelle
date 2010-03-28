@@ -26,12 +26,32 @@ local function UpdateTexture(bar)
 	end
 end
 
+local function StatusBar_OnValueChanged(bar, value)
+	local texture = bar:GetStatusBarTexture()
+	if texture and value then
+		local min, max = bar:GetMinMaxValues()
+		if max > min then
+			local f = math.min(math.max((value-min) / (max-min), 0), 1)
+			local fx, fy
+			if bar:GetOrientation() == "HORIZONTAL" then
+				fx, fy = f, 1
+			else
+				fx, fy = 1, f
+			end
+			texture:SetTexCoord(0,fx,0,fy)
+		end
+	end
+end
+
 local frame_prototype = oUF.frame_metatable and oUF.frame_metatable.__index or oUF
 function frame_prototype:RegisterStatusBarTexture(bar, callback)
 	assert(bar:IsObjectType("StatusBar") or bar:IsObjectType("Texture"), "object should be a Texture or a StatusBar") 
 	assert(callback == nil or type(callback) == "function", "callback should be either nil or a function")
 	bars[bar] = self
 	bar.PostTextureUpdate = callback or bar.PostTextureUpdate
+	if bar:IsObjectType("StatusBar") then
+		bar:HookScript('OnValueChanged', StatusBar_OnValueChanged)
+	end
 end
 
 oUF:RegisterInitCallback(function(self)
