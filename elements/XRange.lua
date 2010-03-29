@@ -24,6 +24,10 @@ local timer = 0
 
 local friendlySpell, hostileSpell, petSpell, rezSpell
 
+local function DefaultRangeCheck(unit)
+	return UnitInRange(unit) or CheckInteractDistance(unit, 4)
+end
+
 -- Based on list from ShadowedUnitFrames, thanks to Shadowed
 local playerClass = select(2, UnitClass("player"))
 if playerClass == 'PRIEST' then
@@ -69,55 +73,66 @@ elseif playerClass == 'WARRIOR' then
 	local meleeAttack = GetSpellInfo(772) -- Rend
 	local charge = GetSpellInfo(100) -- Charge
 	local intervene = GetSpellInfo(3411)  -- Intervene
-	if GetSpellInfo(charge) and GetSpellInfo(meleeAttack) then
-		hostileSpell = function(unit) 
-			return IsSpellInRange(charge, unit) == 1 or IsSpellInRange(meleeAttack, unit) == 1
+	hostileSpell = function(unit)
+		local chargeRange = IsSpellInRange(charge, unit)
+		local meleeRange = IsSpellInRange(meleeAttack, unit)
+		if chargeRange == 1 or meleeRange == 1 then
+			return true
+		elseif chargeRange == 0 and meleeRange == 0 then
+			return false
+		else
+			return DefaultRangeCheck(unit)
 		end
 	end
-	if GetSpellInfo(intervene) then
-		friendlySpell = function(unit)
-			return IsSpellInRange(intervene, unit) == 1 or CheckInteractDistance(unit, 2)
+	friendlySpell = function(unit)
+		local interveneRange = IsSpellInRange(intervene, unit)
+		if interveneRange ~= nil then
+			return interveneRange == 1
+		else
+			return CheckInteractDistance(unit, 2)
 		end
 	end
 end
 
--- Forget unknown spells
-if type(friendlySpell) == "string" and not GetSpellInfo(friendlySpell) then friendlySpell = nil end
-if type(hostileSpell) == "string" and not GetSpellInfo(hostileSpell) then hostileSpell = nil end
-if type(petSpell) == "string" and not GetSpellInfo(petSpell) then petSpell = nil end
-if type(rezSpell) == "string" and not GetSpellInfo(rezSpell) then rezSpell = nil end
-
-local function GetRangeSpell(unit)
-	if UnitCanAssist('player', unit) then
-		return (UnitIsCorpse(unit) and rezSpell) or (UnitIsUnit(unit, 'pet') and petSpell) or friendlySpell
-	elseif UnitCanAttack('player', unit) then
-		return hostileSpell
+do
+	local function WrapSpell(spell)
+		if not spell or type(spell) == "function" then return spell end
+		return function(unit)
+			local inRange = IsSpellInRange(spell, unit)
+			if inRange ~= nil then
+				return inRange == 1
+			else
+				return DefaultRangeCheck(unit)
+			end
+		end
 	end
+	friendlySpell = WrapSpell(friendlySpell)
+	hostileSpell = WrapSpell(hostileSpell)
+	rezSpell = WrapSpell(rezSpell)
+	petSpell = WrapSpell(petSpell)
 end
 
-local function GetRangeAlpha(self, unit)
+local function IsInRange(unit)
 	if UnitIsUnit(unit, 'player') or not UnitIsConnected(unit) then
-		return self.inRangeAlpha
+		return true
 	elseif not UnitIsVisible(unit) then
-		return self.outsideRangeAlpha
-	end
-	local spell = GetRangeSpell(unit)
-	local spellInRange
-	if type(spell) == "function" then
-		spellInRange = spell(unit) and 1 or 0
-	elseif spell then
-		spellInRange = IsSpellInRange(spell, unit)
-	end
-	if spellInRange == 1 or (spellInRange == nil and (UnitInRange(unit) or CheckInteractDistance(unit, 4))) then
-		return self.inRangeAlpha
+		return false
+	elseif hostileSpell and UnitCanAttack('player', unit) then
+		return hostileSpell(unit)
+	elseif petSpell and UnitIsUnit(unit, 'pet') then
+		return petSpell(unit)
+	elseif rezSpell and UnitIsCorpse(unit) and UnitCanAssist('player', unit) then
+		return rezSpell(unit)
+	elseif friendlySpell and UnitCanAssist('player', unit) then
+		return friendlySpell(unit)
 	else
-		return self.outsideRangeAlpha
+		return DefaultRangeCheck(unit)
 	end
 end
 
 local function Update(self, event, unit)
 	if unit and unit ~= self.unit then return end
-	local alpha = GetRangeAlpha(self, unit)
+	local alpha = IsInRange(unit) and self.inRangeAlpha or self.outsideRangeAlpha
 	if alpha ~= self:GetAlpha() then
 		self:SetAlpha(alpha)
 	end
