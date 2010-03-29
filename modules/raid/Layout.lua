@@ -14,51 +14,39 @@ local ipairs = ipairs
 -- Use our own namespace
 setfenv(1, _G.oUF_Adirelle)
 
-local LAYOUTS = {
-	[1] = { '1', pets = "party" },
-	[5] = { '1', pets = "party" },
-	[10] = { '1', '2', pets = "raid" },
-	[15] = { '1', '2', '3' },
-	[20] = { '1', '2', '3', '4' },
-	[25] = { '1', '2', '3', '4', '5' },
-	[40] = { '1', '2', '3', '4', '5', '6', '7', '8', height = 20 },
-}
-
-local LAYOUTS_SIZES = { 1, 5, 10, 15, 20, 25 }
-
-local BATTLE_GROUND_LAYOUTS = {
-	AlteracValley = 40,
-	IsleofConquest = 40,
-	ArathiBasin = 15,
-	NetherstormArena = 15,
-	StrandoftheAncients = 15,
-	WarsongGulch = 10,
-}
-
-local RAID_LAYOUTS = {
-	[RAID_DIFFICULTY_10PLAYER] = 10,
-	[RAID_DIFFICULTY_10PLAYER_HEROIC] = 10,
-	[RAID_DIFFICULTY_20PLAYER] = 20,
-	[RAID_DIFFICULTY_25PLAYER] = 25,
-	[RAID_DIFFICULTY_25PLAYER_HEROIC] = 25,
-	[RAID_DIFFICULTY_40PLAYER] = 40,
-}
-
 oUF:SetActiveStyle("Adirelle_Raid")
 
--- Raid anchor
+local HEIGHT_SMALL = 20
+
+--------------------------------------------------------------------------------
+-- Anchor
+--------------------------------------------------------------------------------
+
 local anchor = CreateFrame("Frame", "oUF_Raid_Anchor", UIParent, "SecureFrameTemplate")
-local ANCHOR_BORDER_WIDTH = 0
+anchor.Debug = function(self, ...) return Debug(self:GetName(), ...) end
 anchor:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, 230)
+anchor:SetWidth(0.1)
 anchor:SetHeight(0.1)
 
--- Raid groups
+local Movable = GetLib('LibMovable-1.0')
+if Movable then
+	local mask = CreateFrame("Frame", nil, anchor)
+	mask:SetPoint("BOTTOM")
+	mask:SetWidth(SPACING * 4 + WIDTH * 5)
+	mask:SetHeight(SPACING * 7 + HEIGHT_SMALL * 8)
+	RegisterMovable(anchor, 'anchor', "Party/raid frames", mask)
+end
+
+--------------------------------------------------------------------------------
+-- Creating group headers
+--------------------------------------------------------------------------------
+
 local headers = {}
-local petHeaders = {}
 
 for group = 1, 8 do
 	local header = oUF:Spawn("header", "oUF_Raid" .. group)
 	header.isParty = (group == 1)
+	header.groupFilter = group
 	header:SetManyAttributes(
 		"showRaid", true,
 		"groupFilter", group,
@@ -70,77 +58,143 @@ for group = 1, 8 do
 	if group > 1 then
 		header:SetPoint("BOTTOMLEFT", headers[group - 1], "TOPLEFT", 0, SPACING)
 	else
-		header:SetPoint("BOTTOMLEFT", anchor, ANCHOR_BORDER_WIDTH, ANCHOR_BORDER_WIDTH)
+		header:SetPoint("BOTTOMLEFT", anchor)
 	end
 	headers[group] = header
 end
 
-headers[1]:SetManyAttributes(
+headers[1]:SetManyAttributes("showParty", true, "showPlayer", true,
+--@debug@--
+	"showSolo", true
+--@end-debug@--
+)
+
+-- Party pets
+local header = oUF:Spawn("header", "oUF_PartyPets", "SecureGroupPetHeaderTemplate")
+header:SetManyAttributes(
 --@debug@--
 	"showSolo", true,
 --@end-debug@--
 	"showParty", true,
-	"showPlayer", true
+	"showPlayer", true,
+	"groupFilter", 1,
+	"point", "LEFT",
+	"xOffset", SPACING
 )
+header.isPets = "party"
+header.groupFilter = 1
+header:SetScale(SCALE)
+header:SetPoint("BOTTOMLEFT", headers[1], "TOPLEFT", 0, SPACING)
+header:SetParent(anchor)
+header:Hide()
+headers.partypets = header
 
-do
-	-- Party pets
-	local header = oUF:Spawn("header", "oUF_PartyPets", "SecureGroupPetHeaderTemplate")
+-- Raid pets
+for group = 1, 2 do
+	local header = oUF:Spawn("header", "oUF_Raid"..group.."Pets", "SecureGroupPetHeaderTemplate")
 	header:SetManyAttributes(
---@debug@--
-		"showSolo", true,
---@end-debug@--
-		"showParty", true,
+		"showRaid", true,
 		"showPlayer", true,
-		"groupFilter", 1,
+		"groupFilter", group,
 		"point", "LEFT",
 		"xOffset", SPACING
 	)
-	header.isPets = "party"
-	header.petGroupFilter = 1
+	header.isPets = "raid"
+	header.groupFilter = group
 	header:SetScale(SCALE)
-	header:SetPoint("BOTTOMLEFT", headers[1], "TOPLEFT", 0, SPACING)
 	header:SetParent(anchor)
 	header:Hide()
-	petHeaders.party = header
-	
-	-- Raid pets
-	for group = 1, 2 do
-		local header = oUF:Spawn("header", "oUF_Raid"..group.."Pets", "SecureGroupPetHeaderTemplate")
-		header:SetManyAttributes(
-			"showRaid", true,
-			"showPlayer", true,
-			"groupFilter", group,
-			"point", "LEFT",
-			"xOffset", SPACING
-		)
-		header.isPets = "raid"
-		header.petGroupFilter = group
-		header:SetScale(SCALE)
-		header:SetParent(anchor)
-		header:Hide()
-		petHeaders['raid'..group] = header
+	headers['raidpet'..group] = header
+end
+headers.raidpet1:SetPoint("BOTTOMLEFT", headers[2], "TOPLEFT", 0, SPACING)
+headers.raidpet2:SetPoint("BOTTOMLEFT", headers.raidpet1, "TOPLEFT", 0, SPACING)
+
+--------------------------------------------------------------------------------
+-- Centering
+--------------------------------------------------------------------------------
+
+function anchor:UpdateWidth()
+	if self.lockedWidth then return end
+	if not self:CanChangeProtectedState() then 
+		return self:Debug('UpdateWidth: not updating anchor width because of combat lockdown') 
 	end
-	petHeaders.raid1:SetPoint("BOTTOMLEFT", headers[2], "TOPLEFT", 0, SPACING)
-	petHeaders.raid2:SetPoint("BOTTOMLEFT", petHeaders.raid1, "TOPLEFT", 0, SPACING)
+	local width = 0.1
+	for key, header in pairs(headers) do
+		if header:IsVisible() then
+			width = math.max(width, header:GetWidth())
+		end
+	end
+	if self:GetWidth() ~= width then
+		self:Debug('UpdateWidth: old=', math.ceil(self:GetWidth()), 'new=', math.ceil(width))
+		self:SetWidth(width)
+	end
 end
 
+local UpdateAnchorWidth = function() anchor:UpdateWidth() end
+for key, header in pairs(headers) do
+	header:HookScript('OnShow', UpdateAnchorWidth)
+	header:HookScript('OnHide', UpdateAnchorWidth)
+	header:HookScript('OnSizeChanged', UpdateAnchorWidth)
+end
+
+--------------------------------------------------------------------------------
+-- Header visibility
+--------------------------------------------------------------------------------
+
+-- group size = { header1Key = header1visibility, ... }
+local VISIBILITIES = {
+	[1] = { true, partypets = true },
+	[5] = { true, partypets = true },
+	[10] = { true, true, raidpet1 = true, raidpet2 = true },
+	[15] = { true, true, true },
+	[20] = { true, true, true, true },
+	[25] = { true, true, true, true, true },
+	[40] = { true, true, true, true, true, true, true, true },
+}
+
+-- Size boundaries for "free" groups, depending on the highest non-empty group number
+local FREE_RAID_LAYOUTS = { 1, 5, 10, 15, 20, 25 }
+
+-- Battleground layouts 
+local BATTLEGROUND_LAYOUTS = {
+	AlteracValley = 40,
+	IsleofConquest = 40,
+	ArathiBasin = 15,
+	NetherstormArena = 15,
+	StrandoftheAncients = 15,
+	WarsongGulch = 10,
+}
+
+-- PvE raid layouts
+local RAID_INSTANCE_LAYOUTS = {
+	[RAID_DIFFICULTY_10PLAYER] = 10,
+	[RAID_DIFFICULTY_10PLAYER_HEROIC] = 10,
+	[RAID_DIFFICULTY_20PLAYER] = 20,
+	[RAID_DIFFICULTY_25PLAYER] = 25,
+	[RAID_DIFFICULTY_25PLAYER_HEROIC] = 25,
+	[RAID_DIFFICULTY_40PLAYER] = 40,
+}
+
+-- Get the better layout type
 local function GetLayoutType()
 	local name, instanceType, _, difficulty = GetInstanceInfo()
 	if instanceType == 'arena' or instanceType == 'party' then
 		return 5
 	elseif instanceType == 'pvp' then
-		return BATTLE_GROUND_LAYOUTS[GetMapInfo()]
+		return BATTLEGROUND_LAYOUTS[GetMapInfo()]
 	elseif instanceType == 'raid' then
-		return RAID_LAYOUTS[difficulty]
+		return RAID_INSTANCE_LAYOUTS[difficulty]
 	elseif GetNumRaidMembers() > 0 then
+		if GetMapInfo() == 'LakeWintergrasp' then
+			return 40
+		end
 		local maxGroup = 1
 		for index = 1, GetNumRaidMembers() do
 			local _, _, subGroup = GetRaidRosterInfo(index)
 			maxGroup = math.max(maxGroup, subGroup)
 		end
 		local num = 5 * maxGroup
-		for i, size in ipairs(LAYOUTS_SIZES) do
+		for i, size in ipairs(FREE_RAID_LAYOUTS) do
 			if num <= size then
 				return size
 			end
@@ -152,93 +206,54 @@ local function GetLayoutType()
 	return 1
 end
 
-local function SetHeaderLayout(header, filter, height)
-	if filter then	
+function anchor:ApplyVisbility()
+	if self.currentLayout == self.wantedLayout then return end
+	if not self:CanChangeProtectedState() then 
+		return self:Debug('ApplyVisbility: not updating layout because of combat lockdown') 
+	end
+	self:Debug('ApplyVisbility: changing raid layout', 'old:', 	self.currentLayout, 'new:', self.wantedLayout)
+	self.currentLayout = self.wantedLayout
+	local groups = VISIBILITIES[self.currentLayout]
+	local height = self.currentLayout > 25 and HEIGHT_SMALL or HEIGHT
+	self.lockedWidth = true
+	for key, header in pairs(headers) do
+		if header:GetAttribute('minHeight') ~= height then
+			header:SetAttribute('minHeight', height)
+		end
 		for i = 1, 5 do
-			local frame = _G[header:GetName().."UnitButton"..i]
-			if frame then
-				frame:SetAttribute('initial-height', height)
-				frame:SetHeight(height)
+			local unitframe = header:GetAttribute('child'..i)
+			if unitframe and unitframe:GetHeight() ~= height then
+				unitframe:SetAttribute('initial-height', height)
+				unitframe:SetHeight(height)
 			end
 		end
-		header:Show()	
-		header:SetAttribute('groupFilter', filter)
-	else
-		header:SetAttribute('groupFilter', '')
-		header:Hide()		
-	end
-end
-
-local function ApplyRaidLayout(layoutType)
-	local layout = layoutType and LAYOUTS[layoutType]
-	if layout then
-		local height = layout.height or HEIGHT
-		raid_style['initial-height'] = height
-		for _, header in next, petHeaders do
-			SetHeaderLayout(header, (header.isPets == layout.pets) and header.petGroupFilter, height)
-		end
-		for group = 1, 8 do
-			SetHeaderLayout(headers[group], layout[group], height)
-		end
-	else
-		print('No data for layout', layoutType)
-	end
-end
-
-local lastLayoutType
-local updateFrame = CreateFrame("Frame")
-updateFrame:Hide()
-
-local function UpdateLayout(_, event)
-	if not InCombatLockdown() then
-		local layoutType = GetLayoutType()
-		if layoutType ~= lastLayoutType then
-			ApplyRaidLayout(layoutType)
-			lastLayoutType = layoutType
-		end
-		local width = 0
-		for _, header in pairs(headers) do
-			if header:IsVisible() then
-				width = math.max(width, header:GetWidth())
+		if groups[key] then
+			if not header:IsShown() then
+				self:Debug("Showing", header:GetName())
+				header:Show()
+			end
+		else
+			if header:IsShown() then
+				self:Debug("Hiding", header:GetName())
+				header:Hide()
 			end
 		end
-		anchor:SetWidth(width + ANCHOR_BORDER_WIDTH * 2)
 	end
-	updateFrame:Hide()
+	self.lockedWidth = nil
 end
 
-updateFrame:SetScript('OnUpdate', UpdateLayout)
-updateFrame:SetScript('OnEvent', UpdateLayout)
-updateFrame:RegisterEvent('PLAYER_REGEN_ENABLED')
-updateFrame:RegisterEvent('PLAYER_ENTERING_WORLD')
-updateFrame:RegisterEvent('PARTY_MEMBERS_CHANGED')
-
-UpdateLayout()
-
-local function RequestUpdate()
-	if not InCombatLockdown() then
-		updateFrame:Show()
-	end
+function anchor:UpdateLayout(event)
+	self.wantedLayout = GetLayoutType()
+	self:ApplyVisbility()
+	self:UpdateWidth()
 end
 
-for _, header in pairs(headers) do
-	header:HookScript('OnShow', RequestUpdate)
-	header:HookScript('OnHide', RequestUpdate)
-	header:HookScript('OnSizeChanged', RequestUpdate)
-end
+-- Update on load
+anchor:UpdateLayout('load')
 
-for _, header in pairs(petHeaders) do
-	header:HookScript('OnShow', RequestUpdate)
-	header:HookScript('OnHide', RequestUpdate)
-	header:HookScript('OnSizeChanged', RequestUpdate)
-end
-
-local libmovable = GetLib('LibMovable-1.0')
-if libmovable then
-	local mask = CreateFrame("Frame", nil, anchor)
-	mask:SetPoint("BOTTOM")
-	mask:SetWidth(SPACING * 4 + WIDTH * 5)
-	mask:SetHeight(SPACING * 7 + LAYOUTS[40].height * 8 + ANCHOR_BORDER_WIDTH * 2)
-	RegisterMovable(anchor, 'anchor', "Party/raid frames", mask)
-end
-
+-- Register events
+anchor:SetScript('OnEvent', anchor.UpdateLayout)
+anchor:RegisterEvent('PLAYER_ENTERING_WORLD')
+anchor:RegisterEvent('ZONE_CHANGED_NEW_AREA')
+anchor:RegisterEvent('PARTY_MEMBERS_CHANGED')
+anchor:RegisterEvent('PLAYER_REGEN_ENABLED')
