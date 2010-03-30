@@ -63,10 +63,12 @@ for group = 1, 8 do
 	headers[group] = header
 end
 
-headers[1]:SetManyAttributes("showParty", true, "showPlayer", true,
+headers[1]:SetManyAttributes(
 --@debug@--
-	"showSolo", true
+	"showSolo", true,
 --@end-debug@--
+	"showParty", true,
+	"showPlayer", true
 )
 
 -- Party pets
