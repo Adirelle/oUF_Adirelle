@@ -80,9 +80,9 @@ function GetOwnStackedAuraFilter(spellId, countThreshold, r, g, b)
 	return filter
 end
 
-function GetDebuffTypeFilter(debuffType, r, g, b)
+function GetDebuffTypeFilter(debuffType, r, g, b, a)
 	assert(type(debuffType) == "string", "invalid debuff type:"..tostring(debuffType))
-	local filter, exists = GetGenericFilter("DebuffType", debuffType, r, g, b)
+	local filter, exists = GetGenericFilter("DebuffType", debuffType, r, g, b, a)
 	if not exists then
 		oUF:AddAuraFilter(filter, function(unit)
 			for i = 1, 255 do
@@ -90,7 +90,7 @@ function GetDebuffTypeFilter(debuffType, r, g, b)
 				if not name then
 					return
 				elseif dType == debuffType then
-					return texture, count, expirationTime-duration, duration, r, g, b
+					return texture, count, expirationTime-duration, duration, r, g, b, a
 				end
 			end
 		end)
@@ -103,11 +103,24 @@ end
 -- ------------------------------------------------------------------------------
 
 oUF:AddAuraFilter("CureableDebuff", function(unit)
+	local alpha, color = 1
 	local name, _, texture, count, debuffType, duration, expirationTime = UnitAura(unit, 1, "HARMFUL|RAID")
 	if name then
-		local color = DebuffTypeColor[debuffType or "none"]
-		return texture, count, expirationTime-duration, duration, color.r, color.g, color.b
+		color = DebuffTypeColor[debuffType or "none"]
+	else
+		for i = 1, 1000 do
+			name, _, texture, count, debuffType, duration, expirationTime = UnitAura(unit, i, "HARMFUL")
+			if not name then
+				return
+			end
+			color = debuffType and DebuffTypeColor[debuffType]
+			if color then
+				alpha = 0.5
+				break
+			end
+		end
 	end
+	return texture, count, expirationTime-duration, duration, color.r, color.g, color.b, alpha
 end)
 
 -- ------------------------------------------------------------------------------
