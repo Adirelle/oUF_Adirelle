@@ -260,6 +260,12 @@ do
 			return GetDebuffTypeFilter("Magic")
 		end
 
+	elseif playerClass == 'MAGE' then
+		function CreateClassAuraIcons(self)
+			-- Display curses
+			return GetDebuffTypeFilter("Curse")
+		end
+
 	elseif playerClass == 'PRIEST' then
 		function CreateClassAuraIcons(self)
 			-- PW:Shield or Weakened Soul

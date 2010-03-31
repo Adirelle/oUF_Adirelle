@@ -17,9 +17,9 @@ do
 		icon.expirationTime = start + duration
 		icon.thresholdTime = icon.expirationTime - math.min(threshold, duration * threshold / 10)
 		if now >= icon.thresholdTime then
-			icon:SetAlpha(blinkingAlpha)
+			icon:SetAlpha(icon.alpha * blinkingAlpha)
 		else
-			icon:SetAlpha(1)
+			icon:SetAlpha(icon.alpha)
 		end
 		self:Show()
 	end
@@ -44,7 +44,7 @@ do
 			if not icon:IsShown() or now >= icon.expirationTime then
 				UnregisterIcon(self, icon)
 			elseif now >= icon.thresholdTime then
-				icon:SetAlpha(blinkingAlpha)
+				icon:SetAlpha(icon.alpha * blinkingAlpha)
 			end
 		end
 		if not next(self.icons) then
@@ -66,14 +66,14 @@ end
 
 local blinkingFrame
 
-local function UpdateIcon(self, unit, icon, texture, count, start, duration, r, g, b)
+local function UpdateIcon(self, unit, icon, texture, count, start, duration, r, g, b, a)
 	if not texture then
 		return icon:Hide()
 	end
 	icon:SetTexture(texture)
 	icon:SetCooldown(start, duration)
 	icon:SetStack(count)
-	icon:SetColor(r, g, b)
+	icon:SetColor(r, g, b, a)
 	if self.iconBlinkThreshold and start and duration and duration > 0 and not icon.doNotBlink then
 		blinkingFrame = blinkingFrame or CreateBlinkingFrame()
 		blinkingFrame:RegisterIcon(icon, start, duration, self.iconBlinkThreshold)
@@ -182,8 +182,13 @@ do
 			stack:Hide()
 		end
 	end
+	
+	local function SetAlpha(self, _, _, _, a)
+		self.alpha = a or 1
+		self:SetAlpha(self.alpha)
+	end
 
-	local function SetBackdropBorderColor(self, r, g, b)
+	local function SetBackdropBorderColor(self, r, g, b, a)
 		r, g, b = tonumber(r), tonumber(g), tonumber(b)
 		local border = self.Border
 		if r and g and b then
@@ -192,6 +197,7 @@ do
 		else
 			border:Hide()
 		end
+		SetAlpha(self, r, g, b, a)
 	end
 
 	function frame_prototype:SpawnAuraIcon(parent, size, noCooldown, noStack, noBorder, noTexture, ...)
@@ -201,6 +207,7 @@ do
 		size = size or parent.auraIconSize or self.auraIconSize or 14
 		icon:SetWidth(size)
 		icon:SetHeight(size)
+		icon.alpha = 1.0
 
 		if not noTexture then
 			local texture = icon:CreateTexture(nil, "OVERLAY")
@@ -248,7 +255,7 @@ do
 			icon.Border = border
 			icon.SetColor = SetBackdropBorderColor
 		else
-			icon.SetColor = NOOP
+			icon.SetColor = SetAlpha
 		end
 
 		if select('#', ...) > 0 then
