@@ -106,6 +106,9 @@ do
 				Mystic Buffet: 70127, 70128, 72528, 72529, 72530 = 80
 				Ice Tomb: 70157 = 100
 				Frost Beacon: 70126 = 100
+			The Lich King
+				Infest: 70541, 73779, 73780, 73781 = 80
+				Necrotic Plague: 70337, 73912, 73913, 73914 = 100
 	]=]
 
 	-- Convert string data to table
