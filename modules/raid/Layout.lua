@@ -155,10 +155,11 @@ local VISIBILITIES = {
 }
 
 -- Size boundaries for "free" groups, depending on the highest non-empty group number
-local FREE_RAID_LAYOUTS = { 1, 5, 10, 15, 20, 25 }
+local NUMGROUP_TO_LAYOUT = { 5, 10, 15, 20, 25, 40, 40, 40 }
 
--- Battleground layouts 
-local BATTLEGROUND_LAYOUTS = {
+-- Zone-based layouts (mainly PvP zones)
+local ZONE_LAYOUTS = {
+	LakeWintergrasp = 40,
 	AlteracValley = 40,
 	IsleofConquest = 40,
 	ArathiBasin = 15,
@@ -167,41 +168,24 @@ local BATTLEGROUND_LAYOUTS = {
 	WarsongGulch = 10,
 }
 
--- PvE raid layouts
-local RAID_INSTANCE_LAYOUTS = {
-	[RAID_DIFFICULTY_10PLAYER] = 10,
-	[RAID_DIFFICULTY_10PLAYER_HEROIC] = 10,
-	[RAID_DIFFICULTY_20PLAYER] = 20,
-	[RAID_DIFFICULTY_25PLAYER] = 25,
-	[RAID_DIFFICULTY_25PLAYER_HEROIC] = 25,
-	[RAID_DIFFICULTY_40PLAYER] = 40,
-}
-
 -- Get the better layout type
 local function GetLayoutType()
-	local name, instanceType, _, difficulty = GetInstanceInfo()
+	local name, instanceType, _, _, _, maxPlayers = GetInstanceInfo()
 	if instanceType == 'arena' or instanceType == 'party' then
 		return 5
-	elseif instanceType == 'pvp' then
-		return BATTLEGROUND_LAYOUTS[GetMapInfo()]
-	elseif instanceType == 'raid' then
-		return RAID_INSTANCE_LAYOUTS[difficulty]
+	elseif instanceType == "raid" and maxPlayers then
+		return maxPlayers
 	elseif GetNumRaidMembers() > 0 then
-		if GetMapInfo() == 'LakeWintergrasp' then
-			return 40
+		local zoneLayout = ZONE_LAYOUTS[GetMapInfo() or ""]
+		if zoneLayout then
+			return zoneLayout
 		end
 		local maxGroup = 1
 		for index = 1, GetNumRaidMembers() do
 			local _, _, subGroup = GetRaidRosterInfo(index)
 			maxGroup = math.max(maxGroup, subGroup)
 		end
-		local num = 5 * maxGroup
-		for i, size in ipairs(FREE_RAID_LAYOUTS) do
-			if num <= size then
-				return size
-			end
-		end
-		return 40
+		return NUMGROUP_TO_LAYOUT[maxGroup]
 	elseif GetNumPartyMembers() > 0 then
 		return 5
 	end
