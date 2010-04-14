@@ -332,7 +332,7 @@ local function InitFrame(settings, self)
 	self:SetScript("OnLeave", UnitFrame_OnLeave)
 
 	self:SetBackdrop(backdrop)
-	self:SetBackdropColor(0, 0, 0, 1)
+	self:SetBackdropColor(0, 0, 0, backdrop.bgAlpha)
 	self:SetBackdropBorderColor(0, 0, 0, 1)
 
 	-- Health bar

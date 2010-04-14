@@ -441,7 +441,7 @@ local function InitFrame(settings, self)
 	end
 
 	self:SetBackdrop(backdrop)
-	self:SetBackdropColor(0,0,0,1)
+	self:SetBackdropColor(0,0,0,backdrop.bgAlpha)
 	self:SetBackdropBorderColor(0,0,0,0)
 
 	-- Border

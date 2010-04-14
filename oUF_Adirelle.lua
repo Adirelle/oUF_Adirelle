@@ -89,7 +89,8 @@ playerClass = select(2, UnitClass("player"))
 
 -- Frame background
 backdrop = {
-	bgFile = [[Interface\Tooltips\UI-Tooltip-Background]],
+	--bgFile = [[Interface\Tooltips\UI-Tooltip-Background]],
+	bgFile = [[Interface\AddOns\oUF_Adirelle\media\white16x16]], bgAlpha = 0.85,
 	tile = true,
 	tileSize = 16,
 	insets = {left = 0, right = 0, top = 0, bottom = 0},
