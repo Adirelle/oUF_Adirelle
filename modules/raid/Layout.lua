@@ -170,7 +170,7 @@ local ZONE_LAYOUTS = {
 
 -- Get the better layout type
 local function GetLayoutType()
-	local name, instanceType, _, _, _, maxPlayers = GetInstanceInfo()
+	local name, instanceType, _, _, maxPlayers = GetInstanceInfo()
 	if instanceType == 'arena' or instanceType == 'party' then
 		return 5
 	elseif instanceType == "raid" and maxPlayers then
