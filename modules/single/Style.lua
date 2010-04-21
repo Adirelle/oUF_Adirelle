@@ -603,6 +603,7 @@ local function InitFrame(settings, self)
 	if unit == "target" then
 		-- Add a simple threat bar on the target
 		local threatBar = SpawnStatusBar(self, false)
+		threatBar:SetPoint("TOPRIGHT", self, "BOTTOMRIGHT", 0, -FRAME_MARGIN)
 		threatBar:SetBackdrop(backdrop)
 		threatBar:SetBackdropColor(0,0,0,backdrop.bgAlpha)
 		threatBar:SetBackdropBorderColor(0,0,0,1)
