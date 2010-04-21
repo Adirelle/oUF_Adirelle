@@ -33,7 +33,7 @@ end
 
 local function Enable(self)
 	if self.ThreatBar then
-		self:RegisterEvent("PARTY_MEMBERs_CHANGED", Update)
+		self:RegisterEvent("PARTY_MEMBERS_CHANGED", Update)
 		self:RegisterEvent("UNIT_THREAT_LIST_UPDATE", Update)
 		self:RegisterEvent("UNIT_THREAT_SITUATION_UPDATE", Update)
 		self.ThreatBar:Hide()
