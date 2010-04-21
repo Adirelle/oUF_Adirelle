@@ -55,7 +55,11 @@ elseif playerClass == 'SHAMAN' then
 	rezSpell = GetSpellInfo(2008) -- Ancestral Spirit
 
 elseif playerClass == 'WARLOCK' then
-	hostileSpell = GetSpellInfo(686) -- Shadow Bolt
+	local shadowBolt = GetSpellInfo(686) -- Shadow Bolt
+	local corruption = GetSpellInfo(172) -- Corruption
+	hostileSpell = function(unit)
+		return IsSpellInRange(shadowBolt) == 1 or IsSpellInRange(corruption) == 1
+	end
 	friendlySpell = GetSpellInfo(132) -- (buff) Detect Invisibility
 
 elseif playerClass == 'MAGE' then
