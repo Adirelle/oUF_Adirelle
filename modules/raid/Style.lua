@@ -121,7 +121,7 @@ local function UpdateColor(self, event, unit)
 	local state = oUF_Adirelle.GetFrameUnitState(self, true) or class or ""
 	if state == self.__stateColor then return end
 	self.__stateColor = state
-	self:Debug('UpdateColor', event, unit, state)
+	--self:Debug('UpdateColor', event, unit, state)
 	local r, g, b = 0.5, 0.5, 0.5
 	if state == "DEAD" or state == "DISCONNECTED" then
 		r, g, b = unpack(self.colors.disconnected)
