@@ -173,8 +173,8 @@ local function GetLayoutType()
 	local name, instanceType, _, _, maxPlayers = GetInstanceInfo()
 	if instanceType == 'arena' or instanceType == 'party' then
 		return 5
-	elseif instanceType == "raid" and maxPlayers then
-		return maxPlayers
+	elseif type(maxPlayers) == "number" and maxPlayers > 0 then
+		return NUMGROUP_TO_LAYOUT[math.ceil(maxPlayers / 5)]
 	elseif GetNumRaidMembers() > 0 then
 		local zoneLayout = ZONE_LAYOUTS[GetMapInfo() or ""]
 		if zoneLayout then
