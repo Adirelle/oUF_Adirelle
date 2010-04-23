@@ -21,6 +21,19 @@ local function UpdateTexture(bar)
 	end
 	textureObject:SetHorizTile(false)
 	textureObject:SetVertTile(false)
+	if type(bar.textureColor) == "table" then
+		local r, g, b, a = unpack(bar.textureColor)
+		if not r and bar.r then
+			r, g, b, a = bar.r, bar.g, bar.b, bar. a
+		end
+		if r and g and b then
+			if bar:IsObjectType("StatusBar") then
+				bar:SetStatusBarColor(r, g, b, a or 1)
+			else
+				bar:SetVertexColor(r, g, b, a or 1)
+			end
+		end
+	end
 	if bar.PostTextureUpdate then
 		bar:PostTextureUpdate(texture)
 	end
@@ -44,11 +57,26 @@ local function StatusBar_OnValueChanged(bar, value)
 end
 
 local frame_prototype = oUF.frame_metatable and oUF.frame_metatable.__index or oUF
-function frame_prototype:RegisterStatusBarTexture(bar, callback)
+
+-- Usage:
+--   self:RegisterStatusBarTexture(bar, callback)
+--   self:RegisterStatusBarTexture(bar, colorTable)
+--   self:RegisterStatusBarTexture(bar, r, g, b[, a])
+function frame_prototype:RegisterStatusBarTexture(bar, arg, ...)
 	assert(bar:IsObjectType("StatusBar") or bar:IsObjectType("Texture"), "object should be a Texture or a StatusBar") 
-	assert(callback == nil or type(callback) == "function", "callback should be either nil or a function")
+	if type(arg) == "function" then
+		bar.PostTextureUpdate = arg or bar.PostTextureUpdate
+	elseif type(arg) == "table" then
+		bar.textureColor = arg
+	elseif tonumber(arg) then
+		local r, g, b, a = arg, ...
+		if tonumber(g) and tonumber(b) then
+			bar.textureColor = { tonumber(r), tonumber(g), tonumber(b), tonumber(a) }
+		end
+	elseif arg then
+		assert(false, "args should be a function, a color table, a (r,g,b,a) tuple or nil")
+	end
 	bars[bar] = self
-	bar.PostTextureUpdate = callback or bar.PostTextureUpdate
 	if bar:IsObjectType("StatusBar") then
 		bar:HookScript('OnValueChanged', StatusBar_OnValueChanged)
 	end
