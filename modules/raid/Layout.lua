@@ -16,6 +16,7 @@ setfenv(1, _G.oUF_Adirelle)
 
 oUF:SetActiveStyle("Adirelle_Raid")
 
+local HEIGHT_FULL = HEIGHT
 local HEIGHT_SMALL = 20
 
 --------------------------------------------------------------------------------
@@ -192,20 +193,20 @@ local function GetLayoutType()
 	return 1
 end
 
-function anchor:ApplyVisbility()
-	if self.currentLayout == self.wantedLayout then return end
+local function GetWantedHeight(layout)
+	return GetPlayerRole() == "healer" and layout < 40 and HEIGHT_FULL or HEIGHT_SMALL
+end
+
+function anchor:ApplyHeight()
+	local height = self.wantedHeight
+	if self.currentHeight == height then return end
 	if not self:CanChangeProtectedState() then 
-		return self:Debug('ApplyVisbility: not updating layout because of combat lockdown') 
+		return self:Debug('ApplyHeight: not updating height because of combat lockdown') 
 	end
-	self:Debug('ApplyVisbility: changing raid layout', 'old:', 	self.currentLayout, 'new:', self.wantedLayout)
-	self.currentLayout = self.wantedLayout
-	local groups = VISIBILITIES[self.currentLayout]
-	local height = self.currentLayout > 25 and HEIGHT_SMALL or HEIGHT
-	self.lockedWidth = true
+	self:Debug('ApplyHeight: changing height', 'old:', self.currentHeight, 'new:', height)
+	self.currentHeight = height
+	self.lockedWidth = nil
 	for key, header in pairs(headers) do
-		if header:GetAttribute('minHeight') ~= height then
-			header:SetAttribute('minHeight', height)
-		end
 		for i = 1, 5 do
 			local unitframe = header:GetAttribute('child'..i)
 			if unitframe and unitframe:GetHeight() ~= height then
@@ -213,6 +214,26 @@ function anchor:ApplyVisbility()
 				unitframe:SetHeight(height)
 			end
 		end
+		if header:GetAttribute('minHeight') ~= height then
+			header:SetAttribute('minHeight', height)
+		end
+		if header:GetHeight() ~= height then
+			header:SetHeight(height)
+		end
+	end
+	self.lockedWidth = nil
+end
+
+function anchor:ApplyVisbility()
+	if self.currentLayout == self.wantedLayout then return end
+	if not self:CanChangeProtectedState() then 
+		return self:Debug('ApplyVisbility: not updating layout because of combat lockdown') 
+	end
+	self:Debug('ApplyVisbility: changing raid layout', 'old:', self.currentLayout, 'new:', self.wantedLayout)
+	self.currentLayout = self.wantedLayout
+	local groups = VISIBILITIES[self.currentLayout]
+	self.lockedWidth = true
+	for key, header in pairs(headers) do
 		if groups[key] then
 			if not header:IsShown() then
 				self:Debug("Showing", header:GetName())
@@ -230,7 +251,9 @@ end
 
 function anchor:UpdateLayout(event)
 	self.wantedLayout = GetLayoutType()
+	self.wantedHeight = GetWantedHeight(self.wantedLayout)
 	self:ApplyVisbility()
+	self:ApplyHeight()
 	self:UpdateWidth()
 end
 
@@ -243,3 +266,9 @@ anchor:RegisterEvent('PLAYER_ENTERING_WORLD')
 anchor:RegisterEvent('ZONE_CHANGED_NEW_AREA')
 anchor:RegisterEvent('PARTY_MEMBERS_CHANGED')
 anchor:RegisterEvent('PLAYER_REGEN_ENABLED')
+
+-- Update on role change (mainly height actually)
+RegisterPlayerRoleCallback(function()
+	anchor:UpdateLayout('OnPlayerRoleChanged')
+end)
+
