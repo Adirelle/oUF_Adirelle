@@ -468,11 +468,6 @@ end
 -- Style and layout setup
 -- ------------------------------------------------------------------------------
 
-if playerClass == 'ROGUE' or playerClass == 'WARRIOR' or playerClass == 'MAGE' or playerClass == 'WARLOCK'
-	or playerClass == 'HUNTER' then
-	HEIGHT = 20
-end
-
 raid_style = setmetatable(
 	{
 		["initial-width"] = WIDTH,
