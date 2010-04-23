@@ -204,19 +204,20 @@ function anchor:ApplyHeight()
 		return self:Debug('ApplyHeight: not updating height because of combat lockdown') 
 	end
 	self:Debug('ApplyHeight: changing height', 'old:', self.currentHeight, 'new:', height)
+	raid_style['initial-height'] = height
 	self.currentHeight = height
 	self.lockedWidth = nil
 	for key, header in pairs(headers) do
 		for i = 1, 5 do
 			local unitframe = header:GetAttribute('child'..i)
-			if unitframe and unitframe:GetHeight() ~= height then
+			if unitframe then
 				unitframe:SetAttribute('initial-height', height)
-				unitframe:SetHeight(height)
+				if unitframe:GetHeight() ~= height then
+					unitframe:SetHeight(height)
+				end
 			end
 		end
-		if header:GetAttribute('minHeight') ~= height then
-			header:SetAttribute('minHeight', height)
-		end
+		header:SetAttribute('minHeight', height)
 		if header:GetHeight() ~= height then
 			header:SetHeight(height)
 		end
@@ -271,4 +272,3 @@ anchor:RegisterEvent('PLAYER_REGEN_ENABLED')
 RegisterPlayerRoleCallback(function()
 	anchor:UpdateLayout('OnPlayerRoleChanged')
 end)
-
