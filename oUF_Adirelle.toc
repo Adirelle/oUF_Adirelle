@@ -36,6 +36,9 @@ support\Movable.lua
 # Texture helper
 support\StatusBarTexture.lua
 
+# Player role detection
+support\PlayerRole.lua
+
 # Our elements
 elements\AuraIcons.lua
 elements\Border.lua
