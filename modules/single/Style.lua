@@ -108,13 +108,15 @@ local function SpawnStatusBar(self, noText, from, anchor, to, xOffset, yOffset)
 	return bar
 end
 
-local UpdateIncomingHeal, PostUpdateHealth, PostIncomingHealTextureUpdate
+local UpdateIncomingHeal, PostUpdateHealth
 if oUF.HasIncomingHeal then
 	local function UpdateHealBar(bar, current, max, incomingHeal)
 		if bar.incomingHeal ~= incomingHeal or bar.currentHealth ~= current or bar.maxHealth ~= max then
 			bar.incomingHeal, bar.currentHealth, bar.maxHealth = incomingHeal, current, max
-			if current and incomingHeal and incomingHeal > 0 and max and max > 0 then
-				bar:SetMinMaxValues(0, max)
+			if current and max and incomingHeal and incomingHeal > 0 and max > 0 and current < max then
+				local health = bar:GetParent().Health
+				bar:SetPoint("TOPLEFT", health, health:GetWidth() * current / max, 0)
+				bar:SetMinMaxValues(current, max)
 				bar:SetValue(current + incomingHeal)
 				bar:Show()
 			else
@@ -130,10 +132,6 @@ if oUF.HasIncomingHeal then
 	function PostUpdateHealth(self, event, unit, _, current, max)
 		local bar = self.IncomingHeal
 		UpdateHealBar(bar, current, max, bar.incomingHeal)
-	end
-
-	function PostIncomingHealTextureUpdate(bar)
-		bar:SetStatusBarColor(0, 1, 0, 0.75)
 	end
 end
 
@@ -279,9 +277,7 @@ elseif playerClass == "DRUID" then
 	function SetupAltPower(self)
 
 		local altPower = SpawnStatusBar(self)
-		altPower.PostTextureUpdate = function()
-			altPower:SetStatusBarColor(unpack(oUF.colors.power.MANA))
-		end
+		altPower.textureColor = oUF.colors.power.MANA
 		
 		if self.PostUpdatePower then
 			local orig = self.PostUpdatePower
@@ -513,9 +509,10 @@ local function InitFrame(settings, self)
 	-- Incoming heals
 	if oUF.HasIncomingHeal then
 		local incomingHeal = CreateFrame("StatusBar", nil, self)
-		incomingHeal:SetAllPoints(health)
-		incomingHeal:SetFrameLevel(health:GetFrameLevel()-1)
-		self:RegisterStatusBarTexture(incomingHeal, PostIncomingHealTextureUpdate)
+		incomingHeal:SetPoint("BOTTOMRIGHT", health)
+		incomingHeal.textureColor = { 0, 1, 0 }
+		self:RegisterStatusBarTexture(incomingHeal)
+		--self:RegisterStatusBarTexture(incomingHeal, PostIncomingHealTextureUpdate)
 
 		self.IncomingHeal = incomingHeal
 		self.UpdateIncomingHeal = UpdateIncomingHeal
@@ -608,7 +605,7 @@ local function InitFrame(settings, self)
 		threatBar:SetBackdropColor(0,0,0,backdrop.bgAlpha)
 		threatBar:SetBackdropBorderColor(0,0,0,1)
 		threatBar:SetWidth(190*0.5)
-		threatBar:SetHeight(16)
+		threatBar:SetHeight(14)
 		threatBar:SetMinMaxValues(0, 100)
 		self.PostThreatBarUpdate = function(self, event, unit, bar, isTanking, status, scaledPercent, rawPercent, threatValue)
 			if not bar.Text then return end
