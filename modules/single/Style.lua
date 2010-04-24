@@ -142,15 +142,6 @@ local function PostCreateAuraIcon(self, button, icons, index, debuff)
 	button.cd:SetDrawEdge(true)
 end
 
-local function PostUpdateAuraIcon(self, icons, unit, icon, index, offset, filter, isDebuff)
-	local _, _, _, _, _, _, expireTime = UnitAura(unit, index, filter)
-	if expireTime and expireTime > 0 then
-		icon.expireTime = expireTime
-	else
-		icon.expireTime = GetTime() + 86400
-	end
-end
-
 local CUREABLE_DEBUFF_TYPE = {
 	Curse = (playerClass == "DRUID" or playerClass == "MAGE"),
 	Disease = (playerClass == "PRIEST" or playerClass == "PALADIN" or playerClass == "SHAMAN"),
@@ -186,10 +177,15 @@ end
 local SetAuraPosition
 do
 	local function CompareIcons(a, b)
-		return a.expireTime < b.expireTime
+		if a.bigger and not b.bigger then
+			return true
+		elseif not a.bigger and b.bigger then
+			return false
+		else
+			return a:GetID() < b:GetID()
+		end
 	end
 
-	local smallIcons = {}
 	function SetAuraPosition(self, icons, numIcons)
 		if not icons or numIcons == 0 then return end
 		local spacing = icons.spacing or 0
@@ -199,77 +195,34 @@ do
 		local growthy = (icons["growth-y"] == "DOWN" and -1) or 1
 		local x = 0
 		local y = 0
-		local rowHeight = defaultSize
+		local rowSize = 0
 		local width = math.floor(icons:GetWidth() / size) * size
 		local height = math.floor(icons:GetHeight() / size) * size
 
 		table.sort(icons, CompareIcons)		
-		wipe(smallIcons)
 		for i = 1, #icons do
 			local button = icons[i]
-			if button and button:IsShown() then
-				if button.bigger then
-					button:ClearAllPoints()
-					button:SetWidth(size)
-					button:SetHeight(size)
-					button:SetPoint(anchor, icons, anchor, x * growthx, y * growthy)
-					x = x + size + spacing				
-					if x >= width then
-						y = y + size + spacing
-						if y >= height then
-							return
-						end
-						x = 0
-					end
-				else
-					tinsert(smallIcons, button)
-				end
-			end
-		end
-		
-		local rowSize = size
-		local smallSize = size * 0.75
-		for i = 1, #smallIcons do
-			local button = smallIcons[i]
-			button:ClearAllPoints()
-			button:SetWidth(smallSize)
-			button:SetHeight(smallSize)
-			button:SetPoint(anchor, icons, anchor, x * growthx, y * growthy)
-			x = x + smallSize + spacing				
-			if x >= width then
-				y = y + rowSize + spacing
-				if y >= height then
-					return
-				end
-				x = 0
-				rowSize = smallSize
-			end
-		end
-
-		--[[
-		for i = 1, #icons do
-			local button = icons[i]
-			if button and button:IsShown() then
-				local size = defaultSize
-				if button.bigger then
-					size = icons.bigSize or size * 1.5
-					rowHeight = size
-				end
-
-				if x >= width  then
-					x, y, rowSize = 0, y + rowHeight + spacing, defaultSize
-				end
+			if button:IsShown() then
+				local iconSize = button.bigger and size or size * 0.75
+				rowSize = math.max(rowSize, iconSize)
 				button:ClearAllPoints()
+				button:SetWidth(iconSize)
+				button:SetHeight(iconSize)
 				button:SetPoint(anchor, icons, anchor, x * growthx, y * growthy)
-				button:SetWidth(size)
-				button:SetHeight(size)
-
-				x = x + size + spacing
-			elseif(not button) then
-				break
+				x = x + iconSize + spacing				
+				if x >= width then
+					y = y + rowSize + spacing
+					x = 0
+					rowSize = 0
+					if y >= height then
+						for j = i+1, #icons do
+							icons[j]:Hide()
+						end
+						return
+					end
+				end
 			end
 		end
-		--]]
 	end
 end
 
@@ -767,7 +720,6 @@ local function InitFrame(settings, self)
 		self.CustomAuraFilter = CustomAuraFilter
 		self.SetAuraPosition = SetAuraPosition
 		self.PostCreateAuraIcon = PostCreateAuraIcon
-		self.PostUpdateAuraIcon = PostUpdateAuraIcon
 	end
 	if buffs then
 		buffs.size = AURA_SIZE
