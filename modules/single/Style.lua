@@ -11,7 +11,7 @@ local BORDER_WIDTH = 2
 local TEXT_MARGIN = 2
 local GAP = 2
 local FRAME_MARGIN = BORDER_WIDTH + GAP
-local AURA_SIZE = 15
+local AURA_SIZE = 22
 
 local borderBackdrop = { edgeFile = [[Interface\Addons\oUF_Adirelle\media\white16x16]], edgeSize = BORDER_WIDTH }
 
@@ -142,6 +142,14 @@ local function PostCreateAuraIcon(self, button, icons, index, debuff)
 	button.cd:SetDrawEdge(true)
 end
 
+local function PostUpdateAuraIcon(self, icons, unit, icon, index, offset, filter, isDebuff)
+	local _, _, _, _, _, _, expireTime = UnitAura(unit, index, filter)
+	if expireTime and expireTime > 0 then
+		icon.expireTime = expireTime
+	else
+		icon.expireTime = GetTime() + 86400
+	end
+end
 
 local CUREABLE_DEBUFF_TYPE = {
 	Curse = (playerClass == "DRUID" or playerClass == "MAGE"),
@@ -175,40 +183,93 @@ local function CustomAuraFilter(icons, unit, icon, name, rank, texture, count, d
 	return true
 end
 
-local function SetAuraPosition(self, icons, numIcons)
-	if not icons or numIcons == 0 then return end
-	local spacing = icons.spacing or 0
-	local defaultSize = icons.size or 16
-	local anchor = icons.initialAnchor or "BOTTOMLEFT"
-	local growthx = (icons["growth-x"] == "LEFT" and -1) or 1
-	local growthy = (icons["growth-y"] == "DOWN" and -1) or 1
-	local x = 0
-	local y = 0
-	local rowHeight = defaultSize
-	local width = icons:GetWidth()
-	local height = icons:GetHeight()
+local SetAuraPosition
+do
+	local function CompareIcons(a, b)
+		return a.expireTime < b.expireTime
+	end
 
-	for i = 1, #icons do
-		local button = icons[i]
-		if button and button:IsShown() then
-			local size = defaultSize
-			if button.bigger then
-				size = icons.bigSize or size * 1.5
-				rowHeight = size
+	local smallIcons = {}
+	function SetAuraPosition(self, icons, numIcons)
+		if not icons or numIcons == 0 then return end
+		local spacing = icons.spacing or 0
+		local size = icons.size or 16
+		local anchor = icons.initialAnchor or "BOTTOMLEFT"
+		local growthx = (icons["growth-x"] == "LEFT" and -1) or 1
+		local growthy = (icons["growth-y"] == "DOWN" and -1) or 1
+		local x = 0
+		local y = 0
+		local rowHeight = defaultSize
+		local width = math.floor(icons:GetWidth() / size) * size
+		local height = math.floor(icons:GetHeight() / size) * size
+
+		table.sort(icons, CompareIcons)		
+		wipe(smallIcons)
+		for i = 1, #icons do
+			local button = icons[i]
+			if button and button:IsShown() then
+				if button.bigger then
+					button:ClearAllPoints()
+					button:SetWidth(size)
+					button:SetHeight(size)
+					button:SetPoint(anchor, icons, anchor, x * growthx, y * growthy)
+					x = x + size + spacing				
+					if x >= width then
+						y = y + size + spacing
+						if y >= height then
+							return
+						end
+						x = 0
+					end
+				else
+					tinsert(smallIcons, button)
+				end
 			end
-
-			if x >= width  then
-				x, y, rowSize = 0, y + rowHeight + spacing, defaultSize
-			end
-			button:ClearAllPoints()
-			button:SetPoint(anchor, icons, anchor, x * growthx, y * growthy)
-			button:SetWidth(size)
-			button:SetHeight(size)
-
-			x = x + size + spacing
-		elseif(not button) then
-			break
 		end
+		
+		local rowSize = size
+		local smallSize = size * 0.75
+		for i = 1, #smallIcons do
+			local button = smallIcons[i]
+			button:ClearAllPoints()
+			button:SetWidth(smallSize)
+			button:SetHeight(smallSize)
+			button:SetPoint(anchor, icons, anchor, x * growthx, y * growthy)
+			x = x + smallSize + spacing				
+			if x >= width then
+				y = y + rowSize + spacing
+				if y >= height then
+					return
+				end
+				x = 0
+				rowSize = smallSize
+			end
+		end
+
+		--[[
+		for i = 1, #icons do
+			local button = icons[i]
+			if button and button:IsShown() then
+				local size = defaultSize
+				if button.bigger then
+					size = icons.bigSize or size * 1.5
+					rowHeight = size
+				end
+
+				if x >= width  then
+					x, y, rowSize = 0, y + rowHeight + spacing, defaultSize
+				end
+				button:ClearAllPoints()
+				button:SetPoint(anchor, icons, anchor, x * growthx, y * growthy)
+				button:SetWidth(size)
+				button:SetHeight(size)
+
+				x = x + size + spacing
+			elseif(not button) then
+				break
+			end
+		end
+		--]]
 	end
 end
 
@@ -678,48 +739,49 @@ local function InitFrame(settings, self)
 	end
 
 	-- Auras
+	local buffs, debuffs
 	if unit == "pet" then
-		local buffs = CreateFrame("Frame", nil, self)
+		buffs = CreateFrame("Frame", nil, self)
 		buffs:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, FRAME_MARGIN)
-		buffs:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, FRAME_MARGIN)
-		buffs:SetHeight(AURA_SIZE * 2)
-		self.Buffs = buffs
-		--self.CustomAuraFilter = PetBuffFilter
+		buffs.initialAnchor = "BOTTOMLEFT"
+		buffs['growth-x'] = "RIGHT"
+		buffs['growth-y'] = "UP"
+		
 	elseif unit == "target" or unit == "focus" then
-		local buffs = CreateFrame("Frame", nil, self)
+		buffs = CreateFrame("Frame", nil, self)
 		buffs:SetPoint("BOTTOM"..right, self, "BOTTOM"..left, -FRAME_MARGIN*dir, 0)
-		buffs.num = 12
-		buffs:SetWidth(12 * AURA_SIZE)
-		buffs:SetHeight(AURA_SIZE)
-		buffs.onlyShowPlayer = (unit == "player")
-		buffs.showType = (unit ~= "player")
+		buffs.showType = true
 		buffs.initialAnchor = "BOTTOM"..right
 		buffs['growth-x'] = left
 		buffs['growth-y'] = "UP"
-		self.Buffs = buffs
 
-		local debuffs = CreateFrame("Frame", nil, self)
+		debuffs = CreateFrame("Frame", nil, self)
 		debuffs:SetPoint("TOP"..right, self, "TOP"..left, -FRAME_MARGIN*dir, 0)
-		debuffs.num = 24
 		debuffs.showType = true
-		debuffs:SetWidth(12 * AURA_SIZE)
-		debuffs:SetHeight(2 * AURA_SIZE)
 		debuffs.initialAnchor = "TOP"..right
 		debuffs['growth-x'] = left
 		debuffs['growth-y'] = "DOWN"
+	end
+	
+	if buffs or debuffs then
+		self.CustomAuraFilter = CustomAuraFilter
+		self.SetAuraPosition = SetAuraPosition
+		self.PostCreateAuraIcon = PostCreateAuraIcon
+		self.PostUpdateAuraIcon = PostUpdateAuraIcon
+	end
+	if buffs then
+		buffs.size = AURA_SIZE
+		buffs.num = 12
+		buffs:SetWidth(AURA_SIZE * 12)
+		buffs:SetHeight(AURA_SIZE)
+		self.Buffs = buffs
+	end
+	if debuffs then
+		debuffs.size = AURA_SIZE
+		debuffs.num = 12
+		debuffs:SetWidth(AURA_SIZE * 12)
+		debuffs:SetHeight(AURA_SIZE)
 		self.Debuffs = debuffs
-
-	end
-	self.CustomAuraFilter = CustomAuraFilter
-	self.SetAuraPosition = SetAuraPosition
-
-	if self.Buffs then
-		self.Buffs.size = AURA_SIZE
-		self.PostCreateAuraIcon = PostCreateAuraIcon
-	end
-	if self.Debuffs then
-		self.Debuffs.size = AURA_SIZE
-		self.PostCreateAuraIcon = PostCreateAuraIcon
 	end
 
 	-- Classification dragon
