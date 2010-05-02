@@ -113,11 +113,11 @@ if oUF.HasIncomingHeal then
 	local function UpdateHealBar(bar, current, max, incomingHeal)
 		if bar.incomingHeal ~= incomingHeal or bar.currentHealth ~= current or bar.maxHealth ~= max then
 			bar.incomingHeal, bar.currentHealth, bar.maxHealth = incomingHeal, current, max
+			local health = bar:GetParent()
 			if current and max and incomingHeal and incomingHeal > 0 and max > 0 and current < max then
-				local health = bar:GetParent().Health
-				bar:SetPoint("TOPLEFT", health, health:GetWidth() * current / max, 0)
-				bar:SetMinMaxValues(current, max)
-				bar:SetValue(current + incomingHeal)
+				local width = health:GetWidth()
+				bar:SetPoint("LEFT", width * current / max, 0)
+				bar:SetWidth(width * math.min(incomingHeal, max-current) / max)
 				bar:Show()
 			else
 				bar:Hide()
@@ -136,7 +136,7 @@ if oUF.HasIncomingHeal then
 end
 
 local function PostCreateAuraIcon(self, button, icons, index, debuff)
-	--button.icon:SetTexCoord(0.05, 0.95, 0.05, 0.95)
+	button.icon:SetTexCoord(0.05, 0.95, 0.05, 0.95)
 	button.cd.noCooldownCount = true
 	button.cd:SetReverse(true)
 	button.cd:SetDrawEdge(true)
@@ -522,11 +522,15 @@ local function InitFrame(settings, self)
 	
 	-- Incoming heals
 	if oUF.HasIncomingHeal then
-		local incomingHeal = CreateFrame("StatusBar", nil, self)
-		incomingHeal:SetPoint("BOTTOMRIGHT", health)
-		incomingHeal.textureColor = { 0, 1, 0 }
-		self:RegisterStatusBarTexture(incomingHeal)
-		--self:RegisterStatusBarTexture(incomingHeal, PostIncomingHealTextureUpdate)
+		--local incomingHeal = CreateFrame("StatusBar", nil, self)
+		--incomingHeal:SetPoint("BOTTOMRIGHT", health)
+		local incomingHeal = health:CreateTexture(nil, "OVERLAY")
+		incomingHeal:SetTexture([[Interface\AddOns\oUF_Adirelle\media\white16x16]])
+		incomingHeal:SetVertexColor(0, 1, 0, 0.5)
+		incomingHeal:SetBlendMode("ADD")
+		incomingHeal:SetPoint("TOP", health)
+		incomingHeal:SetPoint("BOTTOM", health)
+		--self:RegisterStatusBarTexture(incomingHeal)
 
 		self.IncomingHeal = incomingHeal
 		self.UpdateIncomingHeal = UpdateIncomingHeal
