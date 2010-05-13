@@ -4,5 +4,8 @@
 ## Title: oUF_Adirelle - party/raid frames
 ## Notes: Grid-like party and raid display
 ## RequiredDeps: oUF_Adirelle
+## LoadManagers: AddonLoader
+## X-LoadOn-Group: true
+## X-ConfigMode: true
 
 ..\oUF_Adirelle\modules\raid\module.xml
