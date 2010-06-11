@@ -28,6 +28,9 @@ local function BuildRangeCheck()
 	local function CheckSpell(id, interactRange)
 		local spell = GetSpellInfo(id)
 		interactRange = interactRange or DEFAULT_INTERACT_RANGE
+		if not GetSpellInfo(spell) then
+			return function(unit) DefaultRangeCheck(unit, interactRange) end
+		end
 		return function(unit)
 			local inRange = IsSpellInRange(spell, unit)
 			if inRange ~= nil then
@@ -41,6 +44,11 @@ local function BuildRangeCheck()
 	local function CheckBothSpells(id1, id2, interactRange)
 		local spell1, spell2 = GetSpellInfo(id1), GetSpellInfo(id2)
 		interactRange = interactRange or DEFAULT_INTERACT_RANGE
+		if not GetSpellInfo(spell1) then
+			return CheckSpell(id2, interactRange)
+		elseif not GetSpellInfo(spell2) then
+			return CheckSpell(id1, interactRange)
+		end
 		return function(unit)
 			local inRange1, inRange2 = IsSpellInRange(spell1, unit), IsSpellInRange(spell2, unit)
 			if inRange1 == 1 or inRange2 == 1 then
@@ -88,7 +96,7 @@ local function BuildRangeCheck()
 		friendlyCheck = CheckSpell(475) -- Remove Curse
 
 		-- Mages can increase the range of each school separately
-		local spell1, spell2, spell3 = GetSpellInfo(5143),  GetSpellInfo(133),  GetSpellInfo(116) -- Arcane Missiles, Fireball, Frostbolt
+		local spell1, spell2, spell3 = GetSpellInfo(5143), GetSpellInfo(133), GetSpellInfo(116) -- Arcane Missiles, Fireball, Frostbolt
 		hostileCheck = function(unit)
 			local inRange1, inRange2, inRange3 = IsSpellInRange(spell1, unit), IsSpellInRange(spell2, unit), IsSpellInRange(spell3, unit)
 			if inRange1 == 1 or inRange2 == 1 or inRange3 == 1 then
@@ -105,11 +113,9 @@ local function BuildRangeCheck()
 
 	elseif playerClass == 'ROGUE' then
 		hostileCheck = CheckSpell(26679) -- Deadly Throw
-		friendlyCheck = CheckSpell(57934) -- Tricks of the Trade
 
 	elseif playerClass == 'WARRIOR' then
 		hostileCheck = CheckBothSpells(772, 100) -- Rend (melee) or Charge
-		friendlyCheck = CheckSpell(3411, 2) -- Intervene
 	end
 
 	return function(unit)
