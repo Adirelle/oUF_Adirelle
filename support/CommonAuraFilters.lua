@@ -22,6 +22,8 @@ do
 	-- Most are untested too
 	local DEBUFFS_STR = [=[
 		Forge of Souls
+			Bronhajm
+				Corrupt Soul: 68839 = 100
 			Devourer of Souls
 				Mirrored Soul: 69051, 69023, 69034 = 100
 		Pit of Saron
@@ -30,6 +32,9 @@ do
 			Scourgelord Tyrannus
 				Mark of Rimefang: 69275 = 80
 				Overlords' Brand: 69190, 69189, 69172 = 100
+			Forgemaster Garfrost
+				Permafrost: 68786, 70336 = 100 [>=4]
+				Deep Freeze: 70380, 70384 = 100
 		Halls of Reflection
 			Marwyn
 				Corrupted Touch: 72383, 72450 = 100
@@ -88,48 +93,84 @@ do
 			Rotface
 				Infection: 69674, 71224 = 100
 			Festergut
-				Gastric Bloat: 72551, 72219 = 60
+				Inoculated: 69291, 72101, 72102, 72103 = 40 [>=3]
+				Gastric Bloat: 72551, 72219 = 60 [>= 6]
+				Malleable Goo: 72297, 70852, 70853, 72296, 72458, 72548, 72549, 72550, 72873, 72878 = 70
 				Spores: 69279 = 80
 				Vile Gas: 72272, 72273, 72274, 73020 = 100
 			Precious & Stinky
-				Wound: 71127 = 100
+				Mortal Wound: 71127 = 100 [>=4]
 			Professor Putricide
 				Gaseous Bloat: 72455 = 100
 				Volatile Ooze Adhesive: 70447 = 100
+				Mutated Plague: 72672, 72451, 72454, 72463, 72464, 72506, 72507, 72671, 72745, 72746, 72747, 72748 = 100
 			Blood-Queen Lana'thel
+				Volatile Ooze Adhesive: 70447 = 100
 				Essence of the Blood Queen: 70867, 70871, 70950, 71473, 71532, 71533, 70872, 70879, 71525, 71530, 71531 = 80
 				Pact: 71340, 71341, 71390 = 90
 				Frenzied Bloodthirst: 70877, 71474 = 100
+			Valithria Dreamwalker
+				Emerald Vigor: 70873 = 100
+			Blood Prince Council
+				Shadow Resonance: 71822 = 100
 			Sindragosa
-				Chilled to the Bone: 70106 = 80
+				Unchained Magic: 69762 = 60
+				Chilled to the Bone: 70106 = 80 [>=4]
 				Instability: 69766 = 80
+				Mystic Buffet: 70128, 70127, 72528, 72529, 72530 = 90 [>=3]
+				Asphyxiation: 71665 = 100
 				Ice Tomb: 70157 = 100
 				Frost Beacon: 70126 = 100
 			The Lich King
 				Infest: 70541, 73779, 73780, 73781 = 80
 				Necrotic Plague: 70337, 73912, 73913, 73914 = 100
+		Vault of Archavon
+			Toravon
+				Frostbite: 72004, 72120, 72121 = 100 [>=4]
 	]=]
 
 	-- Convert string data to table
 	local DEBUFFS = {}
+	local THRESHOLDS = {}
 	for def, ids, priority in DEBUFFS_STR:gmatch('((%d[%d%s,]*)%s*=%s*(%d+))') do
 		priority = tonumber(priority)
 		for id in ids:gmatch("(%d+)") do
 			DEBUFFS[tonumber(id)] = priority
+			THRESHOLDS[id] = 1
 		end
 	end
-	
+	-- Parse data with a threshold
+	for def, ids, priority, threshold in DEBUFFS_STR:gmatch('((%d[%d%s,]*)%s*=%s*(%d+)%s*%[%s*>=%s*(%d+)%%s*]%s*)') do
+		priority = tonumber(priority)
+		threshold = tonubmer(threshold)
+		for id in ids:gmatch("(%d+)") do
+			id = tonumber(id)
+			DEBUFFS[id] = priority
+			THRESHOLDS[id] = threshold
+		end
+	end
+
+	local NAMES = {}
+	for id, prio in pairs(DEBUFFS) do
+		local name = GetSpellInfo(id)
+		if name then
+			NAMES[name] = math.max(NAMES[name] or 0, prio)
+		--[[
+		else
+			geterrorhandler()('oUF_Adirelle: no spell name for PvE debuff #'..tostring(id))
+			DEBUFFS[id] = nil
+			THRESHOLDS[id] = nil
+		--]]
+		end
+	end
+
 	function EncounterDebuff(unit)
-		local _, iType = IsInInstance()
-		if iType ~= 'party' and iType ~= 'raid' then return end
 		local curPrio, curName, curTexture, curCount, curDebuffType, curDuration, curExpirationTime
-		for i = 1, 255 do
-			local name, _, texture, count, debuffType, duration, expirationTime, _, _, _, spellId = UnitDebuff(unit, i)
-			if not name then
-				break
-			else
-				local prio = DEBUFFS[spellId]
-				if prio and (not curPrio or prio > curPrio) then
+		for name, maxPrio in pairs(NAMES) do
+			if not curPrio or maxPrio > curPrio then
+				local name, _, texture, count, debuffType, duration, expirationTime, _, _, _, spellId = UnitAura(unit, name)
+				local prio = DEBUFFS[spellId or false]
+				if prio and (not curPrio or prio > curPrio) and ((tonumber(count) or 1) >= THRESHOLDS[spellId]) then
 					curPrio, curName, curTexture, curCount, curDebuffType, curDuration, curExpirationTime = prio, name, texture, count, debuffType, duration, expirationTime
 				end
 			end
@@ -211,9 +252,9 @@ if drdata then
 			CLASS_PRIORITIES[name] = setmetatable(t, meta)
 		end
 	end
-	
+
 	function PvPDebuff(unit)
-		if not UnitIsPVP(unit) then return end 
+		if not UnitIsPVP(unit) then return end
 		local _, className = UnitClass(unit)
 		local classPriorities = CLASS_PRIORITIES[className] or DEFAULT_PRIORITIES
 		local curPrio, curTexture, curCount, curExpTime, curDuration, curDebuffType = IGNORED
@@ -240,11 +281,11 @@ end
 
 if PvPDebuff then
 	oUF:AddAuraFilter("ImportantDebuff", function(...)
-		local texture, count, start, duration, r, g, b = PvPDebuff(...) 
+		local texture, count, start, duration, r, g, b = PvPDebuff(...)
 		if texture then
 			return texture, count, start, duration, r, g, b
 		else
-			return EncounterDebuff(...)			
+			return EncounterDebuff(...)
 		end
 	end)
 else
