@@ -232,12 +232,13 @@ do
 		end
 
 		if not noStack then
-			local stack = icon:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+			local stack = (icon.Cooldown or icon):CreateFontString(nil, "OVERLAY", "NumberFontNormal")
 			stack:SetAllPoints(icon.Texture or icon)
 			stack:SetJustifyH("CENTER")
 			stack:SetJustifyV("MIDDLE")
-			stack:SetFont(GameFontNormal:GetFont(), 10, "OUTLINE")
+			stack:SetFont(NumberFontNormal:GetFont(), 10, "OUTLINE")
 			stack:SetTextColor(1, 1, 1, 1)
+			stack:SetShadowColor(0, 0, 0, 0)
 			icon.Stack = stack
 			icon.SetStack = SetStack
 		else
