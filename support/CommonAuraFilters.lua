@@ -109,8 +109,6 @@ do
 				Essence of the Blood Queen: 70867, 70871, 70950, 71473, 71532, 71533, 70872, 70879, 71525, 71530, 71531 = 80
 				Pact: 71340, 71341, 71390 = 90
 				Frenzied Bloodthirst: 70877, 71474 = 100
-			Valithria Dreamwalker
-				Emerald Vigor: 70873 = 100
 			Blood Prince Council
 				Shadow Resonance: 71822 = 100
 			Sindragosa
@@ -136,7 +134,6 @@ do
 		priority = tonumber(priority)
 		for id in ids:gmatch("(%d+)") do
 			DEBUFFS[tonumber(id)] = priority
-			THRESHOLDS[id] = 1
 		end
 	end
 	-- Parse data with a threshold
@@ -150,33 +147,39 @@ do
 		end
 	end
 
+	-- Sort the aura by decreasing priority
 	local NAMES = {}
-	for id, prio in pairs(DEBUFFS) do
-		local name = GetSpellInfo(id)
-		if name and (not NAMES[name] or prio > NAMES[name]) then
-			NAMES[name] = prio
-		end
-	end
-
-	function EncounterDebuff(unit)
-		local curPrio, curName, curTexture, curCount, curDebuffType, curDuration, curExpirationTime
-		for auraName, maxPrio in pairs(NAMES) do
-			if not curPrio or maxPrio > curPrio then
-				local name, _, texture, count, debuffType, duration, expirationTime, _, _, _, spellId = UnitAura(unit, auraName)
-				local prio = DEBUFFS[spellId or false]
-				if prio and (not curPrio or prio > curPrio) and ((tonumber(count) or 1) >= THRESHOLDS[spellId]) then
-					curPrio, curName, curTexture, curCount, curDebuffType, curDuration, curExpirationTime = prio, name, texture, count, debuffType, duration, expirationTime
+	do
+		local t = {}
+		for id, prio in pairs(DEBUFFS) do
+			local name = GetSpellInfo(id)
+			if name then
+				if not t[name] then
+					tinsert(NAMES, name)
+					t[name] = prio
+				elseif prio > t[name] then
+					t[name] = prio
 				end
 			end
 		end
-		if curTexture then
-			--Debug("Encounter debuff", "target=", UnitName(unit), "prio=", curPrio, "debuff=", curName, "texture=", curTexture, "count=", curCount, "type=", curDebuffType, "duration=", curDuration, "expTime=", curExpirationTime)
-			local color = DebuffTypeColor[curDebuffType or "none"]
-			local r, g, b
-			if color then
-				r, g, b = color.r, color.g, color.b
+		table.sort(NAMES, function(a, b) return t[b] > t[a] end)
+		t = nil
+	end
+
+	-- First matching debuff wins
+	local tonumber, UnitDebuff, DebuffTypeColor = tonumber, UnitDebuff, DebuffTypeColor
+	local NUM_DEBUFFS = #NAMES
+	function EncounterDebuff(unit)
+		for i = 1, NUM_DEBUFFS do
+			local name, _, texture, count, debuffType, duration, expirationTime, _, _, _, spellId = UnitDebuff(unit, NAMES[i])
+			if spellId and DEBUFFS[spellId] and (not THRESHOLDS[spellId] or count >= THRESHOLDS[spellId]) then
+				local color = DebuffTypeColor[debuffType or "none"]
+				if color then
+					return texture, count, expirationTime-duration, duration, color.r, color.g, color.b
+				else
+					return texture, count, expirationTime-duration, duration
+				end
 			end
-			return curTexture, curCount, curExpirationTime-curDuration, curDuration, r, g, b
 		end
 	end
 
