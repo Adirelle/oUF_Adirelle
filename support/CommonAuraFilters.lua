@@ -153,22 +153,16 @@ do
 	local NAMES = {}
 	for id, prio in pairs(DEBUFFS) do
 		local name = GetSpellInfo(id)
-		if name then
-			NAMES[name] = math.max(NAMES[name] or 0, prio)
-		--[[
-		else
-			geterrorhandler()('oUF_Adirelle: no spell name for PvE debuff #'..tostring(id))
-			DEBUFFS[id] = nil
-			THRESHOLDS[id] = nil
-		--]]
+		if name and (not NAMES[name] or prio > NAMES[name]) then
+			NAMES[name] = prio
 		end
 	end
 
 	function EncounterDebuff(unit)
 		local curPrio, curName, curTexture, curCount, curDebuffType, curDuration, curExpirationTime
-		for name, maxPrio in pairs(NAMES) do
+		for auraName, maxPrio in pairs(NAMES) do
 			if not curPrio or maxPrio > curPrio then
-				local name, _, texture, count, debuffType, duration, expirationTime, _, _, _, spellId = UnitAura(unit, name)
+				local name, _, texture, count, debuffType, duration, expirationTime, _, _, _, spellId = UnitAura(unit, auraName)
 				local prio = DEBUFFS[spellId or false]
 				if prio and (not curPrio or prio > curPrio) and ((tonumber(count) or 1) >= THRESHOLDS[spellId]) then
 					curPrio, curName, curTexture, curCount, curDebuffType, curDuration, curExpirationTime = prio, name, texture, count, debuffType, duration, expirationTime
