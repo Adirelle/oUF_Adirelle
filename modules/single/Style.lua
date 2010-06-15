@@ -482,6 +482,10 @@ local function InitFrame(settings, self)
 		-- Create an icon displaying important debuffs (either PvP or PvE) all over the portrait
 		local importantDebuff = self:SpawnAuraIcon(portrait)
 		importantDebuff:SetAllPoints(portrait)
+		local stack = importantDebuff.Stack
+		stack:ClearAllPoints()
+		stack:SetPoint("BOTTOMRIGHT", importantDebuff, -1, 1)
+		importantDebuff.Stack:SetFont(GameFontNormal:GetFont(), 14, "OUTLINE")
 		self:AddAuraIcon(importantDebuff, "ImportantDebuff")
 
 		-- Spawn a container frame that spans remaining space
