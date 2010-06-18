@@ -137,9 +137,9 @@ do
 		end
 	end
 	-- Parse data with a threshold
-	for def, ids, priority, threshold in DEBUFFS_STR:gmatch('((%d[%d%s,]*)%s*=%s*(%d+)%s*%[%s*>=%s*(%d+)%%s*]%s*)') do
+	for def, ids, priority, threshold in DEBUFFS_STR:gmatch('((%d[%d%s,]*)%s*=%s*(%d+)%s*%[%s*>=%s*(%d+)%s*%]%s*)') do
 		priority = tonumber(priority)
-		threshold = tonubmer(threshold)
+		threshold = tonumber(threshold)
 		for id in ids:gmatch("(%d+)") do
 			id = tonumber(id)
 			DEBUFFS[id] = priority
@@ -162,7 +162,7 @@ do
 				end
 			end
 		end
-		table.sort(NAMES, function(a, b) return t[b] > t[a] end)
+		table.sort(NAMES, function(a, b) return (t[a] or 0) > (t[b] or 0) end)
 		t = nil
 	end
 
