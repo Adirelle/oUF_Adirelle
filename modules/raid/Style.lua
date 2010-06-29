@@ -325,7 +325,6 @@ end
 -- ------------------------------------------------------------------------------
 
 local function InitFrame(settings, self)
-	self:EnableMouse(true)
 	self:RegisterForClicks("anyup")
 
 	self:SetScript("OnEnter", UnitFrame_OnEnter)
