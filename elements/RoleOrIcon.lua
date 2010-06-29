@@ -21,28 +21,21 @@ local strmatch = string.match
 
 local groupType
 
-local GetGroupRole, RoleUpdated, Update
-local lgt = ns.GetLib('LibGroupTalents-1.0')
-if lgt then
-	function GetGroupRole(unit)
-		local role = lgt:GetUnitRole(unit)
-		return (role == 'caster' or role == 'melee') and "damage" or role
-	end
-	
-	function RoleUpdated(self, event, guid, unit, ...)
-		if unit == self.unit then
-			oUF.Debug(self, event, guid, unit, ...)
-			return Update(self, event, unit)
-		end
-	end
-else
-	oUF.Debug("RoleOrIcon using built-in UnitGroupRolesAssigned()")
-	local UnitInParty, UnitGroupRolesAssigned = UnitInParty, UnitGroupRolesAssigned
-	function GetGroupRole(unit)
-		if groupType == "party" and UnitInParty(unit) then
-			local isTank, isHealer, isDamage = UnitGroupRolesAssigned(unit)
-			return (isTank and "tank") or (isHealer and "healer") or (isDamage and "damage")
-		end
+local Update
+local GuessRole = ns.GetLib('LibGuessRole-1.0')
+
+local roleMap = {
+	[GuessRole.ROLE_MELEE] = 'damage',
+	[GuessRole.ROLE_CASTER] = 'damage',
+	[GuessRole.ROLE_TANK] = 'tank',
+	[GuessRole.ROLE_HEALER] = 'healer',
+}
+local function GetGroupRole(unit) 
+	return roleMap[GuessRole:GetUnitRole(unit) or false] or "unknown"
+end
+local function RoleChanged(self, event, guid, role)
+	if self.unit and UnitGUID(self.unit) == guid then
+		return Update(self, event)
 	end
 end
 
@@ -96,7 +89,7 @@ function Update(self, event, unit)
 		end
 
 		-- Check LFG role or LibGroupTalents roles
-		if groupType ~= "solo" then
+		--if groupType ~= "solo" then
 			local index = ROLE_ICON_INDEXES[GetGroupRole(unit) or "none"]
 			if index then
 				icon:SetTexture([[Interface\LFGFrame\LFGRole_BW]])
@@ -104,7 +97,7 @@ function Update(self, event, unit)
 				icon:SetVertexColor(1, 0.82, 0, 1)
 				return icon:Show()
 			end
-		end
+		--end
 		
 	end
 
@@ -148,9 +141,7 @@ local function Enable(self)
 	if self.RoleIcon then
 		self:RegisterEvent('PARTY_MEMBERS_CHANGED', UpdateEvents)
 		self:RegisterEvent("RAID_TARGET_UPDATE", Update)
-		if lgt then
-			lgt.RegisterCallback(self, 'LibGroupTalents_RoleChange', RoleUpdated, self)
-		end
+		GuessRole.RegisterCallback(self, "LibGuessRole_RoleChanged", RoleChanged, self)
 		self.RoleIcon:Hide()
 		return true
 	end
@@ -162,9 +153,7 @@ local function Disable(self)
 		self:UnregisterEvent("RAID_TARGET_UPDATE", Update)
 		self:UnregisterEvent('LFG_ROLE_UPDATE', Update)
 		self:UnregisterEvent('RAID_ROSTER_UPDATE', Update)
-		if lgt then
-			lgt.UnregisterCallback(self, 'LibGroupTalents_RoleChange')
-		end
+		GuessRole.UnregisterCallback(self, "LibGuessRole_RoleChanged")
 		self.RoleIcon:Hide()
 	end
 end
