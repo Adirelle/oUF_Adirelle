@@ -22,18 +22,24 @@ _G.oUF_Adirelle = ns
 
 -- Debugging stuff
 if tekDebug then
-	local frame = tekDebug:GetFrame("oUF_Adirelle")	
-	local strformat = string.format
-	function Debug(self, ...)
-		local timestamp = "|cff777777["..date("%X")..strformat(".%d", (GetTime()%1)*100).."]|r"
-		if type(self) == "table" and type(self[0]) == "userdata" then
-			self = '|cffCC7700'..tostring(self)..'|r'
-		else
-			self = tostring(self)
+	local frame = tekDebug:GetFrame("oUF_Adirelle")
+	local type, tostring, select = type, tostring, select
+	local t = {}
+	local function _tostringall(...)
+		local n = select('#', ...)
+		for i = 1, n do
+			local value = select(i, ...)
+			if type(value) == "table" and type(value[0]) == "userdata" then
+				t[i] = '|cffCC7700['..(value:GetName() or tostring(value):replace('table', 'frame'))..']|r'
+			else
+				t[i] = tostring(value)
+			end
 		end
-		frame:AddMessage(strjoin(" ", timestamp, self, tostringall(...)))
-	end 
-	--oUF.frame_metatable.__tostring = function(self) return self:GetName()..'['..tostring(self.unit)..']' end
+		return unpack(t, 1, n)
+	end
+	function Debug(...)
+		frame:AddMessage(strjoin(" ", _tostringall(...)))
+	end
 else
 	function Debug() end
 end
@@ -67,7 +73,7 @@ if LibStub then
 		local lib, minor = LibStub(major, true)
 		if lib then
 			versions[major] = minor
-			return lib, minor	
+			return lib, minor
 		end
 	end
 else
