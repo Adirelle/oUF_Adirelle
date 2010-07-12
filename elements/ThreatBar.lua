@@ -26,8 +26,8 @@ local function Update(self, event, unit)
 	else
 		bar:Hide()
 	end
-	if self.PostThreatBarUpdate then
-		self:PostThreatBarUpdate(event, unit, bar, isTanking, status, scaledPercent, rawPercent, threatValue)
+	if bar.PostUpdate then
+		bar.PostUpdate(self, event, unit, bar, isTanking, status, scaledPercent, rawPercent, threatValue)
 	end
 end
 

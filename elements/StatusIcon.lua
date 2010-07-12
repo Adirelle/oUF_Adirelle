@@ -57,8 +57,8 @@ local function Update(self, event, unit)
 	else
 		statusIcon:Hide()
 	end
-	if self.PostStatusIconUpdate then
-		self:PostStatusIconUpdate(event, self.unit, state)
+	if statusIcon.PostUpdate then
+		statusIcon.PostUpdate(self, event, self.unit, state)
 	end
 end
 
