@@ -108,9 +108,12 @@ local function SpawnStatusBar(self, noText, from, anchor, to, xOffset, yOffset)
 	return bar
 end
 
-local IncomingHeal_Update, Health_PostUpdate
+local IncomingHeal_PostUpdate, Health_PostUpdate
 if oUF.HasIncomingHeal then
-	local function UpdateHealBar(bar, current, max, incoming)
+	local function UpdateHealBar(bar, unit, current, max, incoming)
+		if UnitIsDeadOrGhost(unit) or not UnitIsConnected(unit) then
+			current, incoming  = 0, 0
+		end
 		if bar.incoming ~= incoming or bar.current ~= current or bar.max ~= max then
 			bar.incoming, bar.current, bar.max = incoming, current, max
 			local health = bar:GetParent()
@@ -125,14 +128,13 @@ if oUF.HasIncomingHeal then
 		end
 	end
 
-	function IncomingHeal_Update(self, event, unit, incoming)
-		local bar = self.IncomingHeal
-		return UpdateHealBar(bar, bar.current, bar.max, incoming)
+	function IncomingHeal_PostUpdate(bar, event, unit, incoming)
+		return UpdateHealBar(bar, unit, bar.current, bar.max, incoming or 0)
 	end
 
-	function Health_PostUpdate(healthBar, current, max)
+	function Health_PostUpdate(healthBar, unit, current, max)
 		local bar = healthBar:GetParent().IncomingHeal
-		return UpdateHealBar(bar, current, max, bar.incoming)
+		return UpdateHealBar(bar, unit, current, max, bar.incoming)
 	end
 end
 
@@ -541,7 +543,8 @@ local function InitFrame(settings, self)
 		incomingHeal:SetBlendMode("ADD")
 		incomingHeal:SetPoint("TOP", health)
 		incomingHeal:SetPoint("BOTTOM", health)
-		incomingHeal.Update = IncomingHeal_Update
+		incomingHeal.PostUpdate = IncomingHeal_PostUpdate
+		incomingHeal.current, incomingHeal.max, incomingHeal.incoming = 0, 0, 0
 		self.IncomingHeal = incomingHeal
 		
 		health.PostUpdate = Health_PostUpdate

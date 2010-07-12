@@ -3,7 +3,6 @@ Adirelle's oUF layout
 (c) 2009 Adirelle (adirelle@tagada-team.net)
 All rights reserved.
 --]=]
-
 local UnitClass = UnitClass
 local UnitName = UnitName
 local GetTime = GetTime
@@ -48,16 +47,22 @@ end
 -- Update name
 local function UpdateName(self)
 	local healthBar = self.Health
-	local r, g, b = unpack(self.bgColor)
+	local r, g, b = 0.5, 0.5, 0.5
+	if self.bgColor then
+		r, g, b = unpack(self.bgColor)
+	end
 	local text
-	local max = healthBar.max
-	if max > 0 then
-		local overHeal = healthBar.current + self.IncomingHeal.incoming + self.IncomingOthersHeal.incoming - max
-		local f = overHeal / max
-		if f > 0.1 then
-			r, g, b = 0, 1, 0
-			if f > 0.3 then
-				text = "+"..SmartHPValue(overHeal)
+	local healBar = self.IncomingHeal
+	if healBar then
+		local max = healBar.max
+		if max > 0 then
+			local overHeal = healBar.current + healBar.incoming + healBar.incomingOthers - max
+			local f = overHeal / max
+			if f > 0.1 then
+				r, g, b = 0, 1, 0
+				if f > 0.3 then
+					text = "+"..SmartHPValue(overHeal)
+				end
 			end
 		end
 	end
@@ -65,58 +70,70 @@ local function UpdateName(self)
 	self.Name:SetText(text or GetShortUnitName(SecureButton_GetUnit(self) or self.unit))
 end
 
--- Update incoming heal display
-local function UpdateHealBar(healthBar)
-	local self = healthBar:GetParent()
-	local healBar, othersHealBar = self.IncomingHeal, self.IncomingOthersHeal
-	local current, max = healthBar.current, healthBar.max
-	if max == 0 or current >= max then
-		healBar:Hide()
-		othersHealBar:Hide()
-		return
-	end
-	local pixelPerHP = healthBar:GetWidth() / max
-	local incomingHeal, incomingOthersHeal = healBar.incoming, othersHealBar.incoming
-	if incomingOthersHeal > 0 then
-		local newCurrent = mmin(current + incomingOthersHeal, max)
-		othersHealBar:SetPoint('LEFT', healthBar, 'LEFT', current * pixelPerHP, 0)
-		othersHealBar:SetWidth((newCurrent-current) * pixelPerHP)
-		othersHealBar:Show()
-		current = newCurrent
-	else
-		othersHealBar:Hide()
-	end
-	if incomingHeal > 0 and current < max then
-		healBar:SetPoint('LEFT', healthBar, 'LEFT', current * pixelPerHP, 0)
-		healBar:SetWidth(mmin(max-current, incomingHeal) * pixelPerHP)
-		healBar:Show()
-	else
-		healBar:Hide()
-	end
-end
-
 -- Update name and health bar on health change
 local function Health_Update(self, event, unit)
 	if self.unit ~= unit then return end
 	local bar, max = self.Health, UnitHealthMax(unit) or 0
-	local current =  (UnitIsDeadOrGhost(unit) or not UnitIsConnected(unit)) and max or UnitHealth(unit) or 0
+	bar.unit, bar.disconnected = unit, not UnitIsConnected(unit)
+	local current = (bar.disconnected or UnitIsDeadOrGhost(unit)) and max or UnitHealth(unit) or 0
+	Debug('Raid:Health_Update', self, event, unit, '=>', current, max)
 	if current ~= bar.current or max ~= bar.max then
 		bar.current, bar.max = current, max
 		bar:SetMinMaxValues(0, max)
 		bar:SetValue(current)
 		if bar.PostUpdate then
-			bar:PostUpdate(current, max)
+			bar:PostUpdate(unit, current, max)
 		end
 		return UpdateName(self)
 	end
 end
 
--- Update name and incoming heal bar on incoming heal change
-local function IncomingHeal_Update(self, event, unit, incomingHeal, incomingOthersHeal)
-	self.IncomingHeal.incoming = incomingHeal or 0
-	self.IncomingOthersHeal.incoming = incomingOthersHeal or 0
-	UpdateHealBar(self)
-	return UpdateName(self)
+local IncomingHeal_PostUpdate, Health_PostUpdate
+if oUF.HasIncomingHeal then
+	-- Update incoming heal display
+	local function UpdateHealBar(bar, unit, current, max, incoming, incomingOthers)
+		Debug('Raid:UpdateHealBar', bar, unit, current, max, incoming, incomingOthers)
+		if bar.current ~= current or bar.max ~= max or bar.incoming ~= incoming or bar.incomingOthers ~= incomingOthers then
+			bar.current, bar.max, bar.incoming, bar.incomingOthers = current, max, incoming, incomingOthers
+			local health = bar:GetParent()
+			local self = health:GetParent()
+			if max == 0 or current >= max then
+				bar:Hide()
+				self.IncomingOthersHeal:Hide()
+				return
+			end
+			local pixelPerHP = health:GetWidth() / max
+			if incomingOthers > 0 then
+				local othersBar = self.IncomingOthersHeal
+				local newCurrent = math.min(current + incomingOthers, max)
+				othersBar:SetPoint('LEFT', health, 'LEFT', current * pixelPerHP, 0)
+				othersBar:SetWidth((newCurrent-current) * pixelPerHP)
+				othersBar:Show()
+				current = newCurrent
+			else
+				self.IncomingOthersHeal:Hide()
+			end
+			if incoming > 0 and current < max then
+				bar:SetPoint('LEFT', health, 'LEFT', current * pixelPerHP, 0)
+				bar:SetWidth(math.min(max-current, incoming) * pixelPerHP)
+				bar:Show()
+			else
+				bar:Hide()
+			end
+		end
+	end
+
+	function IncomingHeal_PostUpdate(bar, event, unit, incoming, incomingOthers)
+		Debug('Raid:IncomingHeal_PostUpdate', bar, event, unit, incoming, incomingOthers)
+		UpdateHealBar(bar, unit, bar.current, bar.max, incoming or 0, incomingOthers or 0)
+		--return UpdateName(bar:GetParent():GetParent())
+	end
+	
+	function Health_PostUpdate(health, unit, current, max)
+		Debug('Raid:Health_PostUpdate', health, unit, current, max)
+		local bar = health:GetParent().IncomingHeal
+		return UpdateHealBar(bar, unit, current, max, bar.incoming, bar.incomingOthers)
+	end	
 end
 
 -- Update health and name color
@@ -368,8 +385,8 @@ local function InitFrame(settings, self)
 		heal:SetPoint("TOP")
 		heal:SetPoint("BOTTOM")
 		heal:Hide()
-		heal.Update = IncomingHeal_Update
-		heal.incoming = 0
+		heal.PostUpdate = IncomingHeal_PostUpdate
+		heal.current, heal.max, heal.incoming, heal.incomingOthers = 0, 0, 0, 0
 		self.IncomingHeal = heal
 
 		local othersHeal = hp:CreateTexture(nil, "OVERLAY")
@@ -378,10 +395,9 @@ local function InitFrame(settings, self)
 		othersHeal:SetPoint("TOP")
 		othersHeal:SetPoint("BOTTOM")
 		othersHeal:Hide()
-		othersHeal.incoming = 0
 		self.IncomingOthersHeal = othersHeal
 
-		hp.PostUpdate = UpdateHealBar
+		hp.PostUpdate = Health_PostUpdate
 	end
 
 	-- Indicator overlays
