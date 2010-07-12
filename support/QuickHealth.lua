@@ -11,6 +11,10 @@ setfenv(1, ns)
 local lqh = GetLib('LibQuickHealth-2.0')
 if not lqh then return end
 
+-- Override UnitHealth in addon namespace
+ns.UnitHealth = lqh.UnitHealth
+
+--[[
 -- Prepare an environment where lqh.UnitHealth replaces built-in UnitHealth
 local lqhEnv = setmetatable({
 	UnitHealth = lqh.UnitHealth
@@ -37,6 +41,7 @@ local function SetHandlerEnv(self, ...)
 		end
 	end
 end
+--]]
 
 local function HealthUpdated(self, event, guid)
 	if guid == UnitGUID(self.unit or "") then
@@ -50,7 +55,7 @@ oUF:RegisterInitCallback(function(self)
 		if self.Health.frequentUpdates then
 			Debug('QuickHealth support ignoring '..self:GetName()..' because of Health.frequentUpdates')
 		else
-			SetHandlerEnv(self, self.UNIT_HEALTH, self.UNIT_MAXHEALTH)
+			--SetHandlerEnv(self, self.UNIT_HEALTH, self.UNIT_MAXHEALTH)
 			lqh.RegisterCallback(self, "HealthUpdated", HealthUpdated, self)
 		end
 	end

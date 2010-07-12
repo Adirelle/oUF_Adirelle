@@ -33,12 +33,12 @@ if tekDebug then
 		end
 		frame:AddMessage(strjoin(" ", timestamp, self, tostringall(...)))
 	end 
-	oUF.frame_metatable.__tostring = function(self) return self:GetName()..'['..tostring(self.unit)..']' end
+	--oUF.frame_metatable.__tostring = function(self) return self:GetName()..'['..tostring(self.unit)..']' end
 else
 	function Debug() end
 end
 oUF.Debug = Debug
-oUF.frame_metatable.__index.Debug = Debug
+oUF:RegisterMetaFunction('Debug', Debug)
 
 -- Version query command
 _G.SLASH_OUFADIRELLEVER1 = "/ouf_adirelle_ver"

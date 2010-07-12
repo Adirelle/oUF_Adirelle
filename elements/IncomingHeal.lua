@@ -49,7 +49,7 @@ local function Update(self, event, unit)
 	if incomingHeals[self] ~= incomingHeal or incomingOthersHeals[self] ~= incomingOthersHeal or event == 'PLAYER_ENTERING_WORLD' then
 		incomingHeals[self] = incomingHeal
 		incomingOthersHeals[self] = incomingOthersHseal
-		self:UpdateIncomingHeal(event, unit, self.IncomingHeal, incomingHeal, incomingOthersHeal)
+		self.IncomingHeal.Update(self, event, unit, incomingHeal, incomingOthersHeal)
 	end
 end
 
@@ -111,4 +111,3 @@ end
 
 oUF.HasIncomingHeal = true
 oUF:AddElement('IncomingHeal', Update, Enable, Disable)
-

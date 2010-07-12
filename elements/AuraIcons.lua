@@ -137,9 +137,6 @@ function oUF:HasAuraFilter(name)
 	return type(filters[tostring(name)]) == "function"
 end
 
--- Add icon initialization methods to unit frame prototype
-local frame_prototype = oUF.frame_metatable and oUF.frame_metatable.__index or oUF
-
 do
 	local BORDER_WIDTH = 1
 
@@ -200,7 +197,7 @@ do
 		SetAlpha(self, r, g, b, a)
 	end
 
-	function frame_prototype:SpawnAuraIcon(parent, size, noCooldown, noStack, noBorder, noTexture, ...)
+	oUF:RegisterMetaFunction('SpawnAuraIcon', function(self, parent, size, noCooldown, noStack, noBorder, noTexture, ...)
 		assert(parent and type(parent.IsObjectType) == "function" and parent:IsObjectType("Frame"), "SpawnAuraIcon: parent should be a Frame")
 		assert(type(size) == "nil" or type(size) == "number", "SpawnAuraIcon: size should be a number")
 		local	icon = CreateFrame("Frame", nil, parent)
@@ -265,15 +262,15 @@ do
 
 		icon:Hide()
 		return icon
-	end
+	end)
 end
 
-function frame_prototype:AddAuraIcon(icon, filter)
+oUF:RegisterMetaFunction('AddAuraIcon', function(self, icon, filter)
 	assert(type(icon) == "table", "icon should be a table, not "..type(icon))
 	local func = filters[tostring(filter)]
 	assert(type(func) == "function", "unknown aura filter: "..type(filter))
 	self.AuraIcons = self.AuraIcons or {}
 	self.AuraIcons[icon] = func
 	return icon
-end
+end)
 
