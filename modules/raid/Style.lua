@@ -97,12 +97,13 @@ end
 
 -- Update name and health bar on health change
 local function Health_Update(self, event, unit)
-	local bar, current, max = self.Health, UnitHealth(unit) or 0, UnitHealthMax(unit) or 0
+	if self.unit ~= unit then return end
+	local bar, max = self.Health, UnitHealthMax(unit) or 0
+	local current =  (UnitIsDeadOrGhost(unit) or not UnitIsConnected(unit)) and max or UnitHealth(unit) or 0
 	if current ~= bar.current or max ~= bar.max then
 		bar.current, bar.max = current, max
-		if UnitIsDeadOrGhost(unit) or not UnitIsConnected(unit) then
-			bar:SetValue(self.maxHealth)
-		end
+		bar:SetMinMaxValues(0, max)
+		bar:SetValue(current)
 		if bar.PostUpdate then
 			bar:PostUpdate(current, max)
 		end
