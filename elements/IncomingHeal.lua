@@ -49,7 +49,8 @@ local function Update(self, event, unit)
 	if incomingHeals[self] ~= incomingHeal or incomingOthersHeals[self] ~= incomingOthersHeal or event == 'PLAYER_ENTERING_WORLD' then
 		incomingHeals[self] = incomingHeal
 		incomingOthersHeals[self] = incomingOthersHseal
-		self.IncomingHeal.Update(self, event, unit, incomingHeal, incomingOthersHeal)
+		self:Debug('IncomingHeal:Update', self, event, unit, incomingHeal, incomingOthersHeal)
+		self.IncomingHeal:PostUpdate(event, unit, incomingHeal, incomingOthersHeal)
 	end
 end
 
@@ -82,7 +83,7 @@ local function OnMultipleUpdate(event, casterGUID, spellId, healType, endTime, .
 end
 
 local function Enable(self)
-	if self.IncomingHeal and type(self.UpdateIncomingHeal) == "function" then
+	if self.IncomingHeal then
 		if not objects[self] then
 			if not next(objects) then
 				lhc4.RegisterCallback('oUF_IncomingHeal', 'HealComm_HealStarted', OnMultipleUpdate)
