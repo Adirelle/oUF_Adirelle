@@ -49,7 +49,6 @@ local function Update(self, event, unit)
 	if incomingHeals[self] ~= incomingHeal or incomingOthersHeals[self] ~= incomingOthersHeal or event == 'PLAYER_ENTERING_WORLD' then
 		incomingHeals[self] = incomingHeal
 		incomingOthersHeals[self] = incomingOthersHseal
-		self:Debug('IncomingHeal:Update', self, event, unit, incomingHeal, incomingOthersHeal)
 		self.IncomingHeal:PostUpdate(event, unit, incomingHeal, incomingOthersHeal)
 	end
 end
@@ -68,7 +67,6 @@ local function OnMultipleUpdate(event, casterGUID, spellId, healType, endTime, .
 		else
 			playerHealEndTime = nil
 		end
-		-- print('Player heal update:', event, spellId, playerHealEndTime)
 	end
 	--if healType and band(healType, HEALTYPE_FILTER) == 0 then return end
 	for i = 1, select('#', ...) do
