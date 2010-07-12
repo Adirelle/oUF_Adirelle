@@ -76,7 +76,6 @@ local function Health_Update(self, event, unit)
 	local bar, max = self.Health, UnitHealthMax(unit) or 0
 	bar.unit, bar.disconnected = unit, not UnitIsConnected(unit)
 	local current = (bar.disconnected or UnitIsDeadOrGhost(unit)) and max or UnitHealth(unit) or 0
-	Debug('Raid:Health_Update', self, event, unit, '=>', current, max)
 	if current ~= bar.current or max ~= bar.max then
 		bar.current, bar.max = current, max
 		bar:SetMinMaxValues(0, max)
@@ -92,7 +91,6 @@ local IncomingHeal_PostUpdate, Health_PostUpdate
 if oUF.HasIncomingHeal then
 	-- Update incoming heal display
 	local function UpdateHealBar(bar, unit, current, max, incoming, incomingOthers)
-		Debug('Raid:UpdateHealBar', bar, unit, current, max, incoming, incomingOthers)
 		if bar.current ~= current or bar.max ~= max or bar.incoming ~= incoming or bar.incomingOthers ~= incomingOthers then
 			bar.current, bar.max, bar.incoming, bar.incomingOthers = current, max, incoming, incomingOthers
 			local health = bar:GetParent()
@@ -124,13 +122,11 @@ if oUF.HasIncomingHeal then
 	end
 
 	function IncomingHeal_PostUpdate(bar, event, unit, incoming, incomingOthers)
-		Debug('Raid:IncomingHeal_PostUpdate', bar, event, unit, incoming, incomingOthers)
 		UpdateHealBar(bar, unit, bar.current, bar.max, incoming or 0, incomingOthers or 0)
-		--return UpdateName(bar:GetParent():GetParent())
+		return UpdateName(bar:GetParent():GetParent())
 	end
 	
 	function Health_PostUpdate(health, unit, current, max)
-		Debug('Raid:Health_PostUpdate', health, unit, current, max)
 		local bar = health:GetParent().IncomingHeal
 		return UpdateHealBar(bar, unit, current, max, bar.incoming, bar.incomingOthers)
 	end	
