@@ -20,9 +20,7 @@ externals:
     tag: latest
   libs/LibMovable-1.0: git://github.com/Adirelle/LibMovable-1.0.git
   libs/LibGuessRole-1.0: git://github.com/Adirelle/LibGuessRole-1.0.git
-  oUF:
-    url: git://github.com/Adirelle/oUF.git
-    tag: heads/1.4
+  oUF: git://github.com/Adirelle/oUF.git
 
 move-folders:
   oUF_Adirelle/oUF_Adirelle_Raid: oUF_Adirelle_Raid
