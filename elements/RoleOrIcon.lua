@@ -34,7 +34,7 @@ local function GetRole(unit, noDamager)
 		if GetPartyAssignment("MAINASSIST", unit) then
 			return [[Interface\GroupFrame\UI-Group-MainAssistIcon]]
 		elseif GetPartyAssignment("MAINTANK", unit) then
-			return [[Interface\GroupFrame\UI-Group-MainAssistIcon]]
+			return [[Interface\GroupFrame\UI-Group-MainTankIcon]]
 		end
 
 	-- Check assigned LFD roles
