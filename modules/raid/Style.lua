@@ -125,11 +125,11 @@ if oUF.HasIncomingHeal then
 		UpdateHealBar(bar, unit, bar.current, bar.max, incoming or 0, incomingOthers or 0)
 		return UpdateName(bar:GetParent():GetParent())
 	end
-	
+
 	function Health_PostUpdate(health, unit, current, max)
 		local bar = health:GetParent().IncomingHeal
 		return UpdateHealBar(bar, unit, current, max, bar.incoming, bar.incomingOthers)
-	end	
+	end
 end
 
 -- Update health and name color
@@ -158,9 +158,9 @@ local function UpdateColor(self, event, unit)
 end
 
 -- Add a pseudo-element to update the color
-oUF:AddElement('Adirelle_Raid:UpdateColor', 
-	UpdateColor, 
-	function(self) 
+oUF:AddElement('Adirelle_Raid:UpdateColor',
+	UpdateColor,
+	function(self)
 		if self.Health and self.bgColor and self.style == "Adirelle_Raid" then
 			self:RegisterEvent('UNIT_NAME_UPDATE', UpdateColor)
 			self:RegisterEvent('RAID_ROSTER_UPDATE', UpdateColor)
@@ -465,6 +465,7 @@ local function InitFrame(settings, self)
 	roleIcon:SetWidth(8)
 	roleIcon:SetHeight(8)
 	roleIcon:SetPoint("LEFT", self, INSET, 0)
+	roleIcon.noDamager = true
 	self.RoleIcon = roleIcon
 
 	-- Hook OnSizeChanged to layout internal on size change
