@@ -530,7 +530,7 @@ local function InitFrame(settings, self)
 	local name = SpawnText(health, "OVERLAY", "TOPLEFT", "TOPLEFT", TEXT_MARGIN)
 	name:SetPoint("BOTTOMLEFT", health, "BOTTOMLEFT", TEXT_MARGIN)
 	name:SetPoint("RIGHT", health.Text, "LEFT")
-	self:Tag(name, (unit == "player" or unit == "pet") and "[name]" or "[name][ <status>]")
+	self:Tag(name, (unit == "player" or unit == "pet") and "[name]" or "[name][ <>status<>]")
 	self.Name = name
 	
 	-- Incoming heals
@@ -575,7 +575,7 @@ local function InitFrame(settings, self)
 			local classif = SpawnText(power, "OVERLAY", "TOPLEFT", "TOPLEFT", TEXT_MARGIN, 0)
 			classif:SetPoint("BOTTOMLEFT", power)
 			classif:SetPoint("RIGHT", power.Text, "LEFT")
-			self:Tag(classif, "[smartlevel][ <smartclass>]")
+			self:Tag(classif, "[smartlevel][ >smartclass<]")
 		end		
 		
 		-- Casting Bar
