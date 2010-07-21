@@ -48,7 +48,7 @@ local function Update(self, event, unit)
 	end
 	if incomingHeals[self] ~= incomingHeal or incomingOthersHeals[self] ~= incomingOthersHeal or event == 'PLAYER_ENTERING_WORLD' then
 		incomingHeals[self] = incomingHeal
-		incomingOthersHeals[self] = incomingOthersHseal
+		incomingOthersHeals[self] = incomingOthersHeal
 		self.IncomingHeal:PostUpdate(event, unit, incomingHeal, incomingOthersHeal)
 	end
 end
