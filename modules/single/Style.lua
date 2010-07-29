@@ -450,9 +450,8 @@ local function InitFrame(settings, self)
 		f:SetAllPoints(self)
 	end
 
-	self:SetBackdrop(backdrop)
-	self:SetBackdropColor(0,0,0,backdrop.bgAlpha)
-	self:SetBackdropBorderColor(0,0,0,0)
+	-- Background
+	self.Background = CreateFrame("Frame", nil, UIParent)
 
 	-- Border
 	local border = CreateFrame("Frame", nil, self)

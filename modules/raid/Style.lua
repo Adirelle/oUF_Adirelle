@@ -330,9 +330,8 @@ local function InitFrame(settings, self)
 	self:SetScript("OnEnter", UnitFrame_OnEnter)
 	self:SetScript("OnLeave", UnitFrame_OnLeave)
 
-	self:SetBackdrop(backdrop)
-	self:SetBackdropColor(0, 0, 0, backdrop.bgAlpha)
-	self:SetBackdropBorderColor(0, 0, 0, 1)
+	-- Background
+	self.Background = CreateFrame("Frame", nil, UIParent)
 
 	-- Health bar
 	local hp = CreateFrame("StatusBar", nil, self)
