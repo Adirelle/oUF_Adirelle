@@ -62,7 +62,7 @@ local frame_prototype = oUF.frame_metatable and oUF.frame_metatable.__index or o
 --   self:RegisterStatusBarTexture(bar, callback)
 --   self:RegisterStatusBarTexture(bar, colorTable)
 --   self:RegisterStatusBarTexture(bar, r, g, b[, a])
-function frame_prototype:RegisterStatusBarTexture(bar, arg, ...)
+oUF:RegisterMetaFunction('RegisterStatusBarTexture', function(self, bar, arg, ...)
 	assert(bar:IsObjectType("StatusBar") or bar:IsObjectType("Texture"), "object should be a Texture or a StatusBar") 
 	if type(arg) == "function" then
 		bar.PostTextureUpdate = arg or bar.PostTextureUpdate
@@ -80,7 +80,7 @@ function frame_prototype:RegisterStatusBarTexture(bar, arg, ...)
 	if bar:IsObjectType("StatusBar") then
 		bar:HookScript('OnValueChanged', StatusBar_OnValueChanged)
 	end
-end
+end)
 
 oUF:RegisterInitCallback(function(self)
 	for bar, frame in pairs(bars) do

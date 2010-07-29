@@ -45,15 +45,23 @@ end
 local headers = {}
 
 for group = 1, 8 do
-	local header = oUF:Spawn("header", "oUF_Raid" .. group)
-	header.isParty = (group == 1)
-	header.groupFilter = group
-	header:SetManyAttributes(
-		"showRaid", true,
+	local isParty = (group == 1) or nil
+	local header = oUF:SpawnHeader(
+		"oUF_Raid"..group, -- Name
+		nil, -- Use default template (SecureGroupHeaderTemplate)
+		nil, -- Do not setup visibility,
 		"groupFilter", group,
 		"point", "LEFT",
-		"xOffset", SPACING
+		"xOffset", SPACING,
+		--@debug@--
+		"showSolo", isParty,
+		--@end-debug@--
+		"showPlayer", isParty,
+		"showParty", isParty,
+		"showRaid", true
 	)
+	header.isParty = isParty
+	header.groupFilter = group
 	header:SetScale(SCALE)
 	header:SetParent(anchor)
 	if group > 1 then
@@ -64,25 +72,19 @@ for group = 1, 8 do
 	headers[group] = header
 end
 
-headers[1]:SetManyAttributes(
+-- Party pets
+local header = oUF:SpawnHeader(
+	"oUF_PartyPets",
+	"SecureGroupPetHeaderTemplate",
+	nil,
+	"groupFilter", 1,
+	"point", "LEFT",
+	"xOffset", SPACING,
 --@debug@--
 	"showSolo", true,
 --@end-debug@--
 	"showParty", true,
 	"showPlayer", true
-)
-
--- Party pets
-local header = oUF:Spawn("header", "oUF_PartyPets", "SecureGroupPetHeaderTemplate")
-header:SetManyAttributes(
---@debug@--
-	"showSolo", true,
---@end-debug@--
-	"showParty", true,
-	"showPlayer", true,
-	"groupFilter", 1,
-	"point", "LEFT",
-	"xOffset", SPACING
 )
 header.isPets = "party"
 header.groupFilter = 1
@@ -94,13 +96,15 @@ headers.partypets = header
 
 -- Raid pets
 for group = 1, 2 do
-	local header = oUF:Spawn("header", "oUF_Raid"..group.."Pets", "SecureGroupPetHeaderTemplate")
-	header:SetManyAttributes(
-		"showRaid", true,
-		"showPlayer", true,
+	local header = oUF:SpawnHeader(
+		"oUF_Raid"..group.."Pets",
+		"SecureGroupPetHeaderTemplate",
+		nil,
 		"groupFilter", group,
 		"point", "LEFT",
-		"xOffset", SPACING
+		"xOffset", SPACING,
+		"showRaid", true,
+		"showPlayer", true
 	)
 	header.isPets = "raid"
 	header.groupFilter = group

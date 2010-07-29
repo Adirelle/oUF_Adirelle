@@ -3,7 +3,6 @@ Adirelle's oUF layout
 (c) 2009 Adirelle (adirelle@tagada-team.net)
 All rights reserved.
 --]=]
-
 local UnitClass = UnitClass
 local UnitName = UnitName
 local GetTime = GetTime
@@ -47,16 +46,23 @@ end
 
 -- Update name
 local function UpdateName(self)
-	local r, g, b = unpack(self.bgColor)
+	local healthBar = self.Health
+	local r, g, b = 0.5, 0.5, 0.5
+	if self.bgColor then
+		r, g, b = unpack(self.bgColor)
+	end
 	local text
-	local max = self.maxHealth
-	if max > 0 then
-		local overHeal = self.currentHealth + self.incomingHeal + self.incomingOthersHeal - max
-		local f = overHeal / max
-		if f > 0.1 then
-			r, g, b = 0, 1, 0
-			if f > 0.3 then
-				text = "+"..SmartHPValue(overHeal)
+	local healBar = self.IncomingHeal
+	if healBar then
+		local max = healBar.max
+		if max > 0 then
+			local overHeal = healBar.current + healBar.incoming + healBar.incomingOthers - max
+			local f = overHeal / max
+			if f > 0.1 then
+				r, g, b = 0, 1, 0
+				if f > 0.3 then
+					text = "+"..SmartHPValue(overHeal)
+				end
 			end
 		end
 	end
@@ -64,52 +70,66 @@ local function UpdateName(self)
 	self.Name:SetText(text or GetShortUnitName(SecureButton_GetUnit(self) or self.unit))
 end
 
--- Update incoming heal display
-local function UpdateHealBar(self)
-	local current, max = self.currentHealth, self.maxHealth
-	local healBar, othersHealBar = self.IncomingHeal, self.IncomingOthersHeal
-	if max == 0 or current >= max then
-		healBar:Hide()
-		othersHealBar:Hide()
-		return
-	end
-	local healthBar = self.Health
-	local pixelPerHP = healthBar:GetWidth() / max
-	local incomingHeal, incomingOthersHeal = self.incomingHeal, self.incomingOthersHeal
-	if incomingOthersHeal > 0 then
-		local newCurrent = mmin(current + incomingOthersHeal, max)
-		othersHealBar:SetPoint('LEFT', healthBar, 'LEFT', current * pixelPerHP, 0)
-		othersHealBar:SetWidth((newCurrent-current) * pixelPerHP)
-		othersHealBar:Show()
-		current = newCurrent
-	else
-		othersHealBar:Hide()
-	end
-	if incomingHeal > 0 and current < max then
-		healBar:SetPoint('LEFT', healthBar, 'LEFT', current * pixelPerHP, 0)
-		healBar:SetWidth(mmin(max-current, incomingHeal) * pixelPerHP)
-		healBar:Show()
-	else
-		healBar:Hide()
-	end
-end
-
 -- Update name and health bar on health change
-local function UpdateHealth(self, event, unit, bar, current, max)
-	self.currentHealth = current or 0
-	self.maxHealth = max or 0
-	if UnitIsDeadOrGhost(unit) or not UnitIsConnected(unit) then
-		bar:SetValue(self.maxHealth)
+local function Health_Update(self, event, unit)
+	if self.unit ~= unit then return end
+	local bar, max = self.Health, UnitHealthMax(unit) or 0
+	bar.unit, bar.disconnected = unit, not UnitIsConnected(unit)
+	local current = (bar.disconnected or UnitIsDeadOrGhost(unit)) and max or UnitHealth(unit) or 0
+	if current ~= bar.current or max ~= bar.max then
+		bar.current, bar.max = current, max
+		bar:SetMinMaxValues(0, max)
+		bar:SetValue(current)
+		if bar.PostUpdate then
+			bar:PostUpdate(unit, current, max)
+		end
+		return UpdateName(self)
 	end
-	return UpdateName(self)
 end
 
--- Update name and incoming heal bar on incoming heal change
-local function UpdateIncomingHeal(self, event, unit, heal, incomingHeal, incomingOthersHeal)
-	self.incomingHeal = incomingHeal or 0
-	self.incomingOthersHeal = incomingOthersHeal or 0
-	UpdateHealBar(self)
-	return UpdateName(self)
+local IncomingHeal_PostUpdate, Health_PostUpdate
+if oUF.HasIncomingHeal then
+	-- Update incoming heal display
+	local function UpdateHealBar(bar, unit, current, max, incoming, incomingOthers)
+		if bar.current ~= current or bar.max ~= max or bar.incoming ~= incoming or bar.incomingOthers ~= incomingOthers then
+			bar.current, bar.max, bar.incoming, bar.incomingOthers = current, max, incoming, incomingOthers
+			local health = bar:GetParent()
+			local self = health:GetParent()
+			if max == 0 or current >= max then
+				bar:Hide()
+				self.IncomingOthersHeal:Hide()
+				return
+			end
+			local pixelPerHP = health:GetWidth() / max
+			if incomingOthers > 0 then
+				local othersBar = self.IncomingOthersHeal
+				local newCurrent = math.min(current + incomingOthers, max)
+				othersBar:SetPoint('LEFT', health, 'LEFT', current * pixelPerHP, 0)
+				othersBar:SetWidth((newCurrent-current) * pixelPerHP)
+				othersBar:Show()
+				current = newCurrent
+			else
+				self.IncomingOthersHeal:Hide()
+			end
+			if incoming > 0 and current < max then
+				bar:SetPoint('LEFT', health, 'LEFT', current * pixelPerHP, 0)
+				bar:SetWidth(math.min(max-current, incoming) * pixelPerHP)
+				bar:Show()
+			else
+				bar:Hide()
+			end
+		end
+	end
+
+	function IncomingHeal_PostUpdate(bar, event, unit, incoming, incomingOthers)
+		UpdateHealBar(bar, unit, bar.current, bar.max, incoming or 0, incomingOthers or 0)
+		return UpdateName(bar:GetParent():GetParent())
+	end
+
+	function Health_PostUpdate(health, unit, current, max)
+		local bar = health:GetParent().IncomingHeal
+		return UpdateHealBar(bar, unit, current, max, bar.incoming, bar.incomingOthers)
+	end
 end
 
 -- Update health and name color
@@ -138,9 +158,9 @@ local function UpdateColor(self, event, unit)
 end
 
 -- Add a pseudo-element to update the color
-oUF:AddElement('Adirelle_Raid:UpdateColor', 
-	UpdateColor, 
-	function(self) 
+oUF:AddElement('Adirelle_Raid:UpdateColor',
+	UpdateColor,
+	function(self)
 		if self.Health and self.bgColor and self.style == "Adirelle_Raid" then
 			self:RegisterEvent('UNIT_NAME_UPDATE', UpdateColor)
 			self:RegisterEvent('RAID_ROSTER_UPDATE', UpdateColor)
@@ -152,7 +172,7 @@ oUF:AddElement('Adirelle_Raid:UpdateColor',
 )
 
 -- Statusbar texturing
-local function PostHealthBareTextureUpdate(self)
+local function HealthBar_PostTextureUpdate(self)
 	self:SetStatusBarColor(0, 0, 0, 0.75)
 end
 
@@ -327,6 +347,9 @@ end
 local function InitFrame(settings, self)
 	self:RegisterForClicks("anyup")
 
+	self:SetAttribute('initial-width', settings['initial-width'])
+	self:SetAttribute('initial-height', settings['initial-height'])
+
 	self:SetScript("OnEnter", UnitFrame_OnEnter)
 	self:SetScript("OnLeave", UnitFrame_OnLeave)
 
@@ -335,13 +358,13 @@ local function InitFrame(settings, self)
 
 	-- Health bar
 	local hp = CreateFrame("StatusBar", nil, self)
+	hp.Update = Health_Update
+	hp.current, hp.max = 0, 0
 	hp:SetAllPoints(self)
-	self:RegisterStatusBarTexture(hp, PostHealthBareTextureUpdate)
+	self:RegisterStatusBarTexture(hp, HealthBar_PostTextureUpdate)
 	self.Health = hp
-	self.OverrideUpdateHealth = UpdateHealth
 
 	self.bgColor = { 1, 1, 1 }
-	self.currentHealth, self.maxHealth, self.incomingHeal, self.incomingOthersHeal = 0, 0, 0, 0
 
 	local hpbg = hp:CreateTexture(nil, "BACKGROUND")
 	hpbg:SetAllPoints(hp)
@@ -357,6 +380,8 @@ local function InitFrame(settings, self)
 		heal:SetPoint("TOP")
 		heal:SetPoint("BOTTOM")
 		heal:Hide()
+		heal.PostUpdate = IncomingHeal_PostUpdate
+		heal.current, heal.max, heal.incoming, heal.incomingOthers = 0, 0, 0, 0
 		self.IncomingHeal = heal
 
 		local othersHeal = hp:CreateTexture(nil, "OVERLAY")
@@ -367,8 +392,7 @@ local function InitFrame(settings, self)
 		othersHeal:Hide()
 		self.IncomingOthersHeal = othersHeal
 
-		self.UpdateIncomingHeal = UpdateIncomingHeal
-		self.PostUpdateHealth = UpdateHealBar
+		hp.PostUpdate = Health_PostUpdate
 	end
 
 	-- Indicator overlays
@@ -407,8 +431,8 @@ local function InitFrame(settings, self)
 	status:SetPoint("CENTER")
 	status:SetBlendMode("ADD")
 	status:Hide()
+	status.PostUpdate = UpdateColor
 	self.StatusIcon = status
-	self.PostStatusIconUpdate = UpdateColor
 
 	-- ReadyCheck icon
 	local rc = CreateFrame("Frame", nil, overlay)
@@ -425,17 +449,6 @@ local function InitFrame(settings, self)
 	-- Aura icons
 	CreateAuraIcons(self)
 
-	--[[ Crowd control icon
-	-- Now handled by the "ImportantDebuff" filter
-	local header = self:GetParent()
-	if oUF:HasAuraFilter("PvPDebuff") and header.isParty and not header.isPets then
-		local ccicon = self:SpawnAuraIcon(self, 32)
-		ccicon:SetPoint("TOP", self, "BOTTOM", 0, -SPACING)
-		ccicon.doNotBlink = true
-		self:AddAuraIcon(ccicon, "PvPDebuff")
-	end
-	--]]
-
 	-- Threat glow
 	local threat = CreateFrame("Frame", nil, self)
 	threat:SetAllPoints(self)
@@ -451,6 +464,7 @@ local function InitFrame(settings, self)
 	roleIcon:SetWidth(8)
 	roleIcon:SetHeight(8)
 	roleIcon:SetPoint("LEFT", self, INSET, 0)
+	roleIcon.noDamager = true
 	self.RoleIcon = roleIcon
 
 	-- Hook OnSizeChanged to layout internal on size change

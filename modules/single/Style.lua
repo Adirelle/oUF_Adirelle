@@ -108,16 +108,19 @@ local function SpawnStatusBar(self, noText, from, anchor, to, xOffset, yOffset)
 	return bar
 end
 
-local UpdateIncomingHeal, PostUpdateHealth
+local IncomingHeal_PostUpdate, Health_PostUpdate
 if oUF.HasIncomingHeal then
-	local function UpdateHealBar(bar, current, max, incomingHeal)
-		if bar.incomingHeal ~= incomingHeal or bar.currentHealth ~= current or bar.maxHealth ~= max then
-			bar.incomingHeal, bar.currentHealth, bar.maxHealth = incomingHeal, current, max
+	local function UpdateHealBar(bar, unit, current, max, incoming)
+		if UnitIsDeadOrGhost(unit) or not UnitIsConnected(unit) then
+			current, incoming  = 0, 0
+		end
+		if bar.incoming ~= incoming or bar.current ~= current or bar.max ~= max then
+			bar.incoming, bar.current, bar.max = incoming, current, max
 			local health = bar:GetParent()
-			if current and max and incomingHeal and incomingHeal > 0 and max > 0 and current < max then
+			if current and max and incoming and incoming > 0 and max > 0 and current < max then
 				local width = health:GetWidth()
 				bar:SetPoint("LEFT", width * current / max, 0)
-				bar:SetWidth(width * math.min(incomingHeal, max-current) / max)
+				bar:SetWidth(width * math.min(incoming, max-current) / max)
 				bar:Show()
 			else
 				bar:Hide()
@@ -125,17 +128,17 @@ if oUF.HasIncomingHeal then
 		end
 	end
 
-	function UpdateIncomingHeal(self, event, unit, bar, incomingHeal)
-		UpdateHealBar(bar, bar.currentHealth, bar.maxHealth, incomingHeal)
+	function IncomingHeal_PostUpdate(bar, event, unit, incoming)
+		return UpdateHealBar(bar, unit, bar.current, bar.max, incoming or 0)
 	end
 
-	function PostUpdateHealth(self, event, unit, _, current, max)
-		local bar = self.IncomingHeal
-		UpdateHealBar(bar, current, max, bar.incomingHeal)
+	function Health_PostUpdate(healthBar, unit, current, max)
+		local bar = healthBar:GetParent().IncomingHeal
+		return UpdateHealBar(bar, unit, current, max, bar.incoming)
 	end
 end
 
-local function PostCreateAuraIcon(self, button, icons, index, debuff)
+local function Auras_PostCreateIcon(icons, button)
 	button.icon:SetTexCoord(0.05, 0.95, 0.05, 0.95)
 	button.cd.noCooldownCount = true
 	button.cd:SetReverse(true)
@@ -151,30 +154,33 @@ local CUREABLE_DEBUFF_TYPE = {
 
 local OFFENSIVE_DISPELL = (playerClass == "SHAMAN" or playerClass == "PRIEST" or playerClass == "HUNTER" or playerClass == "WARLOCK")
 
-local function CustomAuraFilter(icons, unit, icon, name, rank, texture, count, dtype, duration, timeLeft, caster, isStealable, shouldConsolidate, spellID)
-	if not name then
-		icon.isPlayer, icon.owner, icon.bigger = nil, nil, nil
-		return
-	end
-	icon.owner, icon.isPlayer = caster, (caster == 'player' or caster == 'vehicle' or caster == 'pet')
-	icon.bigger = icon.isPlayer
-	if UnitCanAttack("player", unit) then
-		-- Enemy
-		if not icon.debuff then
-			icon.bigger = (dtype == "Magic" and OFFENSIVE_DISPELL) or (playerClass == "MAGE" and isStealable)
-		end
-	elseif unit == "player" or UnitCanAssist("player", unit) then
-		-- Friend
-		if icon.debuff then
-			icon.bigger = dtype and CUREABLE_DEBUFF_TYPE[dtype]
-		elseif InCombatLockdown() and (shouldConsolidate or (duration or 0) == 0) then
+local function Buffs_CustomFilter(icons, unit, icon, name, rank, texture, count, dtype, duration, timeLeft, caster, isStealable, shouldConsolidate, spellID)
+	if (unit == "player" or UnitCanAssist("player", unit)) then
+		if InCombatLockdown() and (shouldConsolidate or (duration or 0) == 0) then
 			return false
+		else
+			icon.bigger = (caster == 'player' or caster == 'vehicle' or caster == 'pet')
 		end
+	elseif UnitCanAttack("player", unit) then
+		icon.bigger = (dtype == "Magic" and OFFENSIVE_DISPELL) or (playerClass == "MAGE" and isStealable)
+	else
+		icon.bigger = nil
 	end
 	return true
 end
 
-local SetAuraPosition
+local function Debuffs_CustomFilter(icons, unit, icon, name, rank, texture, count, dtype, duration, timeLeft, caster, isStealable, shouldConsolidate, spellID)
+	if unit == "player" or UnitCanAssist("player", unit) then
+		icon.bigger = dtype and CUREABLE_DEBUFF_TYPE[dtype]
+	elseif UnitCanAttack("player", unit) then
+		icon.bigger = (caster == 'player' or caster == 'vehicle' or caster == 'pet')
+	else
+		icon.bigger = nil
+	end
+	return true
+end
+
+local Auras_SetPosition
 do
 	local function CompareIcons(a, b)
 		if a.bigger and not b.bigger then
@@ -186,7 +192,7 @@ do
 		end
 	end
 
-	function SetAuraPosition(self, icons, numIcons)
+	function Auras_SetPosition(icons, numIcons)
 		if not icons or numIcons == 0 then return end
 		local spacing = icons.spacing or 0
 		local size = icons.size or 16
@@ -199,7 +205,7 @@ do
 		local width = math.floor(icons:GetWidth() / size) * size
 		local height = math.floor(icons:GetHeight() / size) * size
 
-		table.sort(icons, CompareIcons)		
+		table.sort(icons, CompareIcons)
 		for i = 1, #icons do
 			local button = icons[i]
 			if button:IsShown() then
@@ -209,7 +215,7 @@ do
 				button:SetWidth(iconSize)
 				button:SetHeight(iconSize)
 				button:SetPoint(anchor, icons, anchor, x * growthx, y * growthy)
-				x = x + iconSize + spacing				
+				x = x + iconSize + spacing
 				if x >= width then
 					y = y + rowSize + spacing
 					x = 0
@@ -274,9 +280,9 @@ if playerClass == 'DEATHKNIGHT' then
 
 elseif playerClass == "DRUID" then
 	-- Druid mana bar
-	
-	function UpdateAltPower(self, event, unit)
-		local power, altPower = self.Power, self.AltPower
+
+	function AltPower_Update(power, event, unit)
+		local altPower = power:GetParent().AltPower
 		if unit == 'player' and UnitPowerType(unit) ~= SPELL_POWER_MANA then
 			local current, max = UnitPower(unit, SPELL_POWER_MANA), UnitPowerMax(unit, SPELL_POWER_MANA)
 			if max and max > 0 then
@@ -292,15 +298,15 @@ elseif playerClass == "DRUID" then
 
 		local altPower = SpawnStatusBar(self)
 		altPower.textureColor = oUF.colors.power.MANA
-		
-		if self.PostUpdatePower then
-			local orig = self.PostUpdatePower
-			self.PostUpdatePower = function(...)
-				UpdateAltPower(...)
+
+		if self.Power.PostUpdate then
+			local orig = self.Power.PostUpdate
+			self.Power.PostUpdate = function(...)
+				AltPower_Update(...)
 				return orig(...)
 			end
 		else
-			self.PostUpdatePower = UpdateAltPower
+			self.Power.PostUpdate = AltPower_Update
 		end
 
 		return altPower
@@ -351,9 +357,9 @@ elseif playerClass == "SHAMAN" then
 
 end
 
-local function PostUpdatePower(self, event, unit, bar, min, max)
-	if bar.disconnected or UnitIsDeadOrGhost(unit) then
-		bar:SetValue(0)
+local function Power_PostUpdate(power, unit, min, max)
+	if power.disconnected or UnitIsDeadOrGhost(unit) then
+		power:SetValue(0)
 	end
 end
 
@@ -421,7 +427,7 @@ do
 			return true
 		end
 	end
-	
+
 	local function Disable(self)
 		if self.Castbar and self.OptionalCastbar then
 			self:UnregisterEvent('CVAR_UPDATE', Update)
@@ -434,8 +440,11 @@ end
 local function InitFrame(settings, self)
 	local unit = self.unit
 
+	self:SetAttribute('initial-width', settings['initial-width'])
+	self:SetAttribute('initial-height', settings['initial-height'])
+
 	self:RegisterForClicks("AnyUp")
-	self:SetAttribute("type", "target");
+	self:SetAttribute("type", "target")
 
 	self:SetScript("OnEnter", OoC_UnitFrame_OnEnter)
 	self:SetScript("OnLeave", UnitFrame_OnLeave)
@@ -496,14 +505,14 @@ local function InitFrame(settings, self)
 	end
 	self.BarContainer = barContainer
 
-	-- Dynamic bar layout 
-	local UpdateLayout = function() 
+	-- Dynamic bar layout
+	local UpdateLayout = function()
 		local width, height = self:GetWidth(), self:GetHeight()
 		if width and height then
-			return LayoutBars(self, width, height) 
+			return LayoutBars(self, width, height)
 		end
 	end
-	
+
 	-- Health bar
 	local health = SpawnStatusBar(self, false, "TOPLEFT", barContainer)
 	health:SetPoint("TOPRIGHT", barContainer)
@@ -520,9 +529,9 @@ local function InitFrame(settings, self)
 	local name = SpawnText(health, "OVERLAY", "TOPLEFT", "TOPLEFT", TEXT_MARGIN)
 	name:SetPoint("BOTTOMLEFT", health, "BOTTOMLEFT", TEXT_MARGIN)
 	name:SetPoint("RIGHT", health.Text, "LEFT")
-	self:Tag(name, (unit == "player" or unit == "pet") and "[name]" or "[name][( <)status(>)]")
+	self:Tag(name, (unit == "player" or unit == "pet") and "[name]" or "[name][ <>status<>]")
 	self.Name = name
-	
+
 	-- Incoming heals
 	if oUF.HasIncomingHeal then
 		--local incomingHeal = CreateFrame("StatusBar", nil, self)
@@ -533,13 +542,13 @@ local function InitFrame(settings, self)
 		incomingHeal:SetBlendMode("ADD")
 		incomingHeal:SetPoint("TOP", health)
 		incomingHeal:SetPoint("BOTTOM", health)
-		--self:RegisterStatusBarTexture(incomingHeal)
-
+		incomingHeal.PostUpdate = IncomingHeal_PostUpdate
+		incomingHeal.current, incomingHeal.max, incomingHeal.incoming = 0, 0, 0
 		self.IncomingHeal = incomingHeal
-		self.UpdateIncomingHeal = UpdateIncomingHeal
-		self.PostUpdateHealth = PostUpdateHealth
+
+		health.PostUpdate = Health_PostUpdate
 	end
-	
+
 	-- Power bar
 	if not settings.noPower then
 		local power = SpawnStatusBar(self, false, "TOPLEFT", health, "BOTTOMLEFT", 0, -GAP)
@@ -547,7 +556,7 @@ local function InitFrame(settings, self)
 		power.colorDisconnected = true
 		power.colorPower = true
 		power.frequentUpdates = true
-		self.PostUpdatePower = PostUpdatePower
+		power.PostUpdate = Power_PostUpdate
 		self.Power = power
 
 		if unit == "player" and SetupAltPower then
@@ -559,15 +568,15 @@ local function InitFrame(settings, self)
 			altPower:SetScript('OnHide', UpdateLayout)
 			self.AltPower = altPower
 		end
-		
+
 		-- Unit level and class (or creature family)
 		if unit ~= "player" and unit ~= "pet" then
 			local classif = SpawnText(power, "OVERLAY", "TOPLEFT", "TOPLEFT", TEXT_MARGIN, 0)
 			classif:SetPoint("BOTTOMLEFT", power)
 			classif:SetPoint("RIGHT", power.Text, "LEFT")
-			self:Tag(classif, "[smartlevel][( )smartclass]")
-		end		
-		
+			self:Tag(classif, "[smartlevel][ >smartclass<]")
+		end
+
 		-- Casting Bar
 		if unit == 'pet' or unit == 'target' or unit == 'focus' then
 			local castbar = CreateFrame("StatusBar", nil, self)
@@ -575,14 +584,14 @@ local function InitFrame(settings, self)
 			castbar:SetPoint('BOTTOMRIGHT', power)
 			self:RegisterStatusBarTexture(castbar)
 			self.Castbar = castbar
-			
-			self.PostCastStart = function()
+
+			castbar.PostCastStart = function()
 				castbar:SetStatusBarColor(1.0, 0.7, 0.0)
 			end
-			self.PostChannelStart = function()
+			castbar.PostChannelStart = function()
 				castbar:SetStatusBarColor(0.0, 1.0, 0.0)
 			end
-			
+
 			local icon = castbar:CreateTexture(nil, "ARTWORK")
 			icon:SetPoint('TOPRIGHT', castbar, 'TOPLEFT', -GAP, 0)
 			icon:SetTexCoord(0.05, 0.95, 0.05, 0.95)
@@ -592,7 +601,7 @@ local function InitFrame(settings, self)
 			spellText:SetPoint('TOPLEFT', castbar, 'TOPLEFT', TEXT_MARGIN, 0)
 			spellText:SetPoint('BOTTOMRIGHT', castbar, 'BOTTOMRIGHT', -TEXT_MARGIN, 0)
 			castbar.Text = spellText
-			
+
 			local UpdateSize = function()
 				local height = castbar:GetHeight()
 				if height and height ~= castbar.__height then
@@ -606,17 +615,17 @@ local function InitFrame(settings, self)
 			castbar:SetScript('OnShow', function() power:Hide() UpdateSize() end)
 			castbar:SetScript('OnHide', function() power:Show() end)
 			UpdateSize()
-			
+
 			local ptFrame = CreateFrame("Frame", nil, self)
 			ptFrame:SetAllPoints(power)
 			ptFrame:SetFrameLevel(castbar:GetFrameLevel()+1)
 			power.Text:SetParent(ptFrame)
-			
+
 			-- Enable the element depending on a CVar
 			self.OptionalCastbar = true
 		end
 	end
-			
+
 	-- Threat Bar
 	if unit == "target" then
 		-- Add a simple threat bar on the target
@@ -628,7 +637,7 @@ local function InitFrame(settings, self)
 		threatBar:SetWidth(190*0.5)
 		threatBar:SetHeight(14)
 		threatBar:SetMinMaxValues(0, 100)
-		self.PostThreatBarUpdate = function(self, event, unit, bar, isTanking, status, scaledPercent, rawPercent, threatValue)
+		threatBar.PostUpdate = function(self, event, unit, bar, isTanking, status, scaledPercent, rawPercent, threatValue)
 			if not bar.Text then return end
 			if threatValue then
 				local value, unit = threatValue / 100, ""
@@ -665,8 +674,16 @@ local function InitFrame(settings, self)
 	self.MasterLooter = SpawnTexture(indicators, 16, "TOP"..left, 16*dir)
 	self.Combat = SpawnTexture(indicators, 16, "BOTTOM"..left)
 
-	self.RoleIcon = SpawnTexture(indicators, 16)
-	self.RoleIcon:SetPoint("CENTER", barContainer)
+	-- Assigned/guessed raid/party icons, if we have a portrait
+	if self.Portrait then
+		self.RoleIcon = SpawnTexture(indicators, 16)
+		self.RoleIcon:SetPoint("CENTER", self.Portrait, "TOP"..right)
+		self.RoleIcon.noRaidTarget = true
+	end
+
+	-- Raid target icon
+	self.RaidIcon = SpawnTexture(indicators, 16)
+	self.RaidIcon:SetPoint("CENTER", barContainer)
 
 	if unit == "pet" then
 		self.Happiness = SpawnTexture(indicators, 16, "BOTTOMRIGHT")
@@ -706,7 +723,7 @@ local function InitFrame(settings, self)
 		buffs.initialAnchor = "BOTTOMLEFT"
 		buffs['growth-x'] = "RIGHT"
 		buffs['growth-y'] = "UP"
-		
+
 	elseif unit == "target" or unit == "focus" then
 		buffs = CreateFrame("Frame", nil, self)
 		buffs:SetPoint("BOTTOM"..right, self, "BOTTOM"..left, -FRAME_MARGIN*dir, 0)
@@ -722,17 +739,15 @@ local function InitFrame(settings, self)
 		debuffs['growth-x'] = left
 		debuffs['growth-y'] = "DOWN"
 	end
-	
-	if buffs or debuffs then
-		self.CustomAuraFilter = CustomAuraFilter
-		self.SetAuraPosition = SetAuraPosition
-		self.PostCreateAuraIcon = PostCreateAuraIcon
-	end
+
 	if buffs then
 		buffs.size = AURA_SIZE
 		buffs.num = 12
 		buffs:SetWidth(AURA_SIZE * 12)
 		buffs:SetHeight(AURA_SIZE)
+		buffs.CustomFilter = Buffs_CustomFilter
+		buffs.SetPosition = Auras_SetPosition
+		buffs.PostCreateIcon = Auras_PostCreateIcon
 		self.Buffs = buffs
 	end
 	if debuffs then
@@ -740,6 +755,9 @@ local function InitFrame(settings, self)
 		debuffs.num = 12
 		debuffs:SetWidth(AURA_SIZE * 12)
 		debuffs:SetHeight(AURA_SIZE)
+		debuffs.CustomFilter = Debuff_CustomFilter
+		debuffs.SetPosition = Auras_SetPosition
+		debuffs.PostCreateIcon = Auras_PostCreateIcon
 		self.Debuffs = debuffs
 	end
 
@@ -754,7 +772,7 @@ local function InitFrame(settings, self)
 		dragon.rare = DRAGON_TEXTURES.rare
 		self.Dragon = dragon
 	end
-	
+
 	-- Experience Bar for player
 	if unit == "player" then
 		local xpFrame = CreateFrame("Frame", nil, self)
@@ -779,13 +797,13 @@ local function InitFrame(settings, self)
 		restedBar:SetAllPoints(xpFrame)
 		restedBar:EnableMouse(false)
 		restedBar.PostTextureUpdate = xpBar.PostTextureUpdate
-		
+
 		local levelText = SpawnText(xpBar, "OVERLAY", "TOPLEFT", "TOPLEFT", TEXT_MARGIN, 0)
 		levelText:SetPoint("BOTTOMLEFT", xpBar, "BOTTOMLEFT", TEXT_MARGIN, 0)
 
 		local xpText = SpawnText(xpBar, "OVERLAY", "TOPRIGHT", "TOPRIGHT", -TEXT_MARGIN, 0)
 		xpText:SetPoint("BOTTOMRIGHT", xpBar, "BOTTOMRIGHT", -TEXT_MARGIN, 0)
-		
+
 		xpBar.UpdateText = function(self, bar, current, max, rested, level)
 			levelText:SetFormattedText(level)
 			if rested and rested > 0 then
@@ -797,7 +815,7 @@ local function InitFrame(settings, self)
 
 		xpBar.Rested = restedBar
 		xpBar:SetFrameLevel(restedBar:GetFrameLevel()+1)
-		
+
 		self.ExperienceBar = xpBar
 	end
 
@@ -805,7 +823,7 @@ local function InitFrame(settings, self)
 	self.XRange = true
 
 	-- Update layout at least once
-	self:HookScript('OnSizeChanged', UpdateLayout)	
+	self:HookScript('OnSizeChanged', UpdateLayout)
 	UpdateLayout()
 end
 
