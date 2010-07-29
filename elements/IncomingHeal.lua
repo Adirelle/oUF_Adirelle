@@ -48,8 +48,8 @@ local function Update(self, event, unit)
 	end
 	if incomingHeals[self] ~= incomingHeal or incomingOthersHeals[self] ~= incomingOthersHeal or event == 'PLAYER_ENTERING_WORLD' then
 		incomingHeals[self] = incomingHeal
-		incomingOthersHeals[self] = incomingOthersHseal
-		self:UpdateIncomingHeal(event, unit, self.IncomingHeal, incomingHeal, incomingOthersHeal)
+		incomingOthersHeals[self] = incomingOthersHeal
+		self.IncomingHeal:PostUpdate(event, unit, incomingHeal, incomingOthersHeal)
 	end
 end
 
@@ -67,7 +67,6 @@ local function OnMultipleUpdate(event, casterGUID, spellId, healType, endTime, .
 		else
 			playerHealEndTime = nil
 		end
-		-- print('Player heal update:', event, spellId, playerHealEndTime)
 	end
 	--if healType and band(healType, HEALTYPE_FILTER) == 0 then return end
 	for i = 1, select('#', ...) do
@@ -82,7 +81,7 @@ local function OnMultipleUpdate(event, casterGUID, spellId, healType, endTime, .
 end
 
 local function Enable(self)
-	if self.IncomingHeal and type(self.UpdateIncomingHeal) == "function" then
+	if self.IncomingHeal then
 		if not objects[self] then
 			if not next(objects) then
 				lhc4.RegisterCallback('oUF_IncomingHeal', 'HealComm_HealStarted', OnMultipleUpdate)
@@ -111,4 +110,3 @@ end
 
 oUF.HasIncomingHeal = true
 oUF:AddElement('IncomingHeal', Update, Enable, Disable)
-
