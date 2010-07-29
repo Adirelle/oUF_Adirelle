@@ -41,7 +41,6 @@ support\PlayerRole.lua
 
 # Our elements
 elements\AuraIcons.lua
-elements\Background.lua
 elements\Border.lua
 elements\ComboPoints.lua
 elements\Dragon.lua
