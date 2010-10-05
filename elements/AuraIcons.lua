@@ -268,6 +268,7 @@ end
 oUF:RegisterMetaFunction('AddAuraIcon', function(self, icon, filter)
 	assert(type(icon) == "table", "icon should be a table, not "..type(icon))
 	local func = filters[tostring(filter)]
+	if not func then return icon end -- FIXME
 	assert(type(func) == "function", "unknown aura filter: "..type(filter))
 	self.AuraIcons = self.AuraIcons or {}
 	self.AuraIcons[icon] = func
