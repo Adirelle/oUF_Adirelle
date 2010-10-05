@@ -14,8 +14,8 @@
 libs\LibStub\LibStub.lua
 libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
 libs\LibSharedMedia-3.0\lib.xml
-libs\LibHealComm-4.0\LibHealComm-4.0.xml
-libs\DRData-1.0\DRData-1.0.xml
+# libs\LibHealComm-4.0\LibHealComm-4.0.xml
+# libs\DRData-1.0\DRData-1.0.xml
 #@end-no-lib-strip@
 
 # Embedded oUF
@@ -25,8 +25,8 @@ oUF\oUF.xml
 oUF_Adirelle.lua
 
 # LibQuickHealth integration
-libs\LibQuickHealth-2.0.lua
-support\QuickHealth.lua
+#libs\LibQuickHealth-2.0.lua
+#support\QuickHealth.lua
 
 # LibMovable integration
 libs\LibMovable-1.0\LibMovable-1.0.lua
@@ -36,7 +36,7 @@ support\Movable.lua
 support\StatusBarTexture.lua
 
 # Player role detection
-libs\LibGuessRole-1.0\LibGuessRole-1.0.lua
+#libs\LibGuessRole-1.0\LibGuessRole-1.0.lua
 support\PlayerRole.lua
 
 # Our elements
@@ -46,8 +46,8 @@ elements\ComboPoints.lua
 elements\Dragon.lua
 elements\Experience.lua
 elements\IncomingHeal.lua
-elements\ReadyCheck.lua
-elements\RoleOrIcon.lua
+#elements\ReadyCheck.lua
+#elements\RoleOrIcon.lua
 elements\RuneBar.lua
 elements\StatusIcon.lua
 elements\TotemBar.lua

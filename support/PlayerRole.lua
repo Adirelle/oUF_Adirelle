@@ -8,6 +8,14 @@ All rights reserved.
 local _G, parent, ns = _G, ...
 setfenv(1, ns)
 
+-- FIXME
+function GetPlayerRole() 
+	return "unknown"
+end
+function RegisterPlayerRoleCallback(callback)
+end
+
+--[[
 local GuessRole = GetLib('LibGuessRole-1.0')
 
 local roleMap = {
@@ -26,4 +34,5 @@ function RegisterPlayerRoleCallback(callback)
 		end
 	end)
 end
+--]]
 

@@ -36,6 +36,7 @@ end
 
 function GetOwnAuraFilter(spellId, r, g, b)
 	local spellName = GetSpellInfo(spellId)
+	if not spellName then return "none" end -- FIXME
 	assert(spellName, "invalid spell id: "..spellId)
 	local filter, exists = GetGenericFilter("OwnAura", spellName, r, g, b)
 	if not exists then
@@ -51,6 +52,7 @@ end
 
 function GetAnyAuraFilter(spellId, filter, r, g, b)
 	local spellName = GetSpellInfo(spellId)
+	if not spellName then return "none" end -- FIXME
 	assert(spellName, "invalid spell id: "..spellId)
 	local filter, exists = GetGenericFilter("AnyAura", spellName, filter, r, g, b)
 	if not exists then
@@ -66,6 +68,7 @@ end
 
 function GetOwnStackedAuraFilter(spellId, countThreshold, r, g, b)
 	local spellName = GetSpellInfo(spellId)
+	if not spellName then return "none" end -- FIXME	
 	assert(spellName, "invalid spell id: "..spellId)
 	assert(type(countThreshold) == "number", "invalid count threshold: "..tostring(countThreshold))
 	local filter, exists = GetGenericFilter("OwnStackedAura", spellName, countThreshold, r, g, b)
@@ -127,7 +130,7 @@ end)
 -- Class specific buffs
 -- ------------------------------------------------------------------------------
 
-do
+if false then -- FIXME
 	local commonBuffs = {
 		[19752] = 99, -- Divine Intervention
 		[ 1022] = 70, -- Hand of Protection
@@ -213,7 +216,7 @@ end
 -- Priests' "Power word: shield" special case
 -- ------------------------------------------------------------------------------
 
-if select(2, UnitClass('player')) == "PRIEST" then
+if select(2, UnitClass('player')) == "PRIEST" and false then -- FIXME
 	local PWSHIELD, WEAKENEDSOUL = GetSpellInfo(17), GetSpellInfo(6788)
 	oUF:AddAuraFilter("PW:Shield", function(unit)
 		local texture, _, _, duration, expirationTime = select(3, UnitBuff(unit, PWSHIELD))
