@@ -48,25 +48,39 @@ local function Update(self, event)
 	end
 end
 
+local function Path(self, ...)
+	return (self.ExperienceBar.Update or Update)(self, ...)
+end
+
+local function ForceUpdate(element)
+	return Path(element.__owner, "ForceUpdate")
+end
 
 local function Enable(self, unit)
 	local bar = self.ExperienceBar
-	if not bar or (unit and unit ~= "player") or UnitLevel("player") == MAX_PLAYER_LEVEL then return end
-	
+	if not bar then
+		return
+	elseif (unit and unit ~= "player") or UnitLevel("player") == MAX_PLAYER_LEVEL then
+		bar.Rested:Hide()
+		bar:Hide()
+		return
+	end
+	bar.ForceUpdate, bar.__owner = ForceUpdate, self
+
 	bar.Colors = bar.Colors or {}
 	for name, value in pairs(colors) do
 		if not bar.Colors[name] then
 			bar.Colors[name] = value
 		end
 	end
-	
-	self:RegisterEvent('PLAYER_LOGIN', Update)
-	self:RegisterEvent('UPDATE_EXHAUSTION', Update)
-	self:RegisterEvent('DISABLE_XP_GAIN', Update)
-	self:RegisterEvent('ENABLE_XP_GAIN', Update)
-	self:RegisterEvent('PLAYER_XP_UPDATE', Update)
-	self:RegisterEvent('PLAYER_UPDATE_RESTING', Update)
-	self:RegisterEvent('PLAYER_LEVEL_UP', Update)
+
+	self:RegisterEvent('PLAYER_LOGIN', Path)
+	self:RegisterEvent('UPDATE_EXHAUSTION', Path)
+	self:RegisterEvent('DISABLE_XP_GAIN', Path)
+	self:RegisterEvent('ENABLE_XP_GAIN', Path)
+	self:RegisterEvent('PLAYER_XP_UPDATE', Path)
+	self:RegisterEvent('PLAYER_UPDATE_RESTING', Path)
+	self:RegisterEvent('PLAYER_LEVEL_UP', Path)
 	return true
 end
 
@@ -74,14 +88,14 @@ local function Disable(self)
 	local bar = self.ExperienceBar
 	bar:Hide()
 	bar.Rested:Hide()
-	self:UnregisterEvent('PLAYER_LOGIN', Update)
-	self:UnregisterEvent('UPDATE_EXHAUSTION', Update)
-	self:UnregisterEvent('DISABLE_XP_GAIN', Update)
-	self:UnregisterEvent('ENABLE_XP_GAIN', Update)
-	self:UnregisterEvent('PLAYER_XP_UPDATE', Update)
-	self:UnregisterEvent('PLAYER_UPDATE_RESTING', Update)
-	self:UnregisterEvent('PLAYER_LEVEL_UP', Update)
+	self:UnregisterEvent('PLAYER_LOGIN', Path)
+	self:UnregisterEvent('UPDATE_EXHAUSTION', Path)
+	self:UnregisterEvent('DISABLE_XP_GAIN', Path)
+	self:UnregisterEvent('ENABLE_XP_GAIN', Path)
+	self:UnregisterEvent('PLAYER_XP_UPDATE', Path)
+	self:UnregisterEvent('PLAYER_UPDATE_RESTING', Path)
+	self:UnregisterEvent('PLAYER_LEVEL_UP', Path)
 end
 
-oUF:AddElement('Experience', Update, Enable, Disable)
+oUF:AddElement('Experience', Path, Enable, Disable)
 

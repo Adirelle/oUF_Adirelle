@@ -791,7 +791,7 @@ local function InitFrame(settings, self)
 		xpBar.Hide = function() return xpFrame:Hide() end
 		xpBar.IsShown = function() return xpFrame:IsShown() end
 		xpBar:EnableMouse(false)
-		--xpBar.PostTextureUpdate = function() self.ExperienceBar:ForceUpdate() end
+		xpBar.PostTextureUpdate = function() return self.ExperienceBar.ForceUpdate and self.ExperienceBar:ForceUpdate() end
 
 		local restedBar = SpawnStatusBar(self, true)
 		restedBar:SetParent(xpFrame)
