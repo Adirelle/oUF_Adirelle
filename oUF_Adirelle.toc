@@ -3,7 +3,7 @@
 ## Version: @project-version@
 ## Title: oUF_Adirelle - core
 ## Notes: Adirelle's unit frames, based on haste's oUF.
-## OptionalDeps: oUF, LibSharedMedia-3.0, LibHealComm-4.0, DRData-1.0, LibMovable-1.0, SharedMedia, SharedMedia_MyMedia, !SurfaceControl, tekDebug, !ClassColors, LibGuessRole-1.0, LibQuickHealh-2.0
+## OptionalDeps: oUF, LibSharedMedia-3.0, DRData-1.0, LibMovable-1.0, SharedMedia, SharedMedia_MyMedia, !SurfaceControl, tekDebug, !ClassColors, LibGuessRole-1.0, LibQuickHealh-2.0
 ## SavedVariables: oUF_Adirelle_DB
 ## LoadOnDemand: 1
 
@@ -14,7 +14,6 @@
 libs\LibStub\LibStub.lua
 libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
 libs\LibSharedMedia-3.0\lib.xml
-# libs\LibHealComm-4.0\LibHealComm-4.0.xml
 # libs\DRData-1.0\DRData-1.0.xml
 #@end-no-lib-strip@
 
@@ -25,8 +24,8 @@ oUF\oUF.xml
 oUF_Adirelle.lua
 
 # LibQuickHealth integration
-#libs\LibQuickHealth-2.0.lua
-#support\QuickHealth.lua
+#libs\LibQuickHealth-2.0.lua -- FIXME
+#support\QuickHealth.lua -- FIXME
 
 # LibMovable integration
 libs\LibMovable-1.0\LibMovable-1.0.lua
@@ -36,7 +35,7 @@ support\Movable.lua
 support\StatusBarTexture.lua
 
 # Player role detection
-#libs\LibGuessRole-1.0\LibGuessRole-1.0.lua
+libs\LibGuessRole-1.0\LibGuessRole-1.0.lua
 support\PlayerRole.lua
 
 # Our elements
@@ -46,13 +45,13 @@ elements\ComboPoints.lua
 elements\Dragon.lua
 elements\Experience.lua
 elements\IncomingHeal.lua
-#elements\ReadyCheck.lua
-#elements\RoleOrIcon.lua
+#elements\ReadyCheck.lua -- FIXME
+elements\RoleOrIcon.lua
 elements\RuneBar.lua
 elements\StatusIcon.lua
 elements\TotemBar.lua
 elements\ThreatBar.lua
-elements\XRange.lua
+#elements\XRange.lua -- FIXME
 
 # As the filename says
 support\CommonAuraFilters.lua
