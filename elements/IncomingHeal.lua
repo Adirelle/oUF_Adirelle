@@ -54,5 +54,5 @@ local function Disable(self)
 end
 
 oUF.HasIncomingHeal = true
-oUF:AddElement('IncomingHeal', Update, Enable, Disable)
+oUF:AddElement('IncomingHeal', Path, Enable, Disable)
 
