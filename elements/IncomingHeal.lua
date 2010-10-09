@@ -7,44 +7,21 @@ All rights reserved.
 local parent, ns = ...
 local oUF = assert(ns.oUF, "oUF is undefined in "..parent.." namespace")
 
-local lhc4 = ns.GetLib('LibHealComm-4.0')
-if not lhc4 then return end
-
-local objects = {}
 local incomingHeals = {}
 local incomingOthersHeals = {}
-local playerHealEndTime
 
-local pairs = pairs
-local next = next
-local type = type
-local band = bit.band
-local select = select
-local floor = math.floor
-local mmax = math.max
-local GetTime = GetTime
 local UnitIsConnected = UnitIsConnected
 local UnitIsDeadOrGhost = UnitIsDeadOrGhost
-local UnitGUID = UnitGUID
-
-local TIME_BAND = 3
-local ALL_HEALS = lhc4.ALL_HEALS
-local OTHERS_HEALS = lhc4.DIRECT_HEALS
 
 local function Update(self, event, unit)
-	if not objects[self] or (unit and unit ~= self.unit) then return end
+	if (unit and unit ~= self.unit) then return end
 	local incomingHeal, incomingOthersHeal = 0, 0
 	unit = self.unit or unit
 	if unit and UnitIsConnected(unit) and not UnitIsDeadOrGhost(unit) then
-		local guid = UnitGUID(unit)
-		local modifier = lhc4:GetHealModifier(guid)
-		incomingHeal = lhc4:GetHealAmount(guid, ALL_HEALS, GetTime()+TIME_BAND) or 0
+		incomingHeal = UnitGetIncomingHeals(unit, "player") or 0
 		if self.IncomingOthersHeal and playerHealEndTime then
-			incomingOthersHeal = lhc4:GetOthersHealAmount(guid, OTHERS_HEALS, playerHealEndTime) or 0
-			incomingHeal = mmax(0, incomingHeal - incomingOthersHeal)
-			incomingOthersHeal = incomingOthersHeal * modifier
+			incomingOthersHeal = (UnitGetIncomingHeals(unit) or 0) - incomingHeal
 		end
-		incomingHeal = incomingHeal * modifier
 	end
 	if incomingHeals[self] ~= incomingHeal or incomingOthersHeals[self] ~= incomingOthersHeal or event == 'PLAYER_ENTERING_WORLD' then
 		incomingHeals[self] = incomingHeal
@@ -53,60 +30,29 @@ local function Update(self, event, unit)
 	end
 end
 
-local function OnSingleUpdate(self, event, guid)
-	if self:IsShown() and UnitGUID(self.unit or false) == guid then
-		return Update(self, event)
-	end
+local function Path(self, ...)
+	return (self.Update or Update)(self, ...)
 end
 
-local tmp = {}
-local function OnMultipleUpdate(event, casterGUID, spellId, healType, endTime, ...)
-	if healType and band(healType, OTHERS_HEALS) ~= 0 and casterGUID == UnitGUID('player') then
-		if event ~= 'HealComm_HealStopped' then
-			playerHealEndTime = tonumber(endTime)
-		else
-			playerHealEndTime = nil
-		end
-	end
-	--if healType and band(healType, HEALTYPE_FILTER) == 0 then return end
-	for i = 1, select('#', ...) do
-		tmp[tostring(select(i, ...))] = true
-	end
-	for frame in pairs(objects) do
-		if frame:IsShown() and frame.unit and tmp[UnitGUID(frame.unit) or false] then
-			Update(frame, event)
-		end
-	end
-	wipe(tmp)
+local function ForceUpdate(element)
+	return Path(element.__owner, 'ForceUpdate')
 end
 
 local function Enable(self)
-	if self.IncomingHeal then
-		if not objects[self] then
-			if not next(objects) then
-				lhc4.RegisterCallback('oUF_IncomingHeal', 'HealComm_HealStarted', OnMultipleUpdate)
-				lhc4.RegisterCallback('oUF_IncomingHeal', 'HealComm_HealUpdated', OnMultipleUpdate)
-				lhc4.RegisterCallback('oUF_IncomingHeal', 'HealComm_HealDelayed', OnMultipleUpdate)
-				lhc4.RegisterCallback('oUF_IncomingHeal', 'HealComm_HealStopped', OnMultipleUpdate)
-			end
-			objects[self] = true
-			lhc4.RegisterCallback(self, 'HealComm_GUIDDisappeared', OnSingleUpdate, self)
-			lhc4.RegisterCallback(self, 'HealComm_ModifierChanged', OnSingleUpdate, self)
-		end
+	local incHeal = self.IncomingHeal
+	if incHeal then
+		incHeal.__owner, incHeal.ForceUpdate = self, ForceUpdate
+		self:RegisterEvent("UNIT_HEAL_PREDICTION", Path)
 		return true
 	end
 end
 
 local function Disable(self)
 	if objects[self] then
-		lhc4.UnregisterAllCallbacks(self)
-		incomingHeals[self] = nil
-		objects[self] = nil
-		if not next(objects[self]) then
-			lhc4.UnregisterAllCallbacks('oUF_IncomingHeal')
-		end
+		self:UnregisterEvent("UNIT_HEAL_PREDICTION", Path)
 	end
 end
 
 oUF.HasIncomingHeal = true
 oUF:AddElement('IncomingHeal', Update, Enable, Disable)
+
