@@ -122,5 +122,5 @@ local function Disable(self)
 	end
 end
 
-oUF:AddElement('RoleIcon', Update, Enable, Disable)
+oUF:AddElement('RoleIcon', Path, Enable, Disable)
 
