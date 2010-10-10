@@ -19,17 +19,16 @@ local UnitGroupRolesAssigned = UnitGroupRolesAssigned
 local GetRealNumRaidMembers = GetRealNumRaidMembers
 
 local LibGuessRole = ns.GetLib('LibGuessRole-1.0')
+local ROLE_TANK, ROLE_HEALER = LibGuessRole.ROLE_TANK, LibGuessRole.ROLE_HEALER
 
 local function GetRole(unit, noDamager)
-	if not UnitIsPlayer(unit) then
-		Debug('Ignoring not-unit', unit)
-		return
-	end
+	if not UnitIsPlayer(unit) then return end
 
 	-- Check assigned raid roles
 	local raidId = GetRealNumRaidMembers() > 0 and UnitInRaid(unit)
 	if raidId then
 		local role = select(10, GetRaidRosterInfo(raidId))
+		Debug('Role from GetRaidRosterInfo for ', unit, ':', role)
 		if role and role ~= "NONE" and (not noDamager or role ~= "DAMAGER") then
 			return "Interface\\GroupFrame\\UI-Group-"..role.."Icon"
 		end
@@ -37,8 +36,8 @@ local function GetRole(unit, noDamager)
 
 	-- Check assigned roles
 	local role = UnitGroupRolesAssigned(unit)
-	Debug('UnitGroupRolesAssigned', unit, ':', role)
 	if role and role ~= "NONE" then
+		Debug('Role from UnitGroupRolesAssigned for ', unit, ':', role)
 		if noDamager and role == "DAMAGER" then
 			return
 		end
@@ -47,23 +46,21 @@ local function GetRole(unit, noDamager)
 
 	-- Fallback on LibGuessRole
 	local role, level = LibGuessRole:GetUnitRole(unit)
-	Debug('LibGuessRole:GetUnitRole for', unit, ':', role, level)
-	if role == LibGuessRole.ROLE_TANK then
-		return [[Interface\LFGFrame\LFGRole_BW]], 0.5, 0.75, 0, 1, 1, 0.82, 0
-	elseif role == LibGuessRole.ROLE_HEALER then
-		return [[Interface\LFGFrame\LFGRole_BW]], 0.75, 1, 0, 1, 1, 0.82, 0
-	elseif role and not noDamager then
-		return [[Interface\LFGFrame\LFGRole_BW]], 0.25, 0.5, 0, 1, 1, 0.82, 0
+	if role then
+		Debug('LibGuessRole:GetUnitRole for', unit, ':', role, level)
+		local index = (role == ROLE_TANK and 3) or (role == ROLE_HEALER and 4) or (not noDamager and 1)
+		if index then
+			return [[Interface\LFGFrame\LFGRole_BW]], (index-1)/4, index/4, 0, 1, 1, 0.82, 0
+		end
 	end
 end
 
 local function Update(self, event, unit)
 	if unit and unit ~= self.unit then return end
 	local icon = self.RoleIcon
-	unit = self.unit
 
 	-- Check raid target icons
-	local raidTarget = not icon.noRaidTarget and GetRaidTargetIndex(unit)
+	local raidTarget = not icon.noRaidTarget and GetRaidTargetIndex(self.unit)
 	if raidTarget then
 		icon:SetTexture([[Interface\TargetingFrame\UI-RaidTargetingIcons]])
 		icon:SetVertexColor(1, 1, 1, 1)
@@ -72,7 +69,7 @@ local function Update(self, event, unit)
 	end
 
 	-- Check role
-	local texture, x0, x1, y0, y1 r, g, b = GetRole(unit, icon.noDamager)
+	local texture, x0, x1, y0, y1 r, g, b = GetRole(self.unit, icon.noDamager)
 	if texture then
 		icon:SetTexture(texture)
 		icon:SetVertexColor(r or 1, g or 1, b or 1, 1)
