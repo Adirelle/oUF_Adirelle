@@ -383,6 +383,33 @@ elseif playerClass == "WARLOCK" then
 		return soulShardBar
 	end
 
+elseif playerClass == "PALADIN" then
+	-- Paladin holy power
+
+	local function LayoutHolyPower(holyPowerBar)
+		local spacing = (holyPowerBar:GetWidth() + GAP) / MAX_HOLY_POWER
+		local width = spacing - GAP
+		local height = holyPowerBar:GetHeight()
+		for index = 1, MAX_HOLY_POWER do
+			local power = holyPowerBar[index]
+			power:SetPoint("TOPLEFT", holyPowerBar, "TOPLEFT", spacing * (index-1), 0)
+			power:SetSize(width, height)
+		end
+	end
+
+	function SetupAltPower(self)
+		local holyPowerBar = CreateFrame("Frame", nil, self)
+		holyPowerBar:SetScript('OnShow', LayoutHolyPower)
+		holyPowerBar:SetScript('OnSizeChanged', LayoutHolyPower)
+		self.HolyPower = holyPowerBar
+		for index = 1, MAX_HOLY_POWER do
+			local power = CreateFrame("StatusBar", nil, holyPowerBar)
+			self:RegisterStatusBarTexture(power)
+			holyPowerBar[index] = power
+		end
+		return holyPowerBar
+	end
+
 end
 
 local function Power_PostUpdate(power, unit, min, max)
