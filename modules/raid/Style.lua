@@ -344,11 +344,8 @@ end
 -- Unit frame initialization
 -- ------------------------------------------------------------------------------
 
-local function InitFrame(settings, self)
+local function InitFrame(self, unit)
 	self:RegisterForClicks("anyup")
-
-	self:SetAttribute('initial-width', settings['initial-width'])
-	self:SetAttribute('initial-height', settings['initial-height'])
 
 	self:SetScript("OnEnter", UnitFrame_OnEnter)
 	self:SetScript("OnLeave", UnitFrame_OnLeave)
@@ -481,13 +478,4 @@ end
 -- Style and layout setup
 -- ------------------------------------------------------------------------------
 
-raid_style = setmetatable(
-	{
-		["initial-width"] = WIDTH,
-		["initial-height"] = HEIGHT,
-	}, {
-		__call = InitFrame,
-	}
-)
-
-oUF:RegisterStyle("Adirelle_Raid", raid_style)
+oUF:RegisterStyle("Adirelle_Raid", InitFrame)
