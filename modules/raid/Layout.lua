@@ -39,6 +39,26 @@ if Movable then
 end
 
 --------------------------------------------------------------------------------
+-- Helper
+--------------------------------------------------------------------------------
+
+local function SpawnHeader(name, template, visbility, ...)
+	return oUF:SpawnHeader(
+		name, template, visbility,
+		'oUF-initialConfigFunction', [[
+			local header = self:GetParent()
+			self:SetAttribute('*type1', 'target')
+			self:SetWidth(header:GetAttribute('initial-width'))
+			self:SetHeight(header:GetAttribute('initial-height'))
+			RegisterUnitWatch(self)
+		]],
+		'initial-width', WIDTH,
+		'initial-height', HEIGHT,
+		...
+	)
+end
+
+--------------------------------------------------------------------------------
 -- Creating group headers
 --------------------------------------------------------------------------------
 
@@ -46,7 +66,7 @@ local headers = {}
 
 for group = 1, 8 do
 	local isParty = (group == 1) or nil
-	local header = oUF:SpawnHeader(
+	local header = SpawnHeader(
 		"oUF_Raid"..group, -- Name
 		nil, -- Use default template (SecureGroupHeaderTemplate)
 		nil, -- Do not setup visibility,
@@ -73,7 +93,7 @@ for group = 1, 8 do
 end
 
 -- Party pets
-local header = oUF:SpawnHeader(
+local header = SpawnHeader(
 	"oUF_PartyPets",
 	"SecureGroupPetHeaderTemplate",
 	nil,
@@ -96,7 +116,7 @@ headers.partypets = header
 
 -- Raid pets
 for group = 1, 2 do
-	local header = oUF:SpawnHeader(
+	local header = SpawnHeader(
 		"oUF_Raid"..group.."Pets",
 		"SecureGroupPetHeaderTemplate",
 		nil,
@@ -122,8 +142,8 @@ headers.raidpet2:SetPoint("BOTTOMLEFT", headers.raidpet1, "TOPLEFT", 0, SPACING)
 
 function anchor:UpdateWidth()
 	if self.lockedWidth then return end
-	if not self:CanChangeProtectedState() then 
-		return self:Debug('UpdateWidth: not updating anchor width because of combat lockdown') 
+	if not self:CanChangeProtectedState() then
+		return self:Debug('UpdateWidth: not updating anchor width because of combat lockdown')
 	end
 	local width = 0.1
 	for key, header in pairs(headers) do
@@ -204,23 +224,22 @@ end
 function anchor:ApplyHeight()
 	local height = self.wantedHeight
 	if self.currentHeight == height then return end
-	if not self:CanChangeProtectedState() then 
-		return self:Debug('ApplyHeight: not updating height because of combat lockdown') 
+	if not self:CanChangeProtectedState() then
+		return self:Debug('ApplyHeight: not updating height because of combat lockdown')
 	end
 	self:Debug('ApplyHeight: changing height', 'old:', self.currentHeight, 'new:', height)
-	raid_style['initial-height'] = height
 	self.currentHeight = height
 	self.lockedWidth = nil
 	for key, header in pairs(headers) do
 		for i = 1, 5 do
 			local unitframe = header:GetAttribute('child'..i)
 			if unitframe then
-				unitframe:SetAttribute('initial-height', height)
 				if unitframe:GetHeight() ~= height then
 					unitframe:SetHeight(height)
 				end
 			end
 		end
+		header:SetAttribute('initial-height', height)
 		header:SetAttribute('minHeight', height)
 		if header:GetHeight() ~= height then
 			header:SetHeight(height)
@@ -231,8 +250,8 @@ end
 
 function anchor:ApplyVisbility()
 	if self.currentLayout == self.wantedLayout then return end
-	if not self:CanChangeProtectedState() then 
-		return self:Debug('ApplyVisbility: not updating layout because of combat lockdown') 
+	if not self:CanChangeProtectedState() then
+		return self:Debug('ApplyVisbility: not updating layout because of combat lockdown')
 	end
 	self:Debug('ApplyVisbility: changing raid layout', 'old:', self.currentLayout, 'new:', self.wantedLayout)
 	self.currentLayout = self.wantedLayout
