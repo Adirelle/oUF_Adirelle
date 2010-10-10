@@ -45,7 +45,6 @@ elements\ComboPoints.lua
 elements\Dragon.lua
 elements\Experience.lua
 elements\IncomingHeal.lua
-#elements\ReadyCheck.lua -- FIXME
 elements\RoleOrIcon.lua
 elements\RuneBar.lua
 elements\StatusIcon.lua

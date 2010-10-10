@@ -433,14 +433,14 @@ local function InitFrame(self, unit)
 	self.StatusIcon = status
 
 	-- ReadyCheck icon
-	local rc = CreateFrame("Frame", nil, overlay)
+	local rc = CreateFrame("Frame", self:GetName().."ReadyCheck", overlay)
 	rc:SetFrameLevel(self:GetFrameLevel()+5)
 	rc:SetPoint('CENTER', self)
 	rc:SetWidth(HEIGHT)
 	rc:SetHeight(HEIGHT)
 	rc:SetAlpha(1)
 	rc:Hide()
-	rc.icon = rc:CreateTexture()
+	rc.icon = rc:CreateTexture(rc:GetName().."Texture")
 	rc.icon:SetAllPoints(rc)
 	self.ReadyCheck = rc
 
