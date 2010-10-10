@@ -20,14 +20,15 @@ is required for the "/oufa" chat command.
 h2. Cataclysm update status
 
 DONE:
-* use the built-in API to guess character roles, including the result of raid rolechecks,
-* get rid of LibHealComm-4.0 use the built-in API for incoming heals,
+* Use the built-in API to guess character roles, including the result of raid rolechecks.
+* Get rid of LibHealComm-4.0 use the built-in API for incoming heals.
+* Warlocks' soul shards. 
+* Range fix.
 
 TODO:
 * Moonkins' Eclipse bar
-* Warlocks' Soul Shards
 * Paladins' Holy Power
-* fix special auras handling.
+* Fix special auras handling.
 
 h2. Features
 
