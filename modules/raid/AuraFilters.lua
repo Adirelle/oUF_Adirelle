@@ -36,7 +36,10 @@ end
 
 function GetOwnAuraFilter(spellId, r, g, b)
 	local spellName = GetSpellInfo(spellId)
-	if not spellName then return "none" end -- FIXME
+	if not spellName then -- FIXME
+		geterrorhandler('GetOwnAuraFilter: unknown spell #'..spellId)
+		return "none"
+	end
 	assert(spellName, "invalid spell id: "..spellId)
 	local filter, exists = GetGenericFilter("OwnAura", spellName, r, g, b)
 	if not exists then
@@ -52,7 +55,10 @@ end
 
 function GetAnyAuraFilter(spellId, filter, r, g, b)
 	local spellName = GetSpellInfo(spellId)
-	if not spellName then return "none" end -- FIXME
+	if not spellName then -- FIXME
+		geterrorhandler('GetAnyAuraFilter: unknown spell #'..spellId)
+		return "none"
+	end
 	assert(spellName, "invalid spell id: "..spellId)
 	local filter, exists = GetGenericFilter("AnyAura", spellName, filter, r, g, b)
 	if not exists then
@@ -68,7 +74,10 @@ end
 
 function GetOwnStackedAuraFilter(spellId, countThreshold, r, g, b)
 	local spellName = GetSpellInfo(spellId)
-	if not spellName then return "none" end -- FIXME	
+	if not spellName then -- FIXME
+		geterrorhandler('GetOwnStackedAuraFilter: unknown spell #'..spellId)
+		return "none"
+	end
 	assert(spellName, "invalid spell id: "..spellId)
 	assert(type(countThreshold) == "number", "invalid count threshold: "..tostring(countThreshold))
 	local filter, exists = GetGenericFilter("OwnStackedAura", spellName, countThreshold, r, g, b)
@@ -130,9 +139,9 @@ end)
 -- Class specific buffs
 -- ------------------------------------------------------------------------------
 
-if false then -- FIXME
+do
+	local err = {}
 	local commonBuffs = {
-		[19752] = 99, -- Divine Intervention
 		[ 1022] = 70, -- Hand of Protection
 		[33206] = 50, -- Pain Suppression
 		[47788] = 50, -- Guardian Spirit
@@ -148,9 +157,16 @@ if false then -- FIXME
 		local buffs = {}
 		for _, t in pairs({classBuffs, commonBuffs}) do
 			for id, prio in pairs(t) do
-				local name = assert(GetSpellInfo(id), "invalid spell id: "..id)
-				tmp[name] = prio
-				tinsert(buffs, name)
+				local name = GetSpellInfo(id)
+				if not name then -- FIXME
+					if not err[id] then
+						geterrorhandler()("BuildClassBuffs: unknown spell #"..id)
+						err[id] = true
+					end
+				else
+					tmp[name] = prio
+					tinsert(buffs, name)
+				end
 			end
 		end
 		table.sort(buffs, compare)
@@ -171,7 +187,6 @@ if false then -- FIXME
 			[22842] = 30, -- Frenzied Regeneration
 		},
 		PALADIN = BuildClassBuffs{
-			[64205] = 90, -- Divine Sacrifice
 			[  642] = 80, -- Divine Shield
 			[  498] = 50, -- Divine Protection
 		},
@@ -191,7 +206,7 @@ if false then -- FIXME
 			[31224] = 60, -- Cloak of Shadows
 		},
 		WARLOCK = BuildClassBuffs{
-			[47986] = 40, -- Sacrifice
+			[ 7812] = 40, -- Sacrifice
 		},
 		PRIEST = BuildClassBuffs{
 			[20711] = 99, -- Spirit of Redemption
