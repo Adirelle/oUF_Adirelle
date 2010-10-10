@@ -50,7 +50,7 @@ elements\RuneBar.lua
 elements\StatusIcon.lua
 elements\TotemBar.lua
 elements\ThreatBar.lua
-#elements\XRange.lua -- FIXME
+elements\XRange.lua
 
 # As the filename says
 support\CommonAuraFilters.lua

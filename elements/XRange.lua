@@ -27,6 +27,10 @@ local function BuildRangeCheck()
 	
 	local function CheckSpell(id, interactRange)
 		local spell = GetSpellInfo(id)
+		if not spell then
+			geterrorhandler()("XRange:CheckSpell: unknown spell #"..id)
+			return DefaultRangeCheck
+		end
 		interactRange = interactRange or DEFAULT_INTERACT_RANGE
 		if not GetSpellInfo(spell) then
 			return function(unit) DefaultRangeCheck(unit, interactRange) end
@@ -43,10 +47,12 @@ local function BuildRangeCheck()
 
 	local function CheckBothSpells(id1, id2, interactRange)
 		local spell1, spell2 = GetSpellInfo(id1), GetSpellInfo(id2)
+		if not spell1 then geterrorhandler()("XRange:CheckSpell: unknown spell1 #"..id1) end
+		if not spell2 then geterrorhandler()("XRange:CheckSpell: unknown spell2 #"..id2) end
 		interactRange = interactRange or DEFAULT_INTERACT_RANGE
-		if not GetSpellInfo(spell1) then
+		if not spell1 or not GetSpellInfo(spell1) then
 			return CheckSpell(id2, interactRange)
-		elseif not GetSpellInfo(spell2) then
+		elseif not spell2 or not GetSpellInfo(spell2) then
 			return CheckSpell(id1, interactRange)
 		end
 		return function(unit)
@@ -65,17 +71,17 @@ local function BuildRangeCheck()
 	local playerClass = select(2, UnitClass("player"))
 
 	if playerClass == 'PRIEST' then
-		friendlyCheck = CheckSpell(2050) -- Lesser Heal
-		hostileCheck = CheckBothSpells(48127, 585) -- Mind Blast or Smite
+		friendlyCheck = CheckSpell(2050) -- Heal
+		hostileCheck = CheckSpell(8092) -- Mind Blast
 		rezCheck = CheckSpell(2006) -- Resurrection
 
 	elseif playerClass == 'DRUID' then
-		friendlyCheck = CheckSpell(48378) -- Healing Touch
-		hostileCheck = CheckSpell(48461) -- Wrath
+		friendlyCheck = CheckSpell(5185) -- Healing Touch
+		hostileCheck = CheckSpell(5176) -- Wrath
 		rezCheck = CheckSpell(20484) -- Rebirth
 
 	elseif playerClass == 'PALADIN' then
-		friendlyCheck = CheckSpell(48782) -- Holy Light
+		friendlyCheck = CheckSpell(635) -- Holy Light
 		hostileCheck = CheckSpell(62124) -- Hand of Reckoning
 		rezCheck = CheckSpell(7328) -- Redemption
 
@@ -84,29 +90,17 @@ local function BuildRangeCheck()
 		petCheck = CheckSpell(136) -- Mend Pet
 
 	elseif playerClass == 'SHAMAN' then
-		friendlyCheck = CheckSpell(49273) -- Healing Wave
-		hostileCheck = CheckSpell(529) -- Lightning Bolt
+		friendlyCheck = CheckSpell(331) -- Healing Wave
+		hostileCheck = CheckSpell(403) -- Lightning Bolt
 		rezCheck = CheckSpell(2008) -- Ancestral Spirit
 
 	elseif playerClass == 'WARLOCK' then
-		hostileCheck = CheckBothSpells(686, 172) -- Shadow Bolt or Corruption
-		friendlyCheck = CheckSpell(132) -- (buff) Detect Invisibility
+		hostileCheck = CheckSpell(686) -- Shadow Bolt
+		friendlyCheck = CheckSpell(20707) -- Soulstone Resurrection
 
 	elseif playerClass == 'MAGE' then
+		hostileCheck = CheckSpell(133) --  Fireball
 		friendlyCheck = CheckSpell(475) -- Remove Curse
-
-		-- Mages can increase the range of each school separately
-		local spell1, spell2, spell3 = GetSpellInfo(5143), GetSpellInfo(133), GetSpellInfo(116) -- Arcane Missiles, Fireball, Frostbolt
-		hostileCheck = function(unit)
-			local inRange1, inRange2, inRange3 = IsSpellInRange(spell1, unit), IsSpellInRange(spell2, unit), IsSpellInRange(spell3, unit)
-			if inRange1 == 1 or inRange2 == 1 or inRange3 == 1 then
-				return true
-			elseif inRange1 == nil and inRange2 == nil and inRange3 == nil then
-				return DefaultRangeCheck(unit, DEFAULT_INTERACT_RANGE)
-			else
-				return false
-			end
-		end
 		
 	elseif playerClass == 'DEATHKNIGHT' then
 		hostileCheck = CheckSpell(49576) -- Death grip
