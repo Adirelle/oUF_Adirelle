@@ -43,7 +43,7 @@ end
 
 local function HealthUpdated(self, event, guid)
 	if guid == UnitGUID(self.unit or "") then
-		return self:UpdateElement('Health')
+		return self:UpdateAllElements('UNIT_HEALTH', self.unit)
 	end
 end
 

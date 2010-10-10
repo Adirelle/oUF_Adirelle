@@ -24,8 +24,8 @@ oUF\oUF.xml
 oUF_Adirelle.lua
 
 # LibQuickHealth integration
-#libs\LibQuickHealth-2.0.lua -- FIXME
-#support\QuickHealth.lua -- FIXME
+libs\LibQuickHealth-2.0.lua
+support\QuickHealth.lua
 
 # LibMovable integration
 libs\LibMovable-1.0\LibMovable-1.0.lua
