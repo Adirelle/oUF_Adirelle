@@ -44,6 +44,7 @@ elements\Border.lua
 elements\ComboPoints.lua
 elements\Dragon.lua
 elements\Experience.lua
+elements\HolyPower.lua
 elements\IncomingHeal.lua
 elements\RoleOrIcon.lua
 elements\RuneBar.lua
