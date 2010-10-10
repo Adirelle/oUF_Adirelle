@@ -265,8 +265,8 @@ if playerClass == 'DEATHKNIGHT' then
 
 	function SetupAltPower(self)
 		local runeBar = CreateFrame("Frame", nil, self)
-		runeBar:HookScript('OnShow', LayoutRunes)
-		runeBar:HookScript('OnSizeChanged', LayoutRunes)
+		runeBar:SetScript('OnShow', LayoutRunes)
+		runeBar:SetScript('OnSizeChanged', LayoutRunes)
 		self.RuneBar = runeBar
 		for index = 1, 6 do
 			local rune = CreateFrame("StatusBar", nil, runeBar)
@@ -297,6 +297,7 @@ elseif playerClass == "DRUID" then
 	function SetupAltPower(self)
 
 		local altPower = SpawnStatusBar(self)
+		altPower:Hide()
 		altPower.textureColor = oUF.colors.power.MANA
 
 		if self.Power.PostUpdate then
@@ -343,8 +344,8 @@ elseif playerClass == "SHAMAN" then
 
 	function SetupAltPower(self)
 		local totemBar = CreateFrame("Frame", nil, self)
-		totemBar:HookScript('OnShow', LayoutTotems)
-		totemBar:HookScript('OnSizeChanged', LayoutTotems)
+		totemBar:SetScript('OnShow', LayoutTotems)
+		totemBar:SetScript('OnSizeChanged', LayoutTotems)
 		self.TotemBar = totemBar
 		for index = 1, MAX_TOTEMS do
 			local totem = CreateFrame("StatusBar", nil, totemBar)
@@ -353,6 +354,33 @@ elseif playerClass == "SHAMAN" then
 			totemBar[index] = totem
 		end
 		return totemBar
+	end
+
+elseif playerClass == "WARLOCK" then
+	-- Warlock shards
+
+	local function LayoutShards(soulShardBar)
+		local spacing = (soulShardBar:GetWidth() + GAP) / SHARD_BAR_NUM_SHARDS
+		local width = spacing - GAP
+		local height = soulShardBar:GetHeight()
+		for index = 1, SHARD_BAR_NUM_SHARDS do
+			local shard = soulShardBar[index]
+			shard:SetPoint("TOPLEFT", soulShardBar, "TOPLEFT", spacing * (index-1), 0)
+			shard:SetSize(width, height)
+		end
+	end
+
+	function SetupAltPower(self)
+		local soulShardBar = CreateFrame("Frame", nil, self)
+		soulShardBar:SetScript('OnShow', LayoutShards)
+		soulShardBar:SetScript('OnSizeChanged', LayoutShards)
+		self.SoulShards = soulShardBar
+		for index = 1, SHARD_BAR_NUM_SHARDS do
+			local shard = CreateFrame("StatusBar", nil, soulShardBar)
+			self:RegisterStatusBarTexture(shard)
+			soulShardBar[index] = shard
+		end
+		return soulShardBar
 	end
 
 end
@@ -564,9 +592,8 @@ local function InitFrame(settings, self)
 			local altPower = SetupAltPower(self)
 			altPower:SetPoint('TOPLEFT', power, 'BOTTOMLEFT', 0, -GAP)
 			altPower:SetPoint('RIGHT', barContainer)
-			altPower:Hide()
-			altPower:SetScript('OnShow', UpdateLayout)
-			altPower:SetScript('OnHide', UpdateLayout)
+			altPower:HookScript('OnShow', UpdateLayout)
+			altPower:HookScript('OnHide', UpdateLayout)
 			self.AltPower = altPower
 		end
 
