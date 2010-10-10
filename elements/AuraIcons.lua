@@ -126,6 +126,7 @@ local filters = {}
 
 function oUF:AddAuraFilter(name, func)
 	name = tostring(name)
+	if name == "none" then return end -- FIXME
 	assert(not filters[name], "aura filter by the same name already exists: "..name)
 	assert(type(func) == "function", "func should be a function, not "..type(func))
 	filters[name] = func
@@ -267,8 +268,8 @@ end
 
 oUF:RegisterMetaFunction('AddAuraIcon', function(self, icon, filter)
 	assert(type(icon) == "table", "icon should be a table, not "..type(icon))
+	if filter == "none" then return icon end -- FIXME
 	local func = filters[tostring(filter)]
-	if not func then return icon end -- FIXME
 	assert(type(func) == "function", "unknown aura filter: "..type(filter))
 	self.AuraIcons = self.AuraIcons or {}
 	self.AuraIcons[icon] = func
