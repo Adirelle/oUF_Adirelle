@@ -23,11 +23,11 @@ DONE:
 * Use the built-in API to guess character roles, including the result of raid rolechecks.
 * Get rid of LibHealComm-4.0 use the built-in API for incoming heals.
 * Warlocks' soul shards. 
+* Paladins' Holy Power.
 * Range fix.
 
 TODO:
-* Moonkins' Eclipse bar
-* Paladins' Holy Power
+* Moonkins' Eclipse bar.
 * Fix special auras handling.
 
 h2. Features
@@ -79,9 +79,8 @@ h2. Library related features
 The following feature are available using libraries:
 
 * fast health updating: LibQuickHealth-2.0 (provided).
-* visual incoming heal display: "LibHealComm-4.0":http://wow.curse.com/downloads/wow-addons/details/libhealcomm-4-0.aspx (provided).
 * bar texturing: "LibSharedMedia-3.0":http://wow.curse.com/downloads/wow-addons/details/libsharedmedia-3-0.aspx (provided).
 * frame positionning and "ConfigMode":http://www.wowwiki.com/ConfigMode support: LibMovable-1.0 (provided).
-* PvP crowd control icons: "DRData-1.0":http://wow.curse.com/downloads/wow-addons/details/drdata-1-0.aspx (provided).
-* spec-based role icons: "LibGroupTalents-1.0":http://wow.curse.com/downloads/wow-addons/details/libgrouptalents-1-0.aspx (optional ; if you would like to enable this feature, you should install both "LibTalentQuery-1.0":http://wow.curse.com/downloads/wow-addons/details/libtalentquery-1-0.aspx and "LibGroupTalents-1.0":http://wow.curse.com/downloads/wow-addons/details/libgrouptalents-1-0.aspx).
+* *Disabled in Cata* PvP crowd control icons: "DRData-1.0":http://wow.curse.com/downloads/wow-addons/details/drdata-1-0.aspx (provided).
+* spec-based role icons: LibGuessRole-1.0 'provided).
 
