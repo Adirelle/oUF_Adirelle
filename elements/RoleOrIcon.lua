@@ -48,7 +48,7 @@ local function GetRole(unit, noDamager)
 	local role, level = LibGuessRole:GetUnitRole(unit)
 	if role then
 		Debug('LibGuessRole:GetUnitRole for', unit, ':', role, level)
-		local index = (role == ROLE_TANK and 3) or (role == ROLE_HEALER and 4) or (not noDamager and 1)
+		local index = (role == ROLE_TANK and 3) or (role == ROLE_HEALER and 4) or (not noDamager and 2)
 		if index then
 			return [[Interface\LFGFrame\LFGRole_BW]], (index-1)/4, index/4, 0, 1, 1, 0.82, 0
 		end
@@ -69,7 +69,7 @@ local function Update(self, event, unit)
 	end
 
 	-- Check role
-	local texture, x0, x1, y0, y1 r, g, b = GetRole(self.unit, icon.noDamager)
+	local texture, x0, x1, y0, y1, r, g, b = GetRole(self.unit, icon.noDamager)
 	if texture then
 		icon:SetTexture(texture)
 		icon:SetVertexColor(r or 1, g or 1, b or 1, 1)
