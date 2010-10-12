@@ -15,9 +15,9 @@ externals:
   libs/LibHealComm-4.0:
     url: git://git.wowace.com/wow/libhealcomm-4-0/mainline.git
     tag: latest
-  libs/DRData-1.0:
-    url: git://git.wowace.com/wow/drdata-1-0/mainline.git
-    tag: latest
+#  libs/DRData-1.0:
+#    url: git://git.wowace.com/wow/drdata-1-0/mainline.git
+#    tag: latest
   libs/LibMovable-1.0: git://github.com/Adirelle/LibMovable-1.0.git
   libs/LibGuessRole-1.0: git://github.com/Adirelle/LibGuessRole-1.0.git
   oUF: git://github.com/Adirelle/oUF.git
