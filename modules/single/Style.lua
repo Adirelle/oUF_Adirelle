@@ -310,6 +310,33 @@ elseif playerClass == "DRUID" then
 			self.Power.PostUpdate = AltPower_Update
 		end
 
+		--[[
+		local eb = CreateFrame("Frame", nil, self)
+		eb:SetPoint("TOPLEFT", self, "BOTTOMLEFT", 0, -GAP)
+		eb:SetPoint("TOPRIGHT", self, "BOTTOMRIGHT", 0, -GAP)
+		eb:SetHeight(32)
+		eb.PostUnitAura = function(_, ...) self:Debug("PostUnitAura", ...) end
+		eb.PostDirectionChange  = function(_, ...) self:Debug("PostDirectionChange", ...) end
+		eb.PostUpdateVisibility  = function(_, ...) self:Debug("PostUpdateVisibility", ...) end
+		eb.PostUpdatePower  = function(_, ...) self:Debug("PostUpdatePower", ...) end
+
+		local lunar = CreateFrame("StatusBar", nil, eb)
+		lunar:SetPoint("TOPLEFT")
+		lunar:SetPoint("TOPRIGHT")
+		lunar:SetHeight(16)
+		eb.LunarBar = lunar
+		self:RegisterStatusBarTexture(lunar)
+
+		local solar = CreateFrame("StatusBar", nil, eb)
+		solar:SetPoint("BOTTOMLEFT")
+		solar:SetPoint("BOTTOMRIGHT")
+		solar:SetHeight(16)
+		eb.SolarBar = solar
+		self:RegisterStatusBarTexture(solar)
+
+		self.EclipseBar = eb
+		--]]
+
 		return altPower
 	end
 
@@ -496,8 +523,7 @@ end
 local function InitFrame(settings, self)
 	local unit = self.unit
 
-	self:SetAttribute('initial-width', settings['initial-width'])
-	self:SetAttribute('initial-height', settings['initial-height'])
+	self:SetSize(settings['initial-width'], settings['initial-height'])
 
 	self:RegisterForClicks("AnyUp")
 	self:SetAttribute("type", "target")
