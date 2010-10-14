@@ -315,6 +315,7 @@ elseif playerClass == "DRUID" then
 
 elseif playerClass == "SHAMAN" then
 	-- Shaman totems
+	local MAX_TOTEMS = MAX_TOTEMS
 
 	oUF.colors.totems = oUF.colors.totems or {
 		[FIRE_TOTEM_SLOT] = { 1, 0.3, 0.0  },
@@ -349,7 +350,7 @@ elseif playerClass == "SHAMAN" then
 		self.TotemBar = totemBar
 		for index = 1, MAX_TOTEMS do
 			local totem = CreateFrame("StatusBar", nil, totemBar)
-			totem.totemType = TOTEM_PRIORITIES[index]
+			totem.totemType = SHAMAN_TOTEM_PRIORITIES[index]
 			self:RegisterStatusBarTexture(totem, UpdateTotemColor)
 			totemBar[index] = totem
 		end
