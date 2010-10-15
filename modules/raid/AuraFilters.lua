@@ -231,7 +231,7 @@ end
 -- Priests' "Power word: shield" special case
 -- ------------------------------------------------------------------------------
 
-if select(2, UnitClass('player')) == "PRIEST" and false then -- FIXME
+if select(2, UnitClass('player')) == "PRIEST" then
 	local PWSHIELD, WEAKENEDSOUL = GetSpellInfo(17), GetSpellInfo(6788)
 	oUF:AddAuraFilter("PW:Shield", function(unit)
 		local texture, _, _, duration, expirationTime = select(3, UnitBuff(unit, PWSHIELD))
