@@ -26,7 +26,7 @@ oUF:Factory(function()
 	-- Anchor
 	--------------------------------------------------------------------------------
 
-	local anchor = CreateFrame("Frame", "oUF_Raid_Anchor", UIParent, "SecureFrameTemplate")
+	local anchor = CreateFrame("Frame", "oUF_Raid_Anchor", UIParent, "SecureFrameTemplate,SecureHandlerStateTemplate")
 	anchor.Debug = function(self, ...) return Debug(self:GetName(), ...) end
 	anchor:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, 230)
 	anchor:SetWidth(0.1)
@@ -47,25 +47,26 @@ oUF:Factory(function()
 
 	local function SpawnHeader(name, template, visbility, group, ...)
 		local header = oUF:SpawnHeader(
-			name, 
+			name,
 			template,
 			visbility,
 			"groupFilter", group,
 			"point", "LEFT",
-			"xOffset", SPACING,			
+			"xOffset", SPACING,
 			'oUF-initialConfigFunction', [[
 				local header = self:GetParent()
+				local anchor = header:GetParent()
 				self:SetAttribute('*type1', 'target')
 				self:SetAttribute('*type2', nil)
 				self:SetWidth(]]..WIDTH..[[)
-				self:SetHeight(]]..HEIGHT..[[)
+				self:SetHeight(header:GetAttribute('initial-height'))
 				RegisterUnitWatch(self)
 			]],
+			"initial-height", HEIGHT_SMALL,
 			...
 		)
-		header.groupFilter = group
 		header:SetScale(SCALE)
-		header:SetSize(0.1, 0.1)
+		header:SetSize(0.1, HEIGHT)
 		header:SetParent(anchor)
 		return header
 	end
@@ -74,39 +75,22 @@ oUF:Factory(function()
 	-- Creating group headers
 	--------------------------------------------------------------------------------
 
-	local visibilities = {
-		--@debug@--
-		[1] = "solo,party,raid",
-		--@end-debug@--
-		--[===[@non-debug@
-		[1] = "party,raid",
-		--@end-non-debug@]===]	
-		[2] = "raid10",
-		[3] = "raid25",
-		[4] = "raid25",
-		[5] = "raid25",
-		[6] = "raid40",
-		[7] = "raid40",
-		[8] = "raid40",
-	}
-	
 	local headers = {}
 
 	for group = 1, 8 do
 		local isParty = (group == 1) or nil
 		local header = SpawnHeader(
-			"oUF_Raid"..group, -- Name
-			nil, -- Use default template (SecureGroupHeaderTemplate)
-			visibilities[group],
+			"oUF_Raid"..group,
+			"SecureGroupHeaderTemplate",
+			isParty and "solo,party,raid" or "raid",
 			group,
 			--@debug@--
 			"showSolo", isParty,
 			--@end-debug@--
-			"showPlayer", isParty,
 			"showParty", isParty,
+			"showPlayer", true,
 			"showRaid", true
 		)
-		header.isParty = isParty
 		if group > 1 then
 			header:SetPoint("BOTTOM", headers[group - 1], "TOP", 0, SPACING)
 		else
@@ -119,32 +103,55 @@ oUF:Factory(function()
 	local header = SpawnHeader(
 		"oUF_PartyPets",
 		"SecureGroupPetHeaderTemplate",
-		"custom [group:raid] hide; show",
+		"solo,party",
 		1,
 	--@debug@--
 		"showSolo", true,
 	--@end-debug@--
-		"showParty", true,
-		"showPlayer", true
+		"showPlayer", true,
+		"showParty", true
 	)
-	header.isPets = "party"
 	header:SetPoint("BOTTOM", headers[1], "TOP", 0, SPACING)
 	headers.partypets = header
 
 	-- Raid pets
 	for group = 1, 2 do
-		local header = SpawnHeader(
+		headers['raidpet'..group] = SpawnHeader(
 			"oUF_Raid"..group.."Pets",
 			"SecureGroupPetHeaderTemplate",
-			"custom [@raid11,exists] hide; [group:raid] show; hide",
+			"custom [@raid11,noexists]show;hide",
 			group,
-			"showRaid", true,
-			"showPlayer", true
+			"showPlayer", true,
+			"showParty", true,
+			"showRaid", true
 		)
-		header.isPets = "raid"
-		headers['raidpet'..group] = header
 	end
 	headers.raidpet1:SetPoint("BOTTOM", headers[2], "TOP", 0, SPACING)
 	headers.raidpet2:SetPoint("BOTTOM", headers.raidpet1, "TOP", 0, SPACING)
-	
+
+	-- Height updating
+	anchor:SetAttribute('_onstate-height', [[
+		local headers, units = self:GetChildList(newtable()), newtable()
+		for i, header in pairs(headers) do
+			header:GetChildList(units)
+			header:SetHeight(newstate)
+			header:SetAttribute('initial-height', newstate)
+			header:SetAttribute('minHeight', newstate)
+		end
+		for i, unit in pairs(units) do
+			if unit:GetHeight() ~= newstate then
+				unit:SetHeight(newstate)
+			end
+		end
+	]])
+
+	RegisterPlayerRoleCallback(function(role)
+		if role == 'HEALER' then
+			RegisterStateDriver(anchor, 'height', format('[@raid26,exists]%d;%d', HEIGHT_SMALL, HEIGHT))
+		else
+			UnregisterStateDriver(anchor, 'height')
+			anchor:SetAttribute('state-height', HEIGHT_SMALL)
+		end
+	end)
+
 end)

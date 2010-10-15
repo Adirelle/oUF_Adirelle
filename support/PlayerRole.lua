@@ -35,7 +35,7 @@ local function OnEvent()
 	if role ~= current then
 		current = role
 		for callback in pairs(callbacks) do
-			pcall(callback)
+			pcall(callback, role)
 		end
 	end
 end
