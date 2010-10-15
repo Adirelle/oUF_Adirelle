@@ -227,12 +227,7 @@ do
 			-- Wild Growth
 			self:AddAuraIcon(
 				SpawnSmallIcon(self, "BOTTOMLEFT", self, "BOTTOMLEFT", INSET, INSET),
-				GetOwnAuraFilter(53248, 0, 1, 0)
-			)
-			-- Abolish Poison
-			self:AddAuraIcon(
-				SpawnSmallIcon(self, "BOTTOMRIGHT", self, "BOTTOMRIGHT", -INSET, INSET),
-				GetOwnAuraFilter(2893)
+				GetOwnAuraFilter(48438, 0, 1, 0)
 			)
 			-- Display cureable debuffs
 			return true
@@ -245,11 +240,13 @@ do
 				SpawnSmallIcon(self, "TOPRIGHT", self, "TOPRIGHT", -INSET, -INSET),
 				GetOwnAuraFilter(53563)
 			)
+			--[[
 			-- Sacred Shield
 			self:AddAuraIcon(
 				SpawnSmallIcon(self, "TOPLEFT", self, "TOPLEFT", INSET, -INSET),
 				GetOwnAuraFilter(53601)
 			)
+			--]]
 			-- Display cureable debuffs
 			return true
 		end
@@ -260,13 +257,13 @@ do
 			for i = 1, 6 do
 				self:AddAuraIcon(
 					SpawnSmallIcon(self, "BOTTOMRIGHT", self, "BOTTOMRIGHT", -INSET - SMALL_ICON_SIZE*(i-1), INSET),
-					GetOwnStackedAuraFilter(49284, i)
+					GetOwnStackedAuraFilter(974, i)
 				)
 			end
 			-- Riptide
 			self:AddAuraIcon(
 				SpawnSmallIcon(self, "TOPRIGHT", self, "TOPRIGHT", -INSET, -INSET),
-				GetOwnAuraFilter(61301)
+				GetOwnAuraFilter(61295)
 			)
 			-- Display cureable debuffs
 			return true
@@ -275,7 +272,7 @@ do
 	elseif playerClass == 'WARLOCK' then
 		function CreateClassAuraIcons(self)
 			-- Soulstone
-			self:AddAuraIcon(SpawnSmallIcon(self, "BOTTOMLEFT", self, "BOTTOMLEFT", INSET, INSET), GetAnyAuraFilter(20763, "HELPFUL"))
+			self:AddAuraIcon(SpawnSmallIcon(self, "BOTTOMLEFT", self, "BOTTOMLEFT", INSET, INSET), GetAnyAuraFilter(20707, "HELPFUL"))
 			-- Display magic debuffs (for the Felhunter)
 			return GetDebuffTypeFilter("Magic")
 		end
@@ -301,7 +298,7 @@ do
 			-- Prayer of Mending
 			self:AddAuraIcon(
 				SpawnSmallIcon(self, "BOTTOMRIGHT", self, "BOTTOMRIGHT", -INSET, INSET),
-				GetOwnAuraFilter(48113)
+				GetOwnAuraFilter(33076)
 			)
 			-- Display cureable debuffs
 			return true
