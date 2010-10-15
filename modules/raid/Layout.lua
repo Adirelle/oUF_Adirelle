@@ -103,7 +103,7 @@ oUF:Factory(function()
 	local header = SpawnHeader(
 		"oUF_PartyPets",
 		"SecureGroupPetHeaderTemplate",
-		"solo,party",
+		"custom [nogroup:raid]show;hide",
 		1,
 	--@debug@--
 		"showSolo", true,
@@ -119,17 +119,16 @@ oUF:Factory(function()
 		headers['raidpet'..group] = SpawnHeader(
 			"oUF_Raid"..group.."Pets",
 			"SecureGroupPetHeaderTemplate",
-			"custom [@raid11,noexists]show;hide",
+			"custom [@raid11,exists]hide;[group:raid]show;hide",
 			group,
 			"showPlayer", true,
-			"showParty", true,
 			"showRaid", true
 		)
 	end
 	headers.raidpet1:SetPoint("BOTTOM", headers[2], "TOP", 0, SPACING)
 	headers.raidpet2:SetPoint("BOTTOM", headers.raidpet1, "TOP", 0, SPACING)
 
-	-- Height updating
+	-- Unit height updating
 	anchor:SetAttribute('_onstate-height', [[
 		local headers, units = self:GetChildList(newtable()), newtable()
 		for i, header in pairs(headers) do
