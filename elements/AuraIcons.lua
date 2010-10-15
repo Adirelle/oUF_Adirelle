@@ -270,7 +270,11 @@ oUF:RegisterMetaFunction('AddAuraIcon', function(self, icon, filter)
 	assert(type(icon) == "table", "icon should be a table, not "..type(icon))
 	if filter == "none" then return icon end -- FIXME
 	local func = filters[tostring(filter)]
-	assert(type(func) == "function", "unknown aura filter: "..type(filter))
+	if type(func) ~= "function" then
+		geterrorhandler()("unknown aura filter: "..filter)
+		icon:Hide()
+		return icon
+	end
 	self.AuraIcons = self.AuraIcons or {}
 	self.AuraIcons[icon] = func
 	return icon
