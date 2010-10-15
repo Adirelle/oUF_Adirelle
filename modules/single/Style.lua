@@ -281,24 +281,47 @@ if playerClass == 'DEATHKNIGHT' then
 elseif playerClass == "DRUID" then
 	-- Druid mana bar
 
-	function AltPower_Update(power, event, unit)
-		local altPower = power:GetParent().AltPower
+	local SPELL_POWER_MANA = SPELL_POWER_MANA
+	local SPELL_POWER_ECLIPSE = SPELL_POWER_ECLIPSE
+
+	local function EclipseText_Update(eclipseBar, unit)
+		if unit and unit ~= "player" or not eclipseBar:IsVisible() then return end
+		eclipseBar.Text:SetFormattedText(
+			"%d %s",
+			math.abs(UnitPower("player", SPELL_POWER_ECLIPSE) / UnitPowerMax("player", SPELL_POWER_ECLIPSE) * 100),
+			eclipseBar.directionIsLunar and ">" or "<"
+		)
+
+		local lunar = eclipseBar.LunarBar
+		local color, f = lunar.color, eclipseBar.hasLunarEclipse and 1 or 0.6
+		lunar:SetStatusBarColor(color.r * f, color.g * f, color.b * f)
+		color, f = eclipseBar.color, eclipseBar.hasSolarEclipse and 1 or 0.6
+		eclipseBar:SetBackdropColor(color.r * f, color.g * f, color.b * f)
+	end
+
+	function AltPower_Update(power, unit)
+		power:GetParent().EclipseBar:ForceUpdate()
+		local manaBar = power:GetParent().AltPower.ManaBar
 		if unit == 'player' and UnitPowerType(unit) ~= SPELL_POWER_MANA then
 			local current, max = UnitPower(unit, SPELL_POWER_MANA), UnitPowerMax(unit, SPELL_POWER_MANA)
 			if max and max > 0 then
-				altPower:SetMinMaxValues(0, max)
-				altPower:SetValue(current)
-				return altPower:Show()
+				manaBar:SetMinMaxValues(0, max)
+				manaBar:SetValue(current)
+				return manaBar:Show()
 			end
 		end
-		return altPower:Hide()
+		return manaBar:Hide()
 	end
 
 	function SetupAltPower(self)
+		local altPower = CreateFrame("Frame", nil, self)
+		self.AltPower = altPower
 
-		local altPower = SpawnStatusBar(self)
-		altPower:Hide()
-		altPower.textureColor = oUF.colors.power.MANA
+		local manaBar = SpawnStatusBar(self)
+		manaBar:SetAllPoints(altPower)
+		manaBar.textureColor = oUF.colors.power.MANA
+		manaBar:Hide()
+		altPower.ManaBar = manaBar
 
 		if self.Power.PostUpdate then
 			local orig = self.Power.PostUpdate
@@ -310,32 +333,45 @@ elseif playerClass == "DRUID" then
 			self.Power.PostUpdate = AltPower_Update
 		end
 
+		local eclipseBar = CreateFrame("Frame", nil, self)
+		eclipseBar:SetAllPoints(altPower)
+		eclipseBar.PostUnitAura = EclipseText_Update
+		eclipseBar.PostDirectionChange  = EclipseText_Update
+		eclipseBar.PostUpdateVisibility = EclipseText_Update
+		eclipseBar.PostUpdatePower  = EclipseText_Update
+		eclipseBar:SetBackdrop({
+			bgFile = [[Interface\AddOns\oUF_Adirelle\media\white16x16]],
+			tile = true, tileSize = 16,
+			insets = {left = 0, right = 0, top = 0, bottom = 0},
+		})
+		eclipseBar.color = PowerBarColor.ECLIPSE.negative
+		self.EclipseBar = eclipseBar
+
+		local lunar = CreateFrame("StatusBar", nil, eclipseBar)
+		lunar:SetAllPoints(eclipseBar)
+		lunar:SetStatusBarTexture([[Interface\AddOns\oUF_Adirelle\media\white16x16]])
+		lunar.color = PowerBarColor.ECLIPSE.positive
+		eclipseBar.LunarBar = lunar
+
+		local text = SpawnText(lunar, "OVERLAY", "CENTER", "CENTER", 0, 0)
+		eclipseBar.Text = text
+
 		--[[
-		local eb = CreateFrame("Frame", nil, self)
-		eb:SetPoint("TOPLEFT", self, "BOTTOMLEFT", 0, -GAP)
-		eb:SetPoint("TOPRIGHT", self, "BOTTOMRIGHT", 0, -GAP)
-		eb:SetHeight(32)
-		eb.PostUnitAura = function(_, ...) self:Debug("PostUnitAura", ...) end
-		eb.PostDirectionChange  = function(_, ...) self:Debug("PostDirectionChange", ...) end
-		eb.PostUpdateVisibility  = function(_, ...) self:Debug("PostUpdateVisibility", ...) end
-		eb.PostUpdatePower  = function(_, ...) self:Debug("PostUpdatePower", ...) end
-
-		local lunar = CreateFrame("StatusBar", nil, eb)
-		lunar:SetPoint("TOPLEFT")
-		lunar:SetPoint("TOPRIGHT")
-		lunar:SetHeight(16)
-		eb.LunarBar = lunar
-		self:RegisterStatusBarTexture(lunar)
-
-		local solar = CreateFrame("StatusBar", nil, eb)
-		solar:SetPoint("BOTTOMLEFT")
-		solar:SetPoint("BOTTOMRIGHT")
-		solar:SetHeight(16)
-		eb.SolarBar = solar
-		self:RegisterStatusBarTexture(solar)
-
-		self.EclipseBar = eb
+		eclipseBar:SetBackdropColor(lunarColor.r, lunarColor.g, lunarColor.b)
+		lunar:SetStatusBarColor(solarColor.r, solarColor.g, solarColor.b)
 		--]]
+
+		local function UpdateAltPower()
+			if manaBar:IsShown() or eclipseBar:IsShown() then
+				altPower:Show()
+			else
+				altPower:Hide()
+			end
+		end
+		manaBar:HookScript('OnShow', UpdateAltPower)
+		manaBar:HookScript('OnHide', UpdateAltPower)
+		eclipseBar:HookScript('OnShow', UpdateAltPower)
+		eclipseBar:HookScript('OnHide', UpdateAltPower)
 
 		return altPower
 	end

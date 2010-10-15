@@ -25,9 +25,9 @@ DONE:
 * Warlocks' soul shards. 
 * Paladins' Holy Power.
 * Range fix.
+* Moonkins' Eclipse bar.
 
 TODO:
-* Moonkins' Eclipse bar.
 * Fix special auras handling.
 
 h2. Features
