@@ -108,9 +108,9 @@ oUF:Factory(function()
 		)
 		header.isParty = isParty
 		if group > 1 then
-			header:SetPoint("BOTTOMLEFT", headers[group - 1], "TOPLEFT", 0, SPACING)
+			header:SetPoint("BOTTOM", headers[group - 1], "TOP", 0, SPACING)
 		else
-			header:SetPoint("BOTTOMLEFT", anchor)
+			header:SetPoint("BOTTOM", anchor)
 		end
 		headers[group] = header
 	end
@@ -128,7 +128,7 @@ oUF:Factory(function()
 		"showPlayer", true
 	)
 	header.isPets = "party"
-	header:SetPoint("BOTTOMLEFT", headers[1], "TOPLEFT", 0, SPACING)
+	header:SetPoint("BOTTOM", headers[1], "TOP", 0, SPACING)
 	headers.partypets = header
 
 	-- Raid pets
@@ -144,7 +144,7 @@ oUF:Factory(function()
 		header.isPets = "raid"
 		headers['raidpet'..group] = header
 	end
-	headers.raidpet1:SetPoint("BOTTOMLEFT", headers[2], "TOPLEFT", 0, SPACING)
-	headers.raidpet2:SetPoint("BOTTOMLEFT", headers.raidpet1, "TOPLEFT", 0, SPACING)
+	headers.raidpet1:SetPoint("BOTTOM", headers[2], "TOP", 0, SPACING)
+	headers.raidpet2:SetPoint("BOTTOM", headers.raidpet1, "TOP", 0, SPACING)
 	
 end)
