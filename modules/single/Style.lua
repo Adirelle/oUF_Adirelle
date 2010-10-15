@@ -356,11 +356,6 @@ elseif playerClass == "DRUID" then
 		local text = SpawnText(lunar, "OVERLAY", "CENTER", "CENTER", 0, 0)
 		eclipseBar.Text = text
 
-		--[[
-		eclipseBar:SetBackdropColor(lunarColor.r, lunarColor.g, lunarColor.b)
-		lunar:SetStatusBarColor(solarColor.r, solarColor.g, solarColor.b)
-		--]]
-
 		local function UpdateAltPower()
 			if manaBar:IsShown() or eclipseBar:IsShown() then
 				altPower:Show()
@@ -434,14 +429,20 @@ elseif playerClass == "WARLOCK" then
 		end
 	end
 
+	local color = PowerBarColor.SOUL_SHARDS
+	local function SetShardColor(shard)
+		shard:SetStatusBarColor(color.r, color.g, color.b)
+	end
+
 	function SetupAltPower(self)
 		local soulShardBar = CreateFrame("Frame", nil, self)
 		soulShardBar:SetScript('OnShow', LayoutShards)
 		soulShardBar:SetScript('OnSizeChanged', LayoutShards)
 		self.SoulShards = soulShardBar
+
 		for index = 1, SHARD_BAR_NUM_SHARDS do
 			local shard = CreateFrame("StatusBar", nil, soulShardBar)
-			self:RegisterStatusBarTexture(shard)
+			self:RegisterStatusBarTexture(shard, SetShardColor)
 			soulShardBar[index] = shard
 		end
 		return soulShardBar
@@ -461,6 +462,11 @@ elseif playerClass == "PALADIN" then
 		end
 	end
 
+	local color = PowerBarColor.HOLY_POWER
+	local function SetHolyPowerColor(power)
+		power:SetStatusBarColor(color.r, color.g, color.b)
+	end
+
 	function SetupAltPower(self)
 		local holyPowerBar = CreateFrame("Frame", nil, self)
 		holyPowerBar:SetScript('OnShow', LayoutHolyPower)
@@ -468,7 +474,7 @@ elseif playerClass == "PALADIN" then
 		self.HolyPower = holyPowerBar
 		for index = 1, MAX_HOLY_POWER do
 			local power = CreateFrame("StatusBar", nil, holyPowerBar)
-			self:RegisterStatusBarTexture(power)
+			self:RegisterStatusBarTexture(power, SetHolyPowerColor)
 			holyPowerBar[index] = power
 		end
 		return holyPowerBar
