@@ -168,7 +168,6 @@ oUF:Factory(function()
 	anchor:SetAttribute('_onstate-height', [===[
 		newstate = tonumber(newstate)
 		if not newstate then return end
-		print('_onstate-height', newstate)
 		local headers, units = self:GetChildList(newtable()), newtable()
 		for i, header in pairs(headers) do
 			if header:GetAttribute('layouts') then
@@ -189,20 +188,17 @@ oUF:Factory(function()
 		local layout, isHealer = tonumber(self:GetAttribute('state-layout')) or 1, self:GetAttribute('state-isHealer')
 		local newHeight = self:GetAttribute((layout < 25 and isHealer) and "heightFull" or "heightSmall")
 		if newHeight ~= self:GetAttribute('state-height') then
-			print('update-height', layout, isHealer, '=>', newHeight)
 			self:SetAttribute('state-height', newHeight)
 		end
 	]===])
 
 	anchor:SetAttribute('_onstate-isHealer', [===[
-		print('_onstate-isHealer', newstate)
 		control:RunAttribute('update-height')
 	]===])
 
 	anchor:SetAttribute('_onstate-layout', [===[
 		local children = self:GetChildList(newtable())
 		local pattern = ';'..tostring(newstate)..';'
-		print('_onstate-layout', newstate, pattern)
 		for _, child in pairs(children) do
 			local layouts = child:GetAttribute('layouts')
 			if layouts then
