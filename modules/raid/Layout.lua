@@ -91,7 +91,6 @@ oUF:Factory(function()
 				self:SetAttribute('*type2', nil)
 				self:SetWidth(]]..WIDTH..[[)
 				self:SetHeight(header:GetAttribute('initial-height'))
-				RegisterUnitWatch(self)
 			]],
 			"initial-height", HEIGHT_SMALL,
 			"layouts", layouts,
@@ -122,7 +121,7 @@ oUF:Factory(function()
 			"showSolo", isParty,
 			--@end-debug@--
 			"showParty", isParty,
-			"showPlayer", true,
+			"showPlayer", isParty,
 			"showRaid", true
 		)
 		if group > 1 then
@@ -156,8 +155,6 @@ oUF:Factory(function()
 			"SecureGroupPetHeaderTemplate",
 			";10;",
 			group,
-			"showPlayer", true,
-			"showParty", true,
 			"showRaid", true
 		)
 	end
@@ -186,7 +183,7 @@ oUF:Factory(function()
 
 	anchor:SetAttribute('update-height', [===[
 		local layout, isHealer = tonumber(self:GetAttribute('state-layout')) or 1, self:GetAttribute('state-isHealer')
-		local newHeight = self:GetAttribute((layout < 25 and isHealer) and "heightFull" or "heightSmall")
+		local newHeight = self:GetAttribute((layout <= 25 and isHealer) and "heightFull" or "heightSmall")
 		if newHeight ~= self:GetAttribute('state-height') then
 			self:SetAttribute('state-height', newHeight)
 		end
@@ -214,9 +211,6 @@ oUF:Factory(function()
 		control:RunAttribute('update-height')
 	]===])
 
-	anchor:SetAttribute('state-isHealer', GetPlayerRole() == "HEALER")
-	anchor:SetAttribute('state-layout', 40)
-
 	-- Size boundaries for "free" groups, depending on the highest non-empty group number
 	local NUMGROUP_TO_LAYOUT = { 5, 10, 15, 20, 25, 40, 40, 40 }
 
@@ -231,7 +225,7 @@ oUF:Factory(function()
 		     WarsongGulch = 10,
 	}
 
-	-- Get the better layout type
+	-- Get the best layout type
 	local function GetLayoutType()
 		     local name, instanceType, _, _, maxPlayers = GetInstanceInfo()
 		     if instanceType == 'arena' or instanceType == 'party' then
