@@ -203,11 +203,11 @@ oUF:Factory(function()
 			local layouts = child:GetAttribute('layouts')
 			if layouts then
 				if layouts:match(pattern) then
-					child:SetAttribute('statehidden', nil)
 					child:Show()
+					child:SetAttribute('statehidden', nil)
 				else
-					child:SetAttribute('statehidden', true)
 					child:Hide()
+					child:SetAttribute('statehidden', true)
 				end
 			end
 		end
