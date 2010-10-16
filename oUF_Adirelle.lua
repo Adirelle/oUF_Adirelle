@@ -53,7 +53,7 @@ _G.SLASH_OUFADIRELLEVER3 = "/oufav"
 
 local versions = {}
 do
-	local VERSION = 'v'..GetAddOnMetadata(parent, 'version')
+	VERSION = 'v'..GetAddOnMetadata(parent, 'version')
 	--@debug@
 	VERSION = "developer version"
 	--@end-debug@
