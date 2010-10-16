@@ -4,6 +4,8 @@ Adirelle's oUF layout
 All rights reserved.
 --]=]
 
+local moduleName = ...
+
 local GetSpellInfo = GetSpellInfo
 local UnitIsUnit = UnitIsUnit
 local UnitAura = UnitAura
@@ -29,18 +31,34 @@ end
 -- Filter factories
 -- ------------------------------------------------------------------------------
 
+local reported
+local function GetSpellName(caller, spellId, ...)
+	local spellName = GetSpellInfo(spellId)
+	if not spellName then
+		local k = strjoin('-', tostringall(caller, spellId, ...))
+		if not reported then
+			reported = {}
+		elseif reported[k] then
+			return
+		end
+		local stack = debugstack(3):match("[^%.\\]+%.lua:%d+")
+		geterrorhandler()(format(
+			"[%s] Wrong spell id passed to %s. Please report this whole error. id=%d, class=%s, version=%s, params=[%s], source=%s",
+			moduleName, caller, spellId, select(2, UnitClass('player')), VERSION, strjoin(',', tostringall(...)), stack
+		))
+		reported[k] = true
+	end
+	return spellName
+end
+
 local function GetGenericFilter(...)
-	local name = string.join("-", tostringall(...))
+	local name = strjoin("-", tostringall(...))
 	return name, oUF:HasAuraFilter(name)
 end
 
 function GetOwnAuraFilter(spellId, r, g, b)
-	local spellName = GetSpellInfo(spellId)
-	if not spellName then -- FIXME
-		geterrorhandler('GetOwnAuraFilter: unknown spell #'..spellId)
-		return "none"
-	end
-	assert(spellName, "invalid spell id: "..spellId)
+	local spellName = GetSpellName("GetOwnAuraFilter", spellId, r, g, b)
+	if not spellName then return "none" end
 	local filter, exists = GetGenericFilter("OwnAura", spellName, r, g, b)
 	if not exists then
 		oUF:AddAuraFilter(filter, function(unit)
@@ -54,12 +72,8 @@ function GetOwnAuraFilter(spellId, r, g, b)
 end
 
 function GetAnyAuraFilter(spellId, filter, r, g, b)
-	local spellName = GetSpellInfo(spellId)
-	if not spellName then -- FIXME
-		geterrorhandler('GetAnyAuraFilter: unknown spell #'..spellId)
-		return "none"
-	end
-	assert(spellName, "invalid spell id: "..spellId)
+	local spellName = GetSpellName("GetAnyAuraFilter", spellId, filter, r, g, b)
+	if not spellName then return "none" end
 	local filter, exists = GetGenericFilter("AnyAura", spellName, filter, r, g, b)
 	if not exists then
 		oUF:AddAuraFilter(filter, function(unit)
@@ -73,12 +87,8 @@ function GetAnyAuraFilter(spellId, filter, r, g, b)
 end
 
 function GetOwnStackedAuraFilter(spellId, countThreshold, r, g, b)
-	local spellName = GetSpellInfo(spellId)
-	if not spellName then -- FIXME
-		geterrorhandler('GetOwnStackedAuraFilter: unknown spell #'..spellId)
-		return "none"
-	end
-	assert(spellName, "invalid spell id: "..spellId)
+	local spellName = GetSpellName("GetOwnStackedAuraFilter", spellId, countThreshold, r, g, b)
+	if not spellName then return "none" end
 	assert(type(countThreshold) == "number", "invalid count threshold: "..tostring(countThreshold))
 	local filter, exists = GetGenericFilter("OwnStackedAura", spellName, countThreshold, r, g, b)
 	if not exists then
@@ -157,13 +167,8 @@ do
 		local buffs = {}
 		for _, t in pairs({classBuffs, commonBuffs}) do
 			for id, prio in pairs(t) do
-				local name = GetSpellInfo(id)
-				if not name then -- FIXME
-					if not err[id] then
-						geterrorhandler()("BuildClassBuffs: unknown spell #"..id)
-						err[id] = true
-					end
-				else
+				local name = GetSpellName("BuildClassBuffs", id, prio)
+				if name then
 					tmp[name] = prio
 					tinsert(buffs, name)
 				end
@@ -232,20 +237,24 @@ end
 -- ------------------------------------------------------------------------------
 
 if select(2, UnitClass('player')) == "PRIEST" then
-	local PWSHIELD, WEAKENEDSOUL = GetSpellInfo(17), GetSpellInfo(6788)
-	oUF:AddAuraFilter("PW:Shield", function(unit)
-		local texture, _, _, duration, expirationTime = select(3, UnitBuff(unit, PWSHIELD))
-		if not texture then
-			duration, expirationTime = select(6, UnitDebuff(unit, WEAKENEDSOUL))
-			if duration then
-				-- Display a red X in place of the weakened soul icon
-				texture = [[Interface\RaidFrame\ReadyCheck-NotReady]]
+	local PWSHIELD, WEAKENEDSOUL = GetSpellName("PWSHIELD", 17), GetSpellName("WEAKENEDSOUL", 6788)
+	if PWSHIELD and WEAKENEDSOUL then
+		oUF:AddAuraFilter("PW:Shield", function(unit)
+			local texture, _, _, duration, expirationTime = select(3, UnitBuff(unit, PWSHIELD))
+			if not texture then
+				duration, expirationTime = select(6, UnitDebuff(unit, WEAKENEDSOUL))
+				if duration then
+					-- Display a red X in place of the weakened soul icon
+					texture = [[Interface\RaidFrame\ReadyCheck-NotReady]]
+				end
 			end
-		end
-		if texture then
-			return texture, 0, expirationTime-duration, duration
-		end
-	end)
+			if texture then
+				return texture, 0, expirationTime-duration, duration
+			end
+		end)
+	else
+		oUF:AddAuraFilter("PW:Shield", function() end)
+	end
 end
 
 
