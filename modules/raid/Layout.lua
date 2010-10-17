@@ -45,33 +45,6 @@ oUF:Factory(function()
 		RegisterMovable(anchor, 'anchor', "Party/raid frames", mask)
 	end
 
-	anchor.pendingAttributes = {}
-	anchor:SetScript('OnEvent', function(self, event, ...) return self[event](self, event, ...) end)
-
-	function anchor:PLAYER_REGEN_ENABLED()
-		local attrs = self.pendingAttributes
-		if next(attrs) then
-			for k,v in pairs(attrs) do
-				if self:GetAttribute(k) ~= v then
-					self:SetAttribute(k, v)
-				end
-			end
-			wipe(attrs)
-		end
-	end
-
-	-- SafeSetAttribute allow to ask to set attributes in combat,	change will be postponed until end of combat
-	function anchor:SafeSetAttribute(k, v)
-		if self:CanChangeProtectedState() then
-			if self:GetAttribute(k) ~= v then
-				return self:SetAttribute(k, v)
-			end
-		else
-			self.pendingAttributes[k] = v
-			self:RegisterEvent('PLAYER_REGEN_ENABLED')
-		end
-	end
-
 	--------------------------------------------------------------------------------
 	-- Helper
 	--------------------------------------------------------------------------------
@@ -86,20 +59,60 @@ oUF:Factory(function()
 			"xOffset", SPACING,
 			'oUF-initialConfigFunction', [[
 				local header = self:GetParent()
-				local anchor = header:GetParent()
 				self:SetAttribute('*type1', 'target')
 				self:SetAttribute('*type2', nil)
 				self:SetWidth(]]..WIDTH..[[)
-				self:SetHeight(header:GetAttribute('initial-height'))
+				self:SetHeight(header:GetAttribute('unitHeight'))
+				self:SetAttribute('refreshUnitChange', [=[
+					local unit = self:GetAttribute('unit')
+					self:CallMethod('Debug', 'refreshUnitChange', unit)
+					if unit then
+						unit = unit:gsub('petpet', 'pet')
+						if unit ~= self:GetAttribute('unit') then
+							self:CallMethod('Debug', '- fixing unit', self:GetAttribute('unit'), '=>', unit)
+							self:SetAttribute('unit', unit)
+						end
+					end
+					self:CallMethod('UpdateAllElements', 'refreshUnitChange')
+				]=])
 			]],
-			"initial-height", HEIGHT_SMALL,
+			"unitHeight", HEIGHT_SMALL,
 			"layouts", layouts,
-			"minWidth", 0.1,
-			"minHeight", HEIGHT_SMALL,
+			"_childupdate-height", [[
+				local height = tonumber(message)
+				if not height or height == self:GetAttribute('unitHeight') then return end
+				self:CallMethod('Debug', "_childupdate-height", height)
+				self:SetHeight(height)
+				self:SetAttribute('unitHeight', height)
+				units = wipe(units or newtable())
+				self:GetChildList(units)
+				for _, unit in next, units do
+					unit:SetHeight(height)
+				end
+			]],
+			"_childupdate-layout", [[
+				local layout = tonumber(message)
+				if not layout or layout == self:GetAttribute('layout') then return end
+				self:CallMethod('Debug', "_childupdate-layout", layout)
+				if self:GetAttribute('layouts'):match(';'..tostring(layout)..';') then
+					self:CallMethod('Debug', "Showing")
+					self:Show()
+				else
+					self:CallMethod('Debug', "Hiding")
+					self:Hide()
+				end
+				self:SetAttribute('layout', layout)
+			]],
+			"_childupdate-update", [[
+				if self:IsVisible() then
+					self:CallMethod('Debug', "_childupdate-update")
+					self:SetAttribute('updateTrigger', not self:GetAttribute('updateTrigger'))
+				end
+			]],
 			...
 		)
+		header.Debug = Debug
 		header:SetScale(SCALE)
-		header:SetSize(0.1, HEIGHT)
 		header:SetParent(anchor)
 		return header
 	end
@@ -121,7 +134,7 @@ oUF:Factory(function()
 			"showSolo", isParty,
 			--@end-debug@--
 			"showParty", isParty,
-			"showPlayer", isParty,
+			"showPlayer", true,
 			"showRaid", true
 		)
 		if group > 1 then
@@ -163,22 +176,10 @@ oUF:Factory(function()
 
 	-- Unit height updating
 	anchor:SetAttribute('_onstate-height', [===[
-		newstate = tonumber(newstate)
-		if not newstate then return end
-		local headers, units = self:GetChildList(newtable()), newtable()
-		for i, header in pairs(headers) do
-			if header:GetAttribute('layouts') then
-				header:GetChildList(units)
-				header:SetHeight(newstate)
-				header:SetAttribute('initial-height', newstate)
-				header:SetAttribute('minHeight', newstate)
-			end
-		end
-		for i, unit in pairs(units) do
-			if unit:GetHeight() ~= newstate then
-				unit:SetHeight(newstate)
-			end
-		end
+		local height = tonumber(newstate)
+		if not height then return end
+		self:CallMethod('Debug', "_onstate-height", height)
+		self:ChildUpdate('height', height)
 	]===])
 
 	anchor:SetAttribute('update-height', [===[
@@ -194,21 +195,16 @@ oUF:Factory(function()
 	]===])
 
 	anchor:SetAttribute('_onstate-layout', [===[
-		local children = self:GetChildList(newtable())
-		local pattern = ';'..tostring(newstate)..';'
-		for _, child in pairs(children) do
-			local layouts = child:GetAttribute('layouts')
-			if layouts then
-				if layouts:match(pattern) then
-					child:Show()
-					child:SetAttribute('statehidden', nil)
-				else
-					child:Hide()
-					child:SetAttribute('statehidden', true)
-				end
-			end
-		end
+		local layout = tonumber(newstate)
+		if not layout then return end
+		self:CallMethod('Debug', "_onstate-layout", layout)
+		self:ChildUpdate('layout', layout)
 		control:RunAttribute('update-height')
+	]===])
+
+	anchor:SetAttribute('_onstate-update', [===[
+		self:CallMethod('Debug', "_onstate-update")
+		self:ChildUpdate('update')
 	]===])
 
 	-- Size boundaries for "free" groups, depending on the highest non-empty group number
@@ -249,21 +245,22 @@ oUF:Factory(function()
 		     return 1
 	end
 
-	function anchor:PLAYER_ENTERING_WORLD()
-		self:SafeSetAttribute('state-layout', GetLayoutType())
+	local function Update(_, ...)
+		if not anchor:CanChangeProtectedState() then return end
+		anchor:Debug('Update', ...)
+		anchor:SetAttribute('state-isHealer', GetPlayerRole() == "healer")
+		anchor:SetAttribute('state-layout', GetLayoutType())
+		anchor:SetAttribute('state-update', not anchor:GetAttribute('state-update'))
 	end
-	anchor.ZONE_CHANGED_NEW_AREA = anchor.PLAYER_ENTERING_WORLD
-	anchor.PARTY_MEMBERS_CHANGED = anchor.PLAYER_ENTERING_WORLD
 
+	anchor:SetScript('OnEvent', Update)
   anchor:RegisterEvent('PLAYER_ENTERING_WORLD')
   anchor:RegisterEvent('ZONE_CHANGED_NEW_AREA')
   anchor:RegisterEvent('PARTY_MEMBERS_CHANGED')
+  anchor:RegisterEvent('PLAYER_REGEN_ENABLED')
+  anchor:RegisterEvent('UNIT_PET')
+	RegisterPlayerRoleCallback(Update)
 
-	RegisterPlayerRoleCallback(function(role)
-		anchor:SafeSetAttribute('state-isHealer', role == "HEALER")
-	end)
-
-	--RegisterStateDriver(anchor, 'layout', "[@raid26,exists] 40; [@raid11,exists] 25; [group:raid] 10; [group:party] 5; 1")
-	anchor:PLAYER_ENTERING_WORLD()
+	Update(anchor)
 
 end)

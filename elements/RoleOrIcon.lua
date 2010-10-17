@@ -28,7 +28,7 @@ local function GetRole(unit, noDamager)
 	local raidId = GetRealNumRaidMembers() > 0 and UnitInRaid(unit)
 	if raidId then
 		local role = select(10, GetRaidRosterInfo(raidId))
-		Debug('Role from GetRaidRosterInfo for ', unit, ':', role)
+		--Debug('Role from GetRaidRosterInfo for ', unit, ':', role)
 		if role and role ~= "NONE" and (not noDamager or role ~= "DAMAGER") then
 			return "Interface\\GroupFrame\\UI-Group-"..role.."Icon"
 		end
@@ -37,7 +37,7 @@ local function GetRole(unit, noDamager)
 	-- Check assigned roles
 	local role = UnitGroupRolesAssigned(unit)
 	if role and role ~= "NONE" then
-		Debug('Role from UnitGroupRolesAssigned for ', unit, ':', role)
+		--Debug('Role from UnitGroupRolesAssigned for ', unit, ':', role)
 		if noDamager and role == "DAMAGER" then
 			return
 		end
@@ -47,7 +47,7 @@ local function GetRole(unit, noDamager)
 	-- Fallback on LibGuessRole
 	local role, level = LibGuessRole:GetUnitRole(unit)
 	if role then
-		Debug('LibGuessRole:GetUnitRole for', unit, ':', role, level)
+		--Debug('LibGuessRole:GetUnitRole for', unit, ':', role, level)
 		local index = (role == ROLE_TANK and 3) or (role == ROLE_HEALER and 4) or (not noDamager and 2)
 		if index then
 			return [[Interface\LFGFrame\LFGRole_BW]], (index-1)/4, index/4, 0, 1, 1, 0.82, 0
