@@ -1,9 +1,3 @@
 [submodule "oUF"]
 	path = oUF
 	url = git@github.com:Adirelle/oUF.git
-[submodule "libs/LibGuessRole-1.0"]
-	path = libs/LibGuessRole-1.0
-	url = git@github.com:Adirelle/LibGuessRole-1.0.git
-[submodule "libs/LibMovable-1.0"]
-	path = libs/LibMovable-1.0
-	url = git://github.com/Adirelle/LibMovable-1.0.git
