@@ -57,6 +57,7 @@ oUF:Factory(function()
 			"groupFilter", group,
 			"point", "LEFT",
 			"xOffset", SPACING,
+			"layouts", layouts,
 			'oUF-initialConfigFunction', [[
 				local header = self:GetParent()
 				self:SetAttribute('*type1', 'target')
@@ -73,16 +74,14 @@ oUF:Factory(function()
 							self:SetAttribute('unit', unit)
 						end
 					end
-					self:CallMethod('UpdateAllElements', 'refreshUnitChange')
+					--self:CallMethod('UpdateAllElements', 'refreshUnitChange')
 				]=])
 			]],
 			"unitHeight", HEIGHT_SMALL,
-			"layouts", layouts,
 			"_childupdate-height", [[
 				local height = tonumber(message)
 				if not height or height == self:GetAttribute('unitHeight') then return end
 				self:CallMethod('Debug', "_childupdate-height", height)
-				self:SetHeight(height)
 				self:SetAttribute('unitHeight', height)
 				units = wipe(units or newtable())
 				self:GetChildList(units)
@@ -93,24 +92,21 @@ oUF:Factory(function()
 			"_childupdate-layout", [[
 				local layout = tonumber(message)
 				if not layout or layout == self:GetAttribute('layout') then return end
-				self:CallMethod('Debug', "_childupdate-layout", layout)
 				if self:GetAttribute('layouts'):match(';'..tostring(layout)..';') then
-					self:CallMethod('Debug', "Showing")
-					self:Show()
+					if not self:IsShown() then
+						self:CallMethod('Debug', "_childupdate-layout", layout, "=> show")
+						self:Show()
+					end
 				else
-					self:CallMethod('Debug', "Hiding")
-					self:Hide()
-				end
-				self:SetAttribute('layout', layout)
-			]],
-			"_childupdate-update", [[
-				if self:IsVisible() then
-					self:CallMethod('Debug', "_childupdate-update")
-					self:SetAttribute('updateTrigger', not self:GetAttribute('updateTrigger'))
+					if self:IsShown() then
+						self:CallMethod('Debug', "_childupdate-layout", layout, "=> hide")
+						self:Hide()
+					end
 				end
 			]],
 			...
 		)
+		header:Hide()
 		header.Debug = Debug
 		header:SetScale(SCALE)
 		header:SetParent(anchor)
@@ -182,29 +178,11 @@ oUF:Factory(function()
 		self:ChildUpdate('height', height)
 	]===])
 
-	anchor:SetAttribute('update-height', [===[
-		local layout, isHealer = tonumber(self:GetAttribute('state-layout')) or 1, self:GetAttribute('state-isHealer')
-		local newHeight = self:GetAttribute((layout <= 25 and isHealer) and "heightFull" or "heightSmall")
-		if newHeight ~= self:GetAttribute('state-height') then
-			self:SetAttribute('state-height', newHeight)
-		end
-	]===])
-
-	anchor:SetAttribute('_onstate-isHealer', [===[
-		control:RunAttribute('update-height')
-	]===])
-
 	anchor:SetAttribute('_onstate-layout', [===[
 		local layout = tonumber(newstate)
 		if not layout then return end
 		self:CallMethod('Debug', "_onstate-layout", layout)
 		self:ChildUpdate('layout', layout)
-		control:RunAttribute('update-height')
-	]===])
-
-	anchor:SetAttribute('_onstate-update', [===[
-		self:CallMethod('Debug', "_onstate-update")
-		self:ChildUpdate('update')
 	]===])
 
 	-- Size boundaries for "free" groups, depending on the highest non-empty group number
@@ -223,44 +201,49 @@ oUF:Factory(function()
 
 	-- Get the best layout type
 	local function GetLayoutType()
-		     local name, instanceType, _, _, maxPlayers = GetInstanceInfo()
-		     if instanceType == 'arena' or instanceType == 'party' then
-		             return 5
-		     elseif type(maxPlayers) == "number" and maxPlayers > 0 then
-		             return NUMGROUP_TO_LAYOUT[math.ceil(maxPlayers / 5)]
-		     elseif GetNumRaidMembers() > 0 then
-		             local zoneLayout = ZONE_LAYOUTS[GetMapInfo() or ""]
-		             if zoneLayout then
-		                     return zoneLayout
-		             end
-		             local maxGroup = 1
-		             for index = 1, GetNumRaidMembers() do
-		                     local _, _, subGroup = GetRaidRosterInfo(index)
-		                     maxGroup = math.max(maxGroup, subGroup)
-		             end
-		             return NUMGROUP_TO_LAYOUT[maxGroup]
-		     elseif GetNumPartyMembers() > 0 then
-		             return 5
-		     end
-		     return 1
+		local name, instanceType, _, _, maxPlayers = GetInstanceInfo()
+		if instanceType == 'arena' or instanceType == 'party' then
+			return 5
+		elseif type(maxPlayers) == "number" and maxPlayers > 0 then
+			return NUMGROUP_TO_LAYOUT[math.ceil(maxPlayers / 5)]
+		elseif GetNumRaidMembers() > 0 then
+			local zoneLayout = ZONE_LAYOUTS[GetMapInfo() or ""]
+			if zoneLayout then
+				return zoneLayout
+			end
+			local maxGroup = 1
+			for index = 1, GetNumRaidMembers() do
+				local _, _, subGroup = GetRaidRosterInfo(index)
+				maxGroup = math.max(maxGroup, subGroup)
+			end
+			return NUMGROUP_TO_LAYOUT[maxGroup]
+		elseif GetNumPartyMembers() > 0 then
+			return 5
+		end
+		return 1
 	end
 
-	local function Update(_, ...)
-		if not anchor:CanChangeProtectedState() then return end
-		anchor:Debug('Update', ...)
-		anchor:SetAttribute('state-isHealer', GetPlayerRole() == "healer")
-		anchor:SetAttribute('state-layout', GetLayoutType())
-		anchor:SetAttribute('state-update', not anchor:GetAttribute('state-update'))
+	function anchor:UpdateLayout(...)
+		if not self:CanChangeAttribute() then return end
+		self:Debug('UpdateLayout', ...)
+		local layout = GetLayoutType()
+		local height = (GetPlayerRole() == 'healer' and layout <= 25) and HEIGHT_FULL or HEIGHT_SMALL
+		if height ~= self:GetAttribute('state-height') then
+			self:SetAttribute('state-height', height)
+		end
+		if layout ~= self:GetAttribute('state-layout') then
+			self:SetAttribute('state-layout', layout)
+		end
 	end
 
-	anchor:SetScript('OnEvent', Update)
+	anchor:SetScript('OnEvent', anchor.UpdateLayout)
   anchor:RegisterEvent('PLAYER_ENTERING_WORLD')
   anchor:RegisterEvent('ZONE_CHANGED_NEW_AREA')
-  anchor:RegisterEvent('PARTY_MEMBERS_CHANGED')
   anchor:RegisterEvent('PLAYER_REGEN_ENABLED')
-  anchor:RegisterEvent('UNIT_PET')
-	RegisterPlayerRoleCallback(Update)
+  anchor:RegisterEvent('PARTY_MEMBERS_CHANGED')
 
-	Update(anchor)
+	RegisterPlayerRoleCallback(function(...) anchor:UpdateLayout('RegisterPlayerRoleCallback', ...) end)
+
+	anchor:UpdateLayout("OnLoad")
 
 end)
