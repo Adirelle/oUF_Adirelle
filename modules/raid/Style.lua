@@ -342,7 +342,7 @@ end
 -- ------------------------------------------------------------------------------
 
 local function InitFrame(self, unit)
-	self:RegisterForClicks("anyup")
+	self:RegisterForClicks("AnyDown")
 
 	self:SetScript("OnEnter", UnitFrame_OnEnter)
 	self:SetScript("OnLeave", UnitFrame_OnLeave)
@@ -368,27 +368,25 @@ local function InitFrame(self, unit)
 	hp.bg = hpbg
 
 	-- Incoming heals
-	if oUF.HasIncomingHeal then
-		local heal = hp:CreateTexture(nil, "OVERLAY")
-		heal:SetTexture(0, 1, 0, 0.5)
-		heal:SetBlendMode("BLEND")
-		heal:SetPoint("TOP")
-		heal:SetPoint("BOTTOM")
-		heal:Hide()
-		heal.PostUpdate = IncomingHeal_PostUpdate
-		heal.current, heal.max, heal.incoming, heal.incomingOthers = 0, 0, 0, 0
-		self.IncomingHeal = heal
+	local heal = hp:CreateTexture(nil, "OVERLAY")
+	heal:SetTexture(0, 1, 0, 0.5)
+	heal:SetBlendMode("BLEND")
+	heal:SetPoint("TOP")
+	heal:SetPoint("BOTTOM")
+	heal:Hide()
+	heal.PostUpdate = IncomingHeal_PostUpdate
+	heal.current, heal.max, heal.incoming, heal.incomingOthers = 0, 0, 0, 0
+	self.IncomingHeal = heal
 
-		local othersHeal = hp:CreateTexture(nil, "OVERLAY")
-		othersHeal:SetTexture(0.5, 0, 1, 0.5)
-		othersHeal:SetBlendMode("BLEND")
-		othersHeal:SetPoint("TOP")
-		othersHeal:SetPoint("BOTTOM")
-		othersHeal:Hide()
-		self.IncomingOthersHeal = othersHeal
+	local othersHeal = hp:CreateTexture(nil, "OVERLAY")
+	othersHeal:SetTexture(0.5, 0, 1, 0.5)
+	othersHeal:SetBlendMode("BLEND")
+	othersHeal:SetPoint("TOP")
+	othersHeal:SetPoint("BOTTOM")
+	othersHeal:Hide()
+	self.IncomingOthersHeal = othersHeal
 
-		hp.PostUpdate = Health_PostUpdate
-	end
+	hp.PostUpdate = Health_PostUpdate
 
 	-- Indicator overlays
 	local overlay = CreateFrame("Frame", nil, self)

@@ -567,20 +567,23 @@ local function InitFrame(settings, self)
 
 	self:SetSize(settings['initial-width'], settings['initial-height'])
 
-	self:RegisterForClicks("AnyUp")
-	self:SetAttribute("type", "target")
+	self:RegisterForClicks("AnyDown")
 
 	self:SetScript("OnEnter", OoC_UnitFrame_OnEnter)
 	self:SetScript("OnLeave", UnitFrame_OnLeave)
 
-	local dropdownButton = DROPDOWN_FRAMES[unit]
-	if dropdownButton then
-		-- Hacky workaround
-		local f = _G[dropdownButton]
-		self:SetAttribute("*type2", "click")
-		self:SetAttribute("*clickbutton2", f)
-		f:ClearAllPoints()
-		f:SetAllPoints(self)
+	if self:CanChangeAttribute() then
+		self:SetAttribute("type", "target")
+
+		local dropdownButton = DROPDOWN_FRAMES[unit]
+		if dropdownButton then
+			-- Hacky workaround
+			local f = _G[dropdownButton]
+			self:SetAttribute("*type2", "click")
+			self:SetAttribute("*clickbutton2", f)
+			f:ClearAllPoints()
+			f:SetAllPoints(self)
+		end
 	end
 
 	self:SetBackdrop(backdrop)
@@ -658,21 +661,19 @@ local function InitFrame(settings, self)
 	self.Name = name
 
 	-- Incoming heals
-	if oUF.HasIncomingHeal then
-		--local incomingHeal = CreateFrame("StatusBar", nil, self)
-		--incomingHeal:SetPoint("BOTTOMRIGHT", health)
-		local incomingHeal = health:CreateTexture(nil, "OVERLAY")
-		incomingHeal:SetTexture([[Interface\AddOns\oUF_Adirelle\media\white16x16]])
-		incomingHeal:SetVertexColor(0, 1, 0, 0.5)
-		incomingHeal:SetBlendMode("ADD")
-		incomingHeal:SetPoint("TOP", health)
-		incomingHeal:SetPoint("BOTTOM", health)
-		incomingHeal.PostUpdate = IncomingHeal_PostUpdate
-		incomingHeal.current, incomingHeal.max, incomingHeal.incoming = 0, 0, 0
-		self.IncomingHeal = incomingHeal
+	--local incomingHeal = CreateFrame("StatusBar", nil, self)
+	--incomingHeal:SetPoint("BOTTOMRIGHT", health)
+	local incomingHeal = health:CreateTexture(nil, "OVERLAY")
+	incomingHeal:SetTexture([[Interface\AddOns\oUF_Adirelle\media\white16x16]])
+	incomingHeal:SetVertexColor(0, 1, 0, 0.5)
+	incomingHeal:SetBlendMode("ADD")
+	incomingHeal:SetPoint("TOP", health)
+	incomingHeal:SetPoint("BOTTOM", health)
+	incomingHeal.PostUpdate = IncomingHeal_PostUpdate
+	incomingHeal.current, incomingHeal.max, incomingHeal.incoming = 0, 0, 0
+	self.IncomingHeal = incomingHeal
 
-		health.PostUpdate = Health_PostUpdate
-	end
+	health.PostUpdate = Health_PostUpdate
 
 	-- Power bar
 	if not settings.noPower then
