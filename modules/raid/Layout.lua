@@ -49,15 +49,19 @@ oUF:Factory(function()
 	-- Helper
 	--------------------------------------------------------------------------------
 
-	local function SpawnHeader(name, template, layouts, group, ...)
+	local function SpawnHeader(name, template, ...)
 		local header = oUF:SpawnHeader(
 			name,
 			template,
 			nil,
-			"groupFilter", group,
 			"point", "LEFT",
 			"xOffset", SPACING,
-			"layouts", layouts,
+			"sortMethod", "INDEX",
+			"groupBy", "GROUP",
+			"groupingOrder", "1,2,3,4,5,6,7,8",
+			"unitsPerColumn", 5,
+			"columnSpacing", SPACING,
+			"columnAnchorPoint", "BOTTOM",			
 			'oUF-initialConfigFunction', [[
 				local header = self:GetParent()
 				self:SetAttribute('*type1', 'target')
@@ -74,14 +78,15 @@ oUF:Factory(function()
 							self:SetAttribute('unit', unit)
 						end
 					end
-					--self:CallMethod('UpdateAllElements', 'refreshUnitChange')
 				]=])
 			]],
 			"unitHeight", HEIGHT_SMALL,
+			"minHeight", HEIGHT_SMALL,
 			"_childupdate-height", [[
 				local height = tonumber(message)
 				if not height or height == self:GetAttribute('unitHeight') then return end
 				self:CallMethod('Debug', "_childupdate-height", height)
+				self:SetAttribute('minHeight', height)
 				self:SetAttribute('unitHeight', height)
 				units = wipe(units or newtable())
 				self:GetChildList(units)
@@ -89,24 +94,8 @@ oUF:Factory(function()
 					unit:SetHeight(height)
 				end
 			]],
-			"_childupdate-layout", [[
-				local layout = tonumber(message)
-				if not layout or layout == self:GetAttribute('layout') then return end
-				if self:GetAttribute('layouts'):match(';'..tostring(layout)..';') then
-					if not self:IsShown() then
-						self:CallMethod('Debug', "_childupdate-layout", layout, "=> show")
-						self:Show()
-					end
-				else
-					if self:IsShown() then
-						self:CallMethod('Debug', "_childupdate-layout", layout, "=> hide")
-						self:Hide()
-					end
-				end
-			]],
 			...
 		)
-		header:Hide()
 		header.Debug = Debug
 		header:SetScale(SCALE)
 		header:SetParent(anchor)
@@ -117,36 +106,24 @@ oUF:Factory(function()
 	-- Creating group headers
 	--------------------------------------------------------------------------------
 
-	local headers = {}
+	local players = SpawnHeader(
+		"oUF_Raid",
+		"SecureGroupHeaderTemplate",
+		"maxColumns", 8,
+		--@debug@--
+		"showSolo", true,
+		--@end-debug@--
+		"showParty", true,
+		"showPlayer", true,
+		"showRaid", true
+	)
+	players:SetPoint("BOTTOM", anchor, "BOTTOM", 0, 0)
+	players:Show()
 
-	for group = 1, 8 do
-		local isParty = (group == 1) or nil
-		local header = SpawnHeader(
-			"oUF_Raid"..group,
-			"SecureGroupHeaderTemplate",
-			isParty and ";1;5;10;15;20;25;40;" or ";10;15;20;25;40;",
-			group,
-			--@debug@--
-			"showSolo", isParty,
-			--@end-debug@--
-			"showParty", isParty,
-			"showPlayer", true,
-			"showRaid", true
-		)
-		if group > 1 then
-			header:SetPoint("BOTTOM", headers[group - 1], "TOP", 0, SPACING)
-		else
-			header:SetPoint("BOTTOM", anchor)
-		end
-		headers[group] = header
-	end
-
-	-- Party pets
-	local header = SpawnHeader(
-		"oUF_PartyPets",
+	local pets = SpawnHeader(
+		"oUF_RaidPets",
 		"SecureGroupPetHeaderTemplate",
-		";1;5;",
-		1,
+		"maxColumns", 3,
 	--@debug@--
 		"showSolo", true,
 	--@end-debug@--
@@ -154,21 +131,7 @@ oUF:Factory(function()
 		"showParty", true,
 		"showRaid", true
 	)
-	header:SetPoint("BOTTOM", headers[1], "TOP", 0, SPACING)
-	headers.partypets = header
-
-	-- Raid pets
-	for group = 1, 2 do
-		headers['raidpet'..group] = SpawnHeader(
-			"oUF_Raid"..group.."Pets",
-			"SecureGroupPetHeaderTemplate",
-			";10;",
-			group,
-			"showRaid", true
-		)
-	end
-	headers.raidpet1:SetPoint("BOTTOM", headers[2], "TOP", 0, SPACING)
-	headers.raidpet2:SetPoint("BOTTOM", headers.raidpet1, "TOP", 0, SPACING)
+	pets:SetPoint("BOTTOM", players, "TOP", 0, 2*SPACING)
 
 	-- Unit height updating
 	anchor:SetAttribute('_onstate-height', [===[
@@ -178,72 +141,41 @@ oUF:Factory(function()
 		self:ChildUpdate('height', height)
 	]===])
 
-	anchor:SetAttribute('_onstate-layout', [===[
-		local layout = tonumber(newstate)
-		if not layout then return end
-		self:CallMethod('Debug', "_onstate-layout", layout)
-		self:ChildUpdate('layout', layout)
+	SecureHandlerSetFrameRef(anchor, 'pets', pets)
+	anchor:SetAttribute('_onstate-pets', [===[
+		local pets = self:GetFrameRef('pets')
+		if newstate == 'show' and not pets:IsShown() then
+			self:CallMethod('Debug', "_onstate-pets", newstate)
+			pets:Show()
+		elseif newstate == 'hide' and pets:IsShown() then
+			self:CallMethod('Debug', "_onstate-pets", newstate)
+			pets:Hide()
+		end
 	]===])
 
-	-- Size boundaries for "free" groups, depending on the highest non-empty group number
-	local NUMGROUP_TO_LAYOUT = { 5, 10, 15, 20, 25, 40, 40, 40 }
-
-	-- Zone-based layouts (mainly PvP zones)
-	local ZONE_LAYOUTS = {
-		     LakeWintergrasp = 40,
-		     AlteracValley = 40,
-		     IsleofConquest = 40,
-		     ArathiBasin = 15,
-		     NetherstormArena = 15,
-		     StrandoftheAncients = 15,
-		     WarsongGulch = 10,
-	}
-
-	-- Get the best layout type
-	local function GetLayoutType()
-		local name, instanceType, _, _, maxPlayers = GetInstanceInfo()
-		if instanceType == 'arena' or instanceType == 'party' then
-			return 5
-		elseif type(maxPlayers) == "number" and maxPlayers > 0 then
-			return NUMGROUP_TO_LAYOUT[math.ceil(maxPlayers / 5)]
-		elseif GetNumRaidMembers() > 0 then
-			local zoneLayout = ZONE_LAYOUTS[GetMapInfo() or ""]
-			if zoneLayout then
-				return zoneLayout
-			end
-			local maxGroup = 1
-			for index = 1, GetNumRaidMembers() do
-				local _, _, subGroup = GetRaidRosterInfo(index)
-				maxGroup = math.max(maxGroup, subGroup)
-			end
-			return NUMGROUP_TO_LAYOUT[maxGroup]
-		elseif GetNumPartyMembers() > 0 then
-			return 5
+	local function UpdateHeightDriver()
+		if not anchor:CanChangeAttribute() then
+			anchor:Debug("UpdateHeightDriver, locked down, waiting end of combat")
+			anchor:SetScript('OnEvent', UpdateHeightDriver)
+			anchor:RegisterEvent('PLAYER_REGEN_ENABLED')
+			return
+		else
+			anchor:SetScript('OnEvent', nil)
+			anchor:UnregisterEvent('PLAYER_REGEN_ENABLED')
 		end
-		return 1
-	end
-
-	function anchor:UpdateLayout(...)
-		if not self:CanChangeAttribute() then return end
-		self:Debug('UpdateLayout', ...)
-		local layout = GetLayoutType()
-		local height = (GetPlayerRole() == 'healer' and layout <= 25) and HEIGHT_FULL or HEIGHT_SMALL
-		if height ~= self:GetAttribute('state-height') then
-			self:SetAttribute('state-height', height)
-		end
-		if layout ~= self:GetAttribute('state-layout') then
-			self:SetAttribute('state-layout', layout)
+		if GetPlayerRole() == "healer" then
+			anchor:Debug("UpdateHeightDriver, healer => dynamic height")
+			RegisterStateDriver(anchor, "height", format("[@raid21,exists] %d; %d", HEIGHT_SMALL, HEIGHT_FULL))
+		else
+			anchor:Debug("UpdateHeightDriver, not healer => fixed height")
+			UnregisterStateDriver(anchor, "height")
+			anchor:SetAttribute("height", HEIGHT_SMALL)
 		end
 	end
 
-	anchor:SetScript('OnEvent', anchor.UpdateLayout)
-  anchor:RegisterEvent('PLAYER_ENTERING_WORLD')
-  anchor:RegisterEvent('ZONE_CHANGED_NEW_AREA')
-  anchor:RegisterEvent('PLAYER_REGEN_ENABLED')
-  anchor:RegisterEvent('PARTY_MEMBERS_CHANGED')
+	RegisterStateDriver(anchor, 'pets', "[@raid26,exists] hide; show")
 
-	RegisterPlayerRoleCallback(function(...) anchor:UpdateLayout('RegisterPlayerRoleCallback', ...) end)
-
-	anchor:UpdateLayout("OnLoad")
+	RegisterPlayerRoleCallback(UpdateHeightDriver)
+	UpdateHeightDriver()
 
 end)
