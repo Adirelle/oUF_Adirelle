@@ -86,13 +86,13 @@ oUF:Factory(function()
 				local height = tonumber(message)
 				if not height or height == self:GetAttribute('unitHeight') then return end
 				self:CallMethod('Debug', "_childupdate-height", height)
-				self:SetAttribute('minHeight', height)
-				self:SetAttribute('unitHeight', height)
 				units = wipe(units or newtable())
 				self:GetChildList(units)
 				for _, unit in next, units do
 					unit:SetHeight(height)
 				end
+				self:SetAttribute('unitHeight', height)
+				self:SetAttribute('minHeight', height)
 			]],
 			...
 		)
