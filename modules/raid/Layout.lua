@@ -61,7 +61,7 @@ oUF:Factory(function()
 			"groupingOrder", "1,2,3,4,5,6,7,8",
 			"unitsPerColumn", 5,
 			"columnSpacing", SPACING,
-			"columnAnchorPoint", "BOTTOM",			
+			"columnAnchorPoint", "BOTTOM",
 			'oUF-initialConfigFunction', [[
 				local header = self:GetParent()
 				self:SetAttribute('*type1', 'target')
@@ -82,18 +82,6 @@ oUF:Factory(function()
 			]],
 			"unitHeight", HEIGHT_SMALL,
 			"minHeight", HEIGHT_SMALL,
-			"_childupdate-height", [[
-				local height = tonumber(message)
-				if not height or height == self:GetAttribute('unitHeight') then return end
-				self:CallMethod('Debug', "_childupdate-height", height)
-				units = wipe(units or newtable())
-				self:GetChildList(units)
-				for _, unit in next, units do
-					unit:SetHeight(height)
-				end
-				self:SetAttribute('unitHeight', height)
-				self:SetAttribute('minHeight', height)
-			]],
 			...
 		)
 		header.Debug = Debug
@@ -119,6 +107,7 @@ oUF:Factory(function()
 	)
 	players:SetPoint("BOTTOM", anchor, "BOTTOM", 0, 0)
 	players:Show()
+	SecureHandlerSetFrameRef(anchor, 'players', players)
 
 	local pets = SpawnHeader(
 		"oUF_RaidPets",
@@ -132,16 +121,23 @@ oUF:Factory(function()
 		"showRaid", true
 	)
 	pets:SetPoint("BOTTOM", players, "TOP", 0, 2*SPACING)
+	SecureHandlerSetFrameRef(anchor, 'pets', pets)
 
 	-- Unit height updating
 	anchor:SetAttribute('_onstate-height', [===[
 		local height = tonumber(newstate)
-		if not height then return end
+		local players = self:GetFrameRef('players')
+		if not height or height == players:GetAttribute('unitHeight') then return end
 		self:CallMethod('Debug', "_onstate-height", height)
-		self:ChildUpdate('height', height)
+		units = wipe(units or newtable())
+		players:GetChildList(units)
+		for _, unit in next, units do
+			unit:SetHeight(height)
+		end
+		players:SetAttribute('unitHeight', height)
+		players:SetAttribute('minHeight', height)
 	]===])
 
-	SecureHandlerSetFrameRef(anchor, 'pets', pets)
 	anchor:SetAttribute('_onstate-pets', [===[
 		local pets = self:GetFrameRef('pets')
 		if newstate == 'show' and not pets:IsShown() then
@@ -153,6 +149,9 @@ oUF:Factory(function()
 		end
 	]===])
 
+	RegisterStateDriver(anchor, "pets", "[@raid26,exists] hide; show")
+	local healerHeightExpr =  format("[@raid26,exists] %d; %d", HEIGHT_SMALL, HEIGHT_FULL)
+
 	local function UpdateHeightDriver()
 		if not anchor:CanChangeAttribute() then
 			anchor:Debug("UpdateHeightDriver, locked down, waiting end of combat")
@@ -163,17 +162,16 @@ oUF:Factory(function()
 			anchor:SetScript('OnEvent', nil)
 			anchor:UnregisterEvent('PLAYER_REGEN_ENABLED')
 		end
+
 		if GetPlayerRole() == "healer" then
 			anchor:Debug("UpdateHeightDriver, healer => dynamic height")
-			RegisterStateDriver(anchor, "height", format("[@raid21,exists] %d; %d", HEIGHT_SMALL, HEIGHT_FULL))
+			RegisterStateDriver(anchor, "height", healerHeightExpr)
 		else
 			anchor:Debug("UpdateHeightDriver, not healer => fixed height")
 			UnregisterStateDriver(anchor, "height")
 			anchor:SetAttribute("height", HEIGHT_SMALL)
 		end
 	end
-
-	RegisterStateDriver(anchor, 'pets', "[@raid26,exists] hide; show")
 
 	RegisterPlayerRoleCallback(UpdateHeightDriver)
 	UpdateHeightDriver()
