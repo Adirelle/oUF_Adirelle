@@ -81,6 +81,6 @@ The following feature are available using libraries:
 * fast health updating: LibQuickHealth-2.0 (provided).
 * bar texturing: "LibSharedMedia-3.0":http://wow.curse.com/downloads/wow-addons/details/libsharedmedia-3-0.aspx (provided).
 * frame positionning and "ConfigMode":http://www.wowwiki.com/ConfigMode support: LibMovable-1.0 (provided).
-* *Disabled in Cata* PvP crowd control icons: "DRData-1.0":http://wow.curse.com/downloads/wow-addons/details/drdata-1-0.aspx (provided).
-* spec-based role icons: LibGuessRole-1.0 'provided).
+* PvP crowd control icons: "DRData-1.0":http://wow.curse.com/downloads/wow-addons/details/drdata-1-0.aspx (provided).
+* spec-based role icons: LibGuessRole-1.0 (provided).
 

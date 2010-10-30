@@ -3,19 +3,21 @@ package-as: oUF_Adirelle
 license-output: LICENSE.txt
 
 externals:
-  libs/LibStub: 
+  libs/LibStub:
     url: svn://svn.wowace.com/wow/libstub/mainline/trunk
     tag: latest
-  libs/CallbackHandler-1.0: 
+  libs/CallbackHandler-1.0:
     url: svn://svn.wowace.com/wow/callbackhandler/mainline/trunk/CallbackHandler-1.0
     tag: latest
   libs/LibSharedMedia-3.0:
     url: svn://svn.wowace.com/wow/libsharedmedia-3-0/mainline/trunk/LibSharedMedia-3.0
     tag: latest
+  oUF: git://github.com/Adirelle/oUF.git
   libs/LibMovable-1.0: git://github.com/Adirelle/LibMovable-1.0.git
   libs/LibGuessRole-1.0: git://github.com/Adirelle/LibGuessRole-1.0.git
-  oUF: git://github.com/Adirelle/oUF.git
+  libs/LibDRData-1.0: git://git.wowace.com/wow/drdata-1-0/mainline.git
 
 move-folders:
   oUF_Adirelle/oUF_Adirelle_Raid: oUF_Adirelle_Raid
   oUF_Adirelle/oUF_Adirelle_Single: oUF_Adirelle_Single
+
