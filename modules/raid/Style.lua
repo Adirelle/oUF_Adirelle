@@ -437,6 +437,7 @@ local function InitFrame(self, unit)
 	rc:Hide()
 	rc.icon = rc:CreateTexture(rc:GetName().."Texture")
 	rc.icon:SetAllPoints(rc)
+	rc.SetTexture = function(_, ...) return rc.icon:SetTexture(...) end
 	self.ReadyCheck = rc
 
 	-- Aura icons
