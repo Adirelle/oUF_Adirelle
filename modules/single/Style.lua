@@ -310,10 +310,12 @@ elseif playerClass == "DRUID" then
 		mark:SetTexCoord(unpack(ECLIPSE_MARKER_COORDS[direction]))
 		if direction == "sun" then
 			mark:SetPoint("CENTER", eclipseBar, "CENTER", eclipseBar:GetWidth() / 4, 0)
+			mark:Show()
 		elseif direction == "moon" then
 			mark:SetPoint("CENTER", eclipseBar, "CENTER", -eclipseBar:GetWidth() / 4, 0)
+			mark:Show()
 		else
-			eclipseBar.mark:Hide()
+			mark:Hide()
 		end
 	end
 
