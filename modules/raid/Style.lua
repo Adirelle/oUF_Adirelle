@@ -341,6 +341,20 @@ end
 -- Unit frame initialization
 -- ------------------------------------------------------------------------------
 
+local function UNIT_NAME_UPDATE(self, event, unit)
+	if unit == self.unit or unit == self.realUnit then
+		return UpdateName(self)
+	end
+end
+
+local function UNIT_PET(self, event, unit)
+	if unit == "player" then
+		return UNIT_NAME_UPDATE(self, event, "pet")
+	elseif unit then
+		return UNIT_NAME_UPDATE(self, event, gsub(unit, "(%d*)$", "pet%1"))
+	end
+end
+
 local function InitFrame(self, unit)
 	self:RegisterForClicks("AnyDown")
 
@@ -402,6 +416,10 @@ local function InitFrame(self, unit)
 	name:SetFont(GameFontNormal:GetFont(), 11)
 	name:SetTextColor(1, 1, 1, 1)
 	self.Name = name
+	self:RegisterEvent('UNIT_NAME_UPDATE', UNIT_NAME_UPDATE)
+	if unit and strmatch(unit, 'pet') then
+		self:RegisterEvent('UNIT_PET', UNIT_PET)
+	end
 
 	-- Border
 	local border = CreateFrame("Frame", nil, self)
