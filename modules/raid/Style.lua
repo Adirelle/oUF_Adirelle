@@ -1,6 +1,6 @@
 --[=[
 Adirelle's oUF layout
-(c) 2009 Adirelle (adirelle@tagada-team.net)
+(c) 2009-2010 Adirelle (adirelle@tagada-team.net)
 All rights reserved.
 --]=]
 local UnitClass = UnitClass
@@ -437,6 +437,7 @@ local function InitFrame(self, unit)
 	rc:Hide()
 	rc.icon = rc:CreateTexture(rc:GetName().."Texture")
 	rc.icon:SetAllPoints(rc)
+	rc.SetTexture = function(_, ...) return rc.icon:SetTexture(...) end
 	self.ReadyCheck = rc
 
 	-- Aura icons

@@ -17,61 +17,45 @@ Though oUF_Adirelle embeds and uses some libraries, they are all optional and
 could be safely removed (just delete the "libs" directory). Please note LibMovable-1.0
 is required for the "/oufa" chat command.
 
-h2. Cataclysm update status
-
-DONE:
-* Use the built-in API to guess character roles, including the result of raid rolechecks.
-* Get rid of LibHealComm-4.0 use the built-in API for incoming heals.
-* Warlocks' soul shards. 
-* Paladins' Holy Power.
-* Range fix.
-* Moonkins' Eclipse bar.
-
-TODO:
-* Fix special auras handling.
-
 h2. Features
 
-h3. Common features
+h3. Features common to both group and single unit frames
 
 * colored border:
 ** white: current target,
 ** blue: low mana,
 * glowing border based on threat status, using built-in Blizzard colors,
 * display raid target icons,
-* displays important debuff for some PvE encounters (Ulduar, Coliseum and Ice Crown Citadel).
-* fades out of range targets, using spell range checks (which is a bit more accurate than generic range checking).
+* shows raid/party roles, either assigned by LFD tool or rolecheck, either by guessing from class and talents,
+* displays important debuff for some PvE encounters (Ulduar, Coliseum and Ice Crown Citadel),
+* fades out of range targets, using spell range checks (which is a bit more accurate than generic range checking),
+* display incoming heals.
 
 h3. Group unit frames
 
-* automatically chooses best layout given the group status and/or instance, amongst:
-** party and pets,
-** 10 (including pets), 15, 25 or 40-man layout fitting raid or instance size.
 * health bar fills from right to left when unit loses life,
-* displays important buffs (like tank cooldowns, feign death, iceblock, ...),
-* displays curable debuffs,
-* displays small icons in corners for heal related auras,
+* display important buffs (like tank cooldowns, feign death, iceblock, ...),
+* display curable debuffs,
+* display small icons in corners for heal related auras,
 * ready check icon,
 * special status icon:
 ** skull: dead unit,
 ** lightning: disconnected unit,
 ** whirlwind: out of view (either really far unit or unit in another instance).
-* "AddonLoader":http://wow.curse.com/downloads/wow-addons/details/addon-loader.aspx support: postpone loading of the party/raid module until you join a group.
 
 h3. Single unit frames
 
 * frames for player, pet, target, target of target and focus,
 * class-colored health bar for players, happiness-color health bar for hunters' pet,
-* displays numerical health and power values,
-* displays percentage health for elite/boss units,
-* shows unit level and classification/class,
-* shows elite/rare dragon decoration,
-* integrated DK rune bar,
-* integrated totem bar,
+* display numerical health and power values,
+* display percentage health for elite/boss units,
+* show unit level and classification/class,
+* show elite/rare dragon decoration,
+* class specific features: runes, totems, eclipse energy, holy power, soul shards,
 * also shows druid mana in cat/bear form,
-* shows raid/party roles and PvP status,
+* show PvP status,
 * smart aura display depending on unit reaction,
-* when in group, displays a small threat bar on target frame.
+* when in group, displays a small threat bar on target frame,
 * *new in 1.2-beta-3*: optional casting bars on target, focus and pet frames; controlled by the "show cast bars on targets" option in Blizzard combat panel.
 
 h2. Library related features
@@ -81,6 +65,6 @@ The following feature are available using libraries:
 * fast health updating: LibQuickHealth-2.0 (provided).
 * bar texturing: "LibSharedMedia-3.0":http://wow.curse.com/downloads/wow-addons/details/libsharedmedia-3-0.aspx (provided).
 * frame positionning and "ConfigMode":http://www.wowwiki.com/ConfigMode support: LibMovable-1.0 (provided).
-* *Disabled in Cata* PvP crowd control icons: "DRData-1.0":http://wow.curse.com/downloads/wow-addons/details/drdata-1-0.aspx (provided).
-* spec-based role icons: LibGuessRole-1.0 'provided).
+* PvP crowd control icons: "DRData-1.0":http://wow.curse.com/downloads/wow-addons/details/drdata-1-0.aspx (provided).
+* guesstimated role icons: LibGuessRole-1.0 (provided).
 
