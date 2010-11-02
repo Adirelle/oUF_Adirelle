@@ -1,6 +1,6 @@
 --[=[
 Adirelle's oUF layout
-(c) 2009 Adirelle (adirelle@tagada-team.net)
+(c) 2009-2010 Adirelle (adirelle@tagada-team.net)
 All rights reserved.
 
 Elements handled: .StatusIcon
@@ -87,6 +87,7 @@ local function Enable(self)
 	if self.StatusIcon then
 		self:RegisterEvent('UNIT_AURA', Update)
 		self:RegisterEvent('UNIT_HEALTH', Update)
+		self:RegisterEvent('UNIT_CONNECTION', Update)
 		self:RegisterEvent('UNIT_FLAGS', Update)
 		self:RegisterEvent('UNIT_DYNAMIC_FLAGS', Update)
 		self:RegisterEvent('UNIT_ENTERED_VEHICLE', Update)
@@ -107,6 +108,7 @@ local function Disable(self)
 	if self.StatusIcon then
 		self:UnregisterEvent('UNIT_AURA', Update)
 		self:UnregisterEvent('UNIT_HEALTH', Update)
+		self:UnregisterEvent('UNIT_CONNECTION', Update)
 		self:UnregisterEvent('UNIT_FLAGS', Update)
 		self:UnregisterEvent('UNIT_DYNAMIC_FLAGS', Update)
 		self:UnregisterEvent('UNIT_ENTERED_VEHICLE', Update)

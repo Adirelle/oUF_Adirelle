@@ -1,6 +1,6 @@
 --[=[
 Adirelle's oUF layout
-(c) 2009 Adirelle (adirelle@tagada-team.net)
+(c) 2009-2010 Adirelle (adirelle@tagada-team.net)
 All rights reserved.
 --]=]
 
@@ -35,13 +35,13 @@ local function OnStatusBarUpdate(bar)
 	local value, min, max = bar:GetValue(), bar:GetMinMaxValues()
 	if max == 100 then
 		text:SetFormattedText("%d%%", floor(value))
-	elseif max == 0 then
+	elseif max <= 1 then
 		return text:Hide()
 	else
 		local perValue = ((value < max) and UnitClassification(bar:GetParent().unit) ~= 'normal') and strformat("%d%% ", floor(value/max*100)) or ""
 		local maxValue = smartValue(max)
 		local curValue = value < max and (smartValue(value).."/") or ""
-		text:SetText(perValue..curValue..maxValue)
+		text:SetText(strjoin('', perValue, curValue, maxValue))
 	end
 	text:Show()
 end
@@ -281,22 +281,40 @@ if playerClass == 'DEATHKNIGHT' then
 elseif playerClass == "DRUID" then
 	-- Druid mana bar
 
+	local eclipseColors = {
+		lunar = {
+			 sun = { 136/255, 200/255, 224/255 },
+			moon = {  24/255,  36/255,  80/255 },
+			none = {  56/255, 100/255, 168/255 } ,
+		},
+		solar = {
+			moon = { 232/255, 212/255, 120/255 },
+			 sun = {  88/255,  36/255,   8/255 },
+			none = { 205/255, 148/255,  43/255 },
+		}
+	}
+
 	local SPELL_POWER_MANA = SPELL_POWER_MANA
 	local SPELL_POWER_ECLIPSE = SPELL_POWER_ECLIPSE
 
 	local function EclipseText_Update(eclipseBar, unit)
 		if unit and unit ~= "player" or not eclipseBar:IsVisible() then return end
-		eclipseBar.Text:SetFormattedText(
-			"%d %s",
-			math.abs(UnitPower("player", SPELL_POWER_ECLIPSE) / UnitPowerMax("player", SPELL_POWER_ECLIPSE) * 100),
-			eclipseBar.directionIsLunar and ">" or "<"
-		)
+		eclipseBar.Text:SetText(abs(UnitPower("player", SPELL_POWER_ECLIPSE) / UnitPowerMax("player", SPELL_POWER_ECLIPSE) * 100))
 
-		local lunar = eclipseBar.LunarBar
-		local color, f = lunar.color, eclipseBar.hasLunarEclipse and 1 or 0.6
-		lunar:SetStatusBarColor(color.r * f, color.g * f, color.b * f)
-		color, f = eclipseBar.color, eclipseBar.hasSolarEclipse and 1 or 0.6
-		eclipseBar:SetBackdropColor(color.r * f, color.g * f, color.b * f)
+		local eclipse = (eclipseBar.hasLunarEclipse and "moon") or (eclipseBar.hasSolarEclipse and "sun") or "none"
+		eclipseBar.LunarBar:SetStatusBarColor(unpack(eclipseColors.solar[eclipse], 1, 3))
+		eclipseBar:SetBackdropColor(unpack(eclipseColors.lunar[eclipse], 1, 3))
+
+		local direction = GetEclipseDirection() or "none"
+		local mark = eclipseBar.mark
+		mark:SetTexCoord(unpack(ECLIPSE_MARKER_COORDS[direction]))
+		if direction == "sun" then
+			mark:SetPoint("CENTER", eclipseBar, "CENTER", eclipseBar:GetWidth() / 4, 0)
+		elseif direction == "moon" then
+			mark:SetPoint("CENTER", eclipseBar, "CENTER", -eclipseBar:GetWidth() / 4, 0)
+		else
+			eclipseBar.mark:Hide()
+		end
 	end
 
 	function AltPower_Update(power, unit)
@@ -354,7 +372,17 @@ elseif playerClass == "DRUID" then
 		eclipseBar.LunarBar = lunar
 
 		local text = SpawnText(lunar, "OVERLAY", "CENTER", "CENTER", 0, 0)
+		local name, size = text:GetFont()
+		text:SetFont(name, size, "OUTLINE")
+		text:SetShadowColor(0, 0, 0, 0)
 		eclipseBar.Text = text
+
+		local mark = lunar:CreateTexture(nil, "OVERLAY")
+		mark:SetSize(20, 20)
+		mark:SetPoint("CENTER")
+		mark:SetTexture([[Interface\PlayerFrame\UI-DruidEclipse]])
+		mark:SetBlendMode("ADD")
+		eclipseBar.mark = mark
 
 		local function UpdateAltPower()
 			if manaBar:IsShown() or eclipseBar:IsShown() then
@@ -498,14 +526,16 @@ local function LayoutBars(self, width, height)
 		portrait:SetHeight(height)
 	end
 	if self.Power then
-		local powerHeight = height * 0.45
-		height = height - powerHeight
+		local totalPowerHeihgt = height * 0.45 - GAP
+		local powerHeight
 		if self.AltPower and self.AltPower:IsShown() then
-			local altHeight = powerHeight * 0.45
-			powerHeight = powerHeight - altHeight
-			self.AltPower:SetHeight(altHeight - GAP)
+			powerHeight = (totalPowerHeihgt - GAP) / 2
+			self.AltPower:SetHeight(powerHeight)
+		else
+			powerHeight = totalPowerHeihgt
 		end
-		self.Power:SetHeight(powerHeight - GAP)
+		self.Power:SetHeight(powerHeight)
+		height = height - totalPowerHeihgt - GAP
 	end
 	self.Health:SetHeight(height)
 end
