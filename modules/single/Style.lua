@@ -448,34 +448,21 @@ elseif playerClass == "SHAMAN" then
 elseif playerClass == "WARLOCK" then
 	-- Warlock shards
 
-	local function LayoutShards(soulShardBar)
-		local spacing = (soulShardBar:GetWidth() + GAP) / SHARD_BAR_NUM_SHARDS
-		local width = spacing - GAP
-		local height = soulShardBar:GetHeight()
-		for index = 1, SHARD_BAR_NUM_SHARDS do
-			local shard = soulShardBar[index]
-			shard:SetPoint("TOPLEFT", soulShardBar, "TOPLEFT", spacing * (index-1), 0)
-			shard:SetSize(width, height)
-		end
-	end
-
-	local color = PowerBarColor.SOUL_SHARDS
-	local function SetShardColor(shard)
-		shard:SetStatusBarColor(color.r, color.g, color.b)
-	end
-
 	function SetupAltPower(self)
-		local soulShardBar = CreateFrame("Frame", nil, self)
-		soulShardBar:SetScript('OnShow', LayoutShards)
-		soulShardBar:SetScript('OnSizeChanged', LayoutShards)
-		self.SoulShards = soulShardBar
-
+		-- Display them in the mana bar, without changing its size
+		local shards = {}
+		local parent, anchor = self.Indicators, self.Power
+		local scale = 1/1.2
+		local w, h = scale*17, scale*16
 		for index = 1, SHARD_BAR_NUM_SHARDS do
-			local shard = CreateFrame("StatusBar", nil, soulShardBar)
-			self:RegisterStatusBarTexture(shard, SetShardColor)
-			soulShardBar[index] = shard
+			local shard = parent:CreateTexture(nil, "OVERLAY")
+			shard:SetTexture([[Interface\PlayerFrame\UI-WarlockShard]])
+			shard:SetSize(w, h)
+			shard:SetTexCoord(0.01562500, 0.28125000, 0.00781250, 0.13281250)
+			shard:SetPoint("CENTER", anchor, "BOTTOM", (index-2)*(w+GAP), -GAP/2)
+			shards[index] = shard
 		end
-		return soulShardBar
+		self.SoulShards = shards
 	end
 
 elseif playerClass == "PALADIN" then
@@ -707,6 +694,12 @@ local function InitFrame(settings, self)
 
 	health.PostUpdate = Health_PostUpdate
 
+	-- Used for some overlays
+	local indicators = CreateFrame("Frame", nil, self)
+	indicators:SetAllPoints(self)
+	indicators:SetFrameLevel(health:GetFrameLevel()+3)
+	self.Indicators = indicators
+
 	-- Power bar
 	if not settings.noPower then
 		local power = SpawnStatusBar(self, false, "TOPLEFT", health, "BOTTOMLEFT", 0, -GAP)
@@ -719,11 +712,13 @@ local function InitFrame(settings, self)
 
 		if unit == "player" and SetupAltPower then
 			local altPower = SetupAltPower(self)
-			altPower:SetPoint('TOPLEFT', power, 'BOTTOMLEFT', 0, -GAP)
-			altPower:SetPoint('RIGHT', barContainer)
-			altPower:HookScript('OnShow', UpdateLayout)
-			altPower:HookScript('OnHide', UpdateLayout)
-			self.AltPower = altPower
+			if altPower then
+				altPower:SetPoint('TOPLEFT', power, 'BOTTOMLEFT', 0, -GAP)
+				altPower:SetPoint('RIGHT', barContainer)
+				altPower:HookScript('OnShow', UpdateLayout)
+				altPower:HookScript('OnHide', UpdateLayout)
+				self.AltPower = altPower
+			end
 		end
 
 		-- Unit level and class (or creature family)
@@ -823,9 +818,6 @@ local function InitFrame(settings, self)
 	self.Threat = threat
 
 	-- Various indicators
-	local indicators = CreateFrame("Frame", nil, self)
-	indicators:SetAllPoints(self)
-	indicators:SetFrameLevel(health:GetFrameLevel()+3)
 	self.Leader = SpawnTexture(indicators, 16, "TOP"..left)
 	self.Assistant = SpawnTexture(indicators, 16, "TOP"..left)
 	self.MasterLooter = SpawnTexture(indicators, 16, "TOP"..left, 16*dir)
