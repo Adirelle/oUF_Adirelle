@@ -62,8 +62,8 @@ function GetOwnAuraFilter(spellId, r, g, b)
 	local filter, exists = GetGenericFilter("OwnAura", spellName, r, g, b)
 	if not exists then
 		oUF:AddAuraFilter(filter, function(unit)
-			local name, _, texture, count, _, duration, expirationTime, caster = UnitAura(unit, spellName)
-			if name and IsMeOrMine(caster) then
+			local name, _, texture, count, _, duration, expirationTime, caster = UnitAura(unit, spellName, nil, "PLAYER")
+			if name then
 				return texture, count, expirationTime-duration, duration, r, g, b
 			end
 		end)
