@@ -3,7 +3,7 @@
 ## Version: @project-version@
 ## Title: oUF_Adirelle - core
 ## Notes: Adirelle's unit frames, based on haste's oUF.
-## OptionalDeps: oUF, LibSharedMedia-3.0, LibMovable-1.0, SharedMedia, SharedMedia_MyMedia, !SurfaceControl, tekDebug, !ClassColors, LibGuessRole-1.0, LibQuickHealh-2.0, DRData-1.0
+## OptionalDeps: oUF, LibSharedMedia-3.0, LibMovable-1.0, SharedMedia, SharedMedia_MyMedia, !SurfaceControl, AdiDebug, !ClassColors, LibGuessRole-1.0, LibQuickHealh-2.0, DRData-1.0
 ## SavedVariables: oUF_Adirelle_DB
 ## LoadOnDemand: 1
 

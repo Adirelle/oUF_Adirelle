@@ -21,30 +21,14 @@ setfenv(1, ns)
 _G.oUF_Adirelle = ns
 
 -- Debugging stuff
-if tekDebug then
-	local frame = tekDebug:GetFrame("oUF_Adirelle")
-	local type, tostring, select = type, tostring, select
-	local t = {}
-	local function _tostringall(...)
-		local n = select('#', ...)
-		for i = 1, n do
-			local value = select(i, ...)
-			if type(value) == "table" and type(value[0]) == "userdata" then
-				t[i] = '|cffCC7700['..(value:GetName() or tostring(value):replace('table', 'frame'))..']|r'
-			else
-				t[i] = tostring(value)
-			end
-		end
-		return unpack(t, 1, n)
-	end
-	function Debug(...)
-		frame:AddMessage(strjoin(" ", _tostringall(...)))
-	end
+if AdiDebug then
+	AdiDebug:Embed(oUF, "oUF_Adirelle")
+	Debug = AdiDebug:GetSink("oUF_Adirelle")
 else
 	function Debug() end
+	oUF.Debug = Debug
 end
-oUF.Debug = Debug
-oUF:RegisterMetaFunction('Debug', Debug)
+oUF:RegisterMetaFunction('Debug', oUF.Debug)
 
 -- Version query command
 _G.SLASH_OUFADIRELLEVER1 = "/ouf_adirelle_ver"
