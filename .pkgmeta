@@ -15,7 +15,7 @@ externals:
   oUF: git://github.com/Adirelle/oUF.git
   libs/LibMovable-1.0: git://github.com/Adirelle/LibMovable-1.0.git
   libs/LibGuessRole-1.0: git://github.com/Adirelle/LibGuessRole-1.0.git
-  libs/LibDRData-1.0: git://git.wowace.com/wow/drdata-1-0/mainline.git
+  libs/DRData-1.0: git://git.wowace.com/wow/drdata-1-0/mainline.git
 
 move-folders:
   oUF_Adirelle/oUF_Adirelle_Raid: oUF_Adirelle_Raid
