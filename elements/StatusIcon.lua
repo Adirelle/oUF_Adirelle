@@ -21,6 +21,8 @@ local function GetFrameUnitState(self, ignoreVisibility)
 	local unit = self.unit
 	if not UnitIsConnected(unit) then
 		return "DISCONNECTED"
+	elseif not UnitInPhase(unit) then
+		return "OUTOFPHASE"
 	elseif not ignoreVisibility and not UnitIsVisible(unit) then
 		return "OUTOFSCOPE"
 	elseif UnitIsDeadOrGhost(unit) then
@@ -35,6 +37,7 @@ ns.GetFrameUnitState = GetFrameUnitState
 
 local icons = {
 	DISCONNECTED = { [[Interface\Icons\INV_Sigil_Thorim]], 0.05, 0.95, 0.5-0.25*0.9, 0.5+0.25*0.9, false },
+	OUTOFPHASE = { [[Interface\TargetingFrame\UI-PhasingIcon]], 0.15625, 0.84375, 0.15625, 0.84375, true },
 	OUTOFSCOPE = { [[Interface\Icons\Spell_Frost_Stun]], 0.05, 0.95, 0.5-0.25*0.9, 0.5+0.25*0.9, true },
 	DEAD = { [[Interface\TargetingFrame\UI-TargetingFrame-Skull]], 4/32, 26/32, 9/32, 20/32, false },
 	CHARMED = { [[Interface\Icons\Ability_DualWield]], 0.05, 0.95, 0.5-0.25*0.9, 0.5+0.25*0.9, false, 1, 0, 0 }
@@ -65,7 +68,7 @@ end
 local visibility = {}
 local objects = {}
 local delay = 0
-local function UpdateVisibility(_, elapsed) 
+local function UpdateVisibility(_, elapsed)
 	if delay > 0 then
 		delay = delay - elapsed
 		return
@@ -88,6 +91,10 @@ local function Enable(self)
 		self:RegisterEvent('UNIT_AURA', Update)
 		self:RegisterEvent('UNIT_HEALTH', Update)
 		self:RegisterEvent('UNIT_CONNECTION', Update)
+		self:RegisterEvent('UNIT_PHASE', Update)
+		self:RegisterEvent('UNIT_FACTION', Update)
+		self:RegisterEvent('PARTY_MEMBER_ENABLE', Update)
+		self:RegisterEvent('PARTY_MEMBER_DISABLE', Update)
 		self:RegisterEvent('UNIT_FLAGS', Update)
 		self:RegisterEvent('UNIT_DYNAMIC_FLAGS', Update)
 		self:RegisterEvent('UNIT_ENTERED_VEHICLE', Update)
@@ -109,6 +116,10 @@ local function Disable(self)
 		self:UnregisterEvent('UNIT_AURA', Update)
 		self:UnregisterEvent('UNIT_HEALTH', Update)
 		self:UnregisterEvent('UNIT_CONNECTION', Update)
+		self:UnregisterEvent('UNIT_PHASE', Update)
+		self:UnregisterEvent('UNIT_FACTION', Update)
+		self:UnregisterEvent('PARTY_MEMBER_ENABLE', Update)
+		self:UnregisterEvent('PARTY_MEMBER_DISABLE', Update)
 		self:UnregisterEvent('UNIT_FLAGS', Update)
 		self:UnregisterEvent('UNIT_DYNAMIC_FLAGS', Update)
 		self:UnregisterEvent('UNIT_ENTERED_VEHICLE', Update)
