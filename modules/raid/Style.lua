@@ -139,21 +139,22 @@ local function UpdateColor(self, event, unit)
 	if refUnit == '' then refUnit = 'player' end -- 'pet'
 	local class = UnitName(refUnit) ~= UNKNOWN and select(2, UnitClass(refUnit))
 	local state = oUF_Adirelle.GetFrameUnitState(self, true) or class or ""
-	if state == self.__stateColor then return end
-	self.__stateColor = state
-	--self:Debug('UpdateColor', event, unit, state)
-	local r, g, b = 0.5, 0.5, 0.5
-	if state == "DEAD" or state == "DISCONNECTED" then
-		r, g, b = unpack(self.colors.disconnected)
-	elseif state == "CHARMED" then
-		r, g, b = 1, 0.3, 0
-	elseif state == "INVEHICLE" then
-		r, g, b = 0.2, 0.6, 0
-	elseif class then
-		r, g, b = unpack(self.colors.class[class])
+	if state ~= self.__stateColor then
+		self.__stateColor = state
+		--self:Debug('UpdateColor', event, unit, state)
+		local r, g, b = 0.5, 0.5, 0.5
+		if state == "DEAD" or state == "DISCONNECTED" then
+			r, g, b = unpack(self.colors.disconnected)
+		elseif state == "CHARMED" then
+			r, g, b = 1, 0.3, 0
+		elseif state == "INVEHICLE" then
+			r, g, b = 0.2, 0.6, 0
+		elseif class then
+			r, g, b = unpack(self.colors.class[class])
+		end
+		self.bgColor[1], self.bgColor[2], self.bgColor[3] = r, g, b
+		self.Health.bg:SetVertexColor(r, g, b, 1)
 	end
-	self.bgColor[1], self.bgColor[2], self.bgColor[3] = r, g, b
-	self.Health.bg:SetVertexColor(r, g, b, 1)
 	return UpdateName(self)
 end
 
