@@ -19,7 +19,7 @@ local UnitHasVehicleUI = UnitHasVehicleUI
 
 local function GetFrameUnitState(self, ignoreVisibility)
 	local unit = self.unit
-	if not UnitIsConnected(unit) then
+	if UnitIsPlayer(unit) and not UnitIsConnected(unit) then
 		return "DISCONNECTED"
 	elseif not UnitInPhase(unit) then
 		return "OUTOFPHASE"
@@ -37,7 +37,7 @@ ns.GetFrameUnitState = GetFrameUnitState
 
 local icons = {
 	DISCONNECTED = { [[Interface\Icons\INV_Sigil_Thorim]], 0.05, 0.95, 0.5-0.25*0.9, 0.5+0.25*0.9, false },
-	OUTOFPHASE = { [[Interface\TargetingFrame\UI-PhasingIcon]], 0.15625, 0.84375, 0.15625, 0.84375, true },
+	OUTOFPHASE = { [[Interface\TargetingFrame\UI-PhasingIcon]], 0.15625, 0.84375, 0.5-0.34375*0.5, 0.5+0.34375*0.5, true },
 	OUTOFSCOPE = { [[Interface\Icons\Spell_Frost_Stun]], 0.05, 0.95, 0.5-0.25*0.9, 0.5+0.25*0.9, true },
 	DEAD = { [[Interface\TargetingFrame\UI-TargetingFrame-Skull]], 4/32, 26/32, 9/32, 20/32, false },
 	CHARMED = { [[Interface\Icons\Ability_DualWield]], 0.05, 0.95, 0.5-0.25*0.9, 0.5+0.25*0.9, false, 1, 0, 0 }

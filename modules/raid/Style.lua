@@ -48,8 +48,8 @@ end
 local function UpdateName(self)
 	local healthBar = self.Health
 	local r, g, b = 0.5, 0.5, 0.5
-	if self.bgColor then
-		r, g, b = unpack(self.bgColor)
+	if self.nameColor then
+		r, g, b = unpack(self.nameColor)
 	end
 	local text
 	local healBar = self.IncomingHeal
@@ -141,19 +141,21 @@ local function UpdateColor(self, event, unit)
 	local state = oUF_Adirelle.GetFrameUnitState(self, true) or class or ""
 	if state ~= self.__stateColor then
 		self.__stateColor = state
-		--self:Debug('UpdateColor', event, unit, state)
 		local r, g, b = 0.5, 0.5, 0.5
+		if class then
+			r, g, b = unpack(self.colors.class[class])
+		end
+		local nR, nG, nB = r, g, b
 		if state == "DEAD" or state == "DISCONNECTED" then
 			r, g, b = unpack(self.colors.disconnected)
 		elseif state == "CHARMED" then
-			r, g, b = 1, 0.3, 0
+			r, g, b, nR, nG, nB = 1, 0, 0, 1, 0.6, 0.3
 		elseif state == "INVEHICLE" then
-			r, g, b = 0.2, 0.6, 0
-		elseif class then
-			r, g, b = unpack(self.colors.class[class])
+			r, g, b, nR, nG, nB = 0.2, 0.6, 0, 0.4, 0.8, 0.2
 		end
 		self.bgColor[1], self.bgColor[2], self.bgColor[3] = r, g, b
 		self.Health.bg:SetVertexColor(r, g, b, 1)
+		self.nameColor[1], self.nameColor[2], self.nameColor[3] = nR, nG, nB
 	end
 	return UpdateName(self)
 end
@@ -375,8 +377,9 @@ local function InitFrame(self, unit)
 	self.Health = hp
 
 	self.bgColor = { 1, 1, 1 }
+	self.nameColor = { 1, 1, 1 }
 
-	local hpbg = hp:CreateTexture(nil, "BACKGROUND")
+	local hpbg = hp:CreateTexture(nil, "BACKGROUND", nil, -1)
 	hpbg:SetAllPoints(hp)
 	hpbg:SetAlpha(1)
 	self:RegisterStatusBarTexture(hpbg)
@@ -436,11 +439,11 @@ local function InitFrame(self, unit)
 	self.Border = border
 
 	-- Big status icon
-	local status = overlay:CreateTexture(nil, "OVERLAY")
+	local status = hp:CreateTexture(nil, "OVERLAY", nil, 1)
 	status:SetWidth(HEIGHT)
 	status:SetHeight(HEIGHT)
-	status:SetAlpha(0.75)
 	status:SetPoint("CENTER")
+	status:SetAlpha(0.75)
 	status:SetBlendMode("ADD")
 	status:Hide()
 	status.PostUpdate = UpdateColor
