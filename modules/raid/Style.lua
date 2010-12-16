@@ -277,13 +277,13 @@ do
 			-- Soulstone
 			self:AddAuraIcon(SpawnSmallIcon(self, "BOTTOMLEFT", self, "BOTTOMLEFT", INSET, INSET), GetAnyAuraFilter(20707, "HELPFUL"))
 			-- Display magic debuffs (for the Felhunter)
-			return GetDebuffTypeFilter("Magic")
+			return true
 		end
 
 	elseif playerClass == 'MAGE' then
 		function CreateClassAuraIcons(self)
 			-- Display curses
-			return GetDebuffTypeFilter("Curse")
+			return true
 		end
 
 	elseif playerClass == 'PRIEST' then
@@ -325,7 +325,7 @@ do
 		if cureableDebuffFilter then
 			-- Show cureable debuffs
 			local debuff = self:SpawnAuraIcon(self.Overlay, ICON_SIZE)
-			self:AddAuraIcon(debuff, type(cureableDebuffFilter) == "string" and cureableDebuffFilter or "CureableDebuff")
+			self:AddAuraIcon(debuff, "CureableDebuff")
 
 			-- Layout icons
 			importantBuff:SetPoint("CENTER", self, "LEFT", WIDTH * 0.25, 0)
