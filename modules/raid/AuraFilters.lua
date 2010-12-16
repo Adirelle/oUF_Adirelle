@@ -102,47 +102,31 @@ function GetOwnStackedAuraFilter(spellId, countThreshold, r, g, b)
 	return filter
 end
 
-function GetDebuffTypeFilter(debuffType, r, g, b, a)
-	assert(type(debuffType) == "string", "invalid debuff type:"..tostring(debuffType))
-	local filter, exists = GetGenericFilter("DebuffType", debuffType, r, g, b, a)
-	if not exists then
-		oUF:AddAuraFilter(filter, function(unit)
-			for i = 1, 255 do
-				local name, _, texture, count, dType, duration, expirationTime = UnitAura(unit, i, "HARMFUL")
-				if not name then
-					return
-				elseif dType == debuffType then
-					return texture, count, expirationTime-duration, duration, r, g, b, a
-				end
-			end
-		end)
-	end
-	return filter
-end
-
 -- ------------------------------------------------------------------------------
 -- Cureable debuff filter
 -- ------------------------------------------------------------------------------
 
+local LibDispellable = GetLib("LibDispellable-1.0")
 oUF:AddAuraFilter("CureableDebuff", function(unit)
-	local alpha, color = 1
-	local name, _, texture, count, debuffType, duration, expirationTime = UnitAura(unit, 1, "HARMFUL|RAID")
-	if name then
-		color = DebuffTypeColor[debuffType or "none"]
-	else
-		for i = 1, 1000 do
-			name, _, texture, count, debuffType, duration, expirationTime = UnitAura(unit, i, "HARMFUL")
-			if not name then
-				return
-			end
-			color = debuffType and DebuffTypeColor[debuffType]
-			if color then
-				alpha = 0.5
+	local alpha = 0.5
+	local texture, count, debuffType, duration, expirationTime
+	for i = 1, math.huge do
+		local thisName, _, thisTexture, thisCount, thisDebuffType, thisDuration, thisExpirationTime = UnitAura(unit, 1, "HARMFUL|RAID")
+		if thisName then
+			if LibDispellable:CanDispell(unit, thisDebuffType) then
+				alpha, texture, count, debuffType, duration, expirationTime = 1, thisTexture, thisCount, thisDebuffType, thisDuration, thisExpirationTime
 				break
+			elseif not texture or ((thisCount or 1) > (count or 0) or (thisExpirationTime and thisExpirationTime > expirationTime)) then
+				texture, count, debuffType, duration, expirationTime = thisTexture, thisCount, thisDebuffType, thisDuration, thisExpirationTime
 			end
+		else
+			break
 		end
 	end
-	return texture, count, expirationTime-duration, duration, color.r, color.g, color.b, alpha
+	if texture then
+		color = DebuffTypeColor[debuffType or "none"]
+		return texture, count, expirationTime-duration, duration, color.r, color.g, color.b, alpha
+	end
 end)
 
 -- ------------------------------------------------------------------------------
