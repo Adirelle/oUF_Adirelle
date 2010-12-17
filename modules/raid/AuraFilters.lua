@@ -123,7 +123,7 @@ oUF:AddAuraFilter("CureableDebuff", function(unit)
 			break
 		end
 	end
-	if texture then
+	if texture and (duration ~= 0 or debuffType) then
 		color = DebuffTypeColor[debuffType or "none"]
 		return texture, count, expirationTime-duration, duration, color.r, color.g, color.b, alpha
 	end
