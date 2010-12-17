@@ -145,38 +145,22 @@ local function Auras_PostCreateIcon(icons, button)
 	button.cd:SetDrawEdge(true)
 end
 
-local CUREABLE_DEBUFF_TYPE = {
-	Curse = (playerClass == "DRUID" or playerClass == "MAGE"),
-	Disease = (playerClass == "PRIEST" or playerClass == "PALADIN" or playerClass == "SHAMAN"),
-	Magic = (playerClass == "PRIEST" or playerClass == "PALADIN" or playerClass == "WARLOCK"),
-	Poison = (playerClass == "DRUID" or playerClass == "PALADIN" or playerClass == "SHAMAN"),
-}
+local LibDispellable = GetLib("LibDispellable-1.0")
 
-local OFFENSIVE_DISPELL = (playerClass == "SHAMAN" or playerClass == "PRIEST" or playerClass == "HUNTER" or playerClass == "WARLOCK")
+local function IsMine(unit)
+	return UnitIsUnit(unit, 'player') or UnitIsUnit(unit, 'pet') or UnitIsUnit(unit, 'vehicle')
+end
 
 local function Buffs_CustomFilter(icons, unit, icon, name, rank, texture, count, dtype, duration, timeLeft, caster, isStealable, shouldConsolidate, spellID)
-	if (unit == "player" or UnitCanAssist("player", unit)) then
-		if InCombatLockdown() and (shouldConsolidate or (duration or 0) == 0) then
-			return false
-		else
-			icon.bigger = (caster == 'player' or caster == 'vehicle' or caster == 'pet')
-		end
-	elseif UnitCanAttack("player", unit) then
-		icon.bigger = (dtype == "Magic" and OFFENSIVE_DISPELL) or (playerClass == "MAGE" and isStealable)
-	else
-		icon.bigger = nil
+	if (unit == "player" or UnitCanAssist("player", unit)) and InCombatLockdown() and (shouldConsolidate or (duration or 0) == 0) then
+		return false
 	end
+	icon.bigger = IsMine(caster) or LibDispellable:CanDispel(unit, dtype)
 	return true
 end
 
 local function Debuffs_CustomFilter(icons, unit, icon, name, rank, texture, count, dtype, duration, timeLeft, caster, isStealable, shouldConsolidate, spellID)
-	if unit == "player" or UnitCanAssist("player", unit) then
-		icon.bigger = dtype and CUREABLE_DEBUFF_TYPE[dtype]
-	elseif UnitCanAttack("player", unit) then
-		icon.bigger = (caster == 'player' or caster == 'vehicle' or caster == 'pet')
-	else
-		icon.bigger = nil
-	end
+	icon.bigger = IsMine(caster) or LibDispellable:CanDispel(unit, dtype)
 	return true
 end
 
