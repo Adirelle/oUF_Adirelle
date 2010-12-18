@@ -21,4 +21,5 @@ externals:
 move-folders:
   oUF_Adirelle/oUF_Adirelle_Raid: oUF_Adirelle_Raid
   oUF_Adirelle/oUF_Adirelle_Single: oUF_Adirelle_Single
+  oUF_Adirelle/oUF_Adirelle_Boss: oUF_Adirelle_Boss
 
