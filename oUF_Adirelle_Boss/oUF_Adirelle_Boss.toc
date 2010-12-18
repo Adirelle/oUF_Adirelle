@@ -1,0 +1,8 @@
+## Interface: 40000
+## Author: Adirelle
+## Version: 1.0
+## Title: oUF_Adirelle - boss unit frames
+## Notes: Unit frames for bosses.
+## RequiredDeps: oUF_Adirelle, oUF_Adirelle_Single
+
+..\oUF_Adirelle\modules\boss\module.xml

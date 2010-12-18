@@ -518,6 +518,7 @@ local DROPDOWN_FRAMES = {
 	pet = "PetFrame",
 	target = "TargetFrame",
 	focus = "FocusFrame",
+	boss = "Boss1TargetFrame",
 }
 
 local DRAGON_TEXTURES = {
@@ -565,8 +566,8 @@ do
 	oUF:AddElement('OptionalCastbar', Update, Enable, Disable)
 end
 
-local function InitFrame(settings, self)
-	local unit = self.unit
+local function InitFrame(settings, self, unit)
+	local unit = gsub(unit or self.unit, "%d+", "")
 
 	self:SetSize(settings['initial-width'], settings['initial-height'])
 
@@ -660,23 +661,23 @@ local function InitFrame(settings, self)
 	local name = SpawnText(health, "OVERLAY", "TOPLEFT", "TOPLEFT", TEXT_MARGIN)
 	name:SetPoint("BOTTOMLEFT", health, "BOTTOMLEFT", TEXT_MARGIN)
 	name:SetPoint("RIGHT", health.Text, "LEFT")
-	self:Tag(name, (unit == "player" or unit == "pet") and "[name]" or "[name][ <>status<>]")
+	self:Tag(name, (unit == "player" or unit == "pet" or unit == "boss") and "[name]" or "[name][ <>status<>]")
 	self.Name = name
 
-	-- Incoming heals
-	--local incomingHeal = CreateFrame("StatusBar", nil, self)
-	--incomingHeal:SetPoint("BOTTOMRIGHT", health)
-	local incomingHeal = health:CreateTexture(nil, "OVERLAY")
-	incomingHeal:SetTexture([[Interface\AddOns\oUF_Adirelle\media\white16x16]])
-	incomingHeal:SetVertexColor(0, 1, 0, 0.5)
-	incomingHeal:SetBlendMode("ADD")
-	incomingHeal:SetPoint("TOP", health)
-	incomingHeal:SetPoint("BOTTOM", health)
-	incomingHeal.PostUpdate = IncomingHeal_PostUpdate
-	incomingHeal.current, incomingHeal.max, incomingHeal.incoming = 0, 0, 0
-	self.IncomingHeal = incomingHeal
+	if unit ~= "boss" then
+		-- Incoming heals
+		local incomingHeal = health:CreateTexture(nil, "OVERLAY")
+		incomingHeal:SetTexture([[Interface\AddOns\oUF_Adirelle\media\white16x16]])
+		incomingHeal:SetVertexColor(0, 1, 0, 0.5)
+		incomingHeal:SetBlendMode("ADD")
+		incomingHeal:SetPoint("TOP", health)
+		incomingHeal:SetPoint("BOTTOM", health)
+		incomingHeal.PostUpdate = IncomingHeal_PostUpdate
+		incomingHeal.current, incomingHeal.max, incomingHeal.incoming = 0, 0, 0
+		self.IncomingHeal = incomingHeal
 
-	health.PostUpdate = Health_PostUpdate
+		health.PostUpdate = Health_PostUpdate
+	end
 
 	-- Used for some overlays
 	local indicators = CreateFrame("Frame", nil, self)
@@ -714,7 +715,7 @@ local function InitFrame(settings, self)
 		end
 
 		-- Casting Bar
-		if unit == 'pet' or unit == 'target' or unit == 'focus' then
+		if unit ~= 'player' then
 			local castbar = CreateFrame("StatusBar", nil, self)
 			castbar:Hide()
 			castbar:SetPoint('BOTTOMRIGHT', power)
@@ -801,40 +802,43 @@ local function InitFrame(settings, self)
 	threat:SetFrameLevel(self:GetFrameLevel()+2)
 	self.Threat = threat
 
-	-- Various indicators
-	self.Leader = SpawnTexture(indicators, 16, "TOP"..left)
-	self.Assistant = SpawnTexture(indicators, 16, "TOP"..left)
-	self.MasterLooter = SpawnTexture(indicators, 16, "TOP"..left, 16*dir)
-	self.Combat = SpawnTexture(indicators, 16, "BOTTOM"..left)
-
-	-- Assigned/guessed raid/party icons, if we have a portrait
-	if self.Portrait then
-		self.RoleIcon = SpawnTexture(indicators, 16)
-		self.RoleIcon:SetPoint("CENTER", self.Portrait, "TOP"..right)
-		self.RoleIcon.noRaidTarget = true
-	end
-
 	-- Raid target icon
 	self.RaidIcon = SpawnTexture(indicators, 16)
 	self.RaidIcon:SetPoint("CENTER", barContainer)
 
+	if unit ~= "boss" then
+		-- Various indicators
+		self.Leader = SpawnTexture(indicators, 16, "TOP"..left)
+		self.Assistant = SpawnTexture(indicators, 16, "TOP"..left)
+		self.MasterLooter = SpawnTexture(indicators, 16, "TOP"..left, 16*dir)
+		self.Combat = SpawnTexture(indicators, 16, "BOTTOM"..left)
+
+		-- Assigned/guessed raid/party icons, if we have a portrait
+		if self.Portrait then
+			self.RoleIcon = SpawnTexture(indicators, 16)
+			self.RoleIcon:SetPoint("CENTER", self.Portrait, "TOP"..right)
+			self.RoleIcon.noRaidTarget = true
+		end
+
+		-- PvP flag
+		if self.Portrait then
+			local pvp = SpawnTexture(indicators, 12)
+			pvp:SetTexCoord(0, 0.6, 0, 0.6)
+			pvp:SetPoint("CENTER", self.Portrait, "BOTTOM"..right)
+			self.PvP = pvp
+		end
+	end
+
 	if unit == "pet" then
+		-- Pet happiness
 		self.Happiness = SpawnTexture(indicators, 16, "BOTTOMRIGHT")
-	end
 
-	if unit == "player" then
+	elseif unit == "player" then
+		-- Player resting status
 		self.Resting = SpawnTexture(indicators, 16, "BOTTOMLEFT")
-	end
 
-	if self.Portrait then
-		local pvp = SpawnTexture(indicators, 12)
-		pvp:SetTexCoord(0, 0.6, 0, 0.6)
-		pvp:SetPoint("CENTER", self.Portrait, "BOTTOM"..right)
-		self.PvP = pvp
-	end
-
-	-- Combo points
-	if unit == "target" or unit == "focus" then
+	elseif unit == "target" then
+		-- Combo points
 		local DOT_SIZE = 10
 		local cpoints = {}
 		for i = 0, 4 do
@@ -857,7 +861,7 @@ local function InitFrame(settings, self)
 		buffs['growth-x'] = "RIGHT"
 		buffs['growth-y'] = "UP"
 
-	elseif unit == "target" or unit == "focus" then
+	elseif unit == "target" or unit == "focus" or unit == "boss" then
 		buffs = CreateFrame("Frame", nil, self)
 		buffs:SetPoint("BOTTOM"..right, self, "BOTTOM"..left, -FRAME_MARGIN*dir, 0)
 		buffs.showType = true
@@ -895,7 +899,7 @@ local function InitFrame(settings, self)
 	end
 
 	-- Classification dragon
-	if unit == "target" or unit == "focus" then
+	if unit == "target" or unit == "focus" or unit == "boss" then
 		local dragon = indicators:CreateTexture(nil, "ARTWORK")
 		local DRAGON_HEIGHT = 45*95/80+2
 		dragon:SetWidth(DRAGON_HEIGHT*117/95)
@@ -954,6 +958,14 @@ local function InitFrame(settings, self)
 
 	-- Range fading
 	self.XRange = true
+
+	-- Special boss events
+	if unit == "boss" then
+		self:RegisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT", self.UpdateAllElements)
+		self:RegisterEvent("UNIT_TARGETABLE_CHANGED", function(_, event, unit)
+			if unit == self.unit then return self:UpdateAllElements()	end
+		end)
+	end
 
 	-- Update layout at least once
 	self:HookScript('OnSizeChanged', UpdateLayout)
