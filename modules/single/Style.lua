@@ -148,7 +148,7 @@ end
 local LibDispellable = GetLib("LibDispellable-1.0")
 
 local function IsMine(unit)
-	return UnitIsUnit(unit, 'player') or UnitIsUnit(unit, 'pet') or UnitIsUnit(unit, 'vehicle')
+	return unit and (UnitIsUnit(unit, 'player') or UnitIsUnit(unit, 'pet') or UnitIsUnit(unit, 'vehicle'))
 end
 
 local function Buffs_CustomFilter(icons, unit, icon, name, rank, texture, count, dtype, duration, timeLeft, caster, isStealable, shouldConsolidate, spellID)
@@ -888,7 +888,7 @@ local function InitFrame(settings, self)
 		debuffs.num = 12
 		debuffs:SetWidth(AURA_SIZE * 12)
 		debuffs:SetHeight(AURA_SIZE)
-		debuffs.CustomFilter = Debuff_CustomFilter
+		debuffs.CustomFilter = Debuffs_CustomFilter
 		debuffs.SetPosition = Auras_SetPosition
 		debuffs.PostCreateIcon = Auras_PostCreateIcon
 		self.Debuffs = debuffs
