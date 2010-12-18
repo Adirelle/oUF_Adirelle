@@ -152,15 +152,13 @@ local function IsMine(unit)
 end
 
 local function Buffs_CustomFilter(icons, unit, icon, name, rank, texture, count, dtype, duration, timeLeft, caster, isStealable, shouldConsolidate, spellID)
-	if UnitCanAssist("player", unit) and InCombatLockdown() and (shouldConsolidate or (duration or 0) == 0) then
-		return false
-	end
 	icon.bigger = IsMine(caster) or LibDispellable:CanDispel(unit, true, dtype, spellID)
 	return true
 end
 
+local canSteal = select(2, UnitClass("player")) == "MAGE"
 local function Debuffs_CustomFilter(icons, unit, icon, name, rank, texture, count, dtype, duration, timeLeft, caster, isStealable, shouldConsolidate, spellID)
-	icon.bigger = IsMine(caster) or LibDispellable:CanDispel(unit, false, dtype, spellID)
+	icon.bigger = IsMine(caster) or LibDispellable:CanDispel(unit, false, dtype, spellID) or (canSteal and isStealable)
 	return true
 end
 
