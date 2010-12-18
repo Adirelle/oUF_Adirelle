@@ -113,7 +113,7 @@ oUF:AddAuraFilter("CureableDebuff", function(unit)
 	for i = 1, math.huge do
 		local thisName, _, thisTexture, thisCount, thisDebuffType, thisDuration, thisExpirationTime, caster = UnitAura(unit, i, "HARMFUL")
 		if thisName and not (caster and UnitCanAssist(caster, unit)) then
-			local thisAlpha = LibDispellable:CanDispel(unit, thisDebuffType) and 1 or 0.5
+			local thisAlpha = LibDispellable:CanDispel(unit, false, thisDebuffType) and 1 or 0.5
 			if not thisCount then thisCount = 0 end
 			if not thisExpirationTime then thisExpirationTime = 0 end
 			if not texture or thisAlpha > alpha or (thisAlpha == alpha and (thisCount > count or (thisCount == count and thisExpirationTime > expirationTime))) then
