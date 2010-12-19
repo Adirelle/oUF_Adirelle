@@ -25,10 +25,10 @@ oUF:Factory(function()
 
 	local boss1, boss2, boss3, boss4 = Spawn("Adirelle_Single_Right", "Boss1", "Boss2", "Boss3", "Boss4")
 
-	boss1:SetPoint("BOTTOM", oUF_Adirelle_Focus, "TOP", 0, -30)
-	boss2:SetPoint("BOTTOM", boss1, "TOP", 0, -15)
-	boss3:SetPoint("BOTTOM", boss2, "TOP", 0, -15)
-	boss4:SetPoint("BOTTOM", boss3, "TOP", 0, -15)
+	boss1:SetPoint("BOTTOM", oUF_Adirelle_Focus, "TOP", 0, 30)
+	boss2:SetPoint("BOTTOM", boss1, "TOP", 0, 15)
+	boss3:SetPoint("BOTTOM", boss2, "TOP", 0, 15)
+	boss4:SetPoint("BOTTOM", boss3, "TOP", 0, 15)
 
 	for frame, unit in next, frames do
 		RegisterMovable(frame, unit, unit.." frame")
