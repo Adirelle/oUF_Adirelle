@@ -21,6 +21,9 @@ do
 	-- Data gathered from various sources, including BigWigs modules, Wowhead, Wowwiki and mmo-champion
 	-- Most are untested too
 	local DEBUFFS_STR = [=[
+		--------------------------------------------------------------------------------
+		-- 3.3 instances and raids
+		--------------------------------------------------------------------------------
 		Forge of Souls
 			Bronhajm
 				Corrupt Soul: 68839 = 100
@@ -125,6 +128,14 @@ do
 		Vault of Archavon
 			Toravon
 				Frostbite: 72004, 72120, 72121 = 100 [>=4]
+		--------------------------------------------------------------------------------
+		-- Cataclysm
+		--------------------------------------------------------------------------------
+		Blackrock Mountain: Blackrock Caverns
+			Corla, Herald of Twilight
+				Evolution: 75610 = 100
+			Karsh Steelbender
+				Superheated Quicksilver Armor: 75846, 93567 = 100
 	]=]
 
 	-- Convert string data to table
