@@ -136,6 +136,15 @@ do
 				Evolution: 75610 = 100
 			Karsh Steelbender
 				Superheated Quicksilver Armor: 75846, 93567 = 100
+		Grim Batol
+			Forgemaster Throngus
+				Impaling Slam: 75056, 90756 = 100
+				Disorienting Roar: 74976, 90737 = 80
+				Burning Flames: 90764 = 100
+		Lost City of the Tol'vir
+			Lockmaw
+				Vicious Poison: 81630, 90004 = 80
+				Scent of Blood: 89998, 81690 = 100
 	]=]
 
 	-- Convert string data to table
