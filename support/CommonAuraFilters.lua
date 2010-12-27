@@ -167,38 +167,27 @@ do
 		end
 	end
 
-	-- Sort the aura by decreasing priority
-	local NAMES = {}
-	do
-		local t = {}
-		for id, prio in pairs(DEBUFFS) do
-			local name = GetSpellInfo(id)
+	local tonumber, UnitDebuff, DebuffTypeColor = tonumber, UnitDebuff, DebuffTypeColor
+	function EncounterDebuff(unit)
+		local texture, count, debuffType, duration, expirationTime
+		local priority = 0
+		local index = 0
+		repeat
+			index = index + 1
+			local name, _, newTexture, newCount, newDebuffType, newDuration, newExpirationTime, _, _, _, spellID, _, isBossDebuff = UnitDebuff(unit, index)
 			if name then
-				if not t[name] then
-					tinsert(NAMES, name)
-					t[name] = prio
-				elseif prio > t[name] then
-					t[name] = prio
+				local newPriority = (isBossDebuff and 10) or (spellID and (not THRESHOLDS[spellID] or (newCount or 0) >= THRESHOLDS[spellID]) and DEBUFFS[spellID])
+				if newPriority and newPriority > priority then
+					priority, texture, count, debuffType, duration, expirationTime = newPriority, newTexture, newCount, newDebuffType, newDuration, newExpirationTime
 				end
 			end
-		end
-		table.sort(NAMES, function(a, b) return (t[a] or 0) > (t[b] or 0) end)
-		t = nil
-	end
-
-	-- First matching debuff wins
-	local tonumber, UnitDebuff, DebuffTypeColor = tonumber, UnitDebuff, DebuffTypeColor
-	local NUM_DEBUFFS = #NAMES
-	function EncounterDebuff(unit)
-		for i = 1, NUM_DEBUFFS do
-			local name, _, texture, count, debuffType, duration, expirationTime, _, _, _, spellId = UnitDebuff(unit, NAMES[i])
-			if spellId and DEBUFFS[spellId] and (not THRESHOLDS[spellId] or count >= THRESHOLDS[spellId]) then
-				local color = DebuffTypeColor[debuffType or "none"]
-				if color then
-					return texture, count, expirationTime-duration, duration, color.r, color.g, color.b
-				else
-					return texture, count, expirationTime-duration, duration
-				end
+		until not name
+		if texture then
+			local color = DebuffTypeColor[debuffType or "none"]
+			if color then
+				return texture, count, expirationTime-duration, duration, color.r, color.g, color.b
+			else
+				return texture, count, expirationTime-duration, duration
 			end
 		end
 	end
