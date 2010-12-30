@@ -24,12 +24,13 @@ do
 		--------------------------------------------------------------------------------
 		-- 3.3 instances and raids
 		--------------------------------------------------------------------------------
-		Forge of Souls
+		Forge of Souls: map(601) {
 			Bronhajm
 				Corrupt Soul: 68839 = 100
 			Devourer of Souls
 				Mirrored Soul: 69051, 69023, 69034 = 100
-		Pit of Saron
+		}
+		Pit of Saron: map(602) {
 			Krick and Ick
 				Pursuit: 68987 = 100
 			Scourgelord Tyrannus
@@ -38,10 +39,12 @@ do
 			Forgemaster Garfrost
 				Permafrost: 68786, 70336 = 100 [>=4]
 				Deep Freeze: 70380, 70384 = 100
-		Halls of Reflection
+		}
+		Halls of Reflection: map(603) {
 			Marwyn
 				Corrupted Touch: 72383, 72450 = 100
-		Ulduar
+		}
+		Ulduar: map(529) {
 			XT-002 Deconstructor
 				Gravity Bomb: 63024, 64234 = 100
 				Seearing Light: 63018, 65121 = 100
@@ -64,7 +67,8 @@ do
 				Squeeze: 64125, 64126 = 80
 				Linked: 63802 = 100
 				Insane: 63120 = 100
-		Coliseum
+		}
+		Coliseum: map(543) {
 			Gormok
 				Impale: 67477, 66331, 67478, 67479 = 100
 				Snobolled: 66406 = 100
@@ -84,7 +88,8 @@ do
 			Anub'arak
 				ColdDebuff: 66013, 67700, 68509, 68510 = 80
 				Pursue: 67574 = 100
-		Icecrown Citadel
+		}
+		Icecrown Citadel: map(604) {
 			Lord Marrowgar
 				Impale: 69065 = 100
 			Lady Deathwhisper
@@ -125,23 +130,27 @@ do
 			The Lich King
 				Infest: 70541, 73779, 73780, 73781 = 80
 				Necrotic Plague: 70337, 73912, 73913, 73914 = 100
-		Vault of Archavon
+		}
+		Vault of Archavon: map(532) {
 			Toravon
 				Frostbite: 72004, 72120, 72121 = 100 [>=4]
+		}
 		--------------------------------------------------------------------------------
 		-- Cataclysm
 		--------------------------------------------------------------------------------
-		Blackrock Mountain: Blackrock Caverns
+		Blackrock Mountain: Blackrock Caverns: map(753) {
 			Corla, Herald of Twilight
 				Evolution: 75610 = 100
 			Karsh Steelbender
 				Superheated Quicksilver Armor: 75846, 93567 = 100
-		Grim Batol
+		}
+		Grim Batol: map(757) {
 			Forgemaster Throngus
 				Impaling Slam: 75056, 90756 = 100
 				Disorienting Roar: 74976, 90737 = 80
 				Burning Flames: 90764 = 100
-		Lost City of the Tol'vir
+		}
+		Lost City of the Tol'vir: map(747) {
 			Trashs
 				Infectious Plague: 82768, 82769 = 100
 			Lockmaw
@@ -149,33 +158,44 @@ do
 				Scent of Blood: 89998, 81690 = 100
 			Siamat
 				Lightning Charge: 93959, 91871 = 100
-		The Deadmines
+		}
+		The Deadmines: map(756) {
 			Helix Gearbreaker
 				Chest Bomb: 88352 = 100
+		}
 	]=]
 
 	-- Convert string data to table
 	local DEBUFFS = {}
 	local THRESHOLDS = {}
-	for def, ids, priority in DEBUFFS_STR:gmatch('((%d[%d%s,]*)%s*=%s*(%d+))') do
-		priority = tonumber(priority)
-		for id in ids:gmatch("(%d+)") do
-			DEBUFFS[tonumber(id)] = priority
+	for mapIDs, debuffs in gmatch(DEBUFFS_STR, 'maps?%(([%d%s,]+)%).-%{(.-)%}') do
+		local t = {}
+		for mapID in gmatch(mapIDs, '(%d+)') do
+			DEBUFFS[tonumber(mapID)] = t
 		end
-	end
-	-- Parse data with a threshold
-	for def, ids, priority, threshold in DEBUFFS_STR:gmatch('((%d[%d%s,]*)%s*=%s*(%d+)%s*%[%s*>=%s*(%d+)%s*%]%s*)') do
-		priority = tonumber(priority)
-		threshold = tonumber(threshold)
-		for id in ids:gmatch("(%d+)") do
-			id = tonumber(id)
-			DEBUFFS[id] = priority
-			THRESHOLDS[id] = threshold
+		-- Simple debuffs
+		for def, ids, priority in gmatch(debuffs, '((%d[%d%s,]*)%s*=%s*(%d+))') do
+			priority = tonumber(priority)
+			for id in gmatch(ids, '(%d+)') do
+				t[tonumber(id)] = priority
+			end
+		end
+		-- Debuffs with threshold
+		for def, ids, priority, threshold in gmatch(debuffs, '((%d[%d%s,]*)%s*=%s*(%d+)%s*%[%s*>=%s*(%d+)%s*%]%s*)') do
+			priority = tonumber(priority)
+			threshold = tonumber(threshold)
+			for id in gmatch(ids, '(%d+)') do
+				id = tonumber(id)
+				t[id] = priority
+				THRESHOLDS[id] = threshold
+			end
 		end
 	end
 
 	local tonumber, UnitDebuff, DebuffTypeColor = tonumber, UnitDebuff, DebuffTypeColor
 	function EncounterDebuff(unit)
+		local debuffs = DEBUFFS[GetCurrentMapAreaID()]
+		if not debuffs then return end
 		local texture, count, debuffType, duration, expirationTime
 		local priority = 0
 		local index = 0
@@ -183,7 +203,7 @@ do
 			index = index + 1
 			local name, _, newTexture, newCount, newDebuffType, newDuration, newExpirationTime, _, _, _, spellID, _, isBossDebuff = UnitDebuff(unit, index)
 			if name then
-				local newPriority = (isBossDebuff and 10) or (spellID and (not THRESHOLDS[spellID] or (newCount or 0) >= THRESHOLDS[spellID]) and DEBUFFS[spellID])
+				local newPriority = (isBossDebuff and 10) or (spellID and (not THRESHOLDS[spellID] or (newCount or 0) >= THRESHOLDS[spellID]) and debuffs[spellID])
 				if newPriority and newPriority > priority then
 					priority, texture, count, debuffType, duration, expirationTime = newPriority, newTexture, newCount, newDebuffType, newDuration, newExpirationTime
 				end
