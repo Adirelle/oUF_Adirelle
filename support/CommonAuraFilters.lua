@@ -142,9 +142,16 @@ do
 				Disorienting Roar: 74976, 90737 = 80
 				Burning Flames: 90764 = 100
 		Lost City of the Tol'vir
+			Trashs
+				Infectious Plague: 82768, 82769 = 100
 			Lockmaw
 				Vicious Poison: 81630, 90004 = 80
 				Scent of Blood: 89998, 81690 = 100
+			Siamat
+				Lightning Charge: 93959, 91871 = 100
+		The Deadmines
+			Helix Gearbreaker
+				Chest Bomb: 88352 = 100
 	]=]
 
 	-- Convert string data to table
