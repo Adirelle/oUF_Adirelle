@@ -158,7 +158,7 @@ local function Buffs_CustomFilter(icons, unit, icon, name, rank, texture, count,
 	elseif UnitCanAssist("player", unit) then
 		icon.bigger = IsMine(caster)
 		if UnitAffectingCombat("player") then
-			return icon.bigger or ((canApplyAura and not shouldConsolidate) and duration > 0)
+			return duration > 0 and (icon.bigger or canApplyAura or not shouldConsolidate)
 		else
 			return true
 		end
