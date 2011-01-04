@@ -348,7 +348,7 @@ local function GetCrowdControlDebuff(unit, ...)
 		local name, _, texture, count, debuffType, duration, expirationTime, _, _, _, spellID = UnitDebuff(unit, index)
 		if spellID and CROWD_CONTROL_IDS[spellID] then
 			local color = DebuffTypeColor[debuffType or "none"]
-			return texture, count, start, duration, color.r, color.g, color.b
+			return texture, count, expirationTime-duration, duration, color.r, color.g, color.b
 		end
 	until not name
 	return EncounterDebuff(unit, ...)
