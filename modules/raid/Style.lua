@@ -225,7 +225,7 @@ do
 				self:AddAuraIcon(
 					SpawnSmallIcon(self, "TOPRIGHT", self, "TOPRIGHT", -INSET - SMALL_ICON_SIZE*(i-1), -INSET),
 					GetOwnStackedAuraFilter(33763, i, 0, 1, 0)
-				)
+				).blinkThreshold = 4
 			end
 			-- Wild Growth
 			self:AddAuraIcon(
@@ -297,7 +297,7 @@ do
 			self:AddAuraIcon(
 				SpawnSmallIcon(self, "TOPRIGHT", self, "TOPRIGHT", -INSET, -INSET),
 				GetOwnAuraFilter(139)
-			)
+			).blinkThreshold = 4
 			-- Prayer of Mending
 			self:AddAuraIcon(
 				SpawnSmallIcon(self, "BOTTOMRIGHT", self, "BOTTOMRIGHT", -INSET, INSET),
