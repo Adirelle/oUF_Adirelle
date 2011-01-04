@@ -223,7 +223,7 @@ do
 end
 
 -- ------------------------------------------------------------------------------
--- PvP control debuff filter
+-- PvP control debuff filter using DRData-1.0
 -- ------------------------------------------------------------------------------
 
 local drdata = GetLib('DRData-1.0')
@@ -309,6 +309,52 @@ if drdata then
 end
 
 -- ------------------------------------------------------------------------------
+-- Crowd Control
+-- ------------------------------------------------------------------------------
+
+local CROWD_CONTROL_IDS = {}
+do
+	local strDef = [=[
+			710 Banish
+		76780 Bind Elemental
+		33786 Cyclone
+			339 Entangling Roots
+		 5782 Fear
+		 3355 Freezing Trap
+		51514 Hex
+		 2637 Hibernate
+			118 Polymorph
+		61305 Polymorph (Black Cat)
+		28272 Polymorph (Pig)
+		61721 Polymorph (Rabbit)
+		61780 Polymorph (Turkey)
+		28271 Polymorph (Turtle)
+		20066 Repentance
+		 6770 Sap
+		 6358 Seduction
+		 9484 Shackle Undead
+		10326 Turn Evil
+		19386 Wyvern Sting
+	]=]
+	for id in gmatch(strDef, "%d+") do
+		CROWD_CONTROL_IDS[tonumber(id)] = true
+	end
+end
+
+local function GetCrowdControlDebuff(unit, ...)
+	local index = 0
+	repeat
+		index = index + 1
+		local name, _, texture, count, debuffType, duration, expirationTime, _, _, _, spellID = UnitDebuff(unit, index)
+		if spellID and CROWD_CONTROL_IDS[spellID] then
+			local color = DebuffTypeColor[debuffType or "none"]
+			return texture, count, start, duration, color.r, color.g, color.b
+		end
+	until not name
+	return EncounterDebuff(unit, ...)
+end
+
+-- ------------------------------------------------------------------------------
 -- Important debuff
 -- ------------------------------------------------------------------------------
 
@@ -318,9 +364,9 @@ if PvPDebuff then
 		if texture then
 			return texture, count, start, duration, r, g, b
 		else
-			return EncounterDebuff(...)
+			return GetCrowdControlDebuff(...)
 		end
 	end)
 else
-	oUF:AddAuraFilter("ImportantDebuff", EncounterDebuff)
+	oUF:AddAuraFilter("ImportantDebuff", GetCrowdControlDebuff)
 end
