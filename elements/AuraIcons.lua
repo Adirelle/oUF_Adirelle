@@ -74,9 +74,10 @@ local function UpdateIcon(self, unit, icon, texture, count, start, duration, r, 
 	icon:SetCooldown(start, duration)
 	icon:SetStack(count)
 	icon:SetColor(r, g, b, a)
-	if self.iconBlinkThreshold and start and duration and duration > 0 and not icon.doNotBlink then
+	local threshold = icon.blinkThreshold or self.iconBlinkThreshold
+	if threshold and start and duration and duration > 0 and not icon.doNotBlink then
 		blinkingFrame = blinkingFrame or CreateBlinkingFrame()
-		blinkingFrame:RegisterIcon(icon, start, duration, self.iconBlinkThreshold)
+		blinkingFrame:RegisterIcon(icon, start, duration, threshold)
 	elseif blinkingFrame then
 		blinkingFrame:UnregisterIcon(icon)
 	end
