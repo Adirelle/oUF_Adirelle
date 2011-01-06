@@ -11,8 +11,8 @@ local oUF = assert(ns.oUF, "oUF is undefined in "..parent.." namespace")
 
 local UnitIsUnit = UnitIsUnit
 local UnitPowerType = UnitPowerType
-local UnitMana = UnitMana
-local UnitManaMax = UnitManaMax
+local UnitPower = UnitPower
+local UnitPowerMax = UnitPowerMax
 
 local function Update(self, event, unit)
 	if unit and unit ~= self.unit then return end
@@ -26,7 +26,7 @@ local function Update(self, event, unit)
 		if not border.noTarget and UnitIsUnit('target', unit) then
 			r, g, b = 1, 1, 1
 		elseif not UnitIsDeadOrGhost(unit) then
-			if UnitPowerType(unit) == 0 and UnitMana(unit) / UnitManaMax(unit) < 0.25 then
+			if UnitPowerType(unit) == SPELL_POWER_MANA and UnitPower(unit, SPELL_POWER_MANA) / UnitPowerMax(unit, SPELL_POWER_MANA) < 0.25 then
 				r, g, b = unpack(oUF.colors.power.MANA)
 			end
 		end
@@ -39,10 +39,16 @@ local function Update(self, event, unit)
 	end
 end
 
+local function PowerUpdate(self, event, unit, power)
+	if power == "MANA" then
+		return Update(self, event, unit)
+	end
+end
+
 local function Enable(self)
 	if self.Border then
-		self:RegisterEvent("UNIT_MANA", Update)
-		self:RegisterEvent("UNIT_MAXMANA", Update)
+		self:RegisterEvent("UNIT_POWER", PowerUpdate)
+		self:RegisterEvent("UNIT_MAXPOWER", PowerUpdate)
 		self:RegisterEvent("PLAYER_TARGET_CHANGED", Update)			
 		self.Border:Hide()
 		return true
@@ -52,8 +58,8 @@ end
 local function Disable(self)
 	local border = self.Border
 	if border then
-		self:UnregisterEvent("UNIT_MANA", Update)
-		self:UnregisterEvent("UNIT_MAXMANA", Update)
+		self:UnregisterEvent("UNIT_POWER", PowerUpdate)
+		self:UnregisterEvent("UNIT_MAXPOWER", PowerUpdate)
 		self:UnregisterEvent("PLAYER_TARGET_CHANGED", Update)			
 		border:Hide()
 	end
