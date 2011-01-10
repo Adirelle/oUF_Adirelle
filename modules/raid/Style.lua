@@ -303,6 +303,11 @@ do
 				SpawnSmallIcon(self, "BOTTOMRIGHT", self, "BOTTOMRIGHT", -INSET, INSET),
 				GetOwnAuraFilter(33076)
 			)
+			-- Lightwell Renew
+			self:AddAuraIcon(
+				SpawnSmallIcon(self, "BOTTOMLEFT", self, "BOTTOMLEFT", INSET, INSET),
+				GetOwnAuraFilter(7001)
+			)
 			-- Display cureable debuffs
 			return true
 		end
