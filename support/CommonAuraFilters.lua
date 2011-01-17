@@ -163,6 +163,21 @@ do
 			Helix Gearbreaker
 				Chest Bomb: 88352 = 100
 		}
+		Blackwing Descent: map(754) {
+			Magmaw
+				Parasitic Infection: 91913, 94678, 94679 = 100
+			Omnotron Defense System
+				Lightning Conductor: 79888, 91431, 91433 = 100
+				Poison Soaked Shell: 91501, 79835, 91503 = 70
+				Fixate: 80094 = 90
+				Acquiring Target: 92036 = 80
+				Flamethrower: 79504, 91537, 91536, 91535 = 100
+			Maloriak
+				Remedy: 77912, 92965, 92967 = 60
+				Consuming Flames: 77786, 92973, 92971 = 80
+				Biting Chill: 77760, 77763, 92975, 92976, 92977 = 80
+				Flash Freeze: 92980, 92978, 77699 = 100
+		}
 	]=]
 
 	-- Convert string data to table
