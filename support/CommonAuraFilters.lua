@@ -173,7 +173,6 @@ do
 				Acquiring Target: 92036 = 80
 				Flamethrower: 79504, 91537, 91536, 91535 = 100
 			Maloriak
-				Remedy: 77912, 92965, 92967 = 60
 				Consuming Flames: 77786, 92973, 92971 = 80
 				Biting Chill: 77760, 77763, 92975, 92976, 92977 = 80
 				Flash Freeze: 92980, 92978, 77699 = 100
