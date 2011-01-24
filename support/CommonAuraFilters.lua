@@ -180,7 +180,7 @@ do
 		Bastion of Twilight: map(758) {
 			Valiona and Theralion
 				Blackout: 92878, 92877, 92876, 86788 = 80
-				Twilight Meteorite: 86013, 92859 = 80
+				Twilight Meteorite: 86013, 92859, 88518 = 80
 				Engulfing Magic: 95641, 95639, 95640, 86622 = 100
 		}
 	]=]
