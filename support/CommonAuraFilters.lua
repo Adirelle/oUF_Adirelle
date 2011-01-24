@@ -178,6 +178,12 @@ do
 				Biting Chill: 77760, 77763, 92975, 92976, 92977 = 80
 				Flash Freeze: 92980, 92978, 77699 = 100
 		}
+		Bastion of Twilight: map(758) {
+			Valiona and Theralion
+				Blackout: 92878, 92877, 92876, 86788 = 80
+				Twilight Meteorite: 86013, 92859 = 80
+				Engulfing Magic: 95641, 95639, 95640, 86622 = 100
+		}
 	]=]
 
 	-- Convert string data to table
