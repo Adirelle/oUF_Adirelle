@@ -108,13 +108,13 @@ end
 
 local LibDispellable = GetLib("LibDispellable-1.0")
 oUF:AddAuraFilter("CureableDebuff", function(unit)
-	local alpha, count, expirationTime = 0.5, 0, 0	
+	local alpha, count, expirationTime = 0.5, 0, 0
 	local texture, debuffType, duration
 	local index = 0
 	repeat
 		index = index + 1
-		local thisName, _, thisTexture, thisCount, thisDebuffType, thisDuration, thisExpirationTime, caster = UnitAura(unit, index, "HARMFUL")
-		if thisName and thisDuration and thisDuration > 0 and (thisDebuffType or not UnitCanAssist(caster or "", unit)) then
+		local thisName, _, thisTexture, thisCount, thisDebuffType, thisDuration, thisExpirationTime, caster, _, _, spellID, _, isBossDebuff = UnitDebuff(unit, index)
+		if thisName and not IsEncounterDebuff(spellID) and not isBossDebuff and thisDuration and thisDuration > 0 and (thisDebuffType or not UnitCanAssist(caster or "", unit)) then
 			local thisAlpha = LibDispellable:CanDispel(unit, false, thisDebuffType) and 1 or 0.5
 			if not thisCount then thisCount = 0 end
 			if not texture or thisAlpha > alpha or (thisAlpha == alpha and (thisCount > count or (thisCount == count and thisExpirationTime > expirationTime))) then
