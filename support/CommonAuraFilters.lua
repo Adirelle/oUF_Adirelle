@@ -186,6 +186,7 @@ do
 	]=]
 
 	-- Convert string data to table
+	local ALL_DEBUFFS = {}
 	local DEBUFFS = {}
 	local THRESHOLDS = {}
 	for mapIDs, debuffs in gmatch(DEBUFFS_STR, 'maps?%(([%d%s,]+)%).-%{(.-)%}') do
@@ -197,7 +198,9 @@ do
 		for def, ids, priority in gmatch(debuffs, '((%d[%d%s,]*)%s*=%s*(%d+))') do
 			priority = tonumber(priority)
 			for id in gmatch(ids, '(%d+)') do
-				t[tonumber(id)] = priority
+				id = tonumber(id)
+				t[id] = priority
+				ALL_DEBUFFS[id] = true
 			end
 		end
 		-- Debuffs with threshold
@@ -208,6 +211,7 @@ do
 				id = tonumber(id)
 				t[id] = priority
 				THRESHOLDS[id] = threshold
+				ALL_DEBUFFS[id] = true
 			end
 		end
 	end
@@ -245,6 +249,10 @@ do
 				return texture, count, expirationTime-duration, duration
 			end
 		end
+	end
+
+	function IsEncounterDebuff(spellID)
+		return spellID and ALL_DEBUFFS[spellID]
 	end
 
 	oUF:AddAuraFilter("EncounterDebuff", EncounterDebuff)
