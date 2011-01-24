@@ -214,21 +214,29 @@ do
 
 	local tonumber, UnitDebuff, DebuffTypeColor = tonumber, UnitDebuff, DebuffTypeColor
 	function EncounterDebuff(unit)
+		if not IsInInstance() then return end
 		local debuffs = DEBUFFS[GetCurrentMapAreaID()]
-		if not debuffs then return end
 		local texture, count, debuffType, duration, expirationTime
-		local priority = 0
 		local index = 0
-		repeat
-			index = index + 1
-			local name, _, newTexture, newCount, newDebuffType, newDuration, newExpirationTime, _, _, _, spellID, _, isBossDebuff = UnitDebuff(unit, index)
-			if name then
-				local newPriority = (isBossDebuff and 10) or (spellID and (not THRESHOLDS[spellID] or (newCount or 0) >= THRESHOLDS[spellID]) and debuffs[spellID])
-				if newPriority and newPriority > priority then
-					priority, texture, count, debuffType, duration, expirationTime = newPriority, newTexture, newCount, newDebuffType, newDuration, newExpirationTime
+		if debuffs then
+			local priority = 0
+			repeat
+				index = index + 1
+				local name, _, newTexture, newCount, newDebuffType, newDuration, newExpirationTime, _, _, _, spellID, _, isBossDebuff = UnitDebuff(unit, index)
+				if name then
+					local newPriority = (isBossDebuff and 10) or (spellID and (not THRESHOLDS[spellID] or (newCount or 0) >= THRESHOLDS[spellID]) and debuffs[spellID])
+					if newPriority and newPriority > priority then
+						priority, texture, count, debuffType, duration, expirationTime = newPriority, newTexture, newCount, newDebuffType, newDuration, newExpirationTime
+					end
 				end
-			end
-		until not name
+			until not name
+		else
+			local _
+			repeat
+				index = index + 1
+				name, _, texture, count, debuffType, duration, expirationTime, _, _, _, _, _, isBossDebuff = UnitDebuff(unit, index)
+			until not name or isBossDebuff
+		end
 		if texture then
 			local color = DebuffTypeColor[debuffType or "none"]
 			if color then
