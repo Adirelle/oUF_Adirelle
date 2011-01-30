@@ -167,21 +167,20 @@ do
 			Magmaw
 				Parasitic Infection: 91913, 94678, 94679 = 100
 			Omnotron Defense System
-				Lightning Conductor: 79888, 91431, 91433 = 100
+				Lightning Conductor: 79888, 91431, 91432, 91433 = 100
 				Poison Soaked Shell: 91501, 79835, 91503 = 70
 				Fixate: 80094 = 90
-				Acquiring Target: 92036 = 80
+				Acquiring Target: 79501, 92035, 92036, 92037 = 80
 				Flamethrower: 79504, 91537, 91536, 91535 = 100
 			Maloriak
-				Consuming Flames: 77786, 92973, 92971 = 80
-				Biting Chill: 77760, 77763, 92975, 92976, 92977 = 80
-				Flash Freeze: 92980, 92978, 77699 = 100
+				Consuming Flames: 77786, 92971, 92972, 92973 = 80
+				Biting Chill: 77760, 92975, 92976, 92977 = 80
+				Flash Freeze: 77699, 92978, 92979, 92980 = 100
 		}
 		Bastion of Twilight: map(758) {
 			Valiona and Theralion
-				Blackout: 92878, 92877, 92876, 86788 = 80
-				Twilight Meteorite: 86013, 92859, 88518 = 80
-				Engulfing Magic: 95641, 95639, 95640, 86622 = 100
+				Blackout: 86788, 92876, 92877, 92878 = 80
+				Engulfing Magic: 86622, 95639, 95640, 95641 = 100
 		}
 	]=]
 
