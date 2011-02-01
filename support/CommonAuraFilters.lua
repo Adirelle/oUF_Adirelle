@@ -405,3 +405,8 @@ if PvPDebuff then
 else
 	oUF:AddAuraFilter("ImportantDebuff", GetCrowdControlDebuff)
 end
+
+if AdiProfiler then
+	AdiProfiler:RegisterFunction(GetCrowdControlDebuff, "oufa:GetCrowdControlDebuff")
+	AdiProfiler:RegisterFunction(EncounterDebuff, "oufa:EncounterDebuff")
+end
