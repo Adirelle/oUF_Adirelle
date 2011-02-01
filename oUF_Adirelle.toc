@@ -24,10 +24,6 @@ oUF\oUF.xml
 # Setup namespace
 oUF_Adirelle.lua
 
-# LibQuickHealth integration
-libs\LibQuickHealth-2.0.lua
-support\QuickHealth.lua
-
 # LibMovable integration
 libs\LibMovable-1.0\LibMovable-1.0.lua
 support\Movable.lua
