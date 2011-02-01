@@ -102,10 +102,41 @@ local function Update(self, event, unit)
 	end
 end
 
+local objects = {}
+local updates = {}
+local frame
+
+local function CreateTimerFrame()
+	local delay = 0
+	frame = CreateFrame("Frame")
+	frame:Hide()
+	frame:SetScript('OnEvent', function(_, _, unit) updates[unit] = true frame:Show() end)
+	frame:SetScript('OnShow', function() delay = 0 end)
+	frame:SetScript('OnUpdate', function(_, elapsed)
+		delay = delay - elapsed
+		if delay < 0 then
+			delay = 0.09
+			for object in next, objects do
+				if updates[object.unit] then
+					Update(object, "UNIT_AURA", object.unit)
+				end
+			end
+			wipe(updates)
+			frame:Hide()
+		end
+	end)	
+end
+
 local function Enable(self)
 	local icons = self.AuraIcons and next(self.AuraIcons)
 	if icons then
-		self:RegisterEvent('UNIT_AURA', Update)
+		if not next(objects) then
+			if not frame then
+				CreateTimerFrame()
+			end
+			frame:RegisterEvent("UNIT_AURA")
+		end
+		objects[self] = true
 		return true
 	end
 end
@@ -113,10 +144,15 @@ end
 local function Disable(self)
 	local icons = self.AuraIcons
 	if icons then
-		self:UnregisterEvent('UNIT_AURA', Update)
 		for icon in pairs(icons) do
 			icon:Hide()
 		end
+		objects[self] = nil
+		if not next(objects) then
+			frame:UnregisterEvent("UNIT_AURA")
+			frame:Hide()
+		end
+		self:UnregisterEvent('UNIT_AURA', Update)
 	end
 end
 
