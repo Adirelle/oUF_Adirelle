@@ -17,8 +17,8 @@ local function Update(self, event, unit)
 	if unit and UnitIsConnected(unit) and not UnitIsDeadOrGhost(unit) then
 		incomingHeals = UnitGetIncomingHeals(unit) or 0
 		if self.IncomingOthersHeal then
-			local myHeals = UnitGetIncomingHeals(unit, "player")
-			if myHeals ~= incomingHeals then
+			local myHeals = UnitGetIncomingHeals(unit, "player") or 0
+			if myHeals > 0 and myHeals < incomingHeals then
 				incomingHeals, incomingOthersHeals = myHeals, incomingHeals - myHeals
 			end
 		end
