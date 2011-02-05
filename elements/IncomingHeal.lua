@@ -7,31 +7,27 @@ All rights reserved.
 local parent, ns = ...
 local oUF = assert(ns.oUF, "oUF is undefined in "..parent.." namespace")
 
-local incomingHeals = {}
-local incomingOthersHeals = {}
-
 local UnitIsConnected = UnitIsConnected
 local UnitIsDeadOrGhost = UnitIsDeadOrGhost
 
 local function Update(self, event, unit)
 	if (unit and unit ~= self.unit) then return end
-	local incomingHeal, incomingOthersHeal = 0, 0
+	local incomingHeals, incomingOthersHeals = 0, 0
 	unit = self.unit or unit
 	if unit and UnitIsConnected(unit) and not UnitIsDeadOrGhost(unit) then
-		incomingHeal = UnitGetIncomingHeals(unit, "player") or 0
-		if self.IncomingOthersHeal and playerHealEndTime then
-			incomingOthersHeal = (UnitGetIncomingHeals(unit) or 0) - incomingHeal
+		incomingHeals = UnitGetIncomingHeals(unit) or 0
+		if self.IncomingOthersHeal then
+			local myHeals = UnitGetIncomingHeals(unit, "player")
+			if myHeals ~= incomingHeals then
+				incomingHeals, incomingOthersHeals = myHeals, incomingHeals - myHeals
+			end
 		end
 	end
-	if incomingHeals[self] ~= incomingHeal or incomingOthersHeals[self] ~= incomingOthersHeal or event == 'PLAYER_ENTERING_WORLD' then
-		incomingHeals[self] = incomingHeal
-		incomingOthersHeals[self] = incomingOthersHeal
-		self.IncomingHeal:PostUpdate(event, unit, incomingHeal, incomingOthersHeal)
-	end
+	self.IncomingHeal:PostUpdate(event, unit, incomingHeals, incomingOthersHeals)
 end
 
 local function Path(self, ...)
-	return (self.Update or Update)(self, ...)
+	return (self.IncomingHeal.Update or Update)(self, ...)
 end
 
 local function ForceUpdate(element)
@@ -48,7 +44,7 @@ local function Enable(self)
 end
 
 local function Disable(self)
-	if objects[self] then
+	if self.IncomingHeal then
 		self:UnregisterEvent("UNIT_HEAL_PREDICTION", Path)
 	end
 end
