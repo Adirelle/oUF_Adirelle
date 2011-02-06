@@ -324,7 +324,7 @@ do
 
 		-- Show important debuffs
 		local importantDebuff = self:SpawnAuraIcon(self.Overlay, ICON_SIZE)
-		self:AddAuraIcon(importantDebuff, "ImportantDebuff")
+		self.WarningIcon = importantDebuff
 
 		local cureableDebuffFilter = CreateClassAuraIcons and CreateClassAuraIcons(self)
 		if cureableDebuffFilter then

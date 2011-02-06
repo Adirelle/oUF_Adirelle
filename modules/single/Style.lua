@@ -638,7 +638,7 @@ local function InitFrame(settings, self, unit)
 		stack:ClearAllPoints()
 		stack:SetPoint("BOTTOMRIGHT", importantDebuff, -1, 1)
 		importantDebuff.Stack:SetFont(GameFontNormal:GetFont(), 14, "OUTLINE")
-		self:AddAuraIcon(importantDebuff, "ImportantDebuff")
+		self.WarningIcon = importantDebuff
 
 		-- Spawn a container frame that spans remaining space
 		barContainer = CreateFrame("Frame", nil, self)
