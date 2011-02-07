@@ -163,8 +163,6 @@ local function Update(self, event, unit)
 			end
 		end
 	until not name
-	self:Debug('Update =>', texture)
-	
 	if texture then
 		local color = DebuffTypeColor[debuffType or "none"]
 		icon:SetTexture(texture)
