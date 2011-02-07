@@ -14,7 +14,6 @@ local function Update(self, event, unit)
 	local bar = self.ThreatBar
 	if GetRealNumPartyMembers() == 0 and GetRealNumRaidMembers() == 0 then return bar:Hide() end
 	local isTanking, status, scaledPercent, rawPercent, threatValue = UnitDetailedThreatSituation("player", self.unit)
-	self:Debug("ThreatBar:Update", event, unit, isTanking, status, scaledPercent, rawPercent, threatValue)
 	if status then 
 		bar:SetValue(scaledPercent)
 		if status > 0 then

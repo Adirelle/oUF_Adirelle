@@ -19,10 +19,8 @@ local function OnUpdate(totem, elapsed)
 end
 
 local function Update(self, event, ...)
-	self:Debug('TotemBar:Update', event, ...)
 	for index, totem in ipairs(self.TotemBar) do
 		local haveTotem, name, start, duration = GetTotemInfo(totem.totemType)
-		self:Debug('TotemBar', index, totem, haveTotem, name, start, duration)
 		if haveTotem and name and name ~= "" then
 			totem:SetMinMaxValues(0, duration)
 			totem:SetValue(start+duration-GetTime())
