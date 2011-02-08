@@ -108,10 +108,16 @@ do
 				Consuming Flames: 77786, 92971, 92972, 92973 = 80
 				Biting Chill: 77760, 92975, 92976, 92977 = 80
 				Flash Freeze: 77699, 92978, 92979, 92980 = 100
+			Chimaeron
+				Break: 82881 = 100
 		Bastion of Twilight
 			Valiona and Theralion
 				Blackout: 86788, 92876, 92877, 92878 = 80
 				Engulfing Magic: 86622, 95639, 95640, 95641 = 100
+		Baradin Hold
+			Argaloth
+				Meteor Slash: 88942, 95172 = 80
+				Consuming Darkness: 88954, 95173 = 100
 		}
 	]=]
 
