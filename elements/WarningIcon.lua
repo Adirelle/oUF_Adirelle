@@ -76,7 +76,7 @@ do
 	local DEBUFFS_STR = [=[
 		Blackrock Mountain: Blackrock Caverns
 			Corla, Herald of Twilight
-				Evolution: 75610 = 100
+				Evolution: 75697, 87378 = 100
 			Karsh Steelbender
 				Superheated Quicksilver Armor: 75846, 93567 = 100
 		Grim Batol
