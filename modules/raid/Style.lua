@@ -378,6 +378,7 @@ local function InitFrame(self, unit)
 	hp.Update = Health_Update
 	hp.current, hp.max = 0, 0
 	hp:SetAllPoints(self)
+	hp.frequentUpdates = true
 	self:RegisterStatusBarTexture(hp, HealthBar_PostTextureUpdate)
 	self.Health = hp
 
