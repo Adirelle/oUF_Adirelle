@@ -68,17 +68,6 @@ oUF:Factory(function()
 				self:SetAttribute('*type2', nil)
 				self:SetWidth(]]..WIDTH..[[)
 				self:SetHeight(header:GetAttribute('unitHeight'))
-				self:SetAttribute('refreshUnitChange', [=[
-					local unit = self:GetAttribute('unit')
-					self:CallMethod('Debug', 'refreshUnitChange', unit)
-					if unit then
-						unit = unit:gsub('petpet', 'pet')
-						if unit ~= self:GetAttribute('unit') then
-							self:CallMethod('Debug', '- fixing unit', self:GetAttribute('unit'), '=>', unit)
-							self:SetAttribute('unit', unit)
-						end
-					end
-				]=])
 			]],
 			"unitHeight", HEIGHT_SMALL,
 			"minHeight", HEIGHT_SMALL,
