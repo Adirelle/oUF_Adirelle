@@ -95,6 +95,9 @@ do
 		The Deadmines
 			Helix Gearbreaker
 				Chest Bomb: 88352 = 100
+		Vortex Pinacle
+			Altairus
+				Downwind of Altairus: 88286 = 100
 		Blackwing Descent
 			Magmaw
 				Parasitic Infection: 91913, 94678, 94679 = 100
