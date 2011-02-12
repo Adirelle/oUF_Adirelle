@@ -525,27 +525,6 @@ local function LayoutBars(self, width, height)
 	self.Health:SetHeight(height)
 end
 
-local DROPDOWN_FRAMES = {
-	player = "PlayerFrame",
-	pet = "PetFrame",
-	target = "TargetFrame",
-	focus = "FocusFrame",
-	boss = "Boss1TargetFrame",
-}
-
-local DRAGON_TEXTURES = {
-	rare  = { [[Interface\Addons\oUF_Adirelle\media\rare_graphic]],  6/128, 123/128, 17/128, 112/128, },
-	elite = { [[Interface\Addons\oUF_Adirelle\media\elite_graphic]], 6/128, 123/128, 17/128, 112/128, },
-}
-
-local function ToggleMenu(self, unit, button, actionType)
-	ToggleDropDownMenu(1, nil, DROPDOWN_MENUS[unit], self:GetName(), 0, 0)
-end
-
-local function OoC_UnitFrame_OnEnter(...)
-	if not InCombatLockdown() then return UnitFrame_OnEnter(...) end
-end
-
 do
 	local function Update(self, event, name)
 		if event == "CVAR_UPDATE" and name ~= "SHOW_TARGET_CASTBAR" then return end
@@ -578,6 +557,51 @@ do
 	oUF:AddElement('OptionalCastbar', Update, Enable, Disable)
 end
 
+-- Based on Xinhuan unit dropdown hack
+local function AdjustMenu(listFrame, point, relativeTo, relativePoint, xOffset, yOffset)
+	local x, y = listFrame:GetCenter()
+	local reposition
+	if (y - listFrame:GetHeight()/2) < 0 then
+		point = gsub(point, "TOP(.*)", "BOTTOM%1")
+		relativePoint = gsub(relativePoint, "BOTTOM(.*)", "TOP%1")
+		reposition = true
+	end
+	if listFrame:GetRight() > GetScreenWidth() then
+		point = gsub(point, "(.*)LEFT", "%1RIGHT")
+		relativePoint = gsub(relativePoint, "(.*)RIGHT", "%1LEFT")
+		reposition = true
+	end
+	if reposition then
+		listFrame:ClearAllPoints()
+		listFrame:SetPoint(point, relativeTo, relativePoint, xOffset, yOffset)
+	end
+end
+
+local function DropDown_PostClick(self)
+	if UIDROPDOWNMENU_OPEN_MENU == self.dropdownFrame and DropDownList1:IsShown() then
+		DropDownList1:ClearAllPoints()
+		DropDownList1:SetPoint("TOPLEFT", self, "BOTTOMLEFT", 0, 0)
+		AdjustMenu(DropDownList1, "TOPLEFT", self, "BOTTOMLEFT", 0, 0)
+	end
+end
+
+local DROPDOWN_FRAMES = {
+	player = "PlayerFrame",
+	pet = "PetFrame",
+	target = "TargetFrame",
+	focus = "FocusFrame",
+	boss = "Boss1TargetFrame",
+}
+
+local DRAGON_TEXTURES = {
+	rare  = { [[Interface\Addons\oUF_Adirelle\media\rare_graphic]],  6/128, 123/128, 17/128, 112/128, },
+	elite = { [[Interface\Addons\oUF_Adirelle\media\elite_graphic]], 6/128, 123/128, 17/128, 112/128, },
+}
+
+local function OoC_UnitFrame_OnEnter(...)
+	if not InCombatLockdown() then return UnitFrame_OnEnter(...) end
+end
+
 local function InitFrame(settings, self, unit)
 	local unit = gsub(unit or self.unit, "%d+", "")
 
@@ -594,12 +618,12 @@ local function InitFrame(settings, self, unit)
 		local dropdownButton = DROPDOWN_FRAMES[unit]
 		if dropdownButton then
 			-- Hacky workaround
-			local f = _G[dropdownButton]
 			self:SetAttribute("*type2", "click")
-			self:SetAttribute("*clickbutton2", f)
-			f:ClearAllPoints()
-			f:SetAllPoints(self)
+			self:SetAttribute("*clickbutton2", _G[dropdownButton])
+			self.dropdownFrame = _G[dropdownButton.."DropDown"]
+			self:HookScript("PostClick", DropDown_PostClick)
 		end
+		
 	end
 
 	self:SetBackdrop(backdrop)
