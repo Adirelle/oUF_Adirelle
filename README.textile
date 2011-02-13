@@ -68,3 +68,6 @@ The following feature are available using libraries:
 * PvP crowd control icons: "DRData-1.0":http://wow.curse.com/downloads/wow-addons/details/drdata-1-0.aspx (provided).
 * guesstimated role icons: LibGuessRole-1.0 (provided).
 
+h2. Known issues
+
+* Clique issue with unit menus: long story short, if you have installed Clique and you cannot open the unit menus by right-clicking them, just remove the "Open unit menu" binding from Clique.
