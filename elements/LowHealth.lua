@@ -14,15 +14,15 @@ local objects = {}
 local threshold -- positive = flat amount, negative = percent, nil = disabled
 
 local function Update(self, event, unit)
-	if (unit and unit ~= self.unit) then return end
+	if (unit and unit ~= self.unit) or not threshold then return end
 	unit = self.unit
 	local visible
-	if UnitIsConnected(unit) and not UnitIsDeadOrGhost(unit) then
+	if UnitIsConnected(unit) and not UnitIsDeadOrGhost(unit) and UnitCanAssist("player", unit) then
 		local health = UnitHealth(unit)
 		if threshold < 0 then
-			visible = floor(health / UnitHealthMax(unit)) < -threshold
+			visible = floor(100 * health / UnitHealthMax(unit)) < -threshold
 		else
-			visible =  health < threshold
+			visible = health < threshold
 		end
 	end
 	if visible then
@@ -52,6 +52,7 @@ local function Enable(self)
 			self:RegisterEvent("UNIT_HEALTH_FREQUENT", Path)
 			self:RegisterEvent("UNIT_MAXHEALTH", Path)
 			self:RegisterEvent("UNIT_CONNECTION", Path)
+			self:RegisterEvent("UNIT_TARGETABLE_CHANGED", Path)
 			return true
 		end
 	end
@@ -63,6 +64,7 @@ local function Disable(self)
 		self:UnregisterEvent("UNIT_HEALTH_FREQUENT", Path)
 		self:UnregisterEvent("UNIT_MAXHEALTH", Path)
 		self:UnregisterEvent("UNIT_CONNECTION", Path)
+		self:UnregisterEvent("UNIT_TARGETABLE_CHANGED", Path)
 	end
 end
 
@@ -76,14 +78,14 @@ _G.SlashCmdList.OUFALOWHEALTH = function(arg)
 	local percent = strmatch(arg, "^(%d+)%s*%%$")
 	if percent then
 		newThreshold = -tonumber(percent)
-		print("oUF_Adirelle LowHealth: threshold set to "..percent.."%")
+		print("|cff33ff99oUF_Adirelle LowHealth:|r threshold set to "..percent.."%.")
 	else
 		local flat, thousands = strmatch(arg, "^(%d+)%s*([kK]?)$")
 		if flat then
 			newThreshold = thousands ~= "" and (1000*tonumber(flat)) or tonumber(flat)
-			print("oUF_Adirelle LowHealth: threshold set to "..newThreshold)
+			print("|cff33ff99oUF_Adirelle LowHealth:|r threshold set to "..newThreshold..".")
 		else
-			print("oUF_Adirelle LowHealth: disabled")
+			print("|cff33ff99oUF_Adirelle LowHealth:|r disabled.")
 		end
 	end
 	if newThreshold ~= threshold then
