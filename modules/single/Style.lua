@@ -614,16 +614,26 @@ local function InitFrame(settings, self, unit)
 
 	if self:CanChangeAttribute() then
 		self:SetAttribute("type", "target")
+	end
 
-		local dropdownButton = DROPDOWN_FRAMES[unit]
-		if dropdownButton then
-			-- Hacky workaround
+	local dropdownButton = DROPDOWN_FRAMES[unit]
+	if dropdownButton then
+		-- Hacky workaround
+		if self:CanChangeAttribute() then
 			self:SetAttribute("*type2", "click")
-			self:SetAttribute("*clickbutton2", _G[dropdownButton])
-			self.dropdownFrame = _G[dropdownButton.."DropDown"]
-			self:HookScript("PostClick", DropDown_PostClick)
+			self:SetAttribute("*clickbutton2", _G[dropdownButton])			
 		end
-		
+		self.dropdownFrame = _G[dropdownButton.."DropDown"]
+		self:HookScript("PostClick", DropDown_PostClick)
+	
+		-- In case some addon overrides our right-click binding
+		local menu = _G[dropdownButton].menu
+		if menu then
+			self.menu = function(...)
+				print("|cff33ff99oUF_Adirelle:|r |cffff0000some third-party addon (Clique ?) overrides the right-click binding. Some of the menu options may fail. Remove that binding or disable the addon to fix this.|r")
+				return menu(...)
+			end
+		end
 	end
 
 	self:SetBackdrop(backdrop)
