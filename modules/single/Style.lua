@@ -621,11 +621,11 @@ local function InitFrame(settings, self, unit)
 		-- Hacky workaround
 		if self:CanChangeAttribute() then
 			self:SetAttribute("*type2", "click")
-			self:SetAttribute("*clickbutton2", _G[dropdownButton])			
+			self:SetAttribute("*clickbutton2", _G[dropdownButton])
 		end
 		self.dropdownFrame = _G[dropdownButton.."DropDown"]
 		self:HookScript("PostClick", DropDown_PostClick)
-	
+
 		-- In case some addon overrides our right-click binding
 		local menu = _G[dropdownButton].menu
 		if menu then
@@ -711,6 +711,12 @@ local function InitFrame(settings, self, unit)
 	self.Name = name
 
 	if unit ~= "boss" then
+		-- Low health indicator
+		local lowHealth = self.Health:CreateTexture(nil, "OVERLAY")
+		lowHealth:SetTexture(1, 0, 0, 0.3)
+		lowHealth:SetAllPoints(self.Health)
+		self.LowHealth = lowHealth
+
 		-- Incoming heals
 		local incomingHeal = health:CreateTexture(nil, "OVERLAY")
 		incomingHeal:SetTexture([[Interface\AddOns\oUF_Adirelle\media\white16x16]])
