@@ -491,6 +491,12 @@ local function InitFrame(self, unit)
 
 	-- Hook OnSizeChanged to layout internal on size change
 	self:HookScript('OnSizeChanged', OnSizeChanged)
+	
+	-- LowHealth warning
+	local lowHealth = self.Health:CreateTexture(nil, "OVERLAY")
+	lowHealth:SetTexture(1, 0, 0, 0.3)
+	lowHealth:SetAllPoints(self.Health)
+	self.LowHealth = lowHealth
 
 	-- Range fading
 	self.XRange = true

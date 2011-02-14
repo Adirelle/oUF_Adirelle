@@ -42,6 +42,7 @@ elements\ComboPoints.lua
 elements\Dragon.lua
 elements\Experience.lua
 elements\IncomingHeal.lua
+elements\LowHealth.lua
 elements\RoleOrIcon.lua
 elements\RuneBar.lua
 elements\StatusIcon.lua
