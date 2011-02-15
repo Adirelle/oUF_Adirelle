@@ -17,18 +17,8 @@ if libmovable then
 	RegisterMovable = function(frame, key, label, mask)
 		postponed[frame] = function() return RegisterMovable(frame, key, label, mask) end
 	end
-
-	-- Load the SV and register postponed movables
-	local frame = CreateFrame("Frame")
-	frame:SetScript('OnEvent', function(self, event, name)
-		if name ~= addonName then return end
-		self:UnregisterEvent('ADDON_LOADED')
-		self:SetScript('OnEvent', nil)
-
-		-- Initialize the database
-		_G.oUF_Adirelle_DB = _G.oUF_Adirelle_DB or {}
-		local db = _G.oUF_Adirelle_DB
-
+	
+	RegisterVariableLoadedCallback(function(db)
 		-- replace RegisterMovable with a function that actually registers the frame
 		RegisterMovable = function(frame, key, label, mask)
 			Debug('Registering movable', frame, key, label, mask)
@@ -40,7 +30,6 @@ if libmovable then
 		for _, func in pairs(postponed) do func()	end
 		postponed = nil
 	end)
-	frame:RegisterEvent('ADDON_LOADED')
 
 	-- Register the slash command
 	_G.SLASH_OUFADIRELLE1 = "/ouf_adirelle"
