@@ -118,15 +118,18 @@ _G.SlashCmdList.OUFALOWHEALTH = function(arg)
 	arg = strlower(strtrim(arg or ""))
 	local percent = tonumber(strmatch(arg, "^(%d+)%s*%%$"))
 	if percent then
-		return SetThreshold(-percent)
-	end
-	local flat, thousands = strmatch(arg, "^(%d+)%s*(k?)$")
-	flat = tonumber(flat)
-	if flat then
-		if thousands ~= "" then
-			flat = flat * 1000
+		if percent >= 0 and percent < 100 then
+			return SetThreshold(-percent)
 		end
-		return SetThreshold(flat)
+	else
+		local flat, thousands = strmatch(arg, "^(%d+)%s*(k?)$")
+		flat = tonumber(flat)
+		if flat and flat >= 0 then
+			if thousands ~= "" then
+				flat = flat * 1000
+			end
+			return SetThreshold(flat)
+		end
 	end
 	if arg == "" then
 		PrintThreshold()
