@@ -24,6 +24,9 @@ oUF\oUF.xml
 # Setup namespace
 oUF_Adirelle.lua
 
+# Handling of saved variable
+support\SavedVariables.lua
+
 # LibMovable integration
 libs\LibMovable-1.0\LibMovable-1.0.lua
 support\Movable.lua
