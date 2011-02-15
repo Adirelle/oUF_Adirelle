@@ -30,6 +30,7 @@ h3. Features common to both group and single unit frames
 * displays important debuff for some PvE encounters (Ulduar, Coliseum and Ice Crown Citadel),
 * fades out of range targets, using spell range checks (which is a bit more accurate than generic range checking),
 * display incoming heals.
+* *New* since 1.6-beta-8: you can use the "/oufa_health" (or "/oufah") chat command to set a health threshold, below which health bars are highlighted. Type "/oufa_health help" for detailled usage. _"/oufa_health 10k" might come handy for Chimaeron fight._
 
 h3. Group unit frames
 
