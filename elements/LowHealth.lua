@@ -70,23 +70,23 @@ end
 
 oUF:AddElement('LowHealth', Path, Enable, Disable)
 
-_G.SLASH_OUFALOWHEALTH1 = "/oufa_health"
-_G.SLASH_OUFALOWHEALTH2 = "/oufah"
-_G.SlashCmdList.OUFALOWHEALTH = function(arg)
-	arg = strtrim(arg or "")
-	local newThreshold
-	local percent = strmatch(arg, "^(%d+)%s*%%$")
-	if percent then
-		newThreshold = -tonumber(percent)
-		print("|cff33ff99oUF_Adirelle LowHealth:|r threshold set to "..percent.."%.")
-	else
-		local flat, thousands = strmatch(arg, "^(%d+)%s*([kK]?)$")
-		if flat then
-			newThreshold = thousands ~= "" and (1000*tonumber(flat)) or tonumber(flat)
-			print("|cff33ff99oUF_Adirelle LowHealth:|r threshold set to "..newThreshold..".")
-		else
-			print("|cff33ff99oUF_Adirelle LowHealth:|r disabled.")
-		end
+local function PrintThreshold()
+	local msg
+	if not threshold then
+		msg = "disabled"
+	elseif threshold < 0 then 
+		msg = format("threshold set to %d%%", -threshold)
+	elseif threshold > 0 then 
+		msg = format("threshold set to %d", threshold)
+	end
+	print("|cff33ff99oUF_Adirelle LowHealth:|r "..msg..".")
+end
+
+local db
+
+local function SetThreshold(newThreshold, stealth)
+	if newThreshold == 0 then
+		newThreshold = nil
 	end
 	if newThreshold ~= threshold then
 		threshold = newThreshold
@@ -101,5 +101,42 @@ _G.SlashCmdList.OUFALOWHEALTH = function(arg)
 			end
 		end
 	end
+	if not stealth then
+		db.LowHealthThreshold = newThreshold
+		PrintThreshold()
+	end
 end
 
+ns.RegisterVariableLoadedCallback(function(dbRef)
+	db = dbRef
+	return SetThreshold(db.LowHealthThreshold, true)
+end)
+
+_G.SLASH_OUFALOWHEALTH1 = "/oufa_health"
+_G.SLASH_OUFALOWHEALTH2 = "/oufah"
+_G.SlashCmdList.OUFALOWHEALTH = function(arg)
+	arg = strlower(strtrim(arg or ""))
+	local percent = tonumber(strmatch(arg, "^(%d+)%s*%%$"))
+	if percent then
+		return SetThreshold(-percent)
+	end
+	local flat, thousands = strmatch(arg, "^(%d+)%s*(k?)$")
+	flat = tonumber(flat)
+	if flat then
+		if thousands ~= "" then
+			flat = flat * 1000
+		end
+		return SetThreshold(flat)
+	end
+	if arg == "" then
+		PrintThreshold()
+	else
+		print("|cff33ff99oUF_Adirelle LowHealth usage:|r")
+		print("- /oufa_health 54321: set health threshold to 54321.")
+		print("- /oufa_health 123k: set health threshold to 123000.")
+		print("- /oufa_health 10%: set health threshold to 10% of total health.")
+		print("- /oufa_health: show the current health threshold.")
+		print("- /oufa_health help|?|usage: show this help.")
+		print("Also work with /oufah.")
+	end
+end
