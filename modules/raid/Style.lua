@@ -493,9 +493,10 @@ local function InitFrame(self, unit)
 	self:HookScript('OnSizeChanged', OnSizeChanged)
 	
 	-- LowHealth warning
-	local lowHealth = self.Health:CreateTexture(nil, "OVERLAY")
-	lowHealth:SetTexture(1, 0, 0, 0.3)
-	lowHealth:SetAllPoints(self.Health)
+	local lowHealth = hp:CreateTexture(nil, "OVERLAY")
+	lowHealth:SetPoint("TOPLEFT", self, -2, 2)
+	lowHealth:SetPoint("BOTTOMRIGHT", self, 2, -2)
+	lowHealth:SetTexture(1, 0, 0, 0.5)
 	self.LowHealth = lowHealth
 
 	-- Range fading
