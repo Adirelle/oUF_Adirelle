@@ -49,6 +49,7 @@ local function Enable(self)
 			objects[self] = true
 		end
 		if threshold then
+			self:RegisterEvent("UNIT_HEALTH", Path)
 			self:RegisterEvent("UNIT_HEALTH_FREQUENT", Path)
 			self:RegisterEvent("UNIT_MAXHEALTH", Path)
 			self:RegisterEvent("UNIT_CONNECTION", Path)
@@ -61,6 +62,7 @@ end
 local function Disable(self)
 	if self.LowHealth then
 		self.LowHealth:Hide()
+		self:UnregisterEvent("UNIT_HEALTH", Path)
 		self:UnregisterEvent("UNIT_HEALTH_FREQUENT", Path)
 		self:UnregisterEvent("UNIT_MAXHEALTH", Path)
 		self:UnregisterEvent("UNIT_CONNECTION", Path)
