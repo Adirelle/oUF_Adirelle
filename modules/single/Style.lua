@@ -712,9 +712,10 @@ local function InitFrame(settings, self, unit)
 
 	if unit ~= "boss" then
 		-- Low health indicator
-		local lowHealth = self.Health:CreateTexture(nil, "OVERLAY")
-		lowHealth:SetTexture(1, 0, 0, 0.3)
-		lowHealth:SetAllPoints(self.Health)
+		local lowHealth = self:CreateTexture(nil, "OVERLAY")
+		lowHealth:SetPoint("TOPLEFT", self, -2, 2)
+		lowHealth:SetPoint("BOTTOMRIGHT", self, 2, -2)
+		lowHealth:SetTexture(1, 0, 0, 0.4)
 		self.LowHealth = lowHealth
 
 		-- Incoming heals
