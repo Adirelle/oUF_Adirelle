@@ -501,6 +501,47 @@ local function Power_PostUpdate(power, unit, min, max)
 	end
 end
 
+local function AltPowerBar_PostUpdate(bar, min, cur, max)
+	local unit = bar.__owner.unit
+	bar.__owner:Debug('AltPowerBar_PostUpdate', bar, unit, min, cur, max)
+	if not unit then return end
+	bar.Label:SetText(select(10, UnitAlternatePowerInfo(unit)))
+	local _, r, g, b = UnitAlternatePowerTextureInfo(unit, 2)
+	local c = bar.textureColor
+	if c[1] ~= r or c[2] ~= g or c[3] ~= b then
+		bar.__owner:Debug('AltPowerBar_PostUpdate', r, g, b)
+		c[1], c[2], c[3] = r, g, b
+		bar:SetStatusBarColor(r, g, b)
+	end
+end
+
+-- Additional auxiliary bars
+local function LayoutAuxiliaryBars(self)
+	local bars = self.AuxiliaryBars
+	local anchor = self
+	for i, bar in ipairs(self.AuxiliaryBars) do
+		if bar:IsShown() then
+			bar:SetPoint("TOP", anchor, "BOTTOM", 0, -FRAME_MARGIN)
+			anchor = bar
+		end
+	end
+end
+
+local function LayoutAuxiliaryBars_Hook(bar)
+	 return LayoutAuxiliaryBars(bar.__mainFrame)
+end
+
+local function AddAuxiliaryBar(self, bar)
+	if not self.AuxiliaryBars then
+		self.AuxiliaryBars = {}
+	end
+	tinsert(self.AuxiliaryBars, bar)
+	bar.__mainFrame = self
+	bar:HookScript('OnShow', LayoutAuxiliaryBars_Hook)
+	bar:HookScript('OnHide', LayoutAuxiliaryBars_Hook)
+end
+
+-- General bar layuot
 local function LayoutBars(self, width, height)
 	if width == 0 or height == 0 then return end
 	self.Border:SetWidth(width + 2 * BORDER_WIDTH)
@@ -523,6 +564,9 @@ local function LayoutBars(self, width, height)
 		height = height - totalPowerHeihgt - GAP
 	end
 	self.Health:SetHeight(height)
+	if self.AuxiliaryBars then
+		LayoutAuxiliaryBars(self)
+	end
 end
 
 do
@@ -820,7 +864,6 @@ local function InitFrame(settings, self, unit)
 	if unit == "target" then
 		-- Add a simple threat bar on the target
 		local threatBar = SpawnStatusBar(self, false)
-		threatBar:SetPoint("TOPRIGHT", self, "BOTTOMRIGHT", 0, -FRAME_MARGIN)
 		threatBar:SetBackdrop(backdrop)
 		threatBar:SetBackdropColor(0,0,0,backdrop.bgAlpha)
 		threatBar:SetBackdropBorderColor(0,0,0,1)
@@ -843,6 +886,7 @@ local function InitFrame(settings, self, unit)
 			end
 		end
 		self.ThreatBar = threatBar
+		AddAuxiliaryBar(self, threatBar)
 	end
 
 	-- Threat glow
@@ -966,8 +1010,9 @@ local function InitFrame(settings, self, unit)
 	-- Experience Bar for player
 	if unit == "player" then
 		local xpFrame = CreateFrame("Frame", nil, self)
-		xpFrame:SetPoint("TOPLEFT", self, "BOTTOMLEFT", 0, -FRAME_MARGIN)
-		xpFrame:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", 0, -FRAME_MARGIN-12)
+		xpFrame:SetPoint("TOP")
+		xpFrame:SetPoint("RIGHT")
+		xpFrame:SetHeight(12)
 		xpFrame:SetBackdrop(backdrop)
 		xpFrame:SetBackdropColor(0,0,0,backdrop.bgAlpha)
 		xpFrame:SetBackdropBorderColor(0,0,0,1)
@@ -1007,6 +1052,7 @@ local function InitFrame(settings, self, unit)
 		xpBar:SetFrameLevel(restedBar:GetFrameLevel()+1)
 
 		self.ExperienceBar = xpBar
+		AddAuxiliaryBar(self, xpBar)
 	end
 
 	-- Range fading
@@ -1018,6 +1064,28 @@ local function InitFrame(settings, self, unit)
 		self:RegisterEvent("UNIT_TARGETABLE_CHANGED", function(_, event, unit)
 			if unit == self.unit then return self:UpdateAllElements()	end
 		end)
+	end
+
+	-- Altenate power bar (e.g. sound on Atramedes, or poison on Isorath)
+	if unit == "player" or unit == "target" then
+
+		local altPowerBar = SpawnStatusBar(self)
+		altPowerBar:SetBackdrop(backdrop)
+		altPowerBar:SetBackdropColor(0,0,0,backdrop.bgAlpha)
+		altPowerBar:SetBackdropBorderColor(0,0,0,1)
+		altPowerBar:SetPoint("LEFT")
+		altPowerBar:SetPoint("RIGHT")
+		altPowerBar:SetHeight(12)
+		altPowerBar.showOthersAnyway = true
+		altPowerBar.textureColor = { 1, 1, 1, 1 }
+		altPowerBar.PostUpdate = AltPowerBar_PostUpdate
+
+		local label = SpawnText(altPowerBar, "OVERLAY", "TOPLEFT", "TOPLEFT", TEXT_MARGIN, 0)
+		label:SetPoint("RIGHT", altPowerBar.Text, "LEFT", -TEXT_MARGIN, 0)
+		altPowerBar.Label = label
+
+		self.AltPowerBar = altPowerBar
+		AddAuxiliaryBar(self, altPowerBar)
 	end
 
 	-- Update layout at least once
