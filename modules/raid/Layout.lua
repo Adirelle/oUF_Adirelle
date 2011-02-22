@@ -43,12 +43,6 @@ oUF:Factory(function()
 		mask:SetWidth(SPACING * 4 + WIDTH * 5)
 		mask:SetHeight(SPACING * 7 + HEIGHT_SMALL * 8)
 		RegisterMovable(anchor, 'anchor', "Party/raid frames", mask)
-		
-		-- The group frames likely overlap the PlayerPowerBarAlt, so allow to move it
-		local mask2 = CreateFrame("Frame", nil, PlayerPowerBarAlt)
-		mask2:SetPoint("CENTER")
-		mask2:SetSize(32, 32)
-		RegisterMovable(_G.PlayerPowerBarAlt, "PlayerPowerBarAlt", "Alternate power bar", mask2)
 	end
 
 	--------------------------------------------------------------------------------
