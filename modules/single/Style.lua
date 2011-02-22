@@ -503,13 +503,11 @@ end
 
 local function AltPowerBar_PostUpdate(bar, min, cur, max)
 	local unit = bar.__owner.unit
-	bar.__owner:Debug('AltPowerBar_PostUpdate', bar, unit, min, cur, max)
 	if not unit then return end
 	bar.Label:SetText(select(10, UnitAlternatePowerInfo(unit)))
 	local _, r, g, b = UnitAlternatePowerTextureInfo(unit, 2)
 	local c = bar.textureColor
 	if c[1] ~= r or c[2] ~= g or c[3] ~= b then
-		bar.__owner:Debug('AltPowerBar_PostUpdate', r, g, b)
 		c[1], c[2], c[3] = r, g, b
 		bar:SetStatusBarColor(r, g, b)
 	end

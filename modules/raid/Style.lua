@@ -346,6 +346,30 @@ do
 end
 
 -- ------------------------------------------------------------------------------
+-- Alternate Power Bar
+-- ------------------------------------------------------------------------------
+
+local function AltPowerBar_Update(bar)
+	local unit = bar.__owner.unit
+	if not unit then return end
+	local _, r, g, b = UnitAlternatePowerTextureInfo(unit, 2)
+	local c = bar.textureColor
+	if c[1] ~= r or c[2] ~= g or c[3] ~= b then
+		c[1], c[2], c[3] = r, g, b
+		bar:SetStatusBarColor(r, g, b)
+	end
+end
+
+local function AltPowerBar_Layout(bar)
+	local self = bar.__owner
+	if bar:IsShown() then
+		self.Health:SetPoint("BOTTOMRIGHT", bar, "TOPRIGHT", 0, 0)
+	else
+		self.Health:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", 0, 0)
+	end
+end
+
+-- ------------------------------------------------------------------------------
 -- Unit frame initialization
 -- ------------------------------------------------------------------------------
 
@@ -377,7 +401,8 @@ local function InitFrame(self, unit)
 	local hp = CreateFrame("StatusBar", nil, self)
 	hp.Update = Health_Update
 	hp.current, hp.max = 0, 0
-	hp:SetAllPoints(self)
+	hp:SetPoint("TOPLEFT")
+	hp:SetPoint("BOTTOMRIGHT")
 	hp.frequentUpdates = true
 	self:RegisterStatusBarTexture(hp, HealthBar_PostTextureUpdate)
 	self.Health = hp
@@ -491,13 +516,28 @@ local function InitFrame(self, unit)
 
 	-- Hook OnSizeChanged to layout internal on size change
 	self:HookScript('OnSizeChanged', OnSizeChanged)
-	
+
 	-- LowHealth warning
 	local lowHealth = hp:CreateTexture(nil, "OVERLAY")
 	lowHealth:SetPoint("TOPLEFT", self, -2, 2)
 	lowHealth:SetPoint("BOTTOMRIGHT", self, 2, -2)
 	lowHealth:SetTexture(1, 0, 0, 0.5)
 	self.LowHealth = lowHealth
+
+	-- AltPowerBar
+	local altPowerBar = CreateFrame("StatusBar", nil, self)
+	altPowerBar:SetPoint("BOTTOMLEFT")
+	altPowerBar:SetPoint("BOTTOMRIGHT")
+	altPowerBar:SetHeight(4)
+	altPowerBar:Hide()
+	altPowerBar.textureColor = { 1, 1, 1, 1 }
+	altPowerBar.showOthersAnyway = true
+	altPowerBar.PostUpdate = AltPowerBar_Update
+	altPowerBar:SetScript('OnShow', AltPowerBar_Layout)
+	altPowerBar:SetScript('OnHide', AltPowerBar_Layout)
+	altPowerBar:SetFrameLevel(threat:GetFrameLevel()+1)
+	self:RegisterStatusBarTexture(altPowerBar)
+	self.AltPowerBar = altPowerBar
 
 	-- Range fading
 	self.XRange = true
