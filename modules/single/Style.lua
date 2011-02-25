@@ -1050,7 +1050,7 @@ local function InitFrame(settings, self, unit)
 		xpBar:SetFrameLevel(restedBar:GetFrameLevel()+1)
 
 		self.ExperienceBar = xpBar
-		AddAuxiliaryBar(self, xpBar)
+		AddAuxiliaryBar(self, xpFrame)
 	end
 
 	-- Range fading
