@@ -119,7 +119,6 @@ do
 				Engulfing Magic: 86622, 95639, 95640, 95641 = 100
 		Baradin Hold
 			Argaloth
-				Meteor Slash: 88942, 95172 = 80
 				Consuming Darkness: 88954, 95173 = 100
 		}
 	]=]
