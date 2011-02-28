@@ -349,10 +349,11 @@ end
 -- Alternate Power Bar
 -- ------------------------------------------------------------------------------
 
-local function AltPowerBar_Update(bar)
+local function AltPowerBar_Update(bar, min, cur, max)
 	local unit = bar.__owner.unit
 	if not unit then return end
-	local _, r, g, b = UnitAlternatePowerTextureInfo(unit, 2)
+	local _, powerRed, powerGreen, powerBlue = UnitAlternatePowerTextureInfo(unit, 2)
+	local r, g, b = oUF.ColorGradient((cur-min)/(max-min), powerRed, powerGreen, powerBlue, 1, 0, 0)
 	local c = bar.textureColor
 	if c[1] ~= r or c[2] ~= g or c[3] ~= b then
 		c[1], c[2], c[3] = r, g, b
