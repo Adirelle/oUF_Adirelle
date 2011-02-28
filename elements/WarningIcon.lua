@@ -176,7 +176,7 @@ local function Update(self, event, unit)
 		icon:SetTexture(texture)
 		icon:SetCooldown(expirationTime-duration, duration)
 		icon:SetStack(count or 0)		
-		icon:SetBackdropBorderColor(color.r, color.g, color.b)
+		icon:SetColor(color.r, color.g, color.b)
 		icon:Show()
 	else
 		icon:Hide()
