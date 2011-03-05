@@ -152,7 +152,7 @@ oUF:Factory(function()
 			anchor:UnregisterEvent('PLAYER_REGEN_ENABLED')
 		end
 
-		if GetPlayerRole() == "healer" then
+		if GetPlayerRole() == "HEALER" then
 			anchor:Debug("UpdateHeightDriver, healer => dynamic height")
 			RegisterStateDriver(anchor, "height", healerHeightExpr)
 		else
