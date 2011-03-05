@@ -204,7 +204,7 @@ end
 local CreateAuraIcons
 do
 	local INSET, SMALL_ICON_SIZE = 1, 8
-	local function SpawnSmallIcon(self, ...) return self:SpawnAuraIcon(self.Overlay, SMALL_ICON_SIZE, true, true, true, false, ...)	end
+	local function SpawnSmallIcon(self, ...) return self:CreateIcon(self.Overlay, SMALL_ICON_SIZE, true, true, true, false, ...)	end
 
 	-- Create the specific icons depending on player class
 	local CreateClassAuraIcons
@@ -319,17 +319,17 @@ do
 		self.iconBlinkThreshold = 3
 
 		-- Show important class buffs
-		local importantBuff = self:SpawnAuraIcon(self.Overlay, ICON_SIZE)
+		local importantBuff = self:CreateIcon(self.Overlay, ICON_SIZE)
 		self:AddAuraIcon(importantBuff, "ClassImportantBuff")
 
 		-- Show important debuffs
-		local importantDebuff = self:SpawnAuraIcon(self.Overlay, ICON_SIZE)
+		local importantDebuff = self:CreateIcon(self.Overlay, ICON_SIZE)
 		self.WarningIcon = importantDebuff
 
 		local cureableDebuffFilter = CreateClassAuraIcons and CreateClassAuraIcons(self)
 		if cureableDebuffFilter then
 			-- Show cureable debuffs
-			local debuff = self:SpawnAuraIcon(self.Overlay, ICON_SIZE)
+			local debuff = self:CreateIcon(self.Overlay, ICON_SIZE)
 			self:AddAuraIcon(debuff, "CureableDebuff")
 
 			-- Layout icons

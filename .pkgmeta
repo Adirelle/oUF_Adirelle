@@ -23,3 +23,6 @@ move-folders:
   oUF_Adirelle/oUF_Adirelle_Single: oUF_Adirelle_Single
   oUF_Adirelle/oUF_Adirelle_Boss: oUF_Adirelle_Boss
 
+ignore:
+  - media/*.png
+

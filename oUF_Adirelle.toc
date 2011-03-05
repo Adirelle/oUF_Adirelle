@@ -34,6 +34,9 @@ support\Movable.lua
 # Texture helper
 support\StatusBarTexture.lua
 
+# Icon helper
+support\CreateIcon.lua
+
 # Player role detection
 libs\LibGuessRole-1.0\LibGuessRole-1.0.lua
 support\PlayerRole.lua
