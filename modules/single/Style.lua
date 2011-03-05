@@ -709,7 +709,7 @@ local function InitFrame(settings, self, unit)
 		self.Portrait = portrait
 
 		-- Create an icon displaying important debuffs (either PvP or PvE) all over the portrait
-		local importantDebuff = self:SpawnAuraIcon(portrait)
+		local importantDebuff = self:CreateIcon(portrait)
 		importantDebuff:SetAllPoints(portrait)
 		local stack = importantDebuff.Stack
 		stack:ClearAllPoints()
