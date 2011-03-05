@@ -69,9 +69,9 @@ oUF:RegisterMetaFunction('CreateIcon', function(self, parent, size, noCooldown, 
 	icon.alpha = 1.0
 
 	if not noTexture then
-		local texture = icon:CreateTexture(nil, "BACKGROUND")
+		local texture = icon:CreateTexture(nil, "ARTWORK")
 		texture:SetAllPoints(icon)
-		texture:SetTexCoord(0.05, 0.95, 0.05, 0.95)
+		texture:SetTexCoord(4/64, 60/64, 4/64, 60/64)
 		texture:SetTexture(1,1,1,0)
 		icon.Texture = texture
 		icon.SetTexture = SetTexture
@@ -91,8 +91,8 @@ oUF:RegisterMetaFunction('CreateIcon', function(self, parent, size, noCooldown, 
 	end
 
 	if not noStack then
-		local stack = (icon.Cooldown or icon):CreateFontString(nil, "ARTWORK", "NumberFontNormal")
-		stack:SetAllPoints(icon.Texture or icon)
+		local stack = (icon.Cooldown or icon):CreateFontString(nil, "OVERLAY", "NumberFontNormal")
+		stack:SetPoint("CENTER", icon.Texture or icon)
 		stack:SetJustifyH("CENTER")
 		stack:SetJustifyV("MIDDLE")
 		stack:SetFont(NumberFontNormal:GetFont(), 10, "OUTLINE")
@@ -105,7 +105,7 @@ oUF:RegisterMetaFunction('CreateIcon', function(self, parent, size, noCooldown, 
 	end
 
 	if not noBorder then
-		local border = icon:CreateTexture(nil, "OVERLAY")
+		local border = (icon.Cooldown or icon):CreateTexture(nil, "OVERLAY")
 		border:SetAllPoints(icon)
 		border:SetTexture([[Interface\AddOns\oUF_Adirelle\media\icon_border]])
 		border:Hide()

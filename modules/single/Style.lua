@@ -139,10 +139,18 @@ if oUF.HasIncomingHeal then
 end
 
 local function Auras_PostCreateIcon(icons, button)
-	button.icon:SetTexCoord(0.05, 0.95, 0.05, 0.95)
-	button.cd.noCooldownCount = true
-	button.cd:SetReverse(true)
-	button.cd:SetDrawEdge(true)
+	local cd, count, overlay = button.cd, button.count, button.overlay
+	button.icon:SetTexCoord(4/64, 60/64, 4/64, 60/64)
+	count:SetParent(cd)
+	count:SetAllPoints(button)
+	count:SetJustifyH("RIGHT")
+	count:SetJustifyV("BOTTOM")
+	overlay:SetParent(cd)
+	overlay:SetTexture([[Interface\AddOns\oUF_Adirelle\media\icon_border]])
+	overlay:SetTexCoord(0, 1, 0, 1)
+	cd.noCooldownCount = true
+	cd:SetReverse(true)
+	cd:SetDrawEdge(true)
 end
 
 local LibDispellable = GetLib("LibDispellable-1.0")
@@ -190,7 +198,7 @@ do
 
 	function Auras_SetPosition(icons, numIcons)
 		if not icons or numIcons == 0 then return end
-		local spacing = icons.spacing or 0
+		local spacing = icons.spacing or 1
 		local size = icons.size or 16
 		local anchor = icons.initialAnchor or "BOTTOMLEFT"
 		local growthx = (icons["growth-x"] == "LEFT" and -1) or 1
