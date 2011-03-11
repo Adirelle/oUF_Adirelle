@@ -27,17 +27,19 @@ local function UpdatePlayerRole(event)
 		-- All others
 		role = GetTalentTreeRoles(primaryTree)
 	end
-	if role ~= current then
-		oUF:Debug("Player role changed from", current, "to", role)
-		current = role
-		for callback in pairs(callbacks) do
-			local ok, msg = pcall(callback, role)
-			if not ok then geterrorhandler()(msg) end
+	if role and role ~= "NONE" then
+		if role ~= current then
+			oUF:Debug("Player role changed from", current, "to", role)
+			current = role
+			for callback in pairs(callbacks) do
+				local ok, msg = pcall(callback, role)
+				if not ok then geterrorhandler()(msg) end
+			end
 		end
-	end
-	if inRaid and UnitGroupRolesAssigned("player") ~= role then
-		oUF:Debug("Setting raid role to", role, "on", event)
-		UnitSetRole("player", role)
+		if inRaid and UnitGroupRolesAssigned("player") ~= role then
+			oUF:Debug("Setting raid role to", role, "on", event)
+			UnitSetRole("player", role)
+		end
 	end
 	return current
 end
