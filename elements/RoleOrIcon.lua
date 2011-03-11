@@ -18,7 +18,7 @@ local UnitIsPlayer = UnitIsPlayer
 local UnitGroupRolesAssigned = UnitGroupRolesAssigned
 local GetRealNumRaidMembers = GetRealNumRaidMembers
 
-local function GetRole(unit, noDamager)
+local function GetRole(unit, noDamager, noCircle)
 	if not UnitIsPlayer(unit) then return end
 
 	-- Check assigned raid roles
@@ -38,7 +38,12 @@ local function GetRole(unit, noDamager)
 		if noDamager and role == "DAMAGER" then
 			return
 		end
-		return [[Interface\LFGFrame\UI-LFG-ICON-PORTRAITROLES]], GetTexCoordsForRoleSmallCircle(role)
+		if noCircle then
+			local x0, x1, y0, y1 = GetTexCoordsForRoleSmall(role)
+			return [[Interface\LFGFrame\LFGRole_bw]], x0, x1, y0, y1, 1, 0.82, 0
+		else
+			return [[Interface\LFGFrame\UI-LFG-ICON-PORTRAITROLES]], GetTexCoordsForRoleSmallCircle(role)
+		end
 	end
 end
 
@@ -56,7 +61,7 @@ local function Update(self, event, unit)
 	end
 
 	-- Check role
-	local texture, x0, x1, y0, y1, r, g, b = GetRole(self.unit, icon.noDamager)
+	local texture, x0, x1, y0, y1, r, g, b = GetRole(self.unit, icon.noDamager, icon.noCircle)
 	if texture then
 		icon:SetTexture(texture)
 		icon:SetVertexColor(r or 1, g or 1, b or 1, 1)

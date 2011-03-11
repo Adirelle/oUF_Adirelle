@@ -513,6 +513,7 @@ local function InitFrame(self, unit)
 	roleIcon:SetHeight(8)
 	roleIcon:SetPoint("LEFT", self, INSET, 0)
 	roleIcon.noDamager = true
+	roleIcon.noCircle = true
 	self.RoleIcon = roleIcon
 
 	-- Hook OnSizeChanged to layout internal on size change
