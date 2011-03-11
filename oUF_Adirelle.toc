@@ -3,7 +3,7 @@
 ## Version: @project-version@
 ## Title: oUF_Adirelle - core
 ## Notes: Adirelle's unit frames, based on haste's oUF.
-## OptionalDeps: LibSharedMedia-3.0, LibMovable-1.0, LibDispellable-1.0, SharedMedia, SharedMedia_MyMedia, !SurfaceControl, !ClassColors, LibGuessRole-1.0, DRData-1.0, AdiDebug, AdiProfiler
+## OptionalDeps: LibSharedMedia-3.0, LibMovable-1.0, LibDispellable-1.0, SharedMedia, SharedMedia_MyMedia, !SurfaceControl, !ClassColors, DRData-1.0, AdiDebug, AdiProfiler
 ## SavedVariables: oUF_Adirelle_DB
 ## LoadOnDemand: 1
 
@@ -39,7 +39,6 @@ support\StatusBarTexture.lua
 support\CreateIcon.lua
 
 # Player role detection
-libs\LibGuessRole-1.0\LibGuessRole-1.0.lua
 support\PlayerRole.lua
 
 # Our elements

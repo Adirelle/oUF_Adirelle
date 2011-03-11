@@ -18,9 +18,6 @@ local UnitIsPlayer = UnitIsPlayer
 local UnitGroupRolesAssigned = UnitGroupRolesAssigned
 local GetRealNumRaidMembers = GetRealNumRaidMembers
 
-local LibGuessRole = ns.GetLib('LibGuessRole-1.0')
-local ROLE_TANK, ROLE_HEALER = LibGuessRole.ROLE_TANK, LibGuessRole.ROLE_HEALER
-
 local function GetRole(unit, noDamager)
 	if not UnitIsPlayer(unit) then return end
 
@@ -42,16 +39,6 @@ local function GetRole(unit, noDamager)
 			return
 		end
 		return [[Interface\LFGFrame\UI-LFG-ICON-PORTRAITROLES]], GetTexCoordsForRoleSmallCircle(role)
-	end
-
-	-- Fallback on LibGuessRole
-	local role, level = LibGuessRole:GetUnitRole(unit)
-	if role then
-		--Debug('LibGuessRole:GetUnitRole for', unit, ':', role, level)
-		local index = (role == ROLE_TANK and 3) or (role == ROLE_HEALER and 4) or (not noDamager and 2)
-		if index then
-			return [[Interface\LFGFrame\LFGRole_BW]], (index-1)/4, index/4, 0, 1, 1, 0.82, 0
-		end
 	end
 end
 
@@ -100,7 +87,6 @@ local function Enable(self)
 		self:RegisterEvent("RAID_TARGET_UPDATE", Path)
 		self:RegisterEvent('RAID_ROSTER_UPDATE', Path)
 		self:RegisterEvent('PLAYER_ROLES_ASSIGNED', Path)
-		LibGuessRole.RegisterCallback(self, "LibGuessRole_RoleChanged", RoleChanged, self)
 		self.RoleIcon:Hide()
 		return true
 	end
@@ -114,7 +100,6 @@ local function Disable(self)
 		self:UnregisterEvent("RAID_TARGET_UPDATE", Path)
 		self:UnregisterEvent('LFG_ROLE_UPDATE', Path)
 		self:UnregisterEvent('PLAYER_ROLES_ASSIGNED', Path)
-		LibGuessRole.UnregisterCallback(self, "LibGuessRole_RoleChanged")
 		icon:Hide()
 	end
 end
