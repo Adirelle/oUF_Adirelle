@@ -32,7 +32,7 @@ local function GetRole(unit, noDamager, noCircle)
 	end
 
 	-- Check assigned roles
-	local role = UnitGroupRolesAssigned(unit)
+	local role = UnitIsUnit(unit, "player") and ns.GetPlayerRole() or UnitGroupRolesAssigned(unit)
 	if role and role ~= "NONE" then
 		--Debug('Role from UnitGroupRolesAssigned for ', unit, ':', role)
 		if noDamager and role == "DAMAGER" then
@@ -50,7 +50,7 @@ end
 local function Update(self, event, unit)
 	if unit and unit ~= self.unit then return end
 	local icon = self.RoleIcon
-	
+
 	-- Quest mobs
 	if UnitIsQuestBoss(self.unit) then
 		icon:SetTexture([[Interface\TargetingFrame\PortraitQuestBadge]])
@@ -87,20 +87,33 @@ local function ForceUpdate(element)
 	return Path(element.__owner, 'ForceUpdate')
 end
 
-local function RoleChanged(self, event, guid)
-	if self.unit and UnitGUID(self.unit) == guid then
-		return Path(self, event)
+local icons
+
+local function PlayerRoleUpdated()
+	for icon in pairs(icons) do
+		if UnitIsUnit(icon.__owner.unit or "none", "player") then
+			Update(icon.__owner, 'PlayerRoleUpdated')
+		end
 	end
 end
 
+
 local function Enable(self)
-	if self.RoleIcon then
+	local icon = self.RoleIcon
+	if icon then
+		icon.__owner, icon.ForceUpdate = self, ForceUpdate
+		if not icons then
+			icons = { [icon] = true }
+			ns.RegisterPlayerRoleCallback(PlayerRoleUpdated)
+		else
+			icons[icon] = true
+		end
 		self:RegisterEvent('PARTY_MEMBERS_CHANGED', Path)
 		self:RegisterEvent("RAID_TARGET_UPDATE", Path)
 		self:RegisterEvent('RAID_ROSTER_UPDATE', Path)
 		self:RegisterEvent('PLAYER_ROLES_ASSIGNED', Path)
 		self:RegisterEvent('UNIT_CLASSIFICATION_CHANGED', Path)
-		self.RoleIcon:Hide()
+		icon:Hide()
 		return true
 	end
 end
@@ -108,7 +121,7 @@ end
 local function Disable(self)
 	local icon = self.RoleIcon
 	if icon then
-		icon.__owner, icon.ForceUpdate = self, ForceUpdate
+		icons[icon] = nil
 		self:UnregisterEvent('PARTY_MEMBERS_CHANGED', Path)
 		self:UnregisterEvent("RAID_TARGET_UPDATE", Path)
 		self:UnregisterEvent('LFG_ROLE_UPDATE', Path)
