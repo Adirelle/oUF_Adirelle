@@ -16,7 +16,6 @@ externals:
     url: svn://svn.wowace.com/wow/bug-grabber/mainline/trunk
   oUF: git://github.com/Adirelle/oUF.git
   libs/LibMovable-1.0: git://github.com/Adirelle/LibMovable-1.0.git
-  libs/LibGuessRole-1.0: git://github.com/Adirelle/LibGuessRole-1.0.git
   libs/DRData-1.0: git://git.wowace.com/wow/drdata-1-0/mainline.git
   libs/LibDispellable-1.0: git://git.wowace.com/wow/libdispellable-1-0/mainline.git
     
