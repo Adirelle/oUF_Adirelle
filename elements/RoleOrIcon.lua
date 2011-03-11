@@ -50,6 +50,13 @@ end
 local function Update(self, event, unit)
 	if unit and unit ~= self.unit then return end
 	local icon = self.RoleIcon
+	
+	-- Quest mobs
+	if UnitIsQuestBoss(self.unit) then
+		icon:SetTexture([[Interface\TargetingFrame\PortraitQuestBadge]])
+		icon:SetVertexColor(1, 1, 1, 1)
+		return icon:Show()
+	end
 
 	-- Check raid target icons
 	local raidTarget = not icon.noRaidTarget and GetRaidTargetIndex(self.unit)
@@ -92,6 +99,7 @@ local function Enable(self)
 		self:RegisterEvent("RAID_TARGET_UPDATE", Path)
 		self:RegisterEvent('RAID_ROSTER_UPDATE', Path)
 		self:RegisterEvent('PLAYER_ROLES_ASSIGNED', Path)
+		self:RegisterEvent('UNIT_CLASSIFICATION_CHANGED', Path)
 		self.RoleIcon:Hide()
 		return true
 	end
@@ -105,6 +113,7 @@ local function Disable(self)
 		self:UnregisterEvent("RAID_TARGET_UPDATE", Path)
 		self:UnregisterEvent('LFG_ROLE_UPDATE', Path)
 		self:UnregisterEvent('PLAYER_ROLES_ASSIGNED', Path)
+		self:UnregisterEvent('UNIT_CLASSIFICATION_CHANGED', Path)
 		icon:Hide()
 	end
 end
