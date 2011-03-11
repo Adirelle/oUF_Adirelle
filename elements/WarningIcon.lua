@@ -117,6 +117,10 @@ do
 			Valiona and Theralion
 				Blackout: 86788, 92876, 92877, 92878 = 80
 				Engulfing Magic: 86622, 95639, 95640, 95641 = 100
+		Throne of the Four Winds
+			Conclave of Wind
+				Toxic Spores (Anshal's adds) : 86281, 86282 = 90
+				Wind Chill (Nezir): 84645, 93123, 93124, 93125 = 100
 		Baradin Hold
 			Argaloth
 				Consuming Darkness: 88954, 95173 = 100
