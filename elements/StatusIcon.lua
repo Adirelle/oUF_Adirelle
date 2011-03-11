@@ -19,18 +19,22 @@ local UnitHasVehicleUI = UnitHasVehicleUI
 
 local function GetFrameUnitState(self, ignoreVisibility)
 	local unit = self.unit
-	if UnitIsPlayer(unit) and not UnitIsConnected(unit) then
-		return "DISCONNECTED"
-	elseif not UnitInPhase(unit) then
-		return "OUTOFPHASE"
-	elseif not ignoreVisibility and not UnitIsVisible(unit) then
-		return "OUTOFSCOPE"
-	elseif UnitIsDeadOrGhost(unit) then
-		return "DEAD"
-	elseif UnitHasVehicleUI(SecureButton_GetUnit(self) or unit) then
-		return "INVEHICLE"
-	elseif UnitIsPlayer(unit) and UnitIsCharmed(unit) then
-		return "CHARMED"
+	if UnitIsPlayer(unit) then
+		if not UnitIsConnected(unit) then
+			return "DISCONNECTED"
+		elseif UnitIsDead(unit) then
+			return "DEAD"
+		elseif not ignoreVisibility and not UnitIsVisible(unit) then
+			return UnitInPhase(unit) and "OUTOFSCOPE" or "OUTOFPHASE"
+		elseif UnitIsGhost(unit) then
+			return "DEAD"
+		elseif UnitHasVehicleUI(SecureButton_GetUnit(self) or unit) then
+			return "INVEHICLE"
+		elseif UnitIsCharmed(unit) then
+			return "CHARMED"
+		end
+	else
+		return UnitIsDeadOrGhost(unit) and "DEAD" or nil
 	end
 end
 ns.GetFrameUnitState = GetFrameUnitState
