@@ -452,15 +452,14 @@ local function InitFrame(self, unit)
 	self.iconBlinkThreshold = 3
 
 	-- Important class buffs
-	local importantBuff = self:CreateIcon(self.Overlay, ICON_SIZE, false, false, false, false, "CENTER", self, "LEFT", WIDTH * 0.25, 0)
-	self:AddAuraIcon(importantBuff, "ClassImportantBuff")
-
+	self.WarningIconBuff = self:CreateIcon(self.Overlay, ICON_SIZE, false, false, false, false, "CENTER", self, "LEFT", WIDTH * 0.25, 0)
+	
 	-- Cureable debuffs
 	local debuff = self:CreateIcon(self.Overlay, ICON_SIZE, false, false, false, false, "CENTER")
 	self:AddAuraIcon(debuff, "CureableDebuff")
 	
 	-- Important debuffs
-	self.WarningIcon = self:CreateIcon(self.Overlay, ICON_SIZE, false, false, false, false,"CENTER", self, "LEFT", WIDTH * 0.75, 0)
+	self.WarningIconDebuff = self:CreateIcon(self.Overlay, ICON_SIZE, false, false, false, false, "CENTER", self, "LEFT", WIDTH * 0.75, 0)
 
 	-- Class-specific icons
 	if CreateClassAuraIcons then
