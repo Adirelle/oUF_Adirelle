@@ -261,12 +261,16 @@ do
 
 	elseif playerClass == 'WARLOCK' then
 		function CreateClassAuraIcons(self)
-			-- Soulstone
+			-- Soulstones
 			self:AddAuraIcon(SpawnSmallIcon(self, "BOTTOMLEFT", self, "BOTTOMLEFT", INSET, INSET), GetAnyAuraFilter(20707, "HELPFUL"))
+			-- Dark intents
+			self:AddAuraIcon(SpawnSmallIcon(self, "BOTTOMRIGHT", self, "BOTTOMRIGHT", -INSET, INSET), GetAnyAuraFilter(80398, "HELPFUL"))
 		end
 
 	elseif playerClass == 'MAGE' then
 		function CreateClassAuraIcons(self)
+			-- Focus magic
+			self:AddAuraIcon(SpawnSmallIcon(self, "BOTTOMRIGHT", self, "BOTTOMRIGHT", -INSET, INSET), GetAnyAuraFilter(54646, "HELPFUL"))
 		end
 
 	elseif playerClass == 'PRIEST' then
