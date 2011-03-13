@@ -25,7 +25,9 @@ local function GetFrameUnitState(self, ignoreVisibility)
 		elseif UnitIsDead(unit) then
 			return "DEAD"
 		elseif not ignoreVisibility and not UnitIsVisible(unit) then
-			return UnitInPhase(unit) and "OUTOFSCOPE" or "OUTOFPHASE"
+			return "OUTOFSCOPE"
+		elseif not ignoreVisibility and not UnitInPhase(unit) then
+			return "OUTOFPHASE"
 		elseif UnitIsGhost(unit) then
 			return "DEAD"
 		elseif UnitHasVehicleUI(SecureButton_GetUnit(self) or unit) then
