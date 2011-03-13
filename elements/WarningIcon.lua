@@ -13,8 +13,9 @@ local oUF = assert(ns.oUF, "oUF is undefined in "..parent.." namespace")
 -- Spell data
 -- ------------------------------------------------------------------------------
 
-local SPELLS = {}
-local THRESHOLDS = {}
+local BUFFS = {}
+local DEBUFFS = {}
+local DEBUFF_THRESHOLDS = {}
 
 -- General crowd Control
 for spellID in gmatch([=[
@@ -39,7 +40,7 @@ for spellID in gmatch([=[
 	10326 Turn Evil
 	19386 Wyvern Sting
 ]=], "%d+") do
-	SPELLS[tonumber(spellID)] = 90
+	DEBUFFS[tonumber(spellID)] = 90
 end
 
 -- PvP debuffs using DRData-1.0
@@ -65,11 +66,11 @@ if drdata then
 		entrapment = 40,
 	}
 	for spellID, cat in pairs(drdata:GetSpells()) do
-		SPELLS[spellID] = priorities[cat]
+		DEBUFFS[spellID] = priorities[cat]
 	end
 end
 
--- PvE encounters
+-- PvE encounter debuffs
 do
 	-- Data gathered from various sources, including BigWigs modules, Wowhead, Wowwiki and mmo-champion
 	-- Most are untested too
@@ -133,7 +134,7 @@ do
 	for def, spellIDs, priority in gmatch(DEBUFFS_STR, '((%d[%d%s,]*)%s*=%s*(%d+))') do
 		priority = tonumber(priority)
 		for spellID in gmatch(spellIDs, '(%d+)') do
-			SPELLS[tonumber(spellID)] = priority
+			DEBUFFS[tonumber(spellID)] = priority
 		end
 	end
 	
@@ -143,65 +144,189 @@ do
 		threshold = tonumber(threshold)
 		for spellID in gmatch(spellIDs, '(%d+)') do
 			spellID = tonumber(spellID)
-			SPELLS[spellID] = priority
-			THRESHOLDS[spellID] = threshold
+			DEBUFFS[spellID] = priority
+			DEBUFF_THRESHOLDS[spellID] = threshold
 		end
 	end
 end
 
 -- To be used to avoid displaying these spells twice
 function ns.IsEncounterDebuff(spellID)
-	return spellID and SPELLS[spellID]
+	return spellID and DEBUFFS[spellID]
+end
+
+-- Class noticeable buffs
+do
+	-- TODO: update for Cataclysm
+	local BUFFS_STR = [=[
+		DEATHKNIGHT:
+			Dancing Rune Weapon: 49028 = 30
+			Icebound Fortitude: 48792 = 30
+			Anti-Magic Shell: 48707 = 50
+			Bone Shield: 49222 = 60
+		DRUID:
+			Innervate: 29166 = 20
+			Frenzied Regeneration: 22842 = 30
+			Barkskin: 22812 = 50
+			Survival Instincts: 61336 = 60
+		HUNTER:
+			Feign Death: 5384 = 20
+			Deterrence: 19263 = 40
+		MAGE:
+			Ice Block: 45438 = 80
+		PALADIN:
+			Divine Protection: 498 = 50
+			Hand of Protection: 1022 = 70
+			Divine Shield: 642 = 80
+		PRIEST:
+			Pain Suppression: 33206 = 50
+			Guardian Spirit: 47788 = 50		
+			Spirit of Redemption: 20711 = 99
+		ROGUE:
+			Evasion: 5277 = 40
+			Cloak of Shadows: 31224 = 60
+		WARLOCK:
+			Sacrifice: 7812 = 40
+		WARRIOR:
+			Shield Block: 2565 = 20
+			Enraged Regeneration: 55694 = 30
+			Shield Wall: 871 = 50
+			Last Stand: 12975 = 60		
+	]=]
+
+	for def, spellIDs, priority in gmatch(BUFFS_STR, '((%d[%d%s,]*)%s*=%s*(%d+))') do
+		priority = tonumber(priority)
+		for spellID in gmatch(spellIDs, '(%d+)') do
+			BUFFS[tonumber(spellID)] = priority
+		end
+	end
 end
 
 -- ------------------------------------------------------------------------------
 -- Element logic
 -- ------------------------------------------------------------------------------
 
-local function Update(self, event, unit)
-	if unit and unit ~= self.unit then return end
-	unit = self.unit
-	local icon = self.WarningIcon
+local function GetBuff(unit, index)
+	local name, _, texture, count, dispelType, duration, expirationTime, _, _, _, spellID = UnitBuff(unit, index)
+	return name, BUFFS[spellID], texture, count, dispelType, duration, expirationTime
+end
 
+local function GetDebuff(unit, index)
+	local name, _, texture, count, dispelType, duration, expirationTime, _, _, _, spellID, _, isBossDebuff = UnitDebuff(unit, index)
+	if isBossDebuff then
+		return name, 50, texture, count, dispelType, duration, expirationTime
+	elseif spellID then
+		local threshold = DEBUFF_THRESHOLDS[spellID]
+		if not threshold or (count or 1) >= threshold then	
+			return name, DEBUFFS[spellID], texture, count, dispelType, duration, expirationTime
+		end
+	end
+	return name
+end
+
+local function Scan(self, unit, getFunc, offensive)
 	local index = 0
-	local priority = 0
-	local name, texture, count, debuffType, duration, expirationTime, _
-	local newTexture, newCount, newDebuffType, newDuration, newExpirationTime
+	local priority = -math.huge
+	local name, texture, count, dispelType, duration, expirationTime
+	local newTexture, newCount, newDispelType, newDuration, newExpirationTime
 	repeat
 		index = index + 1
-		name, _, newTexture, newCount, newDebuffType, newDuration, newExpirationTime, _, _, _, spellID, _, isBossDebuff = UnitDebuff(unit, index)
-		if name then
-			local newPriority = (spellID and (not THRESHOLDS[spellID] or (newCount or 0) >= THRESHOLDS[spellID]) and SPELLS[spellID]) or (isBossDebuff and 50)
-			if newPriority and newPriority > priority then
-				priority, texture, count, debuffType, duration, expirationTime = newPriority, newTexture, newCount, newDebuffType, newDuration, newExpirationTime
-			end
+		name, newPriority, newTexture, newCount, newDispelType, newDuration, newExpirationTime = getFunc(unit, index)
+		if name and newPriority and newPriority > priority then
+			priority, texture, count, dispelType, duration, expirationTime = newPriority, newTexture, newCount, newDispelType, newDuration, newExpirationTime
 		end
 	until not name
+	if dispelType and (offensive and not UnitCanAttack("player", unit)) or (not offensive and not UnitCanAssist("player", unit)) then
+		dispelType = nil
+	end
+	return priority, texture, count, dispelType, duration, expirationTime
+end
+
+local function SetAuraIcon(icon, texture, count, dispelType, duration, expirationTime)
 	if texture then
-		local color = DebuffTypeColor[debuffType or "none"]
 		icon:SetTexture(texture)
 		icon:SetCooldown(expirationTime-duration, duration)
-		icon:SetStack(count or 0)		
-		icon:SetColor(color.r, color.g, color.b)
+		icon:SetStack(count or 0)
+		local color = dispelType and DebuffTypeColor[dispelType]
+		if color then
+			icon:SetColor(color.r, color.g, color.b)
+		else
+			icon:SetColor(nil, nil, nil)
+		end
 		icon:Show()
-	else
+	elseif icon:IsShown() then
 		icon:Hide()
 	end	
 end
 
-local function Path(self, ...)
-	return (self.WarningIcon.Update or Update)(self, ...)
+local function Update(self, event, unit)
+	if unit and unit ~= self.unit then return end
+	unit = self.unit
+	
+	local debuffIcon, buffIcon, bothIcon = self.WarningIconDebuff, self.WarningIconBuff, self.WarningIcon
+	
+	if UnitIsVisible(unit) then
+		local buffPriority, buffTexture, buffCount, buffDispelType, buffDuration, buffExpirationTime = -math.huge
+		local debuffPriority, debuffTexture, debuffCount, debuffDispelType, debuffDuration, debuffExpirationTime = -math.huge
+		
+		self:Debug('WarningIconUpdate', event, self.unit)
+	
+		if bothIcon or debuffIcon then
+			debuffPriority, debuffTexture, debuffCount, debuffDispelType, debuffDuration, debuffExpirationTime = Scan(self, unit, GetDebuff, false)
+			if debuffIcon then
+				self:Debug('WarningIconDebuff', debuffTexture)
+				debuffIcon:SetAura(debuffTexture, debuffCount, debuffDispelType, debuffDuration, debuffExpirationTime)
+			end
+		end
+		if bothIcon or buffIcon then
+			buffPriority, buffTexture, buffCount, buffDispelType, buffDuration, buffExpirationTime = Scan(self, unit, GetBuff, true)
+			if buffIcon then
+				self:Debug('WarningIconBuff', buffTexture)
+				buffIcon:SetAura(buffTexture, buffCount, buffDispelType, buffDuration, buffExpirationTime)
+			end
+		end
+		if bothIcon then
+			if debuffTexture then
+				self:Debug('WarningIcon (debuff)', debuffTexture)
+				bothIcon:SetAura(debuffTexture, debuffCount, debuffDispelType, debuffDuration, debuffExpirationTime)
+			else
+				self:Debug('WarningIcon (buff)', buffTexture)
+				bothIcon:SetAura(buffTexture, buffCount, buffDispelType, buffDuration, buffExpirationTime)
+			end
+		end
+	else
+		if debuffIcon then
+			debuffIcon:Hide()
+		end
+		if buffIcon then
+			buffIcon:Hide()
+		end
+		if bothIcon then
+			bothIcon:Hide()
+		end
+	end
 end
 
 local function ForceUpdate(element)
-	return Path(element.__owner, 'ForceUpdate')
+	return Update(element.__owner, 'ForceUpdate')
+end
+
+local function EnableIcon(self, icon)
+	if icon then
+		icon.__owner, icon.ForceUpdate = self, ForceUpdate
+		if not icon.SetAura then
+			icon.SetAura = SetAuraIcon
+		end
+		return true
+	end
 end
 
 local function Enable(self)
-	local icon = self.WarningIcon
-	if icon then
-		icon.__owner, icon.ForceUpdate = self, ForceUpdate
-		self:RegisterEvent('UNIT_AURA', Path)
+	if self.WarningIcon or self.WarningIconBuff or self.WarningIconDebuff then
+		EnableIcon(self, self.WarningIcon)
+		EnableIcon(self, self.WarningIconBuff) 
+		EnableIcon(self, self.WarningIconDebuff)
+		self:RegisterEvent('UNIT_AURA', Update)
 		return true
 	end
 end
@@ -209,7 +334,7 @@ end
 local function Disable(self)
 	local icon = self.WarningIcon
 	if icon then
-		self:UnregisterEvent('UNIT_AURA', Path)
+		self:UnregisterEvent('UNIT_AURA', Update)
 		icon:Hide()
 	end
 end

@@ -123,97 +123,14 @@ oUF:AddAuraFilter("CureableDebuff", function(unit)
 		end
 	until not thisName
 	if texture then
-		color = DebuffTypeColor[debuffType or "none"]
-		return texture, count, expirationTime-duration, duration, color.r, color.g, color.b, alpha
+		local color = debuffType and debuffType ~= "none" and DebuffTypeColor[debuffType]
+		if color then
+			return texture, count, expirationTime-duration, duration, color.r, color.g, color.b, alpha
+		else
+			return texture, count, expirationTime-duration, duration, nil, nil, nil, alpha
+		end
 	end
 end)
-
--- ------------------------------------------------------------------------------
--- Class specific buffs
--- ------------------------------------------------------------------------------
-
-do
-	local err = {}
-	local commonBuffs = {
-		[ 1022] = 70, -- Hand of Protection
-		[33206] = 50, -- Pain Suppression
-		[47788] = 50, -- Guardian Spirit
-		[29166] = 20, -- Innervate
-	}
-
-	local tmp = {}
-	local function compare(a, b)
-		return tmp[a] > tmp[b]
-	end
-	local function BuildClassBuffs(classBuffs)
-		wipe(tmp)
-		local buffs = {}
-		for _, t in pairs({classBuffs, commonBuffs}) do
-			for id, prio in pairs(t) do
-				local name = GetSpellName("BuildClassBuffs", id, prio)
-				if name then
-					tmp[name] = prio
-					tinsert(buffs, name)
-				end
-			end
-		end
-		table.sort(buffs, compare)
-		return buffs
-	end
-
-	local importantBuffs = {
-		HUNTER = BuildClassBuffs{
-			[19263] = 40, -- Deterrence
-			[ 5384] = 10, -- Feign Death
-		},
-		MAGE = BuildClassBuffs{
-			[45438] = 80, -- Ice Block
-		},
-		DRUID = BuildClassBuffs{
-			[61336] = 60, -- Survival Instincts
-			[22812] = 50, -- Barkskin
-			[22842] = 30, -- Frenzied Regeneration
-		},
-		PALADIN = BuildClassBuffs{
-			[  642] = 80, -- Divine Shield
-			[  498] = 50, -- Divine Protection
-		},
-		WARRIOR = BuildClassBuffs{
-			[12975] = 60, -- Last Stand
-			[  871] = 50, -- Shield Wall
-			[55694] = 30, -- Enraged Regeneration
-			[ 2565] = 20, -- Shield Block
-		},
-		DEATHKNIGHT = BuildClassBuffs{
-			[48792] = 50, -- Icebound Fortitude
-			[51271] = 50, -- Unbreakable Armor
-			[48707] = 40, -- Anti-Magic Shell
-			-- [49222] = 20, -- Bone Shield
-		},
-		ROGUE = BuildClassBuffs{
-			[31224] = 60, -- Cloak of Shadows
-		},
-		WARLOCK = BuildClassBuffs{
-			[ 7812] = 40, -- Sacrifice
-		},
-		PRIEST = BuildClassBuffs{
-			[20711] = 99, -- Spirit of Redemption
-		},
-		SHAMAN = BuildClassBuffs{},
-	}
-
-	oUF:AddAuraFilter("ClassImportantBuff", function(unit)
-		if not UnitIsPlayer(unit) then return end
-		local buffs = importantBuffs[select(2, UnitClass(unit))]
-		if not buffs then return end
-		for i, spellName in ipairs(buffs) do
-			local name, _, texture, count, _, duration, expirationTime = UnitAura(unit, spellName, nil, "HELPFUL")
-			if name then
-				return texture, count, expirationTime-duration, duration
-			end
-		end
-	end)
-end
 
 -- ------------------------------------------------------------------------------
 -- Priests' "Power word: shield" special case
