@@ -122,6 +122,8 @@ do
 				Toxic Spores (Anshal's adds) : 86281, 86282 = 90
 				Wind Chill (Nezir): 84645, 93123, 93124, 93125 = 100
 		Baradin Hold
+			Trashs
+				Arcane Amplifier: 89354, 95179 = 100
 			Argaloth
 				Consuming Darkness: 88954, 95173 = 100
 		}
