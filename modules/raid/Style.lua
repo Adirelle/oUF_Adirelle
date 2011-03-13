@@ -201,13 +201,12 @@ end
 -- Aura icon initialization
 -- ------------------------------------------------------------------------------
 
-local CreateAuraIcons
+local CreateClassAuraIcons
 do
 	local INSET, SMALL_ICON_SIZE = 1, 8
 	local function SpawnSmallIcon(self, ...) return self:CreateIcon(self.Overlay, SMALL_ICON_SIZE, true, true, true, false, ...)	end
 
 	-- Create the specific icons depending on player class
-	local CreateClassAuraIcons
 	if playerClass == "DRUID" then
 		function CreateClassAuraIcons(self)
 			-- Rejuvenation
