@@ -232,8 +232,6 @@ do
 				SpawnSmallIcon(self, "BOTTOMLEFT", self, "BOTTOMLEFT", INSET, INSET),
 				GetOwnAuraFilter(48438, 0, 1, 0)
 			)
-			-- Display cureable debuffs
-			return true
 		end
 
 	elseif playerClass == 'PALADIN' then
@@ -243,15 +241,6 @@ do
 				SpawnSmallIcon(self, "TOPRIGHT", self, "TOPRIGHT", -INSET, -INSET),
 				GetOwnAuraFilter(53563)
 			)
-			--[[
-			-- Sacred Shield
-			self:AddAuraIcon(
-				SpawnSmallIcon(self, "TOPLEFT", self, "TOPLEFT", INSET, -INSET),
-				GetOwnAuraFilter(53601)
-			)
-			--]]
-			-- Display cureable debuffs
-			return true
 		end
 
 	elseif playerClass == "SHAMAN" then
@@ -268,22 +257,16 @@ do
 				SpawnSmallIcon(self, "TOPRIGHT", self, "TOPRIGHT", -INSET, -INSET),
 				GetOwnAuraFilter(61295)
 			)
-			-- Display cureable debuffs
-			return true
 		end
 
 	elseif playerClass == 'WARLOCK' then
 		function CreateClassAuraIcons(self)
 			-- Soulstone
 			self:AddAuraIcon(SpawnSmallIcon(self, "BOTTOMLEFT", self, "BOTTOMLEFT", INSET, INSET), GetAnyAuraFilter(20707, "HELPFUL"))
-			-- Display magic debuffs (for the Felhunter)
-			return true
 		end
 
 	elseif playerClass == 'MAGE' then
 		function CreateClassAuraIcons(self)
-			-- Display curses
-			return true
 		end
 
 	elseif playerClass == 'PRIEST' then
@@ -308,38 +291,6 @@ do
 				SpawnSmallIcon(self, "BOTTOMLEFT", self, "BOTTOMLEFT", INSET, INSET),
 				GetOwnAuraFilter(7001)
 			)
-			-- Display cureable debuffs
-			return true
-		end
-
-	end
-
-	-- Main creation function
-	function CreateAuraIcons(self)
-		self.iconBlinkThreshold = 3
-
-		-- Show important class buffs
-		local importantBuff = self:CreateIcon(self.Overlay, ICON_SIZE)
-		self:AddAuraIcon(importantBuff, "ClassImportantBuff")
-
-		-- Show important debuffs
-		local importantDebuff = self:CreateIcon(self.Overlay, ICON_SIZE)
-		self.WarningIcon = importantDebuff
-
-		local cureableDebuffFilter = CreateClassAuraIcons and CreateClassAuraIcons(self)
-		if cureableDebuffFilter then
-			-- Show cureable debuffs
-			local debuff = self:CreateIcon(self.Overlay, ICON_SIZE)
-			self:AddAuraIcon(debuff, "CureableDebuff")
-
-			-- Layout icons
-			importantBuff:SetPoint("CENTER", self, "LEFT", WIDTH * 0.25, 0)
-			debuff:SetPoint("CENTER")
-			importantDebuff:SetPoint("CENTER", self, "LEFT", WIDTH * 0.75, 0)
-		else
-			-- Layout icons
-			importantBuff:SetPoint("CENTER", self, "LEFT", WIDTH * 0.33, 0)
-			importantDebuff:SetPoint("CENTER", self, "LEFT", WIDTH * 0.66, 0)
 		end
 
 	end
@@ -494,9 +445,25 @@ local function InitFrame(self, unit)
 	rc.SetTexture = function(_, ...) return rc.icon:SetTexture(...) end
 	self.ReadyCheck = rc
 
-	-- Aura icons
-	CreateAuraIcons(self)
+	-- Have icons blinking 3 seconds before fading out
+	self.iconBlinkThreshold = 3
 
+	-- Important class buffs
+	local importantBuff = self:CreateIcon(self.Overlay, ICON_SIZE, false, false, false, false, "CENTER", self, "LEFT", WIDTH * 0.25, 0)
+	self:AddAuraIcon(importantBuff, "ClassImportantBuff")
+
+	-- Cureable debuffs
+	local debuff = self:CreateIcon(self.Overlay, ICON_SIZE, false, false, false, false, "CENTER")
+	self:AddAuraIcon(debuff, "CureableDebuff")
+	
+	-- Important debuffs
+	self.WarningIcon = self:CreateIcon(self.Overlay, ICON_SIZE, false, false, false, false,"CENTER", self, "LEFT", WIDTH * 0.75, 0)
+
+	-- Class-specific icons
+	if CreateClassAuraIcons then
+		CreateClassAuraIcons(self)
+	end
+		
 	-- Threat glow
 	local threat = CreateFrame("Frame", nil, self)
 	threat:SetAllPoints(self)
