@@ -140,7 +140,7 @@ end
 
 local function Auras_PostCreateIcon(icons, button)
 	local cd, count, overlay = button.cd, button.count, button.overlay
-	button.icon:SetTexCoord(4/64, 60/64, 4/64, 60/64)
+	button.icon:SetTexCoord(5/64, 59/64, 5/64, 59/64)
 	count:SetParent(cd)
 	count:SetAllPoints(button)
 	count:SetJustifyH("RIGHT")
@@ -151,6 +151,12 @@ local function Auras_PostCreateIcon(icons, button)
 	cd.noCooldownCount = true
 	cd:SetReverse(true)
 	cd:SetDrawEdge(true)
+end
+
+local function Auras_PostUpdateIcon(icons, unit, icon, index, offset)
+	if not select(5, UnitAura(unit, index, icon.filter)) then
+		icon.overlay:Hide()
+	end
 end
 
 local LibDispellable = GetLib("LibDispellable-1.0")
@@ -989,6 +995,7 @@ local function InitFrame(settings, self, unit)
 		buffs.CustomFilter = Buffs_CustomFilter
 		buffs.SetPosition = Auras_SetPosition
 		buffs.PostCreateIcon = Auras_PostCreateIcon
+		buffs.PostUpdateIcon = Auras_PostUpdateIcon
 		self.Buffs = buffs
 	end
 	if debuffs then
@@ -999,6 +1006,7 @@ local function InitFrame(settings, self, unit)
 		debuffs.CustomFilter = Debuffs_CustomFilter
 		debuffs.SetPosition = Auras_SetPosition
 		debuffs.PostCreateIcon = Auras_PostCreateIcon
+		debuffs.PostUpdateIcon = Auras_PostUpdateIcon
 		self.Debuffs = debuffs
 	end
 
