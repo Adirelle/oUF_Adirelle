@@ -242,6 +242,16 @@ do
 	end
 end
 
+local function Auras_ForceUpdate(self, event, unit)
+	if unit and unit ~= self.unit then return end
+	if self.Buffs then
+		self.Buffs:ForceUpdate()
+	end
+	if self.Debuffs then
+		self.Debuffs:ForceUpdate()
+	end
+end
+
 local SetupAltPower
 if playerClass == 'DEATHKNIGHT' then
 	-- Death Knight Runes
@@ -1008,6 +1018,13 @@ local function InitFrame(settings, self, unit)
 		debuffs.PostCreateIcon = Auras_PostCreateIcon
 		debuffs.PostUpdateIcon = Auras_PostUpdateIcon
 		self.Debuffs = debuffs
+	end
+	
+	if buffs or debuffs then
+		self:RegisterEvent('UNIT_FACTION', Auras_ForceUpdate)
+		self:RegisterEvent('UNIT_TARGETABLE_CHANGED', Auras_ForceUpdate)
+		self:RegisterEvent('PLAYER_REGEN_ENABLED', Auras_ForceUpdate)
+		self:RegisterEvent('PLAYER_REGEN_DISABLED', Auras_ForceUpdate)
 	end
 
 	-- Classification dragon
