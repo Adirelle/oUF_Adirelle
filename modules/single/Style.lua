@@ -159,6 +159,7 @@ local function IsMine(unit)
 	return unit and (UnitIsUnit(unit, 'player') or UnitIsUnit(unit, 'pet') or UnitIsUnit(unit, 'vehicle'))
 end
 
+local canSteal = select(2, UnitClass("player")) == "MAGE"
 local function Buffs_CustomFilter(icons, unit, icon, name, rank, texture, count, dtype, duration, timeLeft, caster, isStealable, shouldConsolidate, spellID, canApplyAura)
 	if UnitCanAttack("player", unit) then
 		icon.bigger = LibDispellable:CanDispel(unit, true, dtype, spellID) or (canSteal and isStealable)
@@ -174,7 +175,6 @@ local function Buffs_CustomFilter(icons, unit, icon, name, rank, texture, count,
 	return true
 end
 
-local canSteal = select(2, UnitClass("player")) == "MAGE"
 local function Debuffs_CustomFilter(icons, unit, icon, name, rank, texture, count, dtype, duration, timeLeft, caster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossDebuff)
 	if UnitCanAttack("player", unit) then
 		icon.bigger = IsMine(caster)
