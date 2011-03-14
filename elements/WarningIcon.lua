@@ -127,7 +127,8 @@ do
 				Arcane Amplifier: 89354, 95179 = 100
 			Argaloth
 				Consuming Darkness: 88954, 95173 = 100
-		}
+		Items/consumables:
+			Concentration Potion: 78993 = 40
 	]=]
 
 	-- Simple debuffs
@@ -157,13 +158,13 @@ end
 
 -- Class noticeable buffs
 do
-	-- TODO: update for Cataclysm
 	local BUFFS_STR = [=[
 		DEATHKNIGHT:
-			Dancing Rune Weapon: 49028 = 30
-			Icebound Fortitude: 48792 = 30
-			Anti-Magic Shell: 48707 = 50
-			Bone Shield: 49222 = 60
+			Bone Shield: 49222 = 30
+			Vampiric Blood: 55233 = 30
+			Anti-Magic Shell: 48707 = 40
+			Dancing Rune Weapon: 49028 = 50
+			Icebound Fortitude: 48792 = 60
 		DRUID:
 			Innervate: 29166 = 20
 			Frenzied Regeneration: 22842 = 30
@@ -175,10 +176,14 @@ do
 		MAGE:
 			Ice Block: 45438 = 80
 		PALADIN:
-			Divine Protection: 498 = 50
+			Divine Plea: 54428 = 20
+			Divine Protection: 498 = 30
+			Hand of Sacrifice: 6940 = 50
+			Ancient Guardian (prot): 86657 = 60
 			Hand of Protection: 1022 = 70
 			Divine Shield: 642 = 80
 		PRIEST:
+			Hymn of Hope: 64901 = 20
 			Pain Suppression: 33206 = 50
 			Guardian Spirit: 47788 = 50		
 			Spirit of Redemption: 20711 = 99
