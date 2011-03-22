@@ -273,29 +273,23 @@ local function Update(self, event, unit)
 	if UnitIsVisible(unit) then
 		local buffPriority, buffTexture, buffCount, buffDispelType, buffDuration, buffExpirationTime = -math.huge
 		local debuffPriority, debuffTexture, debuffCount, debuffDispelType, debuffDuration, debuffExpirationTime = -math.huge
-		
-		self:Debug('WarningIconUpdate', event, self.unit)
-	
+
 		if bothIcon or debuffIcon then
 			debuffPriority, debuffTexture, debuffCount, debuffDispelType, debuffDuration, debuffExpirationTime = Scan(self, unit, GetDebuff, false)
 			if debuffIcon then
-				self:Debug('WarningIconDebuff', debuffTexture)
 				debuffIcon:SetAura(debuffTexture, debuffCount, debuffDispelType, debuffDuration, debuffExpirationTime)
 			end
 		end
 		if bothIcon or buffIcon then
 			buffPriority, buffTexture, buffCount, buffDispelType, buffDuration, buffExpirationTime = Scan(self, unit, GetBuff, true)
 			if buffIcon then
-				self:Debug('WarningIconBuff', buffTexture)
 				buffIcon:SetAura(buffTexture, buffCount, buffDispelType, buffDuration, buffExpirationTime)
 			end
 		end
 		if bothIcon then
 			if debuffTexture then
-				self:Debug('WarningIcon (debuff)', debuffTexture)
 				bothIcon:SetAura(debuffTexture, debuffCount, debuffDispelType, debuffDuration, debuffExpirationTime)
 			else
-				self:Debug('WarningIcon (buff)', buffTexture)
 				bothIcon:SetAura(buffTexture, buffCount, buffDispelType, buffDuration, buffExpirationTime)
 			end
 		end
