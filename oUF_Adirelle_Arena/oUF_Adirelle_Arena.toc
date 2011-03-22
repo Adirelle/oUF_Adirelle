@@ -1,0 +1,8 @@
+## Interface: 40000
+## Author: Adirelle
+## Version: 1.0
+## Title: oUF_Adirelle - arena enemy unit frames
+## Notes: Unit frames for arena enemies.
+## RequiredDeps: oUF_Adirelle, oUF_Adirelle_Single
+
+..\oUF_Adirelle\modules\arena\module.xml
