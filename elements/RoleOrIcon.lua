@@ -55,6 +55,7 @@ local function Update(self, event, unit)
 	if UnitIsQuestBoss(self.unit) then
 		icon:SetTexture([[Interface\TargetingFrame\PortraitQuestBadge]])
 		icon:SetVertexColor(1, 1, 1, 1)
+		icon:SetTexCoord(0, 1, 0, 1)
 		return icon:Show()
 	end
 
