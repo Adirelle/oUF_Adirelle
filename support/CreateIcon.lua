@@ -84,6 +84,7 @@ oUF:RegisterMetaFunction('CreateIcon', function(self, parent, size, noCooldown, 
 		cooldown:SetAllPoints(icon.Texture or icon)
 		cooldown:SetDrawEdge(true)
 		cooldown:SetReverse(true)
+		cooldown.noCooldownFader = true
 		icon.Cooldown = cooldown
 		icon.SetCooldown = SetCooldown
 	else
