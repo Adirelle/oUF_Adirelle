@@ -981,7 +981,7 @@ local function InitFrame(settings, self, unit)
 		buffs['growth-x'] = "RIGHT"
 		buffs['growth-y'] = "UP"
 
-	elseif unit == "target" or unit == "focus" or unit == "boss" then
+	elseif unit == "target" or unit == "focus" or unit == "boss" or unit == "arena" then
 		buffs = CreateFrame("Frame", nil, self)
 		buffs:SetPoint("BOTTOM"..right, self, "BOTTOM"..left, -FRAME_MARGIN*dir, 0)
 		buffs.showType = true
