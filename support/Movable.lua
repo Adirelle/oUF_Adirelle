@@ -19,10 +19,24 @@ if libmovable then
 	end
 	
 	RegisterVariableLoadedCallback(function(db)
+
 		-- replace RegisterMovable with a function that actually registers the frame
 		RegisterMovable = function(frame, key, label, mask)
-			Debug('Registering movable', frame, key, label, mask)
+			frame:Debug('Registering movable', key, label, mask)
 			db[key] = db[key] or {}
+
+			if frame.Enable and frame.Disable then
+				if not db.disabled then db.disabled = {} end
+				local t = db.disabled
+				frame.LM10_IsEnabled = function() return not t[key] end
+				frame.LM10_Enable = function() t[key] = nil frame:Enable() end
+				frame.LM10_Disable = function() t[key] = true frame:Disable() end
+				if t[key] then
+					frame:Debug('Disabled')
+					frame:Disable()
+				end
+			end
+			
 			libmovable.RegisterMovable(addonName, frame, db[key], label, mask)
 		end
 
