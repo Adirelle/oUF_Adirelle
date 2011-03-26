@@ -4,6 +4,8 @@ Adirelle's oUF layout
 All rights reserved.
 --]=]
 
+local moduleName, private = ...
+
 -- Use our own namespace
 setfenv(1, _G.oUF_Adirelle)
 
@@ -15,127 +17,33 @@ local AURA_SIZE = 22
 
 local borderBackdrop = { edgeFile = [[Interface\Addons\oUF_Adirelle\media\white16x16]], edgeSize = BORDER_WIDTH }
 
-local floor = math.floor
-local strformat = string.format
+local SpawnTexture, SpawnText, SpawnStatusBar = private.SpawnTexture, private.SpawnText, private.SpawnStatusBar
 
-local function smartValue(value)
-	if value >= 10000000 then
-		return strformat("%.1fm", value/1000000)
-	elseif value >= 10000 then
-		return strformat("%.1fk", value/1000)
-	else
-		return tostring(value)
+local function UpdateHealBar(bar, unit, current, max, incoming)
+	if UnitIsDeadOrGhost(unit) or not UnitIsConnected(unit) then
+		current, incoming  = 0, 0
 	end
-end
-
-local function OnStatusBarUpdate(bar)
-	if not bar:IsShown() then return end
-	local text = bar.Text
-	if not text then return end
-	local value, min, max = bar:GetValue(), bar:GetMinMaxValues()
-	if max == 100 then
-		text:SetFormattedText("%d%%", floor(value))
-	elseif max <= 1 then
-		return text:Hide()
-	else
-		local perValue = ((value < max) and UnitClassification(bar:GetParent().unit) ~= 'normal') and strformat("%d%% ", floor(value/max*100)) or ""
-		local maxValue = smartValue(max)
-		local curValue = value < max and (smartValue(value).."/") or ""
-		text:SetText(strjoin('', perValue, curValue, maxValue))
-	end
-	text:Show()
-end
-
-local fontPath, fontSize, fontFlags = GameFontWhiteSmall:GetFont()
-local lsm = GetLib('LibSharedMedia-3.0')
-if lsm then
-	local altFont = lsm:Fetch("font", "ABF", true)
-	if altFont then
-		fontPath, fontSize, fontFlags = altFont, 12, ""
-	end
-end
-
-local function SetFont(fs, size, flags)
-	fs:SetFont(fontPath, size or fontSize, flags or fontFlags)
-	fs:SetTextColor(1, 1, 1, 1)
-	fs:SetShadowColor(0, 0, 0, 1)
-	fs:SetShadowOffset(1, -1)
-end
-
-local function SpawnTexture(object, size, to, xOffset, yOffset)
-	local texture = object:CreateTexture(nil, "OVERLAY")
-	texture:SetWidth(size)
-	texture:SetHeight(size)
-	texture:SetPoint("CENTER", object, to or "CENTER", xOffset or 0, yOffset or 0)
-	return texture
-end
-
-local function SpawnText(object, layer, from, to, xOffset, yOffset)
-	local text = object:CreateFontString(nil, layer)
-	SetFont(text)
-	text:SetWidth(0)
-	text:SetHeight(0)
-	text:SetJustifyV("MIDDLE")
-	if from then
-		text:SetPoint(from, object, to or from, xOffset or 0, yOffset or 0)
-		if from:match("RIGHT") then
-			text:SetJustifyH("RIGHT")
-		elseif from:match("LEFT") then
-			text:SetJustifyH("LEFT")
+	if bar.incoming ~= incoming or bar.current ~= current or bar.max ~= max then
+		bar.incoming, bar.current, bar.max = incoming, current, max
+		local health = bar:GetParent()
+		if current and max and incoming and incoming > 0 and max > 0 and current < max then
+			local width = health:GetWidth()
+			bar:SetPoint("LEFT", width * current / max, 0)
+			bar:SetWidth(width * math.min(incoming, max-current) / max)
+			bar:Show()
 		else
-			text:SetJustifyH("CENTER")
+			bar:Hide()
 		end
-	else
-		text:SetJustifyH("LEFT")
 	end
-	return text
 end
 
-local function SpawnStatusBar(self, noText, from, anchor, to, xOffset, yOffset)
-	local bar = CreateFrame("StatusBar", nil, self)
-	if not noText then
-		local text = SpawnText(bar, "OVERLAY", "TOPRIGHT", "TOPRIGHT", -TEXT_MARGIN, 0)
-		text:SetPoint("BOTTOMRIGHT", bar, "BOTTOMRIGHT", -TEXT_MARGIN, 0)
-		bar.Text = text
-		bar:SetScript('OnShow', OnStatusBarUpdate)
-		bar:SetScript('OnValueChanged', OnStatusBarUpdate)
-		bar:SetScript('OnMinMaxChanged', OnStatusBarUpdate)
-	end
-	if from then
-		bar:SetPoint(from, anchor or self, to or from, xOffset or 0, yOffset or 0)
-	end
-	self:RegisterStatusBarTexture(bar)
-	return bar
+local function IncomingHeal_PostUpdate(bar, event, unit, incoming)
+	return UpdateHealBar(bar, unit, bar.current, bar.max, incoming or 0)
 end
 
-local IncomingHeal_PostUpdate, Health_PostUpdate
-if oUF.HasIncomingHeal then
-	local function UpdateHealBar(bar, unit, current, max, incoming)
-		if UnitIsDeadOrGhost(unit) or not UnitIsConnected(unit) then
-			current, incoming  = 0, 0
-		end
-		if bar.incoming ~= incoming or bar.current ~= current or bar.max ~= max then
-			bar.incoming, bar.current, bar.max = incoming, current, max
-			local health = bar:GetParent()
-			if current and max and incoming and incoming > 0 and max > 0 and current < max then
-				local width = health:GetWidth()
-				bar:SetPoint("LEFT", width * current / max, 0)
-				bar:SetWidth(width * math.min(incoming, max-current) / max)
-				bar:Show()
-			else
-				bar:Hide()
-			end
-		end
-	end
-
-	function IncomingHeal_PostUpdate(bar, event, unit, incoming)
-		return UpdateHealBar(bar, unit, bar.current, bar.max, incoming or 0)
-	end
-
-	function Health_PostUpdate(healthBar, unit, current, max)
-		local bar = healthBar:GetParent().IncomingHeal
-		return UpdateHealBar(bar, unit, current, max, bar.incoming)
-	end
+local function Health_PostUpdate(healthBar, unit, current, max)
+	local bar = healthBar:GetParent().IncomingHeal
+	return UpdateHealBar(bar, unit, current, max, bar.incoming)
 end
 
 local function Auras_PostCreateIcon(icons, button)
@@ -252,273 +160,6 @@ local function Auras_ForceUpdate(self, event, unit)
 	end
 end
 
-local SetupAltPower
-if playerClass == 'DEATHKNIGHT' then
-	-- Death Knight Runes
-
-	oUF.colors.runes = oUF.colors.runes or {
-		{ 1, 0, 0  },
-		{ 0, 0.5, 0 },
-		{ 0, 1, 1 },
-		{ 0.8, 0.1, 1 },
-	}
-
-	local function UpdateRuneColor(rune)
-		local color = oUF.colors.runes[GetRuneType(rune.index) or false]
-		if color then
-			rune:SetStatusBarColor(unpack(color))
-		end
-	end
-
-
-	local function LayoutRunes(runeBar)
-		local spacing = (runeBar:GetWidth() + GAP) / 6
-		local runeWidth = spacing - GAP
-		local runeHeight = runeBar:GetHeight()
-		for index = 1, 6 do
-			local rune = runeBar[index]
-			rune:SetPoint("TOPLEFT", runeBar, "TOPLEFT", spacing * (index-1), 0)
-			rune:SetWidth(runeWidth)
-			rune:SetHeight(runeHeight)
-		end
-	end
-
-	function SetupAltPower(self)
-		local runeBar = CreateFrame("Frame", nil, self)
-		runeBar:SetScript('OnShow', LayoutRunes)
-		runeBar:SetScript('OnSizeChanged', LayoutRunes)
-		self.RuneBar = runeBar
-		for index = 1, 6 do
-			local rune = CreateFrame("StatusBar", nil, runeBar)
-			rune.index = index
-			rune.UpdateRuneColor = UpdateRuneColor
-			self:RegisterStatusBarTexture(rune, UpdateRuneColor)
-			runeBar[index] = rune
-		end
-		return runeBar
-	end
-
-elseif playerClass == "DRUID" then
-	-- Druid mana bar
-
-	local eclipseColors = {
-		lunar = {
-			 sun = { 136/255, 200/255, 224/255 },
-			moon = {  24/255,  36/255,  80/255 },
-			none = {  56/255, 100/255, 168/255 } ,
-		},
-		solar = {
-			moon = { 232/255, 212/255, 120/255 },
-			 sun = {  88/255,  36/255,   8/255 },
-			none = { 205/255, 148/255,  43/255 },
-		}
-	}
-
-	local SPELL_POWER_MANA = SPELL_POWER_MANA
-	local SPELL_POWER_ECLIPSE = SPELL_POWER_ECLIPSE
-
-	local function EclipseText_Update(eclipseBar, unit)
-		if unit and unit ~= "player" or not eclipseBar:IsVisible() then return end
-		eclipseBar.Text:SetText(abs(UnitPower("player", SPELL_POWER_ECLIPSE) / UnitPowerMax("player", SPELL_POWER_ECLIPSE) * 100))
-
-		local eclipse = (eclipseBar.hasLunarEclipse and "moon") or (eclipseBar.hasSolarEclipse and "sun") or "none"
-		eclipseBar.LunarBar:SetStatusBarColor(unpack(eclipseColors.solar[eclipse], 1, 3))
-		eclipseBar:SetBackdropColor(unpack(eclipseColors.lunar[eclipse], 1, 3))
-
-		local direction = GetEclipseDirection() or "none"
-		local mark = eclipseBar.mark
-		mark:SetTexCoord(unpack(ECLIPSE_MARKER_COORDS[direction]))
-		if direction == "sun" then
-			mark:SetPoint("CENTER", eclipseBar, "CENTER", eclipseBar:GetWidth() / 4, 0)
-			mark:Show()
-		elseif direction == "moon" then
-			mark:SetPoint("CENTER", eclipseBar, "CENTER", -eclipseBar:GetWidth() / 4, 0)
-			mark:Show()
-		else
-			mark:Hide()
-		end
-	end
-
-	function AltPower_Update(power, unit)
-		power:GetParent().EclipseBar:ForceUpdate()
-		local manaBar = power:GetParent().AltPower.ManaBar
-		if unit == 'player' and UnitPowerType(unit) ~= SPELL_POWER_MANA then
-			local current, max = UnitPower(unit, SPELL_POWER_MANA), UnitPowerMax(unit, SPELL_POWER_MANA)
-			if max and max > 0 then
-				manaBar:SetMinMaxValues(0, max)
-				manaBar:SetValue(current)
-				return manaBar:Show()
-			end
-		end
-		return manaBar:Hide()
-	end
-
-	function SetupAltPower(self)
-		local altPower = CreateFrame("Frame", nil, self)
-		self.AltPower = altPower
-
-		local manaBar = SpawnStatusBar(self)
-		manaBar:SetAllPoints(altPower)
-		manaBar.textureColor = oUF.colors.power.MANA
-		manaBar:Hide()
-		altPower.ManaBar = manaBar
-
-		if self.Power.PostUpdate then
-			local orig = self.Power.PostUpdate
-			self.Power.PostUpdate = function(...)
-				AltPower_Update(...)
-				return orig(...)
-			end
-		else
-			self.Power.PostUpdate = AltPower_Update
-		end
-
-		local eclipseBar = CreateFrame("Frame", nil, self)
-		eclipseBar:SetAllPoints(altPower)
-		eclipseBar.PostUnitAura = EclipseText_Update
-		eclipseBar.PostDirectionChange  = EclipseText_Update
-		eclipseBar.PostUpdateVisibility = EclipseText_Update
-		eclipseBar.PostUpdatePower  = EclipseText_Update
-		eclipseBar:SetBackdrop({
-			bgFile = [[Interface\AddOns\oUF_Adirelle\media\white16x16]],
-			tile = true, tileSize = 16,
-			insets = {left = 0, right = 0, top = 0, bottom = 0},
-		})
-		eclipseBar.color = PowerBarColor.ECLIPSE.negative
-		self.EclipseBar = eclipseBar
-
-		local lunar = CreateFrame("StatusBar", nil, eclipseBar)
-		lunar:SetAllPoints(eclipseBar)
-		lunar:SetStatusBarTexture([[Interface\AddOns\oUF_Adirelle\media\white16x16]])
-		lunar.color = PowerBarColor.ECLIPSE.positive
-		eclipseBar.LunarBar = lunar
-
-		local text = SpawnText(lunar, "OVERLAY", "CENTER", "CENTER", 0, 0)
-		local name, size = text:GetFont()
-		text:SetFont(name, size, "OUTLINE")
-		text:SetShadowColor(0, 0, 0, 0)
-		eclipseBar.Text = text
-
-		local mark = lunar:CreateTexture(nil, "OVERLAY")
-		mark:SetSize(20, 20)
-		mark:SetPoint("CENTER")
-		mark:SetTexture([[Interface\PlayerFrame\UI-DruidEclipse]])
-		mark:SetBlendMode("ADD")
-		eclipseBar.mark = mark
-
-		local function UpdateAltPower()
-			if manaBar:IsShown() or eclipseBar:IsShown() then
-				altPower:Show()
-			else
-				altPower:Hide()
-			end
-		end
-		manaBar:HookScript('OnShow', UpdateAltPower)
-		manaBar:HookScript('OnHide', UpdateAltPower)
-		eclipseBar:HookScript('OnShow', UpdateAltPower)
-		eclipseBar:HookScript('OnHide', UpdateAltPower)
-
-		return altPower
-	end
-
-elseif playerClass == "SHAMAN" then
-	-- Shaman totems
-	local MAX_TOTEMS = MAX_TOTEMS
-
-	oUF.colors.totems = oUF.colors.totems or {
-		[FIRE_TOTEM_SLOT] = { 1, 0.3, 0.0  },
-		[EARTH_TOTEM_SLOT] = { 0.3, 1, 0.2 },
-		[WATER_TOTEM_SLOT] = { 0.3, 0.2, 1 },
-		[AIR_TOTEM_SLOT] = { 0.2, 0.8, 1 },
-	}
-
-	local function UpdateTotemColor(totem)
-		local color = oUF.colors.totems[totem.totemType]
-		if color then
-			totem:SetStatusBarColor(unpack(color))
-		end
-	end
-
-	local function LayoutTotems(totemBar)
-		local spacing = (totemBar:GetWidth() + GAP) / MAX_TOTEMS
-		local totemWidth = spacing - GAP
-		local totemHeight = totemBar:GetHeight()
-		for index = 1, MAX_TOTEMS do
-			local totem = totemBar[index]
-			totem:SetPoint("TOPLEFT", totemBar, "TOPLEFT", spacing * (index-1), 0)
-			totem:SetWidth(totemWidth)
-			totem:SetHeight(totemHeight)
-		end
-	end
-
-	function SetupAltPower(self)
-		local totemBar = CreateFrame("Frame", nil, self)
-		totemBar:SetScript('OnShow', LayoutTotems)
-		totemBar:SetScript('OnSizeChanged', LayoutTotems)
-		self.TotemBar = totemBar
-		for index = 1, MAX_TOTEMS do
-			local totem = CreateFrame("StatusBar", nil, totemBar)
-			totem.totemType = SHAMAN_TOTEM_PRIORITIES[index]
-			self:RegisterStatusBarTexture(totem, UpdateTotemColor)
-			totemBar[index] = totem
-		end
-		return totemBar
-	end
-
-elseif playerClass == "WARLOCK" then
-	-- Warlock shards
-
-	function SetupAltPower(self)
-		-- Display them in the mana bar, without changing its size
-		local shards = {}
-		local parent, anchor = self.Indicators, self.Power
-		local scale = 1/1.2
-		local w, h = scale*17, scale*16
-		for index = 1, SHARD_BAR_NUM_SHARDS do
-			local shard = parent:CreateTexture(nil, "OVERLAY")
-			shard:SetTexture([[Interface\PlayerFrame\UI-WarlockShard]])
-			shard:SetSize(w, h)
-			shard:SetTexCoord(0.01562500, 0.28125000, 0.00781250, 0.13281250)
-			shard:SetPoint("CENTER", anchor, "BOTTOM", (index-2)*(w+GAP), -GAP/2)
-			shards[index] = shard
-		end
-		self.SoulShards = shards
-	end
-
-elseif playerClass == "PALADIN" then
-	-- Paladin holy power
-
-	local function LayoutHolyPower(holyPowerBar)
-		local spacing = (holyPowerBar:GetWidth() + GAP) / MAX_HOLY_POWER
-		local width = spacing - GAP
-		local height = holyPowerBar:GetHeight()
-		for index = 1, MAX_HOLY_POWER do
-			local power = holyPowerBar[index]
-			power:SetPoint("TOPLEFT", holyPowerBar, "TOPLEFT", spacing * (index-1), 0)
-			power:SetSize(width, height)
-		end
-	end
-
-	local color = PowerBarColor.HOLY_POWER
-	local function SetHolyPowerColor(power)
-		power:SetStatusBarColor(color.r, color.g, color.b)
-	end
-
-	function SetupAltPower(self)
-		local holyPowerBar = CreateFrame("Frame", nil, self)
-		holyPowerBar:SetScript('OnShow', LayoutHolyPower)
-		holyPowerBar:SetScript('OnSizeChanged', LayoutHolyPower)
-		self.HolyPower = holyPowerBar
-		for index = 1, MAX_HOLY_POWER do
-			local power = CreateFrame("StatusBar", nil, holyPowerBar)
-			self:RegisterStatusBarTexture(power, SetHolyPowerColor)
-			holyPowerBar[index] = power
-		end
-		return holyPowerBar
-	end
-
-end
-
 local function Power_PostUpdate(power, unit, min, max)
 	if power.disconnected or UnitIsDeadOrGhost(unit) then
 		power:SetValue(0)
@@ -592,73 +233,6 @@ local function LayoutBars(self, width, height)
 	end
 end
 
-do
-	local function Update(self, event, name)
-		if event == "CVAR_UPDATE" and name ~= "SHOW_TARGET_CASTBAR" then return end
-		local enabled = not not GetCVarBool("showTargetCastbar")
-		if enabled == self.Castbar.enabled then return end
-		self.Castbar.enabled = enabled
-		self:Debug('UpdateCastbarDisplay', enabled, event, name)
-		if enabled then
-			self:EnableElement('Castbar')
-		else
-			self:DisableElement('Castbar')
-			self.Castbar:Hide()
-		end
-	end
-
-	local function Enable(self)
-		if self.Castbar and self.OptionalCastbar then
-			self.Castbar.enabled = true
-			self:RegisterEvent('CVAR_UPDATE', Update)
-			return true
-		end
-	end
-
-	local function Disable(self)
-		if self.Castbar and self.OptionalCastbar then
-			self:UnregisterEvent('CVAR_UPDATE', Update)
-		end
-	end
-
-	oUF:AddElement('OptionalCastbar', Update, Enable, Disable)
-end
-
--- Based on Xinhuan unit dropdown hack
-local function AdjustMenu(listFrame, point, relativeTo, relativePoint, xOffset, yOffset)
-	local x, y = listFrame:GetCenter()
-	local reposition
-	if (y - listFrame:GetHeight()/2) < 0 then
-		point = gsub(point, "TOP(.*)", "BOTTOM%1")
-		relativePoint = gsub(relativePoint, "BOTTOM(.*)", "TOP%1")
-		reposition = true
-	end
-	if listFrame:GetRight() > GetScreenWidth() then
-		point = gsub(point, "(.*)LEFT", "%1RIGHT")
-		relativePoint = gsub(relativePoint, "(.*)RIGHT", "%1LEFT")
-		reposition = true
-	end
-	if reposition then
-		listFrame:ClearAllPoints()
-		listFrame:SetPoint(point, relativeTo, relativePoint, xOffset, yOffset)
-	end
-end
-
-local function DropDown_PostClick(self)
-	if UIDROPDOWNMENU_OPEN_MENU == self.dropdownFrame and DropDownList1:IsShown() then
-		DropDownList1:ClearAllPoints()
-		DropDownList1:SetPoint("TOPLEFT", self, "BOTTOMLEFT", 0, 0)
-		AdjustMenu(DropDownList1, "TOPLEFT", self, "BOTTOMLEFT", 0, 0)
-	end
-end
-
-local DROPDOWN_FRAMES = {
-	player = "PlayerFrame",
-	pet = "PetFrame",
-	target = "TargetFrame",
-	focus = "FocusFrame",
-	boss = "Boss1TargetFrame",
-}
 
 local DRAGON_TEXTURES = {
 	rare  = { [[Interface\Addons\oUF_Adirelle\media\rare_graphic]],  6/128, 123/128, 17/128, 112/128, },
@@ -683,25 +257,7 @@ local function InitFrame(settings, self, unit)
 		self:SetAttribute("type", "target")
 	end
 
-	local dropdownButton = DROPDOWN_FRAMES[unit]
-	if dropdownButton then
-		-- Hacky workaround
-		if self:CanChangeAttribute() then
-			self:SetAttribute("*type2", "click")
-			self:SetAttribute("*clickbutton2", _G[dropdownButton])
-		end
-		self.dropdownFrame = _G[dropdownButton.."DropDown"]
-		self:HookScript("PostClick", DropDown_PostClick)
-
-		-- In case some addon overrides our right-click binding
-		local menu = _G[dropdownButton].menu
-		if menu then
-			self.menu = function(...)
-				print("|cff33ff99oUF_Adirelle:|r |cffff0000some third-party addon (Clique ?) overrides the right-click binding. Some of the menu options may fail. Remove that binding or disable the addon to fix this.|r")
-				return menu(...)
-			end
-		end
-	end
+	private.SetupUnitDropdown(self)
 
 	self:SetBackdrop(backdrop)
 	self:SetBackdropColor(0,0,0,backdrop.bgAlpha)
@@ -815,8 +371,8 @@ local function InitFrame(settings, self, unit)
 		power.PostUpdate = Power_PostUpdate
 		self.Power = power
 
-		if unit == "player" and SetupAltPower then
-			local altPower = SetupAltPower(self)
+		if unit == "player" and private.SetupAltPower then
+			local altPower = private.SetupAltPower(self)
 			if altPower then
 				altPower:SetPoint('TOPLEFT', power, 'BOTTOMLEFT', 0, -GAP)
 				altPower:SetPoint('RIGHT', barContainer)
