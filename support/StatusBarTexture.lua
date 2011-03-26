@@ -56,8 +56,6 @@ local function StatusBar_OnValueChanged(bar, value)
 	end
 end
 
-local frame_prototype = oUF.frame_metatable and oUF.frame_metatable.__index or oUF
-
 -- Usage:
 --   self:RegisterStatusBarTexture(bar, callback)
 --   self:RegisterStatusBarTexture(bar, colorTable)
