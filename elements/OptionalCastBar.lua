@@ -4,6 +4,9 @@ Adirelle's oUF layout
 All rights reserved.
 --]=]
 
+local parent, ns = ...
+local oUF = assert(ns.oUF, "oUF is undefined in "..parent.." namespace")
+
 local function Update(self, event, name)
 	if event == "CVAR_UPDATE" and name ~= "SHOW_TARGET_CASTBAR" then return end
 	local enabled = not not GetCVarBool("showTargetCastbar")

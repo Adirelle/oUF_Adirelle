@@ -9,6 +9,7 @@ local moduleName, private = ...
 -- Use our own namespace
 setfenv(1, _G.oUF_Adirelle)
 
+local GAP = 2
 local TEXT_MARGIN = 2
 
 local floor, format, strjoin = floor, format, strjoin
@@ -103,5 +104,37 @@ local function SpawnStatusBar(self, noText, from, anchor, to, xOffset, yOffset)
 	return bar
 end
 
-private.SpawnTexture, private.SpawnText, private.SpawnStatusBar = SpawnTexture, SpawnText, SpawnStatusBar
+local function DiscreteBar_Layout(bar)
+	local width, itemHeight = bar:GetSize()
+	local spacing = (width + GAP) / bar.numItems
+	local itemWidth = spacing - GAP
+	for i = 1, bar.numItems do
+		local item = bar[i]
+		item:SetPoint("TOPLEFT", bar, "TOPLEFT", spacing * (i-1), 0)
+		item:SetSize(itemWidth, itemHeight)
+	end
+end
+
+local function SpawnDiscreteBar(self, numItems, color, createStatusBar)
+	local bar = CreateFrame("Frame", nil, self)
+	bar.numItems = numItems
+	bar:Hide()
+	bar:SetScript('OnShow', DiscreteBar_Layout)
+	bar:SetScript('OnSizeChanged', DiscreteBar_Layout)	
+	for i = 1, numItems do
+		local item
+		if createStatusBar then
+			item = CreateFrame("StatusBar", nil, bar)
+		else
+			item = bar:CreateTexture(nil, "ARTWORK")
+		end
+		self:RegisterStatusBarTexture(item, color)
+		item.index = i
+		item.__owner = self
+		bar[i] = item
+	end
+	return bar
+end
+
+private.SpawnTexture, private.SpawnText, private.SpawnStatusBar, private.SpawnDiscreteBar = SpawnTexture, SpawnText, SpawnStatusBar, SpawnDiscreteBar
 

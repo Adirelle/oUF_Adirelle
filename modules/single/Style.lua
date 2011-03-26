@@ -206,33 +206,30 @@ local function AddAuxiliaryBar(self, bar)
 end
 
 -- General bar layuot
-local function LayoutBars(self, width, height)
+local function LayoutBars(self)
+	local width, height = self:GetSize()
 	if width == 0 or height == 0 then return end
 	self.Border:SetWidth(width + 2 * BORDER_WIDTH)
 	self.Border:SetHeight(height + 2 * BORDER_WIDTH)
 	local portrait = self.Portrait
 	if portrait then
-		portrait:SetWidth(height)
-		portrait:SetHeight(height)
+		portrait:SetSize(height, height)
 	end
-	if self.Power then
-		local totalPowerHeihgt = height * 0.45 - GAP
-		local powerHeight
-		if self.AltPower and self.AltPower:IsShown() then
-			powerHeight = (totalPowerHeihgt - GAP) / 2
-			self.AltPower:SetHeight(powerHeight)
-		else
-			powerHeight = totalPowerHeihgt
+	local power = self.Power
+	if power then
+		local totalPowerHeight = height * 0.45 - GAP
+		local powerHeight = totalPowerHeight		
+		if self.SecondaryPowerBar and self.SecondaryPowerBar:IsShown() then
+			powerHeight = (totalPowerHeight - GAP) / 2	
 		end
-		self.Power:SetHeight(powerHeight)
-		height = height - totalPowerHeihgt - GAP
+		power:SetHeight(powerHeight)
+		height = height - totalPowerHeight - GAP
 	end
 	self.Health:SetHeight(height)
 	if self.AuxiliaryBars then
 		LayoutAuxiliaryBars(self)
 	end
 end
-
 
 local DRAGON_TEXTURES = {
 	rare  = { [[Interface\Addons\oUF_Adirelle\media\rare_graphic]],  6/128, 123/128, 17/128, 112/128, },
@@ -257,7 +254,7 @@ local function InitFrame(settings, self, unit)
 		self:SetAttribute("type", "target")
 	end
 
-	private.SetupUnitDropdown(self)
+	private.SetupUnitDropdown(self, unit)
 
 	self:SetBackdrop(backdrop)
 	self:SetBackdropColor(0,0,0,backdrop.bgAlpha)
@@ -371,21 +368,25 @@ local function InitFrame(settings, self, unit)
 		power.PostUpdate = Power_PostUpdate
 		self.Power = power
 
-		if unit == "player" and private.SetupAltPower then
-			local altPower = private.SetupAltPower(self)
-			if altPower then
-				altPower:SetPoint('TOPLEFT', power, 'BOTTOMLEFT', 0, -GAP)
-				altPower:SetPoint('RIGHT', barContainer)
-				altPower:HookScript('OnShow', UpdateLayout)
-				altPower:HookScript('OnHide', UpdateLayout)
-				self.AltPower = altPower
+		if unit == "player" and private.SetupSecondaryPowerBar then
+			-- Add player specific secondary power bar
+			local bar = private.SetupSecondaryPowerBar(self)
+			if bar then
+				bar:Hide()
+				bar:SetPoint('TOPLEFT', self.Power, 'BOTTOMLEFT', 0, -GAP)
+				bar:SetPoint('BOTTOMRIGHT', self.BarContainer)	
+				local LayoutScript = function() return LayoutBars(self) end
+				bar:HookScript('OnShow', LayoutScript)
+				bar:HookScript('OnHide', LayoutScript)
+				self.SecondaryPowerBar = bar
 			end
 		end
 
 		-- Unit level and class (or creature family)
 		if unit ~= "player" and unit ~= "pet" then
-			local classif = SpawnText(power, "OVERLAY", "TOPLEFT", "TOPLEFT", TEXT_MARGIN, 0)
-			classif:SetPoint("BOTTOMLEFT", power)
+			local classif = SpawnText(power, "OVERLAY")
+			classif:SetPoint("TOPLEFT", self.Health, "BOTTOMLEFT", 0, -GAP)
+			classif:SetPoint("BOTTOM", barContainer)
 			classif:SetPoint("RIGHT", power.Text, "LEFT")
 			self:Tag(classif, "[smartlevel][ >smartclass<]")
 		end
