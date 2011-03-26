@@ -66,7 +66,7 @@ if playerClass == "DRUID" then
 		return manaBar:Hide()
 	end
 
-	private.SetupAltPower = function(self)
+	private.SetupSecondaryPowerBar = function(self)
 		local altPower = CreateFrame("Frame", nil, self)
 		self.AltPower = altPower
 
@@ -106,7 +106,7 @@ if playerClass == "DRUID" then
 		lunar.color = PowerBarColor.ECLIPSE.positive
 		eclipseBar.LunarBar = lunar
 
-		local text = SpawnText(lunar, "OVERLAY", "CENTER", "CENTER", 0, 0)
+		local text = private.SpawnText(lunar, "OVERLAY", "CENTER", "CENTER", 0, 0)
 		local name, size = text:GetFont()
 		text:SetFont(name, size, "OUTLINE")
 		text:SetShadowColor(0, 0, 0, 0)
@@ -136,8 +136,7 @@ if playerClass == "DRUID" then
 
 elseif playerClass == "WARLOCK" then
 	-- Soul shards
-
-	private.SetupAltPower = function(self)
+	private.SetupSecondaryPowerBar = function(self)
 		-- Display them in the mana bar, without changing its size
 		local shards = {}
 		local parent, anchor = self.Indicators, self.Power
@@ -154,96 +153,62 @@ elseif playerClass == "WARLOCK" then
 		self.SoulShards = shards
 	end
 
-elseif playerClass == "DEATHKNIGHT" or playerClass == "PALADIN" or playerClass == "SHAMAN" then
-	-- This three classes use the same kind of widget
+elseif playerClass == 'DEATHKNIGHT' then
+	-- Runes
 	
-	local function CreateItemFrame(self, numItems, updateColorFunc)
-		local frame = CreateFrame("Frame", nil, self)
+	local colors = oUF.colors.runes or {
+		{ 1, 0, 0  },
+		{ 0, 0.5, 0 },
+		{ 0, 1, 1 },
+		{ 0.8, 0.1, 1 },
+	}
 
-		local Layout = function()
-			local spacing = (frame:GetWidth() + GAP) / 6
-			local itemWidth = spacing - GAP
-			local itemHeight = frame:GetHeight()
-			for index = 1, numItems do
-				local item = frame[index]
-				item:SetPoint("TOPLEFT", frame, "TOPLEFT", spacing * (index-1), 0)
-				item:SetWidth(itemWidth)
-				item:SetHeight(itemHeight)
-			end
+	local function UpdateRuneColor(rune)
+		local color = colors[GetRuneType(rune.index) or false]
+		if color then
+			rune:SetStatusBarColor(unpack(color))
 		end
-	
-		frame:SetScript('OnShow', Layout)
-		frame:SetScript('OnSizeChanged', Layout)
-		
-		for index = 1, numItems do
-			local item = CreateFrame("StatusBar", nil, frame)
-			item.index = index
-			self:RegisterStatusBarTexture(item, updateColorFunc)
-			frame[index] = item
-		end
-		
-		return frame	
 	end
 
-	if playerClass == 'DEATHKNIGHT' then
-		-- Runes
-		
-		local colors = oUF.colors.runes or {
-			{ 1, 0, 0  },
-			{ 0, 0.5, 0 },
-			{ 0, 1, 1 },
-			{ 0.8, 0.1, 1 },
-		}
-
-		local function UpdateRuneColor(rune)
-			local color = colors[GetRuneType(rune.index) or false]
-			if color then
-				rune:SetStatusBarColor(unpack(color))
-			end
+	private.SetupSecondaryPowerBar = function(self)			
+		local runeBar = private.SpawnDiscreteBar(self, 6, UpdateRuneColor, true)
+		self.RuneBar = runeBar
+		for i = 1, 6 do
+			runeBar[i].UpdateRuneColor = UpdateRuneColor
 		end
+		return runeBar
+	end
 
-		private.SetupAltPower = function(self)
-			local runeBar = CreateItemFrame(self, 6, UpdateRuneColor)
-			self.RuneBar = runeBar
-			for i = 1, 6 do
-				runeBar[i].UpdateRuneColor = UpdateRuneColor
-			end
-			return runeBar
-		end
-
-	elseif playerClass == "SHAMAN" then
-		-- Totems
-
-		local colors = oUF.colors.totems or {
+elseif playerClass == "SHAMAN" then
+	-- Totems
+	
+	if not oUF.colors.totems then
+		oUF.colors.totems = {
 			[FIRE_TOTEM_SLOT] = { 1, 0.3, 0.0  },
 			[EARTH_TOTEM_SLOT] = { 0.3, 1, 0.2 },
 			[WATER_TOTEM_SLOT] = { 0.3, 0.2, 1 },
 			[AIR_TOTEM_SLOT] = { 0.2, 0.8, 1 },
 		}
+	end
 
-		local function UpdateTotemColor(totem)
-			local color = colors[totem.totemType]
-			if color then
-				totem:SetStatusBarColor(unpack(color))
-			end
-		end
-
-		private.SetupAltPower = function(self)
-			local totemBar = CreateItemFrame(self, MAX_TOTEMS, UpdateTotemColor)
-			self.TotemBar = totemBar
-			for index = 1, MAX_TOTEMS do
-				totemBar[index].totemType = SHAMAN_TOTEM_PRIORITIES[index]
-			end
-			return totemBar
-		end
-
-	elseif playerClass == "PALADIN" then
-		-- Holy power
-		
-		private.SetupAltPower = function(self)
-			self.HolyPower = CreateItemFrame(self, MAX_HOLY_POWER, PowerBarColor.HOLY_POWER)
-			return self.HolyPower
+	local SHAMAN_TOTEM_PRIORITIES = SHAMAN_TOTEM_PRIORITIES
+	local function UpdateTotemColor(totem)
+		local color = totem.__owner.colors[SHAMAN_TOTEM_PRIORITIES[totem.index]]
+		if color then
+			totem:SetStatusBarColor(unpack(color))
 		end
 	end
 
+	private.SetupSecondaryPowerBar = function(self)
+		self.TotemBar = private.SpawnDiscreteBar(self, MAX_TOTEMS, UpdateTotemColor, true)
+		return self.TotemBar
+	end
+
+elseif playerClass == "PALADIN" then
+	-- Holy power	
+	private.SetupSecondaryPowerBar = function(self)
+		self.HolyPower = private.SpawnDiscreteBar(self, MAX_HOLY_POWER, self.colors.HOLY_POWER)
+		return self.HolyPower
+	end
 end
+

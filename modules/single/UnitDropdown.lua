@@ -45,7 +45,7 @@ local BLIZZARD_FRAMES = {
 	boss = "Boss1TargetFrame",
 }
 
-function private.SetupUnitDropdown(self)
+function private.SetupUnitDropdown(self, unit)
 	local blizzardName = BLIZZARD_FRAMES[unit]
 	if not blizzardName then return end
 	
