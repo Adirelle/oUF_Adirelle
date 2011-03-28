@@ -160,20 +160,6 @@ local function UpdateColor(self, event, unit)
 	return UpdateName(self)
 end
 
--- Add a pseudo-element to update the color
-oUF:AddElement('Adirelle_Raid:UpdateColor',
-	UpdateColor,
-	function(self)
-		if self.Health and self.bgColor and self.style == "Adirelle_Raid" then
-			self:RegisterEvent('UNIT_NAME_UPDATE', UpdateColor)
-			self:RegisterEvent('RAID_ROSTER_UPDATE', UpdateColor)
-			self:RegisterEvent('PARTY_MEMBERS_CHANGED', UpdateColor)
-			return true
-		end
-	end,
-	function() end
-)
-
 -- Statusbar texturing
 local function HealthBar_PostTextureUpdate(self)
 	self:SetStatusBarColor(0, 0, 0, 0.75)
@@ -330,7 +316,7 @@ end
 
 local function UNIT_NAME_UPDATE(self, event, unit)
 	if unit == self.unit or unit == self.realUnit then
-		return UpdateName(self)
+		return UpdateColor(self)
 	end
 end
 
@@ -370,6 +356,9 @@ local function InitFrame(self, unit)
 	hpbg:SetAlpha(1)
 	self:RegisterStatusBarTexture(hpbg)
 	hp.bg = hpbg
+	
+	--self:RegisterEvent('RAID_ROSTER_UPDATE', UpdateColor)
+	--self:RegisterEvent('PARTY_MEMBERS_CHANGED', UpdateColor)	
 
 	-- Incoming heals
 	local heal = hp:CreateTexture(nil, "OVERLAY")
