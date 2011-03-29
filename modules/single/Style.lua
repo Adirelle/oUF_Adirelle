@@ -172,11 +172,7 @@ local function AltPowerBar_PostUpdate(bar, min, cur, max)
 	bar.Label:SetText(select(10, UnitAlternatePowerInfo(unit)))
 	local _, powerRed, powerGreen, powerBlue = UnitAlternatePowerTextureInfo(unit, 2)
 	local r, g, b = oUF.ColorGradient((cur-min)/(max-min), powerRed, powerGreen, powerBlue, 1, 0, 0)
-	local c = bar.textureColor
-	if c[1] ~= r or c[2] ~= g or c[3] ~= b then
-		c[1], c[2], c[3] = r, g, b
-		bar:SetStatusBarColor(r, g, b)
-	end
+	bar:SetStatusBarColor(r, g, b)
 end
 
 -- Additional auxiliary bars
@@ -614,13 +610,11 @@ local function InitFrame(settings, self, unit)
 		xpBar.Hide = function() return xpFrame:Hide() end
 		xpBar.IsShown = function() return xpFrame:IsShown() end
 		xpBar:EnableMouse(false)
-		xpBar.PostTextureUpdate = function() return self.ExperienceBar.ForceUpdate and self.ExperienceBar:ForceUpdate() end
 
 		local restedBar = SpawnStatusBar(self, true)
 		restedBar:SetParent(xpFrame)
 		restedBar:SetAllPoints(xpFrame)
 		restedBar:EnableMouse(false)
-		restedBar.PostTextureUpdate = xpBar.PostTextureUpdate
 
 		local levelText = SpawnText(xpBar, "OVERLAY", "TOPLEFT", "TOPLEFT", TEXT_MARGIN, 0)
 		levelText:SetPoint("BOTTOMLEFT", xpBar, "BOTTOMLEFT", TEXT_MARGIN, 0)

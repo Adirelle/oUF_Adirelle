@@ -72,7 +72,7 @@ if playerClass == "DRUID" then
 
 		local manaBar = private.SpawnStatusBar(self)
 		manaBar:SetAllPoints(altPower)
-		manaBar.textureColor = oUF.colors.power.MANA
+		manaBar:SetStatusBarColor(unpack(self.colors.power.MANA,1,3))
 		manaBar:Hide()
 		altPower.ManaBar = manaBar
 
@@ -155,7 +155,7 @@ elseif playerClass == "WARLOCK" then
 
 elseif playerClass == 'DEATHKNIGHT' then
 	-- Runes
-	
+
 	local colors = oUF.colors.runes or {
 		{ 1, 0, 0  },
 		{ 0, 0.5, 0 },
@@ -170,8 +170,8 @@ elseif playerClass == 'DEATHKNIGHT' then
 		end
 	end
 
-	private.SetupSecondaryPowerBar = function(self)			
-		local runeBar = private.SpawnDiscreteBar(self, 6, UpdateRuneColor, true)
+	private.SetupSecondaryPowerBar = function(self)
+		local runeBar = private.SpawnDiscreteBar(self, 6, true)
 		self.RuneBar = runeBar
 		for i = 1, 6 do
 			runeBar[i].UpdateRuneColor = UpdateRuneColor
@@ -181,33 +181,29 @@ elseif playerClass == 'DEATHKNIGHT' then
 
 elseif playerClass == "SHAMAN" then
 	-- Totems
-	
-	if not oUF.colors.totems then
-		oUF.colors.totems = {
-			[FIRE_TOTEM_SLOT] = { 1, 0.3, 0.0  },
-			[EARTH_TOTEM_SLOT] = { 0.3, 1, 0.2 },
-			[WATER_TOTEM_SLOT] = { 0.3, 0.2, 1 },
-			[AIR_TOTEM_SLOT] = { 0.2, 0.8, 1 },
-		}
-	end
-
-	local SHAMAN_TOTEM_PRIORITIES = SHAMAN_TOTEM_PRIORITIES
-	local function UpdateTotemColor(totem)
-		local color = totem.__owner.colors[SHAMAN_TOTEM_PRIORITIES[totem.index]]
-		if color then
-			totem:SetStatusBarColor(unpack(color))
-		end
-	end
+	local totemColors =	oUF.colors.totems or {
+		[FIRE_TOTEM_SLOT] = { 1, 0.3, 0.0  },
+		[EARTH_TOTEM_SLOT] = { 0.3, 1, 0.2 },
+		[WATER_TOTEM_SLOT] = { 0.3, 0.2, 1 },
+		[AIR_TOTEM_SLOT] = { 0.2, 0.8, 1 },
+	}
 
 	private.SetupSecondaryPowerBar = function(self)
-		self.TotemBar = private.SpawnDiscreteBar(self, MAX_TOTEMS, UpdateTotemColor, true)
+		self.TotemBar = private.SpawnDiscreteBar(self, MAX_TOTEMS, true)
+		for i = 1, MAX_TOTEMS do
+			self.TotemBar[i]:SetStatusBarColor(unpack(totemColors[SHAMAN_TOTEM_PRIORITIES[i]], 1, 3))
+		end
 		return self.TotemBar
 	end
 
 elseif playerClass == "PALADIN" then
-	-- Holy power	
+	-- Holy power
 	private.SetupSecondaryPowerBar = function(self)
-		self.HolyPower = private.SpawnDiscreteBar(self, MAX_HOLY_POWER, self.colors.HOLY_POWER)
+		self.HolyPower = private.SpawnDiscreteBar(self, MAX_HOLY_POWER)
+		local color = self.colors.HOLY_POWER
+		for i = 1, MAX_HOLY_POWER do
+			self.HolyPower[i]:SetStatusBarColor(unpack(color, 1, 3))
+		end
 		return self.HolyPower
 	end
 end
