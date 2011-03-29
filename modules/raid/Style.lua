@@ -289,36 +289,38 @@ end
 -- Alternate Power Bar
 -- ------------------------------------------------------------------------------
 
-local function AltPowerBar_OnUpdate(bar, elapsed)
-	if bar.alert then
-		local alpha = 2 * (GetTime() % 1)
-		if alpha > 1 then
-			alpha = 2 - alpha
-		end
-		bar:SetAlpha(alpha)
-	end
-	local value, target = floor(bar:GetValue()+0.5), bar.target
-	if target ~= value or bar.highlight then
-		if target > value then
-			value = min(value + bar.range * elapsed / 3, target)
-			bar:SetValue(value)
-		else
-			if target < value then	
-				value = max(value - bar.range * elapsed / 3, target)
-				bar:SetValue(value)
+local function AltPowerBar_SetValue(bar, value)
+	if bar.alert or value ~= bar:GetValue() or bar.highlight ~= bar._highlight then
+		local r, g, b = bar.red, bar.green, bar.blue
+		if bar.alert then
+			local f = 2 * (GetTime() % 1)
+			if f > 1 then
+				f = 2 - f
 			end
-			if bar.highlight > 0 then
-				bar.highlight = max(bar.highlight - elapsed / 0.3, 0)
-			end
+			r, g, b = oUF.ColorGradient(f, r, g, b, 1, 0, 0)
 		end
-		local r, g, b = oUF.ColorGradient((value - bar.min) / bar.range, bar.red, bar.green, bar.blue, 1, 0, 0)
 		r, g, b = max(r, bar.highlight), max(g, bar.highlight), max(b, bar.highlight)
 		local c = bar.textureColor
-		if c[1] ~= r or c[2] ~= g or c[3] ~= b then
-			c[1], c[2], c[3] = r, g, b
-			bar:SetStatusBarColor(r, g, b)
+		c[1], c[2], c[3] = r, g, b
+		bar:SetStatusBarColor(r, g, b)
+		bar._highlight = bar.highlight
+	end
+	return bar:_SetValue(value)
+end
+
+local function AltPowerBar_OnUpdate(bar, elapsed)
+	local value, target = floor(bar:GetValue()+0.5), bar.target
+	if target > value then
+		value = min(value + bar.range * elapsed / 3, target)
+	else
+		if bar.highlight > 0 then
+			bar.highlight = max(bar.highlight - elapsed / 0.3, 0)
+		end
+		if target < value then	
+			value = max(value - bar.range * elapsed / 3, target)
 		end
 	end
+	bar:SetValue(value)
 	if not bar.alert and value == target and bar.highlight == 0 then
 		bar:SetScript('OnUpdate', nil)
 	end
@@ -328,31 +330,26 @@ local function AltPowerBar_Update(self, event, unit, powerType)
 	if unit and self.unit ~= unit or powerType and powerType ~= 'ALTERNATE' then return end
 	unit = self.unit
 
-	local _, min, _, _, smooth = UnitAlternatePowerInfo(unit)
-	local cur = UnitPower(unit, ALTERNATE_POWER_INDEX)
-	local max = UnitPowerMax(unit, ALTERNATE_POWER_INDEX)
-
-	local bar = self.AltPowerBar
-	bar.red, bar.green, bar.blue = select(2, UnitAlternatePowerTextureInfo(unit, 2))
-	bar.min, bar.range, bar.target = min, max-min, math.min(math.max(cur, min), max)
-
-	bar:SetMinMaxValues(min, max)
-	if bar.onShow then
-		bar:SetValue(bar.target)
-		bar.onShow = nil
+	local bar, _ = self.AltPowerBar
+	if event == "ForceUpdate" or event == "UNIT_MAXPOWER" then
+		_, bar.min, _, _, bar.smooth = UnitAlternatePowerInfo(unit)
+		bar.max = UnitPowerMax(unit, ALTERNATE_POWER_INDEX)	
+		bar.red, bar.green, bar.blue = select(2, UnitAlternatePowerTextureInfo(unit, 2))
+		bar.range = bar.max - bar.min
+		bar:SetMinMaxValues(bar.min, bar.max)
+		bar:SetValue(bar.min)
 	end
-	
-	bar.alert = (cur-min)/(max-min) > 0.2
-	if not bar.alert then
-		bar:SetAlhpa(1)
-	end
-	if bar.target > bar:GetValue() then
+
+	local cur = mmin(mmax(UnitPower(unit, ALTERNATE_POWER_INDEX), bar.min), bar.max)
+	if cur > bar.target then
 		bar.highlight = 1
 	end
-	if false and not smooth then
-		bar:SetValue(value)
+	bar.target = cur
+	bar.alert = (cur-bar.min)/bar.range > 0.8
+	if not bar.smooth then
+		bar:SetValue(cur)
 	end
-	if bar.alert or bar.highlight > 0 or bar:GetValue() ~= bar.target then
+	if bar.alert or bar.highlight > 0 or abs(bar:GetValue()-bar.target) > 0.01 then
 		bar:SetScript('OnUpdate', AltPowerBar_OnUpdate)
 	end
 end
@@ -361,7 +358,7 @@ local function AltPowerBar_Layout(bar)
 	local self = bar.__owner
 	if bar:IsShown() then
 		self.Health:SetPoint("BOTTOMRIGHT", bar, "TOPRIGHT", 0, 0)
-		bar.onShow = true
+		bar.highlight, bar.target = 0, math.huge
 	else
 		self.Health:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", 0, 0)
 	end
@@ -552,11 +549,13 @@ local function InitFrame(self, unit)
 	altPowerBar:Hide()
 	altPowerBar.textureColor = { 1, 1, 1, 1 }
 	altPowerBar.showOthersAnyway = true
+	altPowerBar._SetValue = altPowerBar.SetValue
+	altPowerBar.SetValue = AltPowerBar_SetValue
 	altPowerBar.Update = AltPowerBar_Update
 	altPowerBar:SetScript('OnShow', AltPowerBar_Layout)
 	altPowerBar:SetScript('OnHide', AltPowerBar_Layout)
 	altPowerBar:SetFrameLevel(threat:GetFrameLevel()+1)
-	altPowerBar.highlight = 0
+	altPowerBar.highlight, altPowerBar.target = 0, math.huge
 	self:RegisterStatusBarTexture(altPowerBar)
 	self.AltPowerBar = altPowerBar
 
