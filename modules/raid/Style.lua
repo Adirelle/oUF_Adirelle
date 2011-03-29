@@ -87,49 +87,46 @@ local function Health_Update(self, event, unit)
 	end
 end
 
-local IncomingHeal_PostUpdate, Health_PostUpdate
-if oUF.HasIncomingHeal then
-	-- Update incoming heal display
-	local function UpdateHealBar(bar, unit, current, max, incoming, incomingOthers)
-		if bar.current ~= current or bar.max ~= max or bar.incoming ~= incoming or bar.incomingOthers ~= incomingOthers then
-			bar.current, bar.max, bar.incoming, bar.incomingOthers = current, max, incoming, incomingOthers
-			local health = bar:GetParent()
-			local self = health:GetParent()
-			if max == 0 or current >= max then
-				bar:Hide()
-				self.IncomingOthersHeal:Hide()
-				return
-			end
-			local pixelPerHP = health:GetWidth() / max
-			if incomingOthers > 0 then
-				local othersBar = self.IncomingOthersHeal
-				local newCurrent = math.min(current + incomingOthers, max)
-				othersBar:SetPoint('LEFT', health, 'LEFT', current * pixelPerHP, 0)
-				othersBar:SetWidth((newCurrent-current) * pixelPerHP)
-				othersBar:Show()
-				current = newCurrent
-			else
-				self.IncomingOthersHeal:Hide()
-			end
-			if incoming > 0 and current < max then
-				bar:SetPoint('LEFT', health, 'LEFT', current * pixelPerHP, 0)
-				bar:SetWidth(math.min(max-current, incoming) * pixelPerHP)
-				bar:Show()
-			else
-				bar:Hide()
-			end
+-- Update incoming heal display
+local function UpdateHealBar(bar, unit, current, max, incoming, incomingOthers)
+	if bar.current ~= current or bar.max ~= max or bar.incoming ~= incoming or bar.incomingOthers ~= incomingOthers then
+		bar.current, bar.max, bar.incoming, bar.incomingOthers = current, max, incoming, incomingOthers
+		local health = bar:GetParent()
+		local self = health:GetParent()
+		if max == 0 or current >= max then
+			bar:Hide()
+			self.IncomingOthersHeal:Hide()
+			return
+		end
+		local pixelPerHP = health:GetWidth() / max
+		if incomingOthers > 0 then
+			local othersBar = self.IncomingOthersHeal
+			local newCurrent = math.min(current + incomingOthers, max)
+			othersBar:SetPoint('LEFT', health, 'LEFT', current * pixelPerHP, 0)
+			othersBar:SetWidth((newCurrent-current) * pixelPerHP)
+			othersBar:Show()
+			current = newCurrent
+		else
+			self.IncomingOthersHeal:Hide()
+		end
+		if incoming > 0 and current < max then
+			bar:SetPoint('LEFT', health, 'LEFT', current * pixelPerHP, 0)
+			bar:SetWidth(math.min(max-current, incoming) * pixelPerHP)
+			bar:Show()
+		else
+			bar:Hide()
 		end
 	end
+end
 
-	function IncomingHeal_PostUpdate(bar, event, unit, incoming, incomingOthers)
-		UpdateHealBar(bar, unit, bar.current, bar.max, incoming or 0, incomingOthers or 0)
-		return UpdateName(bar:GetParent():GetParent())
-	end
+local function IncomingHeal_PostUpdate(bar, event, unit, incoming, incomingOthers)
+	UpdateHealBar(bar, unit, bar.current, bar.max, incoming or 0, incomingOthers or 0)
+	return UpdateName(bar:GetParent():GetParent())
+end
 
-	function Health_PostUpdate(health, unit, current, max)
-		local bar = health:GetParent().IncomingHeal
-		return UpdateHealBar(bar, unit, current, max, bar.incoming, bar.incomingOthers)
-	end
+local function Health_PostUpdate(health, unit, current, max)
+	local bar = health:GetParent().IncomingHeal
+	return UpdateHealBar(bar, unit, current, max, bar.incoming, bar.incomingOthers)
 end
 
 -- Update health and name color
