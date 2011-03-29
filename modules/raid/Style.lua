@@ -160,11 +160,6 @@ local function UpdateColor(self, event, unit)
 	return UpdateName(self)
 end
 
--- Statusbar texturing
-local function HealthBar_PostTextureUpdate(self)
-	self:SetStatusBarColor(0, 0, 0, 0.75)
-end
-
 -- Layout internal frames on size change
 local function OnSizeChanged(self, width, height)
 	width = width or self:GetWidth()
@@ -299,10 +294,7 @@ local function AltPowerBar_SetValue(bar, value)
 			end
 			r, g, b = oUF.ColorGradient(f, r, g, b, 1, 0, 0)
 		end
-		r, g, b = max(r, bar.highlight), max(g, bar.highlight), max(b, bar.highlight)
-		local c = bar.textureColor
-		c[1], c[2], c[3] = r, g, b
-		bar:SetStatusBarColor(r, g, b)
+		bar:SetStatusBarColor(max(r, bar.highlight), max(g, bar.highlight), max(b, bar.highlight))
 		bar._highlight = bar.highlight
 	end
 	return bar:_SetValue(value)
@@ -403,7 +395,8 @@ local function InitFrame(self, unit)
 	hp:SetPoint("TOPLEFT")
 	hp:SetPoint("BOTTOMRIGHT")
 	hp.frequentUpdates = true
-	self:RegisterStatusBarTexture(hp, HealthBar_PostTextureUpdate)
+	self:RegisterStatusBarTexture(hp)
+	hp:SetStatusBarColor(0, 0, 0, 0.75)
 	self.Health = hp
 
 	self.bgColor = { 1, 1, 1 }
@@ -414,7 +407,6 @@ local function InitFrame(self, unit)
 	hpbg:SetAlpha(1)
 	self:RegisterStatusBarTexture(hpbg)
 	hp.bg = hpbg
-	
 
 	-- Incoming heals
 	local heal = hp:CreateTexture(nil, "OVERLAY")
@@ -549,7 +541,6 @@ local function InitFrame(self, unit)
 	altPowerBar:SetPoint("BOTTOMRIGHT")
 	altPowerBar:SetHeight(5)
 	altPowerBar:Hide()
-	altPowerBar.textureColor = { 1, 1, 1, 1 }
 	altPowerBar.showOthersAnyway = true
 	altPowerBar._SetValue = altPowerBar.SetValue
 	altPowerBar.SetValue = AltPowerBar_SetValue

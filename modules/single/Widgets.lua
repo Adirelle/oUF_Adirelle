@@ -115,7 +115,7 @@ local function DiscreteBar_Layout(bar)
 	end
 end
 
-local function SpawnDiscreteBar(self, numItems, color, createStatusBar)
+local function SpawnDiscreteBar(self, numItems, createStatusBar)
 	local bar = CreateFrame("Frame", nil, self)
 	bar.numItems = numItems
 	bar:Hide()
@@ -128,7 +128,7 @@ local function SpawnDiscreteBar(self, numItems, color, createStatusBar)
 		else
 			item = bar:CreateTexture(nil, "ARTWORK")
 		end
-		self:RegisterStatusBarTexture(item, color)
+		self:RegisterStatusBarTexture(item)
 		item.index = i
 		item.__owner = self
 		bar[i] = item
