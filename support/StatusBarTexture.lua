@@ -4,28 +4,10 @@ Adirelle's oUF layout
 All rights reserved.
 --]=]
 
--- Use our own namespace
 local parent, ns = ...
-setfenv(1, ns)
+local oUF = assert(ns.oUF, "oUF is undefined in "..parent.." namespace")
 
-local function StatusBar_OnValueChanged(bar, value)
-	local texture = bar:GetStatusBarTexture()
-	if texture and value then
-		local min, max = bar:GetMinMaxValues()
-		if max > min then
-			local f = math.min(math.max((value-min) / (max-min), 0), 1)
-			local fx, fy
-			if bar:GetOrientation() == "HORIZONTAL" then
-				fx, fy = f, 1
-			else
-				fx, fy = 1, f
-			end
-			texture:SetTexCoord(0,fx,0,fy)
-		end
-	end
-end
-
-local SharedMedia = GetLib('LibSharedMedia-3.0')
+local SharedMedia = ns.GetLib('LibSharedMedia-3.0')
 if SharedMedia then
 
 	local function StatusBar_Callback(bar, media, value)
@@ -50,7 +32,6 @@ if SharedMedia then
 		if bar:IsObjectType("StatusBar") then
 			bar:SetStatusBarTexture(defaultTexture)
 			SharedMedia.RegisterCallback(bar, 'LibSharedMedia_SetGlobal', StatusBar_Callback, bar)
-			bar:HookScript('OnValueChanged', StatusBar_OnValueChanged)
 		elseif bar:IsObjectType("Texture") then
 			bar:SetTexture(defaultTexture)
 			SharedMedia.RegisterCallback(bar, 'LibSharedMedia_SetGlobal', Texture_Callback, bar)
@@ -65,7 +46,6 @@ else
 
 	oUF:RegisterMetaFunction('RegisterStatusBarTexture', function(self, bar)
 		if bar:IsObjectType("StatusBar") then
-			bar:HookScript('OnValueChanged', StatusBar_OnValueChanged)
 			bar:SetStatusBarTexture(defaultTexture)
 		elseif bar:IsObjectType("Texture") then
 			bar:SetTexture(defaultTexture)
