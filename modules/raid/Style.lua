@@ -392,6 +392,10 @@ local function InitFrame(self, unit)
 	self:SetBackdropColor(0, 0, 0, backdrop.bgAlpha)
 	self:SetBackdropBorderColor(0, 0, 0, 1)
 
+	-- Seems really needed
+	self:RegisterEvent('RAID_ROSTER_UPDATE', UpdateColor)
+	self:RegisterEvent('PARTY_MEMBERS_CHANGED', UpdateColor)	
+
 	-- Health bar
 	local hp = CreateFrame("StatusBar", nil, self)
 	hp.Update = Health_Update
@@ -411,8 +415,6 @@ local function InitFrame(self, unit)
 	self:RegisterStatusBarTexture(hpbg)
 	hp.bg = hpbg
 	
-	--self:RegisterEvent('RAID_ROSTER_UPDATE', UpdateColor)
-	--self:RegisterEvent('PARTY_MEMBERS_CHANGED', UpdateColor)	
 
 	-- Incoming heals
 	local heal = hp:CreateTexture(nil, "OVERLAY")
