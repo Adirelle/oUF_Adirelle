@@ -157,6 +157,36 @@ local function UpdateColor(self, event, unit)
 	return UpdateName(self)
 end
 
+-- Add a pseudo-element to update the color
+
+local function UNIT_NAME_UPDATE(self, event, unit)
+	if unit == self.unit or unit == self.realUnit then
+		return UpdateColor(self)
+	end
+end
+
+local function UNIT_PET(self, event, unit)
+	if unit == "player" then
+		return UNIT_NAME_UPDATE(self, event, "pet")
+	elseif unit then
+		return UNIT_NAME_UPDATE(self, event, gsub(unit, "(%d*)$", "pet%1"))
+	end
+end
+
+oUF:AddElement('Adirelle_Raid:UpdateColor',
+	UpdateColor,
+	function(self)
+		if self.Health and self.bgColor and self.style == "Adirelle_Raid" then
+			self:RegisterEvent('UNIT_NAME_UPDATE', UNIT_NAME_UPDATE)
+			if self.unit and strmatch(self.unit, 'pet') then
+				self:RegisterEvent('UNIT_PET', UNIT_PET)
+			end
+			return true
+		end
+	end,
+	function() end
+)
+
 -- Layout internal frames on size change
 local function OnSizeChanged(self, width, height)
 	width = width or self:GetWidth()
@@ -357,20 +387,6 @@ end
 -- Unit frame initialization
 -- ------------------------------------------------------------------------------
 
-local function UNIT_NAME_UPDATE(self, event, unit)
-	if unit == self.unit or unit == self.realUnit then
-		return UpdateColor(self)
-	end
-end
-
-local function UNIT_PET(self, event, unit)
-	if unit == "player" then
-		return UNIT_NAME_UPDATE(self, event, "pet")
-	elseif unit then
-		return UNIT_NAME_UPDATE(self, event, gsub(unit, "(%d*)$", "pet%1"))
-	end
-end
-
 local function InitFrame(self, unit)
 	self:RegisterForClicks("AnyDown")
 
@@ -380,10 +396,6 @@ local function InitFrame(self, unit)
 	self:SetBackdrop(backdrop)
 	self:SetBackdropColor(0, 0, 0, backdrop.bgAlpha)
 	self:SetBackdropBorderColor(0, 0, 0, 1)
-
-	-- Seems really needed
-	self:RegisterEvent('RAID_ROSTER_UPDATE', UpdateColor)
-	self:RegisterEvent('PARTY_MEMBERS_CHANGED', UpdateColor)	
 
 	-- Health bar
 	local hp = CreateFrame("StatusBar", nil, self)
@@ -440,10 +452,6 @@ local function InitFrame(self, unit)
 	name:SetFont(GameFontNormal:GetFont(), 11)
 	name:SetTextColor(1, 1, 1, 1)
 	self.Name = name
-	self:RegisterEvent('UNIT_NAME_UPDATE', UNIT_NAME_UPDATE)
-	if unit and strmatch(unit, 'pet') then
-		self:RegisterEvent('UNIT_PET', UNIT_PET)
-	end
 
 	-- Border
 	local border = CreateFrame("Frame", nil, self)
