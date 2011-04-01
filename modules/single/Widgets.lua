@@ -23,6 +23,7 @@ local function smartValue(value)
 		return tostring(value)
 	end
 end
+private.smartValue = smartValue
 
 local function OnStatusBarUpdate(bar)
 	if not bar:IsShown() then return end

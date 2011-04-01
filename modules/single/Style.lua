@@ -621,7 +621,8 @@ local function InitFrame(settings, self, unit)
 
 		local xpText = SpawnText(xpBar, "OVERLAY", "TOPRIGHT", "TOPRIGHT", -TEXT_MARGIN, 0)
 		xpText:SetPoint("BOTTOMRIGHT", xpBar, "BOTTOMRIGHT", -TEXT_MARGIN, 0)
-
+	
+		local smartValue = private.smartValue
 		xpBar.UpdateText = function(self, bar, current, max, rested, level)
 			levelText:SetFormattedText(level)
 			if rested and rested > 0 then
