@@ -14,8 +14,16 @@ oUF:Factory(function()
 		local unit = "Arena"..index
 		local frame = oUF:Spawn(unit:lower(), "oUF_Adirelle_"..unit)
 		frame:SetPoint("BOTTOM", anchor, "TOP", 0, gap)
-		anchor, gap = frame, 15
-		RegisterMovable(frame, unit, unit.." frame")
+		RegisterMovable(frame, unit, format("Arena enemy #%d", index))
+		anchor, gap = frame, 40
+	end
+
+	oUF:SetActiveStyle("Adirelle_Single_Health")
+	for index = 1, 5 do
+		local unit = "ArenaPet"..index
+		local frame = oUF:Spawn(unit:lower(), "oUF_Adirelle_"..unit)
+		frame:SetPoint("BOTTOM", _G["oUF_Adirelle_Arena"..index], "TOP", 0, 5)
+		RegisterMovable(frame, unit, format("Arena enemy pet #%d", index))
 	end
 	
 	-- Prevent loading of Blizzard arena frames
