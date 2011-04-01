@@ -54,7 +54,6 @@ local function TogglePowerUpdates(self, event, unit)
 	local hasMana = UnitPowerType(self.unit) == SPELL_POWER_MANA
 	local manaThreshold = hasMana and (UnitAffectingCombat(self.unit) and 0.3 or select(2, IsInInstance()) == "raid" and 0.9 or 0.6) 
 	if border.hasMana == hasMana and border.manaThreshold == manaThreshold then return end
-	self:Debug('Border:', event, ' hasMana=', hasMana, 'manaThreshold=', manaThreshold)
 	border.hasMana, border.manaThreshold = hasMana, manaThreshold
 	if hasMana then
 		self:RegisterEvent("UNIT_POWER", PowerUpdate)
