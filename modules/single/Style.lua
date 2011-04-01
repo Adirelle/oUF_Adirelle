@@ -642,13 +642,13 @@ local function InitFrame(settings, self, unit)
 	-- Range fading
 	self.XRange = true
 
-	-- Special boss events
+	-- Special events
 	if unit == "boss" then
 		self:RegisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT", self.UpdateAllElements)
-		self:RegisterEvent("UNIT_TARGETABLE_CHANGED", function(_, event, unit)
-			if unit == self.unit then return self:UpdateAllElements()	end
-		end)
 	end
+	self:RegisterEvent("UNIT_TARGETABLE_CHANGED", function(_, event, unit)
+		if unit == self.unit then return self:UpdateAllElements(event)	end
+	end)
 
 	-- Altenate power bar (e.g. sound on Atramedes, or poison on Isorath)
 	if unit == "player" or unit == "target" then
