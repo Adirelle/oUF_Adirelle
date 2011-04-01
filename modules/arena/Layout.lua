@@ -9,17 +9,36 @@ setfenv(1, _G.oUF_Adirelle)
 
 oUF:Factory(function()
 
+	local frames = {}
+
 	local function Enable(self)
 		RegisterUnitWatch(self, true)
 	end
-	
-	local function PLAYER_ENTERING_WORLD(self)
+
+	local function Disable(self)
+		UnregisterUnitWatch(self)
+		self:SetAttribute('state-unitexists', false)
+		self:Hide()
+	end
+
+	local function Update(self, event)
 		if select(2, IsInInstance()) == "arena" and (not self.LM10_IsEnabled or self:LM10_IsEnabled()) then
 			self:Enable()
+			self:Debug('Enabled on', event)
 		else
 			self:Disable()
+			self:Debug('Disabled on', event)
 		end
 	end
+	
+	local monitor = CreateFrame("Frame")
+	monitor:SetScript('OnEvent', function(self, ...)
+		for frame in pairs(frames) do
+			Update(frame, ...)
+		end
+	end)
+	monitor:RegisterEvent('PLAYER_ENTERING_WORLD')
+	monitor:RegisterEvent('ZONE_CHANGED_NEW_AREA')
 
 	local function Spawn(unit, label, ...)
 		-- Spawn the frame
@@ -33,24 +52,23 @@ oUF:Factory(function()
 		SecureHandlerWrapScript(frame, "OnAttributeChanged", frame, [=[
 			if name == "state-unitexists" then
 				if value then
-					control:CallMethod("Debug", "unit appeared")
 					if not self:IsShown() then
-						self:Show() 
+						self:Show()
 					else
 						control:CallMethod("UpdateAllElements", "OnUnitExists")
 					end
-				else
-					control:CallMethod("Debug", "unit disappeared")
 				end
 			end
 		]=])
 
-		-- Use PEW to enable/disable the frame, using our own made :Enable
-		frame.Enable = Enable
-		frame:RegisterEvent('PLAYER_ENTERING_WORLD', PLAYER_ENTERING_WORLD)
-		
-		-- Call it at least once, in case of LoD
-		PLAYER_ENTERING_WORLD(frame, 'OnSpawn')
+		-- Put our handlers in place
+		frame.Enable, frame.Disable = Enable, Disable
+
+		-- Update at lease once
+		Update(frame, 'OnSpawn')
+
+		-- Register for future updates
+		frames[frame] = true
 
 		return frame
 	end
