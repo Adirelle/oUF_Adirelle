@@ -465,21 +465,21 @@ local function InitFrame(settings, self, unit)
 		AddAuxiliaryBar(self, threatBar)
 	end
 
-	-- Threat glow
-	local threat = CreateFrame("Frame", nil, self)
-	threat:SetAllPoints(self.Border)
-	threat:SetBackdrop(glowBorderBackdrop)
-	threat:SetBackdropColor(0,0,0,0)
-	threat.SetVertexColor = threat.SetBackdropBorderColor
-	threat:SetAlpha(glowBorderBackdrop.alpha)
-	threat:SetFrameLevel(self:GetFrameLevel()+2)
-	self.Threat = threat
-
 	-- Raid target icon
 	self.RaidIcon = SpawnTexture(indicators, 16)
 	self.RaidIcon:SetPoint("CENTER", barContainer)
 
-	if unit ~= "boss" then
+	if unit ~= "boss" and not strmatch(unit, "arena") then
+		-- Threat glow
+		local threat = CreateFrame("Frame", nil, self)
+		threat:SetAllPoints(self.Border)
+		threat:SetBackdrop(glowBorderBackdrop)
+		threat:SetBackdropColor(0,0,0,0)
+		threat.SetVertexColor = threat.SetBackdropBorderColor
+		threat:SetAlpha(glowBorderBackdrop.alpha)
+		threat:SetFrameLevel(self:GetFrameLevel()+2)
+		self.Threat = threat
+	
 		-- Various indicators
 		self.Leader = SpawnTexture(indicators, 16, "TOP"..left)
 		self.Assistant = SpawnTexture(indicators, 16, "TOP"..left)
