@@ -113,7 +113,9 @@ local function BuildRangeCheck()
 	end
 
 	return function(unit)
-		if UnitIsUnit(unit, 'player') or not UnitIsConnected(unit) then
+		if not UnitExists(unit) then
+			return false 
+		elseif UnitIsUnit(unit, 'player') or not UnitIsConnected(unit) then
 			return true
 		elseif not UnitIsVisible(unit) then
 			return false
