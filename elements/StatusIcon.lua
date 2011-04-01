@@ -53,18 +53,19 @@ local function Update(self, event, unit)
 	if unit and unit ~= self.unit then return end
 	local statusIcon = self.StatusIcon
 	local state = GetFrameUnitState(self) or "NONE"
-	if state == statusIcon.currentState then return end
-	statusIcon.currentState = state
-	local icon = icons[state]
-	if icon then
-		local texturePath, x0, x1, y0, y1, desat, r, g, b = unpack(icon)
-		statusIcon:SetTexture(texturePath)
-		statusIcon:SetTexCoord(x0, x1, y0, y1)
-		statusIcon:SetDesaturated(desat)
-		statusIcon:SetVertexColor(r or 1, g or 1, b or 1)
-		statusIcon:Show()
-	else
-		statusIcon:Hide()
+	if state ~= statusIcon.currentState then
+		statusIcon.currentState = state
+		local icon = icons[state]
+		if icon then
+			local texturePath, x0, x1, y0, y1, desat, r, g, b = unpack(icon)
+			statusIcon:SetTexture(texturePath)
+			statusIcon:SetTexCoord(x0, x1, y0, y1)
+			statusIcon:SetDesaturated(desat)
+			statusIcon:SetVertexColor(r or 1, g or 1, b or 1)
+			statusIcon:Show()
+		else
+			statusIcon:Hide()
+		end
 	end
 	if statusIcon.PostUpdate then
 		statusIcon.PostUpdate(self, event, self.unit, state)
