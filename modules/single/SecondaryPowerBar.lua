@@ -199,12 +199,13 @@ elseif playerClass == "SHAMAN" then
 elseif playerClass == "PALADIN" then
 	-- Holy power
 	private.SetupSecondaryPowerBar = function(self)
-		self.HolyPower = private.SpawnDiscreteBar(self, MAX_HOLY_POWER)
-		local color = self.colors.HOLY_POWER
+		local bar = private.SpawnDiscreteBar(self, MAX_HOLY_POWER)
+		local r, g, b = unpack(oUF.colors.power.HOLY_POWER, 1, 3)
 		for i = 1, MAX_HOLY_POWER do
-			self.HolyPower[i]:SetStatusBarColor(unpack(color, 1, 3))
+			bar[i]:SetVertexColor(r, g, b)
 		end
-		return self.HolyPower
+		self.HolyPower = bar
+		return bar
 	end
 end
 
