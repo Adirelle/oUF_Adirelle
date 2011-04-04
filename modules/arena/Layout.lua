@@ -4,9 +4,10 @@ Adirelle's oUF layout
 All rights reserved.
 --]=]
 
-oUF_Adirelle.oUF:Factory(function()
-	local oUF, RegisterMovable = oUF_Adirelle.oUF, oUF_Adirelle.RegisterMovable
-	
+local oUF_Adirelle = oUF_Adirelle
+local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in "..parent.." namespace")
+
+oUF:Factory(function()
 	local frames = {}
 	
 	local anchor = CreateFrame("Frame", "oUF_Adirelle_Arena", UIParent, "SecureFrameTemplate")
@@ -75,7 +76,7 @@ oUF_Adirelle.oUF:Factory(function()
 	end
 	
 	-- Initialize
-	RegisterMovable(anchor, "arenas", "Arena enemy frames")	
+	oUF_Adirelle.RegisterMovable(anchor, "arenas", "Arena enemy frames")	
 	anchor:RegisterEvent('PLAYER_ENTERING_WORLD')
 	anchor:RegisterEvent('ZONE_CHANGED_NEW_AREA')
 	anchor:SetScript('OnEvent', anchor.Update)	

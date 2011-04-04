@@ -5,21 +5,21 @@ All rights reserved.
 --]=]
 
 -- Use our own namespace
-local _G, addonName, ns = _G, ...
-setfenv(1, ns)
+local parent, oUF_Adirelle = ...
+local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in "..parent.." namespace")
 
 local callbacks = {}
 local db
 
 local frame = CreateFrame("Frame")
 frame:SetScript('OnEvent', function(self, event, name)
-	if name ~= addonName then return end
+	if name ~= parent then return end
 	self:UnregisterEvent('ADDON_LOADED')
 	self:SetScript('OnEvent', nil)
 
 	-- Initialize the database
-	_G.oUF_Adirelle_DB = _G.oUF_Adirelle_DB or {}
-	db = _G.oUF_Adirelle_DB
+	oUF_Adirelle_DB = oUF_Adirelle_DB or {}
+	db = oUF_Adirelle_DB
 	if not db.disabled then db.disabled = {} end
 
 	-- Call the callbacks
@@ -36,7 +36,7 @@ end)
 frame:RegisterEvent('ADDON_LOADED')
 
 -- Register a func to be called once the saved variables are loaded
-function RegisterVariableLoadedCallback(callback)
+function oUF_Adirelle.RegisterVariableLoadedCallback(callback)
 	if db then
 		callback(db)
 	else
@@ -63,12 +63,12 @@ local function Frame_SetEnabledSetting(self, enabled)
 end
 
 -- Register a frame that can be permanently enabled/disabled
-function RegisterTogglableFrame(frame, key)
+function oUF_Adirelle.RegisterTogglableFrame(frame, key)
 	if frame.GetEnabledSetting then return end
 	frame.dbKey = key
 	frame.Enable = frame.Enable or frame.Show
 	frame.Disable = frame.Disable or frame.Hide
 	frame.GetEnabledSetting = Frame_GetEnabledSetting
 	frame.SetEnabledSetting = Frame_SetEnabledSetting
-	RegisterVariableLoadedCallback(function() if not frame:GetEnabledSetting() then frame:Disable() end end)
+	oUF_Adirelle.RegisterVariableLoadedCallback(function() if not frame:GetEnabledSetting() then frame:Disable() end end)
 end

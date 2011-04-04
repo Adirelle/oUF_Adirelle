@@ -4,9 +4,8 @@ Adirelle's oUF layout
 All rights reserved.
 --]=]
 
--- Use our own namespace
-local _G, parent, ns = _G, ...
-setfenv(1, ns)
+local parent, oUF_Adirelle = ...
+local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in "..parent.." namespace")
 
 local function NOOP() end
 
