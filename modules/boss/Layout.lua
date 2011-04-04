@@ -27,11 +27,27 @@ oUF_Adirelle.oUF:Factory(function()
 			frame:Enable()
 		end
 	end
+	
 	function anchor:Disable()
 		for i, frame in ipairs(frames) do
 			frame:Disable()
 		end
 		self:Hide()
 	end
+	
+	function anchor:Update()
+		local _, iType = IsInInstance()
+		if self:GetEnabledSetting() and (iType == "raid" or iType == "party ") then
+			self:Enable()
+		else
+			self:Disable()
+		end
+	end
+	
 	RegisterMovable(anchor, "bosses", "Boss frames")
+
+	anchor:SetScript('OnEvent', anchor.Update)
+	anchor:RegisterEvent('PLAYER_ENTERING_WORLD')
+	anchor:RegisterEvent('ZONE_CHANGED_NEW_AREA')
+	anchor:Update()	
 end)

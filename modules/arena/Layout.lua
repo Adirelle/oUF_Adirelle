@@ -36,10 +36,6 @@ oUF_Adirelle.oUF:Factory(function()
 		end
 	end
 
-	anchor:RegisterEvent('PLAYER_ENTERING_WORLD')
-	anchor:RegisterEvent('ZONE_CHANGED_NEW_AREA')
-	anchor:SetScript('OnEvent', anchor.Update)
-
 	local function ArenaUnit_Enable(self)
 		RegisterUnitWatch(self, true)
 	end
@@ -80,6 +76,9 @@ oUF_Adirelle.oUF:Factory(function()
 	
 	-- Initialize
 	RegisterMovable(anchor, "arenas", "Arena enemy frames")	
+	anchor:RegisterEvent('PLAYER_ENTERING_WORLD')
+	anchor:RegisterEvent('ZONE_CHANGED_NEW_AREA')
+	anchor:SetScript('OnEvent', anchor.Update)	
 	anchor:Update()
 
 	-- Prevent loading of Blizzard arena frames
