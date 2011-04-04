@@ -41,7 +41,7 @@ oUF_Adirelle.oUF:Factory(function()
 	
 	function anchor:Update()
 		local _, iType = IsInInstance()
-		if self:GetEnabledSetting() and (iType == "raid" or iType == "party ") then
+		if self:GetEnabledSetting() and (iType == "raid" or iType == "party") then
 			self:Enable()
 		else
 			self:Disable()
