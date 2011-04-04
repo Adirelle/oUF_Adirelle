@@ -4,8 +4,10 @@ Adirelle's oUF layout
 All rights reserved.
 --]=]
 
+local oUF_Adirelle = oUF_Adirelle
+local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle namespace")
+
 oUF_Adirelle.oUF:Factory(function()
-	local oUF, RegisterMovable = oUF_Adirelle.oUF, oUF_Adirelle.RegisterMovable
 
 	local anchor = CreateFrame("Frame", "oUF_Adirelle_Bosses", UIParent, "SecureFrameTemplate")
 	anchor.Debug = oUF_Adirelle.Debug
@@ -22,6 +24,7 @@ oUF_Adirelle.oUF:Factory(function()
 	end
 	
 	function anchor:Enable()
+		self:Debug('Enable')
 		self:Show()
 		for i, frame in ipairs(frames) do
 			frame:Enable()
@@ -29,6 +32,7 @@ oUF_Adirelle.oUF:Factory(function()
 	end
 	
 	function anchor:Disable()
+		self:Debug('Disable')
 		for i, frame in ipairs(frames) do
 			frame:Disable()
 		end
@@ -44,7 +48,7 @@ oUF_Adirelle.oUF:Factory(function()
 		end
 	end
 	
-	RegisterMovable(anchor, "bosses", "Boss frames")
+	oUF_Adirelle.RegisterMovable(anchor, "bosses", "Boss frames")
 
 	anchor:SetScript('OnEvent', anchor.Update)
 	anchor:RegisterEvent('PLAYER_ENTERING_WORLD')

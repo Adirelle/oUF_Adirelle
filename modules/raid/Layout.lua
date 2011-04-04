@@ -5,7 +5,7 @@ All rights reserved.
 --]=]
 
 local oUF_Adirelle = oUF_Adirelle
-local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in "..parent.." namespace")
+local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle namespace")
 
 oUF:Factory(function()
 	-- Fetch some globals into local namespace
