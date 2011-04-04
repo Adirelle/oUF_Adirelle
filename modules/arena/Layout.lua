@@ -29,7 +29,7 @@ oUF_Adirelle.oUF:Factory(function()
 	end
 	
 	function anchor:Update()
-		if select(2, IsInInstance()) == "arena" and (not self.LM10_IsEnabled or self:LM10_IsEnabled()) then
+		if self:GetEnabledSetting() and select(2, IsInInstance()) == "arena" then
 			self:Enable()
 		else
 			self:Disable()
