@@ -4,10 +4,10 @@ Adirelle's oUF layout
 All rights reserved.
 --]=]
 
-local parent, ns = ...
-local oUF = assert(ns.oUF, "oUF is undefined in "..parent.." namespace")
+local parent, oUF_Adirelle = ...
+local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in "..parent.." namespace")
 
-local SharedMedia = ns.GetLib('LibSharedMedia-3.0')
+local SharedMedia = oUF_Adirelle.GetLib('LibSharedMedia-3.0')
 if SharedMedia then
 
 	local function StatusBar_Callback(bar, media, value)

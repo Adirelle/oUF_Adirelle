@@ -4,46 +4,41 @@ Adirelle's oUF layout
 All rights reserved.
 --]=]
 
-local GetInstanceInfo = GetInstanceInfo
-local GetNumRaidMembers = GetNumRaidMembers
-local GetNumPartyMembers = GetNumPartyMembers
-local GetRaidRosterInfo = GetRaidRosterInfo
-local pairs = pairs
-local ipairs = ipairs
-
--- Use our own namespace
-setfenv(1, _G.oUF_Adirelle)
+local oUF_Adirelle = oUF_Adirelle
+local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in "..parent.." namespace")
 
 oUF:Factory(function()
-
-	oUF:SetActiveStyle("Adirelle_Raid")
-
+	-- Fetch some globals into local namespace
+	local oUF_Adirelle = oUF_Adirelle
+	local GetInstanceInfo = GetInstanceInfo
+	local GetNumRaidMembers = GetNumRaidMembers
+	local GetNumPartyMembers = GetNumPartyMembers
+	local GetRaidRosterInfo = GetRaidRosterInfo
+	local pairs = pairs
+	local ipairs = ipairs
+	
+	-- Fetch some shared variables into local namespace
+	local SCALE = oUF_Adirelle.SCALE
 	local SPACING = oUF_Adirelle.SPACING
 	local WIDTH = oUF_Adirelle.WIDTH
 	local HEIGHT_FULL = oUF_Adirelle.HEIGHT
-	local HEIGHT_SMALL = 20
+	local GetPlayerRole = oUF_Adirelle.GetPlayerRole
 
+	local HEIGHT_SMALL = 20
+	
 	--------------------------------------------------------------------------------
 	-- Anchor
 	--------------------------------------------------------------------------------
 
 	local anchor = CreateFrame("Frame", "oUF_Raid_Anchor", UIParent, "SecureFrameTemplate,SecureHandlerStateTemplate")
-	anchor.Debug = function(self, ...) return Debug(self:GetName(), ...) end
+	anchor.Debug = oUF_Adirelle.Debug
 	anchor:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, 230)
-	anchor:SetWidth(0.1)
-	anchor:SetHeight(0.1)
+	anchor:SetSize(SPACING * 4 + WIDTH * 5, SPACING * 7 + HEIGHT_SMALL * 8)
 
 	anchor:SetAttribute('heightSmall', HEIGHT_SMALL)
 	anchor:SetAttribute('heightFull', HEIGHT)
 
-	local Movable = GetLib('LibMovable-1.0')
-	if Movable then
-		local mask = CreateFrame("Frame", nil, anchor)
-		mask:SetPoint("BOTTOM")
-		mask:SetWidth(SPACING * 4 + WIDTH * 5)
-		mask:SetHeight(SPACING * 7 + HEIGHT_SMALL * 8)
-		RegisterMovable(anchor, 'anchor', "Party/raid frames", mask)
-	end
+	oUF_Adirelle.RegisterMovable(anchor, 'anchor', "Party/raid frames")
 
 	--------------------------------------------------------------------------------
 	-- Helper
@@ -82,6 +77,8 @@ oUF:Factory(function()
 	--------------------------------------------------------------------------------
 	-- Creating group headers
 	--------------------------------------------------------------------------------
+	
+	oUF:SetActiveStyle("Adirelle_Raid")
 
 	local players = SpawnHeader(
 		"oUF_Raid",
@@ -162,7 +159,7 @@ oUF:Factory(function()
 		end
 	end
 
-	RegisterPlayerRoleCallback(UpdateHeightDriver)
+	oUF_Adirelle.RegisterPlayerRoleCallback(UpdateHeightDriver)
 	UpdateHeightDriver()
 
 end)

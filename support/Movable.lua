@@ -4,31 +4,28 @@ Adirelle's oUF layout
 All rights reserved.
 --]=]
 
-local addonName = ...
+local addonName, oUF_Adirelle = ...
 
--- Use our own namespace
-setfenv(1, _G.oUF_Adirelle)
-
-local libmovable = GetLib('LibMovable-1.0')
+local libmovable = oUF_Adirelle.GetLib('LibMovable-1.0')
 if libmovable then
 
 	-- Function used until our SV is loaded
 	local postponed = {}
-	RegisterMovable = function(frame, key, label, mask)
-		postponed[frame] = function() return RegisterMovable(frame, key, label, mask) end
+	oUF_Adirelle.RegisterMovable = function(frame, key, label, mask)
+		postponed[frame] = function() return oUF_Adirelle.RegisterMovable(frame, key, label, mask) end
 	end
 	
-	RegisterVariableLoadedCallback(function(db)
+	oUF_Adirelle.RegisterVariableLoadedCallback(function(db)
 	
 		local function LM10_Enable(frame) return frame:SetEnabledSetting(true) end
 		local function LM10_Disable(frame) return frame:SetEnabledSetting(false) end
 		
 		-- replace RegisterMovable with a function that actually registers the frame
-		RegisterMovable = function(frame, key, label, mask)
+		oUF_Adirelle.RegisterMovable = function(frame, key, label, mask)
 			frame:Debug('Registering movable', key, label, mask)
 			db[key] = db[key] or {}
 
-			RegisterTogglableFrame(frame, key)
+			oUF_Adirelle.RegisterTogglableFrame(frame, key)
 			frame.LM10_IsEnabled = frame.GetEnabledSetting
 			frame.LM10_Enable = LM10_Enable
 			frame.LM10_Disable = LM10_Disable
@@ -53,5 +50,5 @@ if libmovable then
 	end
 else
 	-- Do not care about this
-	function RegisterMovable() end
+	function oUF_Adirelle.RegisterMovable() end
 end
