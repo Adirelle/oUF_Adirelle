@@ -8,34 +8,14 @@ local oUF_Adirelle = oUF_Adirelle
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle namespace")
 
 oUF:Factory(function()
-	local frames = {}
-	
-	local anchor = CreateFrame("Frame", "oUF_Adirelle_Arena", UIParent, "SecureFrameTemplate")
-	anchor.Debug = oUF_Adirelle.Debug
-	anchor:SetSize(190, 5*(47+40)-15)
-	anchor:SetPoint("BOTTOM", oUF_Adirelle_Focus, "TOP", 0, 30)
-	
-	function anchor:Enable()
-		self:Show()
-		for i, frame in pairs(frames) do
-			frame:Enable()
-		end
-	end
 
-	function anchor:Disable()
-		for i, frame in pairs(frames) do
-			frame:Disable()
-		end
-		self:Hide()
+	local anchor = oUF_Adirelle.CreatePseudoHeader("oUF_Adirelle_Arena", "arenas", "Arena enemy frames", 190, 5*(47+40)-15, "BOTTOM", oUF_Adirelle_Focus, "TOP", 0, 30)
+
+	function anchor:ShouldEnable()
+		return select(3, IsInInstance()) == "arena"
 	end
-	
-	function anchor:Update()
-		if self:GetEnabledSetting() and select(2, IsInInstance()) == "arena" then
-			self:Enable()
-		else
-			self:Disable()
-		end
-	end
+	anchor:RegisterEvent('PLAYER_ENTERING_WORLD')
+	anchor:RegisterEvent('ZONE_CHANGED_NEW_AREA')
 
 	local function ArenaUnit_Enable(self)
 		RegisterUnitWatch(self, true)
@@ -46,7 +26,7 @@ oUF:Factory(function()
 		self:SetAttribute('state-unitexists', false)
 		self:Hide()
 	end
-	
+
 	local ArenaUnit_OnAttributeChanged = [=[
 		if name == "state-unitexists" then
 			if value then
@@ -66,21 +46,14 @@ oUF:Factory(function()
 		frame:SetPoint("BOTTOM", anchor, "BOTTOM", 0, (index-1) * (40+47))
 		frame.Enable, frame.Disable = ArenaUnit_Enable, ArenaUnit_Disable
 		SecureHandlerWrapScript(frame, "OnAttributeChanged", frame, ArenaUnit_OnAttributeChanged)
-		tinsert(frames, frame)
+		anchor:AddFrame(frame)
 
-		oUF:SetActiveStyle("Adirelle_Single_Health")	
+		oUF:SetActiveStyle("Adirelle_Single_Health")
 		local petFrame = oUF:Spawn("arenapet"..index, "oUF_Adirelle_ArenaPet"..index)
 		petFrame:SetParent(anchor)
 		petFrame:SetPoint("BOTTOM", frame, "TOP", 0 ,5)
-		tinsert(frames, petFrame)
+		anchor:AddFrame(frame)
 	end
-	
-	-- Initialize
-	oUF_Adirelle.RegisterMovable(anchor, "arenas", "Arena enemy frames")	
-	anchor:RegisterEvent('PLAYER_ENTERING_WORLD')
-	anchor:RegisterEvent('ZONE_CHANGED_NEW_AREA')
-	anchor:SetScript('OnEvent', anchor.Update)	
-	anchor:Update()
 
 	-- Prevent loading of Blizzard arena frames
 	_G.Arena_LoadUI = function() end
