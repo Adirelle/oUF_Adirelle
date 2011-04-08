@@ -6,6 +6,8 @@ All rights reserved.
 
 local _, private = ...
 
+if oUF_Adirelle.SingleStyle then return end
+
 private.GAP = 2
 private.BORDER_WIDTH = 2
 private.TEXT_MARGIN = 2

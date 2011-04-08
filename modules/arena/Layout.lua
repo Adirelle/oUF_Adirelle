@@ -13,7 +13,7 @@ oUF:Factory(function()
 	local RegisterUnitWatch, UnregisterUnitWatch = _G.RegisterUnitWatch, _G.UnregisterUnitWatch
 	local select, IsInInstance = _G.select, _G.IsInInstance
 
-	local anchor = oUF_Adirelle.CreatePseudoHeader("oUF_Adirelle_Arena", "arenas", "Arena enemy frames", 190, 5*(47+40)-15, "BOTTOM", _G.oUF_Adirelle_Focus, "TOP", 0, 30)
+	local anchor = oUF_Adirelle.CreatePseudoHeader("oUF_Adirelle_Arena", "arenas", "Arena enemy frames", 190, 5*(47+40)-15, 'BOTTOMLEFT', _G.UIParent, "BOTTOM", 250, 355)
 
 	function anchor:ShouldEnable()
 		return select(3, IsInInstance()) == "arena"

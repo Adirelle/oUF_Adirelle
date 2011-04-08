@@ -3,6 +3,7 @@
 ## Version: 1.0
 ## Title: oUF_Adirelle - boss unit frames
 ## Notes: Unit frames for bosses.
-## RequiredDeps: oUF_Adirelle, oUF_Adirelle_Single
+## RequiredDeps: oUF_Adirelle
 
+..\oUF_Adirelle\modules\single\style.xml
 ..\oUF_Adirelle\modules\boss\module.xml

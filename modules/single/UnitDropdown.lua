@@ -6,6 +6,8 @@ All rights reserved.
 
 local _G, moduleName, private = _G, ...
 
+if oUF_Adirelle.SingleStyle then return end
+
 -- Make most globals local so I can check global leaks using "luac -l | grep GLOBAL"
 local gsub, print = _G.gsub, _G.print
 local GetScreenWidth, DropDownList1 = _G.GetScreenWidth, _G.DropDownList1

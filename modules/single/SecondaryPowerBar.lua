@@ -8,6 +8,8 @@ local _G, moduleName, private = _G, ...
 local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
+if oUF_Adirelle.SingleStyle then return end
+
 -- Make most globals local so I can check global leaks using "luac -l | grep GLOBAL"
 local abs, unpack = _G.math.abs, _G.unpack
 local GetEclipseDirection = _G.GetEclipseDirection
