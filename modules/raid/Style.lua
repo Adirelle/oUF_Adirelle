@@ -1,30 +1,45 @@
 --[=[
 Adirelle's oUF layout
-(c) 2009-2010 Adirelle (adirelle@tagada-team.net)
+(c) 2009-2011 Adirelle (adirelle@tagada-team.net)
 All rights reserved.
 --]=]
-local UnitClass = UnitClass
-local UnitName = UnitName
-local GetTime = GetTime
-local strformat = string.format
-local strsub = string.sub
-local mmin = math.min
-local mmax = math.max
-local abs = math.abs
-local tostring = tostring
-local unpack = unpack
 
--- Use our own namespace
-setfenv(1, _G.oUF_Adirelle)
+local _G, moduleName, private = _G, ...
+local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
+local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
-SCALE = 1.0
-WIDTH = 80
-SPACING = 2
-HEIGHT = 25
-BORDER_WIDTH = 1
-ICON_SIZE = 14
+-- Make most globals local so I can check global leaks using "luac -l | grep GLOBAL"
+local UnitClass, UnitName = _G.UnitClass, _G.UnitName
+local UnitHealth, UnitHealthMax = _G.UnitHealth, _G.UnitHealthMax
+local UnitIsConnected, UnitIsDeadOrGhost = _G.UnitIsConnected, _G.UnitIsDeadOrGhost
+local UnitPower, UnitPowerMax = _G.UnitPower, _G.UnitPowerMax
+local UnitAlternatePowerInfo = _G.UnitAlternatePowerInfo
+local UnitAlternatePowerTextureInfo = _G.UnitAlternatePowerTextureInfo
+local SecureButton_GetUnit = _G.SecureButton_GetUnit
+local CreateFrame, GetTime = _G.CreateFrame, _G.GetTime
+local gsub, strmatch, format, strsub = _G.gsub, _G.strmatch, _G.format, _G.strsub
+local mmin, mmax, huge, floor, abs = _G.min, _G.max, _G.math.huge, _G.floor, _G.math.abs
+local tostring, unpack, select = _G.tostring, _G.unpack, _G.select
+local UNKNOWN = _G.UNKNOWN
+local ALTERNATE_POWER_INDEX = _G.ALTERNATE_POWER_INDEX
 
+-- Import some values from oUF_Adirelle namespace
+local GetFrameUnitState = oUF_Adirelle.GetFrameUnitState
+local backdrop, glowBorderBackdrop = oUF_Adirelle.backdrop, oUF_Adirelle.glowBorderBackdrop
+
+-- Constants
+local SCALE = 1.0
+local WIDTH = 80
+local SPACING = 2
+local HEIGHT = 25
+local BORDER_WIDTH = 1
+local ICON_SIZE = 14
+local INSET = 1
+local SMALL_ICON_SIZE = 8
 local borderBackdrop = { edgeFile = [[Interface\Addons\oUF_Adirelle\media\white16x16]], edgeSize = BORDER_WIDTH }
+
+-- Export some constants	
+oUF_Adirelle.SCALE, oUF_Adirelle.WIDTH, oUF_Adirelle.SPACING, oUF_Adirelle.HEIGHT, oUF_Adirelle.BORDER_WIDTH, oUF_Adirelle.ICON_SIZE = SCALE, WIDTH, SPACING, HEIGHT, BORDER_WIDTH, ICON_SIZE
 
 -- ------------------------------------------------------------------------------
 -- Health bar and name updates
@@ -38,9 +53,9 @@ end
 -- Health point formatting
 local function SmartHPValue(value)
 	if abs(value) >= 1000 then
-		return strformat("%.1fk",value/1000)
+		return format("%.1fk",value/1000)
 	else
-		return strformat("%d", value)
+		return format("%d", value)
 	end
 end
 
@@ -101,7 +116,7 @@ local function UpdateHealBar(bar, unit, current, max, incoming, incomingOthers)
 		local pixelPerHP = health:GetWidth() / max
 		if incomingOthers > 0 then
 			local othersBar = self.IncomingOthersHeal
-			local newCurrent = math.min(current + incomingOthers, max)
+			local newCurrent = mmin(current + incomingOthers, max)
 			othersBar:SetPoint('LEFT', health, 'LEFT', current * pixelPerHP, 0)
 			othersBar:SetWidth((newCurrent-current) * pixelPerHP)
 			othersBar:Show()
@@ -111,7 +126,7 @@ local function UpdateHealBar(bar, unit, current, max, incoming, incomingOthers)
 		end
 		if incoming > 0 and current < max then
 			bar:SetPoint('LEFT', health, 'LEFT', current * pixelPerHP, 0)
-			bar:SetWidth(math.min(max-current, incoming) * pixelPerHP)
+			bar:SetWidth(mmin(max-current, incoming) * pixelPerHP)
 			bar:Show()
 		else
 			bar:Hide()
@@ -131,11 +146,11 @@ end
 
 -- Update health and name color
 local function UpdateColor(self, event, unit)
-	if unit and unit ~= self.unit then return end
+	if unit and (unit ~= self.unit and unit ~= self.realUnit) then return end
 	local refUnit = (self.realUnit or self.unit):gsub('pet', '')
 	if refUnit == '' then refUnit = 'player' end -- 'pet'
 	local class = UnitName(refUnit) ~= UNKNOWN and select(2, UnitClass(refUnit))
-	local state = oUF_Adirelle.GetFrameUnitState(self, true) or class or ""
+	local state = GetFrameUnitState(self, true) or class or ""
 	if state ~= self.__stateColor then
 		self.__stateColor = state
 		local r, g, b = 0.5, 0.5, 0.5
@@ -211,7 +226,9 @@ end
 
 local CreateClassAuraIcons
 do
-	local INSET, SMALL_ICON_SIZE = 1, 8
+	local playerClass = oUF_Adirelle.playerClass
+	local GetOwnAuraFilter, GetOwnStackedAuraFilter, GetAnyAuraFilter = private.GetOwnAuraFilter, private.GetOwnStackedAuraFilter, private.GetAnyAuraFilter
+	
 	local function SpawnSmallIcon(self, ...) return self:CreateIcon(self.Overlay, SMALL_ICON_SIZE, true, true, true, false, ...)	end
 
 	-- Create the specific icons depending on player class
@@ -321,7 +338,7 @@ local function AltPowerBar_SetValue(bar, value)
 			end
 			r, g, b = oUF.ColorGradient(f, r, g, b, 1, 0, 0)
 		end
-		bar:SetStatusBarColor(max(r, bar.highlight), max(g, bar.highlight), max(b, bar.highlight))
+		bar:SetStatusBarColor(mmax(r, bar.highlight), mmax(g, bar.highlight), mmax(b, bar.highlight))
 		bar._highlight = bar.highlight
 	end
 	return bar:_SetValue(value)
@@ -330,13 +347,13 @@ end
 local function AltPowerBar_OnUpdate(bar, elapsed)
 	local value, target = floor(bar:GetValue()+0.5), bar.target
 	if target > value then
-		value = min(value + bar.range * elapsed / 3, target)
+		value = mmin(value + bar.range * elapsed / 3, target)
 	else
 		if bar.highlight > 0 then
-			bar.highlight = max(bar.highlight - elapsed / 0.3, 0)
+			bar.highlight = mmax(bar.highlight - elapsed / 0.3, 0)
 		end
 		if target < value then	
-			value = max(value - bar.range * elapsed / 3, target)
+			value = mmax(value - bar.range * elapsed / 3, target)
 		end
 	end
 	bar:SetValue(value)
@@ -377,7 +394,7 @@ local function AltPowerBar_Layout(bar)
 	local self = bar.__owner
 	if bar:IsShown() then
 		self.Health:SetPoint("BOTTOMRIGHT", bar, "TOPRIGHT", 0, 0)
-		bar.highlight, bar.target = 0, math.huge
+		bar.highlight, bar.target = 0, huge
 	else
 		self.Health:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", 0, 0)
 	end
@@ -390,8 +407,8 @@ end
 local function InitFrame(self, unit)
 	self:RegisterForClicks("AnyDown")
 
-	self:SetScript("OnEnter", UnitFrame_OnEnter)
-	self:SetScript("OnLeave", UnitFrame_OnLeave)
+	self:SetScript("OnEnter", _G.UnitFrame_OnEnter)
+	self:SetScript("OnLeave", _G.UnitFrame_OnLeave)
 
 	self:SetBackdrop(backdrop)
 	self:SetBackdropColor(0, 0, 0, backdrop.bgAlpha)
@@ -449,7 +466,7 @@ local function InitFrame(self, unit)
 	name:SetAllPoints(self)
 	name:SetJustifyH("CENTER")
 	name:SetJustifyV("MIDDLE")
-	name:SetFont(GameFontNormal:GetFont(), 11)
+	name:SetFont(_G.GameFontNormal:GetFont(), 11)
 	name:SetTextColor(1, 1, 1, 1)
 	self.Name = name
 
@@ -553,7 +570,7 @@ local function InitFrame(self, unit)
 	altPowerBar:SetScript('OnShow', AltPowerBar_Layout)
 	altPowerBar:SetScript('OnHide', AltPowerBar_Layout)
 	altPowerBar:SetFrameLevel(threat:GetFrameLevel()+1)
-	altPowerBar.highlight, altPowerBar.target = 0, math.huge
+	altPowerBar.highlight, altPowerBar.target = 0, huge
 	self:RegisterStatusBarTexture(altPowerBar)
 	self.AltPowerBar = altPowerBar
 

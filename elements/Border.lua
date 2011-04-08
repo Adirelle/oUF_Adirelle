@@ -1,22 +1,26 @@
  --[=[
 Adirelle's oUF layout
-(c) 2009-2010 Adirelle (adirelle@tagada-team.net)
+(c) 2009-2011 Adirelle (adirelle@tagada-team.net)
 All rights reserved.
 
-Elements handled: .Border	
+Elements handled: .Border
 --]=]
 
-local parent, ns = ...
-local oUF = assert(ns.oUF, "oUF is undefined in "..parent.." namespace")
+local _G, addonName, private = _G, ...
+local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
+local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
-local UnitExists = UnitExists
-local UnitIsUnit = UnitIsUnit
-local UnitIsDeadOrGhost = UnitIsDeadOrGhost
-local UnitIsAffectingCombat = UnitIsAffectingCombat
-local UnitPowerType = UnitPowerType
-local UnitPower = UnitPower
-local UnitPowerMax = UnitPowerMax
-local IsInInstance = IsInInstance
+-- Make most globals local so I can check global leaks using "luac -l | grep GLOBAL"
+local UnitExists = _G.UnitExists
+local UnitIsUnit = _G.UnitIsUnit
+local UnitIsDeadOrGhost = _G.UnitIsDeadOrGhost
+local UnitAffectingCombat = _G.UnitAffectingCombat
+local UnitPowerType = _G.UnitPowerType
+local UnitPower = _G.UnitPower
+local UnitPowerMax = _G.UnitPowerMax
+local IsInInstance = _G.IsInInstance
+local SPELL_POWER_MANA = _G.SPELL_POWER_MANA
+local unpack, select = _G.unpack, _G.select
 
 local function Update(self, event, unit)
 	if unit and unit ~= self.unit then return end
@@ -52,7 +56,7 @@ local function TogglePowerUpdates(self, event, unit)
 	if unit and unit ~= self.unit then return end
 	local border = self.Border
 	local hasMana = UnitPowerType(self.unit) == SPELL_POWER_MANA
-	local manaThreshold = hasMana and (UnitAffectingCombat(self.unit) and 0.3 or select(2, IsInInstance()) == "raid" and 0.9 or 0.6) 
+	local manaThreshold = hasMana and (UnitAffectingCombat(self.unit) and 0.3 or select(2, IsInInstance()) == "raid" and 0.9 or 0.6)
 	if border.hasMana == hasMana and border.manaThreshold == manaThreshold then return end
 	border.hasMana, border.manaThreshold = hasMana, manaThreshold
 	if hasMana then
@@ -73,7 +77,7 @@ local function Enable(self)
 	if self.Border then
 		self:RegisterEvent("UNIT_DISPLAYPOWER", TogglePowerUpdates)
 		self:RegisterEvent("UNIT_FLAGS", TogglePowerUpdates)
-		self:RegisterEvent("PLAYER_TARGET_CHANGED", Update)			
+		self:RegisterEvent("PLAYER_TARGET_CHANGED", Update)
 		self.Border:Hide()
 		return true
 	end
@@ -87,7 +91,7 @@ local function Disable(self)
 		self:UnregisterEvent("UNIT_MAXPOWER", PowerUpdate)
 		self:UnregisterEvent("UNIT_DISPLAYPOWER", TogglePowerUpdates)
 		self:UnregisterEvent("UNIT_FLAGS", TogglePowerUpdates)
-		self:UnregisterEvent("PLAYER_TARGET_CHANGED", Update)			
+		self:UnregisterEvent("PLAYER_TARGET_CHANGED", Update)
 		border:Hide()
 	end
 end

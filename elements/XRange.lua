@@ -1,30 +1,41 @@
 --[=[
 Adirelle's oUF layout
-(c) 2009-2010 Adirelle (adirelle@tagada-team.net)
+(c) 2009-2011 Adirelle (adirelle@tagada-team.net)
 All rights reserved.
 --]=]
 
-local parent, ns = ...
-local oUF = assert(ns.oUF, "oUF is undefined in "..parent.." namespace")
+
+local _G, addonName, private = _G, ...
+local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
+local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
+
+-- Make most globals local so I can check global leaks using "luac -l | grep GLOBAL"
+local IsLoggedIn = _G.IsLoggedIn
+local CreateFrame = _G.CreateFrame
+local next = _G.next
 
 local function BuildRangeCheck()
-	local UnitIsUnit = UnitIsUnit
-	local IsSpellInRange = IsSpellInRange
-	local UnitIsConnected = UnitIsConnected
-	local UnitCanAttack = UnitCanAttack
-	local UnitCanAssist = UnitCanAssist
-	local UnitIsCorpse = UnitIsCorpse
-	local UnitIsVisible = UnitIsVisible
-	local CheckInteractDistance = CheckInteractDistance
-	local GetSpellInfo = GetSpellInfo
-	local UnitInRange = UnitInRange
+	local CheckInteractDistance = _G.CheckInteractDistance
+	local GetSpellInfo = _G.GetSpellInfo
+	local IsSpellInRange = _G.IsSpellInRange
+	local UnitCanAssist = _G.UnitCanAssist
+	local UnitCanAttack = _G.UnitCanAttack
+	local UnitClass = _G.UnitClass
+	local UnitExists = _G.UnitExists
+	local UnitInRange = _G.UnitInRange
+	local UnitIsConnected = _G.UnitIsConnected
+	local UnitIsCorpse = _G.UnitIsCorpse
+	local UnitIsUnit = _G.UnitIsUnit
+	local UnitIsVisible = _G.UnitIsVisible
+	local geterrorhandler = _G.geterrorhandler
+	local select = _G.select
 
 	local DEFAULT_INTERACT_RANGE = 4
 
 	local function DefaultRangeCheck(unit, interactRange)
 		return UnitInRange(unit) or CheckInteractDistance(unit, interactRange)
 	end
-	
+
 	local function CheckSpell(id, interactRange)
 		local spell = GetSpellInfo(id)
 		if not spell then
@@ -101,7 +112,7 @@ local function BuildRangeCheck()
 	elseif playerClass == 'MAGE' then
 		hostileCheck = CheckSpell(133) --  Fireball
 		friendlyCheck = CheckSpell(475) -- Remove Curse
-		
+
 	elseif playerClass == 'DEATHKNIGHT' then
 		hostileCheck = CheckSpell(49576) -- Death grip
 
@@ -114,7 +125,7 @@ local function BuildRangeCheck()
 
 	return function(unit)
 		if not UnitExists(unit) then
-			return false 
+			return false
 		elseif UnitIsUnit(unit, 'player') or not UnitIsConnected(unit) then
 			return true
 		elseif not UnitIsVisible(unit) then
@@ -131,7 +142,7 @@ local function BuildRangeCheck()
 			return DefaultRangeCheck(unit, DEFAULT_INTERACT_RANGE)
 		end
 	end
-	
+
 end
 
 local IsInRange = function() return true end
@@ -191,7 +202,7 @@ local function Enable(self)
 end
 
 local function Disable(self)
-	objects[self] = nil	
+	objects[self] = nil
 end
 
 oUF:AddElement('XRange', Update, Enable, Disable)

@@ -1,29 +1,34 @@
 --[=[
 Adirelle's oUF layout
-(c) 2009-2010 Adirelle (adirelle@tagada-team.net)
+(c) 2009-2011 Adirelle (adirelle@tagada-team.net)
 All rights reserved.
 --]=]
 
-local oUF_Adirelle = oUF_Adirelle
-local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle namespace")
+local _G, moduleName, private = _G, ...
+local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
+local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 oUF:Factory(function()
-	-- Fetch some globals into local namespace
-	local oUF_Adirelle = oUF_Adirelle
-	local GetInstanceInfo = GetInstanceInfo
-	local GetNumRaidMembers = GetNumRaidMembers
-	local GetNumPartyMembers = GetNumPartyMembers
-	local GetRaidRosterInfo = GetRaidRosterInfo
-	local pairs = pairs
-	local ipairs = ipairs
+	-- Make most globals local so I can check global leaks using "luac -l | grep GLOBAL"
+	local GetInstanceInfo = _G.GetInstanceInfo
+	local GetNumRaidMembers = _G.GetNumRaidMembers
+	local GetNumPartyMembers = _G.GetNumPartyMembers
+	local GetRaidRosterInfo = _G.GetRaidRosterInfo
+	local pairs, ipairs, format = _G.pairs, _G.ipairs, _G.format
+	local CreateFrame, UIParent = _G.CreateFrame, _G.UIParent
+	local SecureHandlerSetFrameRef = _G.SecureHandlerSetFrameRef
+	local RegisterStateDriver, UnregisterStateDriver = _G.RegisterStateDriver, _G.UnregisterStateDriver
 	
+	local Debug = oUF_Adirelle.Debug
+
 	-- Fetch some shared variables into local namespace
 	local SCALE = oUF_Adirelle.SCALE
 	local SPACING = oUF_Adirelle.SPACING
 	local WIDTH = oUF_Adirelle.WIDTH
-	local HEIGHT_FULL = oUF_Adirelle.HEIGHT
+	local HEIGHT = oUF_Adirelle.HEIGHT
 	local GetPlayerRole = oUF_Adirelle.GetPlayerRole
 
+	local HEIGHT_FULL = HEIGHT
 	local HEIGHT_SMALL = 20
 	
 	--------------------------------------------------------------------------------

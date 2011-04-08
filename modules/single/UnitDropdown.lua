@@ -4,10 +4,11 @@ Adirelle's oUF layout
 All rights reserved.
 --]=]
 
-local moduleName, private = ...
+local _G, moduleName, private = _G, ...
 
--- Use our own namespace
-setfenv(1, _G.oUF_Adirelle)
+-- Make most globals local so I can check global leaks using "luac -l | grep GLOBAL"
+local gsub, print = _G.gsub, _G.print
+local GetScreenWidth, DropDownList1 = _G.GetScreenWidth, _G.DropDownList1
 
 -- Based on Xinhuan unit dropdown hack
 local function AdjustMenu(listFrame, point, relativeTo, relativePoint, xOffset, yOffset)
@@ -30,7 +31,7 @@ local function AdjustMenu(listFrame, point, relativeTo, relativePoint, xOffset, 
 end
 
 local function DropDown_PostClick(self)
-	if UIDROPDOWNMENU_OPEN_MENU == self.dropdownFrame and DropDownList1:IsShown() then
+	if _G.UIDROPDOWNMENU_OPEN_MENU == self.dropdownFrame and DropDownList1:IsShown() then
 		DropDownList1:ClearAllPoints()
 		DropDownList1:SetPoint("TOPLEFT", self, "BOTTOMLEFT", 0, 0)
 		AdjustMenu(DropDownList1, "TOPLEFT", self, "BOTTOMLEFT", 0, 0)

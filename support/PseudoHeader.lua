@@ -4,9 +4,15 @@ Adirelle's oUF layout
 All rights reserved.
 --]=]
 
-local addonName, oUF_Adirelle = ...
+local _G, addonName, private = _G, ...
+local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
+local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 if oUF_Adirelle.CreatePseudoHeader then return end
+
+-- Make most globals local so I can check global leaks using "luac -l | grep GLOBAL"
+local type, tinsert, pairs, ipairs = _G.type, _G.tinsert, _G.pairs, _G.ipairs
+local CreateFrame, UIParent = _G.CreateFrame, _G.UIParent
 
 local headerProto = {
 	Debug = oUF_Adirelle.Debug
@@ -29,6 +35,7 @@ function headerProto:Enable()
 	for i, frame in ipairs(self.frames) do
 		frame:Enable()
 	end
+	self:Debug('Enabled')
 end
 
 function headerProto:Disable()
@@ -42,12 +49,14 @@ function headerProto:Disable()
 		frame:Disable()
 	end
 	self:Hide()
+	self:Debug('Disabled')
 end
 
 function headerProto:OnEvent(event, ...)
 	if event == "PLAYER_REGEN_ENABLED" then
 		self:UnregisterEvent('PLAYER_REGEN_ENABLED')
 	end
+	self:Debug('Updating on', event)	
 	if self:GetEnabledSetting() and self:ShouldEnable() then
 		self:Enable()
 	else

@@ -1,10 +1,14 @@
 --[=[
 Adirelle's oUF layout
-(c) 2009-2010 Adirelle (adirelle@tagada-team.net)
+(c) 2009-2011 Adirelle (adirelle@tagada-team.net)
 All rights reserved.
 --]=]
 
-local addonName, oUF_Adirelle = ...
+local _G, addonName, private = _G, ...
+local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
+local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
+
+local pairs = _G.pairs
 
 local libmovable = oUF_Adirelle.GetLib('LibMovable-1.0')
 if libmovable then

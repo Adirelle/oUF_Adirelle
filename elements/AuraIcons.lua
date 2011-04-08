@@ -1,21 +1,29 @@
 --[=[
 Adirelle's oUF layout
-(c) 2009-2010 Adirelle (adirelle@tagada-team.net)
+(c) 2009-2011 Adirelle (adirelle@tagada-team.net)
 All rights reserved.
 --]=]
 
-local parent, ns = ...
-local oUF = assert(ns.oUF, "oUF is undefined in "..parent.." namespace")
+local _G, addonName, private = _G, ...
+local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
+local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
+
+-- Make most globals local so I can check global leaks using "luac -l | grep GLOBAL"
+local GetTime = _G.GetTime
+local CreateFrame, UIParent = _G.CreateFrame, _G.UIParent
+local geterrorhandler = _G.geterrorhandler
+local next, pairs, tostring, type, min = _G.next, _G.pairs, _G.tostring, _G.type, _G.min
+local UnitIsConnected, UnitIsDeadOrGhost = _G.UnitIsConnected, _G.UnitIsDeadOrGhost
+local UnitName, UNKNOWN = _G.UnitName, _G.UNKNOWN
 
 local CreateBlinkingFrame
 do
-	local GetTime = GetTime
 	local blinkingAlpha, now = 1.0, GetTime()
 
 	local function RegisterIcon(self, icon, start, duration, threshold)
 		self.icons[icon] = true
 		icon.expirationTime = start + duration
-		icon.thresholdTime = icon.expirationTime - math.min(threshold, duration * threshold / 10)
+		icon.thresholdTime = icon.expirationTime - min(threshold, duration * threshold / 10)
 		if now >= icon.thresholdTime then
 			icon:SetAlpha(icon.alpha * blinkingAlpha)
 		else

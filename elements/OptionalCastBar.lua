@@ -4,8 +4,12 @@ Adirelle's oUF layout
 All rights reserved.
 --]=]
 
-local parent, ns = ...
-local oUF = assert(ns.oUF, "oUF is undefined in "..parent.." namespace")
+local _G, addonName, private = _G, ...
+local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
+local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
+
+-- Make most globals local so I can check global leaks using "luac -l | grep GLOBAL"
+local GetCVarBool = _G.GetCVarBool
 
 local function Update(self, event, name)
 	if event == "CVAR_UPDATE" and name ~= "SHOW_TARGET_CASTBAR" then return end
