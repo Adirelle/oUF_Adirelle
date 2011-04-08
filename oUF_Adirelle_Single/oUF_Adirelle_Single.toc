@@ -5,4 +5,5 @@
 ## Notes: Unit frames for player, pet, target, target of target and focus.
 ## RequiredDeps: oUF_Adirelle
 
+..\oUF_Adirelle\modules\single\style.xml
 ..\oUF_Adirelle\modules\single\module.xml

@@ -7,6 +7,8 @@ All rights reserved.
 local _G, moduleName, private = _G, ...
 local oUF_Adirelle = _G.oUF_Adirelle
 
+if oUF_Adirelle.SingleStyle then return end
+
 -- Make most globals local so I can check global leaks using "luac -l | grep GLOBAL"
 local GameFontWhiteSmall = _G.GameFontWhiteSmall
 local CreateFrame = _G.CreateFrame

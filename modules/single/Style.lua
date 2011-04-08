@@ -8,6 +8,8 @@ local _G, moduleName, private = _G, ...
 local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
+if oUF_Adirelle.SingleStyle then return end
+
 -- Make most globals local so I can check global leaks using "luac -l | grep GLOBAL"
 local CreateFrame = _G.CreateFrame
 local InCombatLockdown, UnitAlternatePowerInfo = _G.InCombatLockdown, _G.UnitAlternatePowerInfo
@@ -717,3 +719,5 @@ local single_style_health = setmetatable({
 })
 
 oUF:RegisterStyle("Adirelle_Single_Health", single_style_health)
+
+oUF_Adirelle.SingleStyle = true
