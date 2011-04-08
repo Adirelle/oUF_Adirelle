@@ -16,7 +16,7 @@ oUF:Factory(function()
 	local anchor = oUF_Adirelle.CreatePseudoHeader("oUF_Adirelle_Arena", "arenas", "Arena enemy frames", 190, 5*(47+40)-15, 'BOTTOMLEFT', _G.UIParent, "BOTTOM", 250, 355)
 
 	function anchor:ShouldEnable()
-		return select(3, IsInInstance()) == "arena"
+		return select(2, IsInInstance()) == "arena"
 	end
 	anchor:RegisterEvent('PLAYER_ENTERING_WORLD')
 	anchor:RegisterEvent('ZONE_CHANGED_NEW_AREA')
