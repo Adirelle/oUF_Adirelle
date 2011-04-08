@@ -6,8 +6,21 @@ All rights reserved.
 Elements handled: .WarningIcon
 --]=]
 
-local parent, ns = ...
-local oUF = assert(ns.oUF, "oUF is undefined in "..parent.." namespace")
+local _G, addonName, private = _G, ...
+local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
+local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
+
+-- Make most globals local so I can check global leaks using "luac -l | grep GLOBAL"
+local DebuffTypeColor = _G.DebuffTypeColor
+local UnitBuff = _G.UnitBuff
+local UnitCanAssist = _G.UnitCanAssist
+local UnitCanAttack = _G.UnitCanAttack
+local UnitDebuff = _G.UnitDebuff
+local UnitIsVisible = _G.UnitIsVisible
+local gmatch = _G.gmatch
+local huge = _G.math.huge
+local pairs = _G.pairs
+local tonumber = _G.tonumber
 
 -- ------------------------------------------------------------------------------
 -- Spell data
@@ -44,7 +57,7 @@ for spellID in gmatch([=[
 end
 
 -- PvP debuffs using DRData-1.0
-local drdata = ns.GetLib('DRData-1.0')
+local drdata = oUF_Adirelle.GetLib('DRData-1.0')
 if drdata then
 	local priorities = {
 		banish = 100,
@@ -138,7 +151,7 @@ do
 			DEBUFFS[tonumber(spellID)] = priority
 		end
 	end
-	
+
 	-- Debuffs with threshold
 	for def, spellIDs, priority, threshold in gmatch(DEBUFFS_STR, '((%d[%d%s,]*)%s*=%s*(%d+)%s*%[%s*>=%s*(%d+)%s*%]%s*)') do
 		priority = tonumber(priority)
@@ -152,7 +165,7 @@ do
 end
 
 -- To be used to avoid displaying these spells twice
-function ns.IsEncounterDebuff(spellID)
+function oUF_Adirelle.IsEncounterDebuff(spellID)
 	return spellID and DEBUFFS[spellID]
 end
 
@@ -185,7 +198,7 @@ do
 		PRIEST:
 			Hymn of Hope: 64901 = 20
 			Pain Suppression: 33206 = 50
-			Guardian Spirit: 47788 = 50		
+			Guardian Spirit: 47788 = 50
 			Spirit of Redemption: 20711 = 99
 		ROGUE:
 			Evasion: 5277 = 40
@@ -196,7 +209,7 @@ do
 			Shield Block: 2565 = 20
 			Enraged Regeneration: 55694 = 30
 			Shield Wall: 871 = 50
-			Last Stand: 12975 = 60		
+			Last Stand: 12975 = 60
 	]=]
 
 	for def, spellIDs, priority in gmatch(BUFFS_STR, '((%d[%d%s,]*)%s*=%s*(%d+))') do
@@ -222,7 +235,7 @@ local function GetDebuff(unit, index)
 		return name, 50, texture, count, dispelType, duration, expirationTime
 	elseif spellID then
 		local threshold = DEBUFF_THRESHOLDS[spellID]
-		if not threshold or (count or 1) >= threshold then	
+		if not threshold or (count or 1) >= threshold then
 			return name, DEBUFFS[spellID], texture, count, dispelType, duration, expirationTime
 		end
 	end
@@ -231,9 +244,9 @@ end
 
 local function Scan(self, unit, getFunc, offensive)
 	local index = 0
-	local priority = -math.huge
+	local priority = -huge
 	local name, texture, count, dispelType, duration, expirationTime
-	local newTexture, newCount, newDispelType, newDuration, newExpirationTime
+	local newPriority, newTexture, newCount, newDispelType, newDuration, newExpirationTime
 	repeat
 		index = index + 1
 		name, newPriority, newTexture, newCount, newDispelType, newDuration, newExpirationTime = getFunc(unit, index)
@@ -261,18 +274,18 @@ local function SetAuraIcon(icon, texture, count, dispelType, duration, expiratio
 		icon:Show()
 	elseif icon:IsShown() then
 		icon:Hide()
-	end	
+	end
 end
 
 local function Update(self, event, unit)
 	if unit and unit ~= self.unit then return end
 	unit = self.unit
-	
+
 	local debuffIcon, buffIcon, bothIcon = self.WarningIconDebuff, self.WarningIconBuff, self.WarningIcon
-	
+
 	if UnitIsVisible(unit) then
-		local buffPriority, buffTexture, buffCount, buffDispelType, buffDuration, buffExpirationTime = -math.huge
-		local debuffPriority, debuffTexture, debuffCount, debuffDispelType, debuffDuration, debuffExpirationTime = -math.huge
+		local buffPriority, buffTexture, buffCount, buffDispelType, buffDuration, buffExpirationTime = -huge
+		local debuffPriority, debuffTexture, debuffCount, debuffDispelType, debuffDuration, debuffExpirationTime = -huge
 
 		if bothIcon or debuffIcon then
 			debuffPriority, debuffTexture, debuffCount, debuffDispelType, debuffDuration, debuffExpirationTime = Scan(self, unit, GetDebuff, false)
@@ -323,7 +336,7 @@ end
 local function Enable(self)
 	if self.WarningIcon or self.WarningIconBuff or self.WarningIconDebuff then
 		EnableIcon(self, self.WarningIcon)
-		EnableIcon(self, self.WarningIconBuff) 
+		EnableIcon(self, self.WarningIconBuff)
 		EnableIcon(self, self.WarningIconDebuff)
 		self:RegisterEvent('UNIT_AURA', Update)
 		return true

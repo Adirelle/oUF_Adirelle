@@ -1,22 +1,31 @@
 --[=[
 Adirelle's oUF layout
-(c) 2009-2010 Adirelle (adirelle@tagada-team.net)
+(c) 2009-2011 Adirelle (adirelle@tagada-team.net)
 All rights reserved.
 
 Elements handled: .RoleIcon
 --]=]
 
-local parent, ns = ...
-local oUF = assert(ns.oUF, "oUF is undefined in "..parent.." namespace")
+local _G, addonName, private = _G, ...
+local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
+local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
-local Debug = ns.Debug
+-- Make most globals local so I can check global leaks using "luac -l | grep GLOBAL"
+local GetRaidRosterInfo = _G.GetRaidRosterInfo
+local GetRaidTargetIndex = _G.GetRaidTargetIndex
+local GetRealNumRaidMembers = _G.GetRealNumRaidMembers
+local GetTexCoordsForRoleSmall = _G.GetTexCoordsForRoleSmall
+local GetTexCoordsForRoleSmallCircle = _G.GetTexCoordsForRoleSmallCircle
+local SetRaidTargetIconTexture = _G.SetRaidTargetIconTexture
+local UnitGroupRolesAssigned = _G.UnitGroupRolesAssigned
+local UnitInRaid = _G.UnitInRaid
+local UnitIsPlayer = _G.UnitIsPlayer
+local UnitIsQuestBoss = _G.UnitIsQuestBoss
+local UnitIsUnit = _G.UnitIsUnit
+local pairs, select = _G.pairs, _G.select
 
-local GetRaidTargetIndex = GetRaidTargetIndex
-local SetRaidTargetIconTexture = SetRaidTargetIconTexture
-local UnitInRaid = UnitInRaid
-local UnitIsPlayer = UnitIsPlayer
-local UnitGroupRolesAssigned = UnitGroupRolesAssigned
-local GetRealNumRaidMembers = GetRealNumRaidMembers
+local Debug = oUF_Adirelle.Debug
+local GetPlayerRole = oUF_Adirelle.GetPlayerRole
 
 local function GetRole(unit, noDamager, noCircle)
 	if not UnitIsPlayer(unit) then return end
@@ -32,7 +41,7 @@ local function GetRole(unit, noDamager, noCircle)
 	end
 
 	-- Check assigned roles
-	local role = UnitIsUnit(unit, "player") and ns.GetPlayerRole() or UnitGroupRolesAssigned(unit)
+	local role = UnitIsUnit(unit, "player") and GetPlayerRole() or UnitGroupRolesAssigned(unit)
 	if role and role ~= "NONE" then
 		--Debug('Role from UnitGroupRolesAssigned for ', unit, ':', role)
 		if noDamager and role == "DAMAGER" then
@@ -105,7 +114,7 @@ local function Enable(self)
 		icon.__owner, icon.ForceUpdate = self, ForceUpdate
 		if not icons then
 			icons = { [icon] = true }
-			ns.RegisterPlayerRoleCallback(PlayerRoleUpdated)
+			oUF_Adirelle.RegisterPlayerRoleCallback(PlayerRoleUpdated)
 		else
 			icons[icon] = true
 		end

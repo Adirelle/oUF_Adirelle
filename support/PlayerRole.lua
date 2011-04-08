@@ -1,10 +1,20 @@
 --[=[
 Adirelle's oUF layout
-(c) 2009-2010 Adirelle (adirelle@tagada-team.net)
+(c) 2009-2011 Adirelle (adirelle@tagada-team.net)
 All rights reserved.
 --]=]
 
-local parent, oUF_Adirelle = ...
+local _G, addonName, private = _G, ...
+local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
+local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
+
+-- Make most globals local so I can check global leaks using "luac -l | grep GLOBAL"
+local CreateFrame = _G.CreateFrame
+local GetPrimaryTalentTree, GetTalentInfo, GetTalentTreeRoles = _G.GetPrimaryTalentTree, _G.GetTalentInfo, _G.GetTalentTreeRoles
+local UnitClass, UnitGroupRolesAssigned, UnitSetRole = _G.UnitClass, _G.UnitGroupRolesAssigned, _G.UnitSetRole
+local GetNumRaidMembers = _G.GetNumRaidMembers
+local select, pairs, pcall, geterrorhandler = _G.select, _G.pairs, _G.pcall, _G.geterrorhandler
+
 local Debug = oUF_Adirelle.Debug
 
 local current

@@ -1,19 +1,31 @@
 --[=[
 Adirelle's oUF layout
-(c) 2009-2010 Adirelle (adirelle@tagada-team.net)
+(c) 2009-2011 Adirelle (adirelle@tagada-team.net)
 All rights reserved.
 --]=]
 
-local moduleName, private = ...
+local _G, moduleName, private = _G, ...
+local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
+local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
--- Use our own namespace
-setfenv(1, _G.oUF_Adirelle)
+-- Make most globals local so I can check global leaks using "luac -l | grep GLOBAL"
+local CreateFrame = _G.CreateFrame
+local InCombatLockdown, UnitAlternatePowerInfo = _G.InCombatLockdown, _G.UnitAlternatePowerInfo
+local UnitAlternatePowerTextureInfo= _G.UnitAlternatePowerTextureInfo
+local UnitAffectingCombat, UnitAura = _G.UnitAffectingCombat, _G.UnitAura
+local UnitCanAssist, UnitCanAttack = _G.UnitCanAssist, _G.UnitCanAttack
+local UnitClass, UnitIsConnected = _G.UnitClass, _G.UnitIsConnected
+local UnitIsDeadOrGhost, UnitIsUnit = _G.UnitIsDeadOrGhost, _G.UnitIsUnit
+local UnitFrame_OnEnter, UnitFrame_OnLeave = _G.UnitFrame_OnEnter, _G.UnitFrame_OnLeave
+local ipairs, select, setmetatable = _G.ipairs, _G.select, _G.setmetatable
+local gsub, strmatch, tinsert = _G.gsub, _G.strmatch, _G.tinsert
+local mmin, mmax, floor, sort = _G.min, _G.max, _G.floor, _G.table.sort
+local GameFontNormal = _G.GameFontNormal
 
-local BORDER_WIDTH = 2
-local TEXT_MARGIN = 2
-local GAP = 2
-local FRAME_MARGIN = BORDER_WIDTH + GAP
-local AURA_SIZE = 22
+local GAP, BORDER_WIDTH, TEXT_MARGIN = private.GAP, private.BORDER_WIDTH, private.TEXT_MARGIN
+local FRAME_MARGIN, AURA_SIZE = private.FRAME_MARGIN, private.AURA_SIZE
+
+local backdrop, glowBorderBackdrop = oUF_Adirelle.backdrop, oUF_Adirelle.glowBorderBackdrop
 
 local borderBackdrop = { edgeFile = [[Interface\Addons\oUF_Adirelle\media\white16x16]], edgeSize = BORDER_WIDTH }
 
@@ -29,7 +41,7 @@ local function UpdateHealBar(bar, unit, current, max, incoming)
 		if current and max and incoming and incoming > 0 and max > 0 and current < max then
 			local width = health:GetWidth()
 			bar:SetPoint("LEFT", width * current / max, 0)
-			bar:SetWidth(width * math.min(incoming, max-current) / max)
+			bar:SetWidth(width * mmin(incoming, max-current) / max)
 			bar:Show()
 		else
 			bar:Hide()
@@ -67,7 +79,7 @@ local function Auras_PostUpdateIcon(icons, unit, icon, index, offset)
 	end
 end
 
-local LibDispellable = GetLib("LibDispellable-1.0")
+local LibDispellable = oUF_Adirelle.GetLib("LibDispellable-1.0")
 
 local function IsMine(unit)
 	return unit and (UnitIsUnit(unit, 'player') or UnitIsUnit(unit, 'pet') or UnitIsUnit(unit, 'vehicle'))
@@ -120,15 +132,15 @@ do
 		local x = 0
 		local y = 0
 		local rowSize = 0
-		local width = math.floor(icons:GetWidth() / size) * size
-		local height = math.floor(icons:GetHeight() / size) * size
+		local width = floor(icons:GetWidth() / size) * size
+		local height = floor(icons:GetHeight() / size) * size
 
-		table.sort(icons, CompareIcons)
+		sort(icons, CompareIcons)
 		for i = 1, #icons do
 			local button = icons[i]
 			if button:IsShown() then
 				local iconSize = button.bigger and size or size * 0.75
-				rowSize = math.max(rowSize, iconSize)
+				rowSize = mmax(rowSize, iconSize)
 				button:ClearAllPoints()
 				button:SetWidth(iconSize)
 				button:SetHeight(iconSize)

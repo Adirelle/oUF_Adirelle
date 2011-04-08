@@ -1,23 +1,27 @@
 --[=[
 Adirelle's oUF layout
-(c) 2009-2010 Adirelle (adirelle@tagada-team.net)
+(c) 2009-2011 Adirelle (adirelle@tagada-team.net)
 All rights reserved.
 --]=]
 
-local moduleName = ...
+local _G, moduleName, private = _G, ...
+local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
+local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
-local GetSpellInfo = GetSpellInfo
-local UnitIsUnit = UnitIsUnit
-local UnitAura = UnitAura
-local UnitIsPlayer = UnitIsPlayer
-local UnitIsPVP = UnitIsPVP
-local GetNumRaidMembers = GetNumRaidMembers
-local UnitClass = UnitClass
-local UnitBuff = UnitBuff
-local UnitDebuff = UnitDebuff
-
--- Use our own namespace
-setfenv(1, _G.oUF_Adirelle)
+-- Make most globals local so I can check global leaks using "luac -l | grep GLOBAL"
+local GetSpellInfo = _G.GetSpellInfo
+local UnitIsUnit = _G.UnitIsUnit
+local UnitAura = _G.UnitAura
+local UnitIsPlayer = _G.UnitIsPlayer
+local UnitIsPVP = _G.UnitIsPVP
+local UnitCanAssist = _G.UnitCanAssist
+local DebuffTypeColor = _G.DebuffTypeColor
+local GetNumRaidMembers = _G.GetNumRaidMembers
+local UnitClass = _G.UnitClass
+local UnitBuff = _G.UnitBuff
+local UnitDebuff = _G.UnitDebuff
+local select, type, format, strjoin, tostring, tostringall = _G.select, _G.type, _G.format, _G.strjoin, _G.tostring, _G.tostringall
+local debugstack, geterrorhandler = _G.debugstack, _G.geterrorhandler
 
 -- ------------------------------------------------------------------------------
 -- Helper
@@ -44,7 +48,7 @@ local function GetSpellName(caller, spellId, ...)
 		local stack = debugstack(3):match("[^%.\\]+%.lua:%d+")
 		geterrorhandler()(format(
 			"[%s] Wrong spell id passed to %s. Please report this whole error. id=%d, class=%s, version=%s, params=[%s], source=%s",
-			moduleName, caller, spellId, select(2, UnitClass('player')), VERSION, strjoin(',', tostringall(...)), stack
+			moduleName, caller, spellId, select(2, UnitClass('player')), oUF_Adirelle.VERSION, strjoin(',', tostringall(...)), stack
 		))
 		reported[k] = true
 	end
@@ -56,7 +60,7 @@ local function GetGenericFilter(...)
 	return name, oUF:HasAuraFilter(name)
 end
 
-function GetOwnAuraFilter(spellId, r, g, b)
+function private.GetOwnAuraFilter(spellId, r, g, b)
 	local spellName = GetSpellName("GetOwnAuraFilter", spellId, r, g, b)
 	if not spellName then return "none" end
 	local filter, exists = GetGenericFilter("OwnAura", spellName, r, g, b)
@@ -71,7 +75,7 @@ function GetOwnAuraFilter(spellId, r, g, b)
 	return filter
 end
 
-function GetAnyAuraFilter(spellId, filter, r, g, b)
+function private.GetAnyAuraFilter(spellId, filter, r, g, b)
 	local spellName = GetSpellName("GetAnyAuraFilter", spellId, filter, r, g, b)
 	if not spellName then return "none" end
 	local filter, exists = GetGenericFilter("AnyAura", spellName, filter, r, g, b)
@@ -86,7 +90,7 @@ function GetAnyAuraFilter(spellId, filter, r, g, b)
 	return filter
 end
 
-function GetOwnStackedAuraFilter(spellId, countThreshold, r, g, b)
+function private.GetOwnStackedAuraFilter(spellId, countThreshold, r, g, b)
 	local spellName = GetSpellName("GetOwnStackedAuraFilter", spellId, countThreshold, r, g, b)
 	if not spellName then return "none" end
 	assert(type(countThreshold) == "number", "invalid count threshold: "..tostring(countThreshold))
@@ -106,7 +110,8 @@ end
 -- Cureable debuff filter
 -- ------------------------------------------------------------------------------
 
-local LibDispellable = GetLib("LibDispellable-1.0")
+local LibDispellable = oUF_Adirelle.GetLib("LibDispellable-1.0")
+local IsEncounterDebuff = oUF_Adirelle.IsEncounterDebuff
 oUF:AddAuraFilter("CureableDebuff", function(unit)
 	local alpha, count, expirationTime = 0.5, 0, 0
 	local texture, debuffType, duration

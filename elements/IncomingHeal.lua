@@ -1,14 +1,17 @@
 --[=[
 Adirelle's oUF layout
-(c) 2009-2010 Adirelle (adirelle@tagada-team.net)
+(c) 2009-2011 Adirelle (adirelle@tagada-team.net)
 All rights reserved.
 --]=]
 
-local parent, ns = ...
-local oUF = assert(ns.oUF, "oUF is undefined in "..parent.." namespace")
+local _G, addonName, private = _G, ...
+local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
+local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
-local UnitIsConnected = UnitIsConnected
-local UnitIsDeadOrGhost = UnitIsDeadOrGhost
+-- Make most globals local so I can check global leaks using "luac -l | grep GLOBAL"
+local UnitGetIncomingHeals = _G.UnitGetIncomingHeals
+local UnitIsDeadOrGhost = _G.UnitIsDeadOrGhost
+local UnitIsConnected = _G.UnitIsConnected
 
 local function Update(self, event, unit)
 	if (unit and unit ~= self.unit) then return end

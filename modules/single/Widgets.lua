@@ -4,16 +4,18 @@ Adirelle's oUF layout
 All rights reserved.
 --]=]
 
-local moduleName, private = ...
+local _G, moduleName, private = _G, ...
+local oUF_Adirelle = _G.oUF_Adirelle
 
--- Use our own namespace
-setfenv(1, _G.oUF_Adirelle)
+-- Make most globals local so I can check global leaks using "luac -l | grep GLOBAL"
+local GameFontWhiteSmall = _G.GameFontWhiteSmall
+local CreateFrame = _G.CreateFrame
+local UnitClassification = _G.UnitClassification
+local format, tostring, floor, strjoin = _G.format, _G.tostring, _G.floor, _G.strjoin
 
-local GAP = 2
-local TEXT_MARGIN = 2
-
-local floor, format, strjoin = floor, format, strjoin
-
+local GAP, TEXT_MARGIN = private.GAP, private.TEXT_MARGIN
+local GetLib = oUF_Adirelle.GetLib
+ 
 local function smartValue(value)
 	if value >= 10000000 then
 		return format("%.1fm", value/1000000)

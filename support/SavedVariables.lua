@@ -1,25 +1,28 @@
 --[=[
 Adirelle's oUF layout
-(c) 2009-2010 Adirelle (adirelle@tagada-team.net)
+(c) 2009-2011 Adirelle (adirelle@tagada-team.net)
 All rights reserved.
 --]=]
 
--- Use our own namespace
-local parent, oUF_Adirelle = ...
-local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in "..parent.." namespace")
+local _G, addonName, private = _G, ...
+local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
+local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
+
+-- Make most globals local so I can check global leaks using "luac -l | grep GLOBAL"
+local ipairs, tinsert = _G.ipairs, _G.tinsert
 
 local callbacks = {}
 local db
 
-local frame = CreateFrame("Frame")
+local frame = _G.CreateFrame("Frame")
 frame:SetScript('OnEvent', function(self, event, name)
-	if name ~= parent then return end
+	if name ~= addonName then return end
 	self:UnregisterEvent('ADDON_LOADED')
 	self:SetScript('OnEvent', nil)
 
 	-- Initialize the database
-	oUF_Adirelle_DB = oUF_Adirelle_DB or {}
-	db = oUF_Adirelle_DB
+	_G.oUF_Adirelle_DB = _G.oUF_Adirelle_DB or {}
+	db = _G.oUF_Adirelle_DB
 	if not db.disabled then db.disabled = {} end
 
 	-- Call the callbacks

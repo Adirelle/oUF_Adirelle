@@ -4,12 +4,16 @@ Adirelle's oUF layout
 All rights reserved.
 --]=]
 
-local oUF_Adirelle = oUF_Adirelle
-local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle namespace")
+local _G, moduleName, private = _G, ...
+local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
+local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 oUF:Factory(function()
+	local SecureHandlerWrapScript = _G.SecureHandlerWrapScript
+	local RegisterUnitWatch, UnregisterUnitWatch = _G.RegisterUnitWatch, _G.UnregisterUnitWatch
+	local select, IsInInstance = _G.select, _G.IsInInstance
 
-	local anchor = oUF_Adirelle.CreatePseudoHeader("oUF_Adirelle_Arena", "arenas", "Arena enemy frames", 190, 5*(47+40)-15, "BOTTOM", oUF_Adirelle_Focus, "TOP", 0, 30)
+	local anchor = oUF_Adirelle.CreatePseudoHeader("oUF_Adirelle_Arena", "arenas", "Arena enemy frames", 190, 5*(47+40)-15, "BOTTOM", _G.oUF_Adirelle_Focus, "TOP", 0, 30)
 
 	function anchor:ShouldEnable()
 		return select(3, IsInInstance()) == "arena"

@@ -4,11 +4,18 @@ Adirelle's oUF layout
 All rights reserved.
 --]=]
 
-local parent, ns = ...
-local oUF = assert(ns.oUF, "oUF is undefined in "..parent.." namespace")
+local _G, addonName, private = _G, ...
+local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
+local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
-local UnitIsConnected = UnitIsConnected
-local UnitIsDeadOrGhost = UnitIsDeadOrGhost
+-- Make most globals local so I can check global leaks using "luac -l | grep GLOBAL"
+local UnitCanAssist = _G.UnitCanAssist
+local UnitHealth = _G.UnitHealth
+local UnitHealthMax = _G.UnitHealthMax
+local UnitIsConnected = _G.UnitIsConnected
+local UnitIsDeadOrGhost = _G.UnitIsDeadOrGhost
+local floor, format, pairs, print = _G.floor, _G.format, _G.pairs, _G.print
+local strlower, strmatch, strtrim, tonumber = _G.strlower, _G.sstrmatch, _G.sstrtrim, _G.stonumber
 
 local objects = {}
 local threshold -- positive = flat amount, negative = percent, nil = disabled
@@ -109,7 +116,7 @@ local function SetThreshold(newThreshold, stealth)
 	end
 end
 
-ns.RegisterVariableLoadedCallback(function(dbRef)
+oUF_Adirelle.RegisterVariableLoadedCallback(function(dbRef)
 	db = dbRef
 	return SetThreshold(db.LowHealthThreshold, true)
 end)

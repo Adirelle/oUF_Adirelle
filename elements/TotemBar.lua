@@ -1,15 +1,21 @@
 --[=[
 Adirelle's oUF layout
-(c) 2009-2010 Adirelle (adirelle@tagada-team.net)
+(c) 2009-2011 Adirelle (adirelle@tagada-team.net)
 All rights reserved.
 
 Elements handled: .RuneBar
 --]=]
 
-local parent, ns = ...
-local oUF = assert(ns.oUF, "oUF is undefined in "..parent.." namespace")
+local _G, addonName, private = _G, ...
+local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
+local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
-local function OnUpdate(totem, elapsed)			
+-- Make most globals local so I can check global leaks using "luac -l | grep GLOBAL"
+local ipairs = _G.ipairs
+local GetTotemInfo = _G.GetTotemInfo
+local GetTime = _G.GetTime
+
+local function OnUpdate(totem, elapsed)
 	local timeLeft = totem:GetValue() - elapsed
 	if timeLeft <= 0 then
 		totem:Hide()

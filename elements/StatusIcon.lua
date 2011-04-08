@@ -1,24 +1,34 @@
 --[=[
 Adirelle's oUF layout
-(c) 2009-2010 Adirelle (adirelle@tagada-team.net)
+(c) 2009-2011 Adirelle (adirelle@tagada-team.net)
 All rights reserved.
 
 Elements handled: .StatusIcon
 --]=]
 
-local parent, ns = ...
-local oUF = assert(ns.oUF, "oUF is undefined in "..parent.." namespace")
+local _G, addonName, private = _G, ...
+local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
+local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
-local UnitIsConnected = UnitIsConnected
-local UnitIsDeadOrGhost = UnitIsDeadOrGhost
-local UnitIsCharmed = UnitIsCharmed
-local UnitCanAttack = UnitCanAttack
-local UnitIsVisible = UnitIsVisible
-local UnitIsPlayer = UnitIsPlayer
-local UnitHasVehicleUI = UnitHasVehicleUI
+-- Make most globals local so I can check global leaks using "luac -l | grep GLOBAL"
+local CreateFrame = _G.CreateFrame
+local SecureButton_GetUnit = _G.SecureButton_GetUnit
+local UnitCanAttack = _G.UnitCanAttack
+local UnitHasVehicleUI = _G.UnitHasVehicleUI
+local UnitInPhase = _G.UnitInPhase
+local UnitIsCharmed = _G.UnitIsCharmed
+local UnitIsConnected = _G.UnitIsConnected
+local UnitIsDead = _G.UnitIsDead
+local UnitIsDeadOrGhost = _G.UnitIsDeadOrGhost
+local UnitIsGhost = _G.UnitIsGhost
+local UnitIsPlayer = _G.UnitIsPlayer
+local UnitIsVisible = _G.UnitIsVisible
+local next = _G.next
+local pairs = _G.pairs
+local unpack = _G.unpack
 
 local function GetFrameUnitState(self, ignoreVisibility)
-	local unit = self.unit
+	local unit = self.realUnit or self.unit
 	if UnitIsPlayer(unit) then
 		if not UnitIsConnected(unit) then
 			return "DISCONNECTED"
@@ -30,7 +40,7 @@ local function GetFrameUnitState(self, ignoreVisibility)
 			return "OUTOFPHASE"
 		elseif UnitIsGhost(unit) then
 			return "DEAD"
-		elseif UnitHasVehicleUI(SecureButton_GetUnit(self) or unit) then
+		elseif UnitHasVehicleUI(unit) then
 			return "INVEHICLE"
 		elseif UnitIsCharmed(unit) then
 			return "CHARMED"
@@ -39,7 +49,7 @@ local function GetFrameUnitState(self, ignoreVisibility)
 		return UnitIsDeadOrGhost(unit) and "DEAD" or nil
 	end
 end
-ns.GetFrameUnitState = GetFrameUnitState
+oUF_Adirelle.GetFrameUnitState = GetFrameUnitState
 
 local icons = {
 	DISCONNECTED = { [[Interface\Icons\INV_Sigil_Thorim]], 0.05, 0.95, 0.5-0.25*0.9, 0.5+0.25*0.9, false },

@@ -1,20 +1,27 @@
 --[=[
 Adirelle's oUF layout
-(c) 2009-2010 Adirelle (adirelle@tagada-team.net)
+(c) 2009-2011 Adirelle (adirelle@tagada-team.net)
 All rights reserved.
 
 Elements handled: .ThreatBar
 --]=]
 
-local parent, ns = ...
-local oUF = assert(ns.oUF, "oUF is undefined in "..parent.." namespace")
+local _G, addonName, private = _G, ...
+local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
+local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
+
+-- Make most globals local so I can check global leaks using "luac -l | grep GLOBAL"
+local GetRealNumPartyMembers = _G.GetRealNumPartyMembers
+local GetRealNumRaidMembers = _G.GetRealNumRaidMembers
+local UnitDetailedThreatSituation = _G.UnitDetailedThreatSituation
+local GetThreatStatusColor = _G.GetThreatStatusColor
 
 local function Update(self, event, unit)
 	if unit and (unit ~= self.unit and unit ~= "player") then return end
 	local bar = self.ThreatBar
 	if GetRealNumPartyMembers() == 0 and GetRealNumRaidMembers() == 0 then return bar:Hide() end
 	local isTanking, status, scaledPercent, rawPercent, threatValue = UnitDetailedThreatSituation("player", self.unit)
-	if status then 
+	if status then
 		bar:SetValue(scaledPercent)
 		if status > 0 then
 			bar:SetStatusBarColor(GetThreatStatusColor(status))
@@ -45,7 +52,7 @@ local function Disable(self)
 		self:UnregisterEvent("PARTY_MEMBERS_CHANGED", Update)
 		self:UnregisterEvent("UNIT_THREAT_LIST_UPDATE", Update)
 		self:UnregisterEvent("UNIT_THREAT_SITUATION_UPDATE", Update)
-		self.ThreatBar:Hide()	
+		self.ThreatBar:Hide()
 	end
 end
 

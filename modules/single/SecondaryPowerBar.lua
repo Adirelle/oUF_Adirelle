@@ -4,12 +4,21 @@ Adirelle's oUF layout
 All rights reserved.
 --]=]
 
-local moduleName, private = ...
+local _G, moduleName, private = _G, ...
+local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
+local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
--- Use our own namespace
-setfenv(1, _G.oUF_Adirelle)
+-- Make most globals local so I can check global leaks using "luac -l | grep GLOBAL"
+local abs, unpack = _G.math.abs, _G.unpack
+local GetEclipseDirection = _G.GetEclipseDirection
+local UnitPowerType, UnitPower, UnitPowerMax = _G.UnitPowerType, _G.UnitPower, _G.UnitPowerMax
+local CreateFrame, PowerBarColor, GetRuneType = _G.CreateFrame, _G.PowerBarColor, _G.GetRuneType
+local SPELL_POWER_MANA, SPELL_POWER_ECLIPSE = _G.SPELL_POWER_MANA, _G.SPELL_POWER_ECLIPSE
+local ECLIPSE_MARKER_COORDS = _G.ECLIPSE_MARKER_COORDS
 
-local GAP = 2
+local GAP = private.GAP
+
+local playerClass = oUF_Adirelle.playerClass
 
 if playerClass == "DRUID" then
 	-- Druid mana bar
@@ -26,9 +35,6 @@ if playerClass == "DRUID" then
 			none = { 205/255, 148/255,  43/255 },
 		}
 	}
-
-	local SPELL_POWER_MANA = SPELL_POWER_MANA
-	local SPELL_POWER_ECLIPSE = SPELL_POWER_ECLIPSE
 
 	local function EclipseText_Update(eclipseBar, unit)
 		if unit and unit ~= "player" or not eclipseBar:IsVisible() then return end
@@ -52,7 +58,7 @@ if playerClass == "DRUID" then
 		end
 	end
 
-	function AltPower_Update(power, unit)
+	local function AltPower_Update(power, unit)
 		power:GetParent().EclipseBar:ForceUpdate()
 		local manaBar = power:GetParent().AltPower.ManaBar
 		if unit == 'player' and UnitPowerType(unit) ~= SPELL_POWER_MANA then
@@ -142,7 +148,7 @@ elseif playerClass == "WARLOCK" then
 		local parent, anchor = self.Indicators, self.Power
 		local scale = 1/1.2
 		local w, h = scale*17, scale*16
-		for index = 1, SHARD_BAR_NUM_SHARDS do
+		for index = 1, _G.SHARD_BAR_NUM_SHARDS do
 			local shard = parent:CreateTexture(nil, "OVERLAY")
 			shard:SetTexture([[Interface\PlayerFrame\UI-WarlockShard]])
 			shard:SetSize(w, h)
@@ -182,16 +188,16 @@ elseif playerClass == 'DEATHKNIGHT' then
 elseif playerClass == "SHAMAN" then
 	-- Totems
 	local totemColors =	oUF.colors.totems or {
-		[FIRE_TOTEM_SLOT] = { 1, 0.3, 0.0  },
-		[EARTH_TOTEM_SLOT] = { 0.3, 1, 0.2 },
-		[WATER_TOTEM_SLOT] = { 0.3, 0.2, 1 },
-		[AIR_TOTEM_SLOT] = { 0.2, 0.8, 1 },
+		[_G.FIRE_TOTEM_SLOT] = { 1, 0.3, 0.0  },
+		[_G.EARTH_TOTEM_SLOT] = { 0.3, 1, 0.2 },
+		[_G.WATER_TOTEM_SLOT] = { 0.3, 0.2, 1 },
+		[_G.AIR_TOTEM_SLOT] = { 0.2, 0.8, 1 },
 	}
 
 	private.SetupSecondaryPowerBar = function(self)
-		self.TotemBar = private.SpawnDiscreteBar(self, MAX_TOTEMS, true)
-		for i = 1, MAX_TOTEMS do
-			self.TotemBar[i]:SetStatusBarColor(unpack(totemColors[SHAMAN_TOTEM_PRIORITIES[i]], 1, 3))
+		self.TotemBar = private.SpawnDiscreteBar(self, _G.MAX_TOTEMS, true)
+		for i = 1, _G.MAX_TOTEMS do
+			self.TotemBar[i]:SetStatusBarColor(unpack(totemColors[_G.SHAMAN_TOTEM_PRIORITIES[i]], 1, 3))
 		end
 		return self.TotemBar
 	end
@@ -199,9 +205,9 @@ elseif playerClass == "SHAMAN" then
 elseif playerClass == "PALADIN" then
 	-- Holy power
 	private.SetupSecondaryPowerBar = function(self)
-		local bar = private.SpawnDiscreteBar(self, MAX_HOLY_POWER)
+		local bar = private.SpawnDiscreteBar(self, _G.MAX_HOLY_POWER)
 		local r, g, b = unpack(oUF.colors.power.HOLY_POWER, 1, 3)
-		for i = 1, MAX_HOLY_POWER do
+		for i = 1, _G.MAX_HOLY_POWER do
 			bar[i]:SetVertexColor(r, g, b)
 		end
 		self.HolyPower = bar

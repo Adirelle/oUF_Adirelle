@@ -1,17 +1,22 @@
 --[=[
 Adirelle's oUF layout
-(c) 2009-2010 Adirelle (adirelle@tagada-team.net)
+(c) 2009-2011 Adirelle (adirelle@tagada-team.net)
 All rights reserved.
 --]=]
 
-local parent, ns = ...
-local oUF = assert(ns.oUF, "oUF is undefined in "..parent.." namespace")
+local _G, addonName, private = _G, ...
+local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
+local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
-local UnitLevel = UnitLevel
-local IsXPUserDisabled = IsXPUserDisabled
-local UnitXP = UnitXP
-local UnitXPMax = UnitXPMax
-local GetXPExhaustion = GetXPExhaustion
+-- Make most globals local so I can check global leaks using "luac -l | grep GLOBAL"
+local GetXPExhaustion = _G.GetXPExhaustion
+local IsResting = _G.IsResting
+local IsXPUserDisabled = _G.IsXPUserDisabled
+local UnitLevel = _G.UnitLevel
+local UnitXP = _G.UnitXP
+local UnitXPMax = _G.UnitXPMax
+local mmin = _G.min
+local unpack, pairs = _G.unpack, _G.pairs
 
 local colors = {
 	resting = { 0.0, 1.0, 0.37 }, -- green
@@ -22,7 +27,7 @@ local colors = {
 local function Update(self, event)
 	local bar = self.ExperienceBar
 	local restedBar = bar.Rested
-	if UnitLevel("player") == MAX_PLAYER_LEVEL then
+	if UnitLevel("player") == _G.MAX_PLAYER_LEVEL then
 		return self:DisableElement('Experience')
 	elseif IsXPUserDisabled() then
 		restedBar:Hide()
@@ -35,7 +40,7 @@ local function Update(self, event)
 	bar:SetValue(current)
 	bar:SetStatusBarColor(unpack(IsResting() and bar.Colors.resting or bar.Colors.normal))
 	if rested and rested > 0 then
-		local total = math.min(current + rested, max)
+		local total = mmin(current + rested, max)
 		restedBar:SetStatusBarColor(unpack(bar.Colors.rested))
 		restedBar:SetMinMaxValues(0, max)
 		restedBar:SetValue(total)
@@ -60,7 +65,7 @@ local function Enable(self, unit)
 	local bar = self.ExperienceBar
 	if not bar then
 		return
-	elseif (unit and unit ~= "player") or UnitLevel("player") == MAX_PLAYER_LEVEL then
+	elseif (unit and unit ~= "player") or UnitLevel("player") == _G.MAX_PLAYER_LEVEL then
 		bar.Rested:Hide()
 		bar:Hide()
 		return
