@@ -382,7 +382,6 @@ local function InitFrame(settings, self, unit)
 			-- Add player specific secondary power bar
 			local bar = private.SetupSecondaryPowerBar(self)
 			if bar then
-				bar:Hide()
 				bar:SetPoint('TOPLEFT', self.Power, 'BOTTOMLEFT', 0, -GAP)
 				bar:SetPoint('BOTTOMRIGHT', self.BarContainer)	
 				local LayoutScript = function() return LayoutBars(self) end

@@ -123,7 +123,6 @@ end
 local function SpawnDiscreteBar(self, numItems, createStatusBar)
 	local bar = CreateFrame("Frame", nil, self)
 	bar.numItems = numItems
-	bar:Hide()
 	bar:SetScript('OnShow', DiscreteBar_Layout)
 	bar:SetScript('OnSizeChanged', DiscreteBar_Layout)	
 	for i = 1, numItems do
