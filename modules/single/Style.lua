@@ -515,8 +515,9 @@ local function InitFrame(settings, self, unit)
 				
 			-- PvP timer
 			if unit == "player" then
-				local timer = CreateFrame("Frame", nil, self)
-				timer.text = SpawnText(indicators, "OVERLAY")
+				local timer = CreateFrame("Frame", nil, indicators)
+				timer:SetAllPoints(pvp)
+				timer.text = SpawnText(timer, "OVERLAY")
 				timer.text:SetPoint("CENTER", pvp)
 				self.PvPTimer = timer
 			end
