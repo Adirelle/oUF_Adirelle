@@ -508,10 +508,18 @@ local function InitFrame(settings, self, unit)
 
 		-- PvP flag
 		if self.Portrait then
-			local pvp = SpawnTexture(indicators, 12)
+			local pvp = SpawnTexture(indicators, 16)
 			pvp:SetTexCoord(0, 0.6, 0, 0.6)
 			pvp:SetPoint("CENTER", self.Portrait, "BOTTOM"..right)
 			self.PvP = pvp
+				
+			-- PvP timer
+			if unit == "player" then
+				local timer = CreateFrame("Frame", nil, self)
+				timer.text = SpawnText(indicators, "OVERLAY")
+				timer.text:SetPoint("CENTER", pvp)
+				self.PvPTimer = timer
+			end
 		end
 	end
 
