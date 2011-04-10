@@ -189,19 +189,23 @@ elseif playerClass == 'DEATHKNIGHT' then
 
 elseif playerClass == "SHAMAN" then
 	-- Totems
-	local totemColors =	oUF.colors.totems or {
-		[_G.FIRE_TOTEM_SLOT] = { 1, 0.3, 0.0  },
-		[_G.EARTH_TOTEM_SLOT] = { 0.3, 1, 0.2 },
-		[_G.WATER_TOTEM_SLOT] = { 0.3, 0.2, 1 },
-		[_G.AIR_TOTEM_SLOT] = { 0.2, 0.8, 1 },
-	}
 
 	private.SetupSecondaryPowerBar = function(self)
-		self.TotemBar = private.SpawnDiscreteBar(self, _G.MAX_TOTEMS, true)
-		for i = 1, _G.MAX_TOTEMS do
-			self.TotemBar[i]:SetStatusBarColor(unpack(totemColors[_G.SHAMAN_TOTEM_PRIORITIES[i]], 1, 3))
+		local MAX_TOTEMS, SHAMAN_TOTEM_PRIORITIES = _G.MAX_TOTEMS, _G.SHAMAN_TOTEM_PRIORITIES
+		local colors = oUF.colors.totems or {
+			[_G.FIRE_TOTEM_SLOT] = { 1, 0.3, 0.0  },
+			[_G.EARTH_TOTEM_SLOT] = { 0.3, 1, 0.2 },
+			[_G.WATER_TOTEM_SLOT] = { 0.3, 0.2, 1 },
+			[_G.AIR_TOTEM_SLOT] = { 0.2, 0.8, 1 },
+		}
+		local bar = private.SpawnDiscreteBar(self, MAX_TOTEMS, true)
+		for i = 1, MAX_TOTEMS do
+			local totemType = SHAMAN_TOTEM_PRIORITIES[i]
+			bar[i].totemType = totemType
+			bar[i]:SetStatusBarColor(unpack(colors[totemType], 1, 3))
 		end
-		return self.TotemBar
+		self.TotemBar = bar
+		return bar
 	end
 
 elseif playerClass == "PALADIN" then

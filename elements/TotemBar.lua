@@ -44,7 +44,6 @@ local function Enable(self)
 			totem:Hide()
 			totem:SetScript('OnUpdate', OnUpdate)
 		end
-		self.TotemBar:Show()
 		return true
 	end
 end
