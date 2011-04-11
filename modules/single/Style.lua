@@ -251,7 +251,8 @@ local function OoC_UnitFrame_OnEnter(...)
 end
 
 local function InitFrame(settings, self, unit)
-	local unit = gsub(unit or self.unit, "%d+", "")
+	local unit = gsub(unit or self.unit, "%d+", "")	
+	local isArenaUnit = strmatch(unit, "arena")
 
 	self:SetSize(settings['initial-width'], settings['initial-height'])
 
@@ -324,12 +325,12 @@ local function InitFrame(settings, self, unit)
 	-- Health bar
 	local health = SpawnStatusBar(self, false, "TOPLEFT", barContainer)
 	health:SetPoint("TOPRIGHT", barContainer)
-	health.barSizePercent = 55
-	health.colorTapping = true
-	health.colorDisconnected = true
-	health.colorHappiness = true
+	health.colorTapping = (unit ~= "boss" and not isArenaUnit)
+	health.colorDisconnected = health.colorTapping
+	health.colorHappiness = (unit == "pet")
 	health.colorClass = true
-	health.colorSmooth = true
+	health.colorReaction = health.colorTapping
+	health.colorSmooth = not isArenaUnit
 	health.frequentUpdates = true
 	self.Health = health
 
@@ -337,7 +338,7 @@ local function InitFrame(settings, self, unit)
 	local name = SpawnText(health, "OVERLAY", "TOPLEFT", "TOPLEFT", TEXT_MARGIN)
 	name:SetPoint("BOTTOMLEFT", health, "BOTTOMLEFT", TEXT_MARGIN)
 	name:SetPoint("RIGHT", health.Text, "LEFT")
-	self:Tag(name, (unit == "player" or unit == "pet" or unit == "boss") and "[name]" or "[name][ <>status<>]")
+	self:Tag(name, (unit == "player" or unit == "pet" or unit == "boss" or isArenaUnit) and "[name]" or "[name][ <>status<>]")
 	self.Name = name
 
 	if unit ~= "boss" then
@@ -482,7 +483,7 @@ local function InitFrame(settings, self, unit)
 	self.RaidIcon = SpawnTexture(indicators, 16)
 	self.RaidIcon:SetPoint("CENTER", barContainer)
 
-	if unit ~= "boss" and not strmatch(unit, "arena") then
+	if unit ~= "boss" and not isArenaUnit then
 		-- Threat glow
 		local threat = CreateFrame("Frame", nil, self)
 		threat:SetAllPoints(self.Border)
