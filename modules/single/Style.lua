@@ -329,7 +329,6 @@ local function InitFrame(settings, self, unit)
 	health.colorDisconnected = health.colorTapping
 	health.colorHappiness = (unit == "pet")
 	health.colorClass = true
-	health.colorReaction = health.colorTapping
 	health.colorSmooth = not isArenaUnit
 	health.frequentUpdates = true
 	self.Health = health
