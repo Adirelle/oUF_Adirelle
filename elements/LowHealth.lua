@@ -15,7 +15,7 @@ local UnitHealthMax = _G.UnitHealthMax
 local UnitIsConnected = _G.UnitIsConnected
 local UnitIsDeadOrGhost = _G.UnitIsDeadOrGhost
 local floor, format, pairs, print = _G.floor, _G.format, _G.pairs, _G.print
-local strlower, strmatch, strtrim, tonumber = _G.strlower, _G.sstrmatch, _G.sstrtrim, _G.stonumber
+local strlower, strmatch, strtrim, tonumber = _G.strlower, _G.strmatch, _G.strtrim, _G.tonumber
 
 local objects = {}
 local threshold -- positive = flat amount, negative = percent, nil = disabled
