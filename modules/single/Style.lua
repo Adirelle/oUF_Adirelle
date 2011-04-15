@@ -482,32 +482,31 @@ local function InitFrame(settings, self, unit)
 	self.RaidIcon = SpawnTexture(indicators, 16)
 	self.RaidIcon:SetPoint("CENTER", barContainer)
 
+	-- Threat glow
+	local threat = CreateFrame("Frame", nil, self)
+	threat:SetAllPoints(self.Border)
+	threat:SetBackdrop(glowBorderBackdrop)
+	threat:SetBackdropColor(0,0,0,0)
+	threat.SetVertexColor = threat.SetBackdropBorderColor
+	threat:SetAlpha(glowBorderBackdrop.alpha)
+	threat:SetFrameLevel(self:GetFrameLevel()+2)
+	self.Threat = threat
+		
 	if unit ~= "boss" and not isArenaUnit then
-		-- Threat glow
-		local threat = CreateFrame("Frame", nil, self)
-		threat:SetAllPoints(self.Border)
-		threat:SetBackdrop(glowBorderBackdrop)
-		threat:SetBackdropColor(0,0,0,0)
-		threat.SetVertexColor = threat.SetBackdropBorderColor
-		threat:SetAlpha(glowBorderBackdrop.alpha)
-		threat:SetFrameLevel(self:GetFrameLevel()+2)
-		self.Threat = threat
-	
 		-- Various indicators
 		self.Leader = SpawnTexture(indicators, 16, "TOP"..left)
 		self.Assistant = SpawnTexture(indicators, 16, "TOP"..left)
 		self.MasterLooter = SpawnTexture(indicators, 16, "TOP"..left, 16*dir)
 		self.Combat = SpawnTexture(indicators, 16, "BOTTOM"..left)
 
-		-- Assigned/guessed raid/party icons, if we have a portrait
+		-- Indicators around the portrait, if there is one
 		if self.Portrait then
+			-- Group role icons
 			self.RoleIcon = SpawnTexture(indicators, 16)
 			self.RoleIcon:SetPoint("CENTER", self.Portrait, "TOP"..right)
 			self.RoleIcon.noRaidTarget = true
-		end
 
-		-- PvP flag
-		if self.Portrait then
+			-- PvP flag
 			local pvp = SpawnTexture(indicators, 16)
 			pvp:SetTexCoord(0, 0.6, 0, 0.6)
 			pvp:SetPoint("CENTER", self.Portrait, "BOTTOM"..right)
