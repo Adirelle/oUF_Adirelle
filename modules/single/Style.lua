@@ -490,7 +490,7 @@ local function InitFrame(settings, self, unit)
 	threat.SetVertexColor = threat.SetBackdropBorderColor
 	threat:SetAlpha(glowBorderBackdrop.alpha)
 	threat:SetFrameLevel(self:GetFrameLevel()+2)
-	self.Threat = threat
+	self.SmartThreat = threat
 		
 	if unit ~= "boss" and not isArenaUnit then
 		-- Various indicators
