@@ -53,6 +53,7 @@ elements\PvPTimer.lua
 elements\OptionalCastBar.lua
 elements\RoleOrIcon.lua
 elements\RuneBar.lua
+elements\SmartThreat.lua
 elements\StatusIcon.lua
 elements\TotemBar.lua
 elements\ThreatBar.lua
