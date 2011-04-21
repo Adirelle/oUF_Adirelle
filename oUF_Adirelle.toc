@@ -55,6 +55,7 @@ elements\RoleOrIcon.lua
 elements\RuneBar.lua
 elements\SmartThreat.lua
 elements\StatusIcon.lua
+elements\TargetIcon.lua
 elements\TotemBar.lua
 elements\ThreatBar.lua
 elements\WarningIcon.lua

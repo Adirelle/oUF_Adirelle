@@ -394,7 +394,7 @@ local function AltPowerBar_Layout(bar)
 	local self = bar.__owner
 	if bar:IsShown() then
 		self.Health:SetPoint("BOTTOMRIGHT", bar, "TOPRIGHT", 0, 0)
-		bar.highlight, bar.target = 0, huge
+		bar.highlight, bar.target = 0, 0
 	else
 		self.Health:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", 0, 0)
 	end
@@ -543,6 +543,13 @@ local function InitFrame(self, unit)
 	roleIcon.noDamager = true
 	roleIcon.noCircle = true
 	self.RoleIcon = roleIcon
+
+	-- Target raid icon
+	local targetIcon = overlay:CreateTexture(nil, "OVERLAY")
+	targetIcon:SetWidth(8)
+	targetIcon:SetHeight(8)
+	targetIcon:SetPoint("RIGHT", self, -INSET, 0)
+	self.TargetIcon = targetIcon
 
 	-- Hook OnSizeChanged to layout internal on size change
 	self:HookScript('OnSizeChanged', OnSizeChanged)
