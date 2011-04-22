@@ -17,9 +17,9 @@ local SetRaidTargetIconTexture = _G.SetRaidTargetIconTexture
 
 local function Update(self, event, unit)
 	if unit and unit ~= self.unit then return end
-	local target = self.unit == "player" and "target" or gsub(self.unit, "(%d*)$", "target%1")
+	local target = self.unit == "player" and "target" or (self.unit.."target")
 	local raidTarget = GetRaidTargetIndex(target)
-	if raidTarget then
+	if raidTarget and raidTarget ~= 0 then
 		SetRaidTargetIconTexture(self.TargetIcon, raidTarget)
 		return self.TargetIcon:Show()
 	else
