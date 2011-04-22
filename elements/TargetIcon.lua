@@ -17,7 +17,8 @@ local SetRaidTargetIconTexture = _G.SetRaidTargetIconTexture
 
 local function Update(self, event, unit)
 	if unit and unit ~= self.unit then return end
-	local raidTarget = GetRaidTargetIndex(gsub(self.unit, "(%d*)$", "target%1"))
+	local target = self.unit == "player" and "target" or gsub(self.unit, "(%d*)$", "target%1")
+	local raidTarget = GetRaidTargetIndex(target)
 	if raidTarget then
 		SetRaidTargetIconTexture(self.TargetIcon, raidTarget)
 		return self.TargetIcon:Show()
@@ -38,7 +39,7 @@ local function Enable(self)
 	local icon = self.TargetIcon
 	if icon then
 		icon.__owner, icon.ForceUpdate = self, ForceUpdate
-		if icon:GetTexture() then
+		if not icon:GetTexture() then
 			icon:SetTexture([[Interface\TargetingFrame\UI-RaidTargetingIcons]])
 			icon:SetVertexColor(1, 1, 1, 1)
 		end
