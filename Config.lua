@@ -11,7 +11,7 @@ local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 -- Make most globals local so I can check global leaks using "luac -l | grep GLOBAL"
 local LibStub = _G.LibStub
 local select, pairs, wipe, gsub, unpack = _G.select, _G.pairs, _G.wipe, _G.gsub, _G.unpack
-local type, format = _G.type, _G.format
+local type, format, tostring, tonumber = _G.type, _G.format, _G.tostring, _G.tonumber
 local GetAddOnInfo, EnableAddOn = _G.GetAddOnInfo, _G.EnableAddOn
 local DisableAddOn, GetAddOnInfo = _G.DisableAddOn, _G.GetAddOnInfo
 local IsAddOnLoaded, InCombatLockdown = _G.IsAddOnLoaded, _G.InCombatLockdown
@@ -34,6 +34,11 @@ local function GetOptions()
 		
 	local togglableFrameList = {}
 	local togglableFrames = oUF_Adirelle.togglableFrames
+	
+	local elementList = {}
+	for i, key in pairs(oUF_Adirelle.optionalElements) do
+		elementList[key] = gsub(key, "([a-z])([A-Z])", "%1 %2")
+	end
 	
 	local function SetColor(info, r, g, b, a)
 		info.arg[1], info.arg[2], info.arg[3] = r, g, b
@@ -85,13 +90,13 @@ local function GetOptions()
 	
 	options = {
 		name = 'oUF_Adirelle '..oUF_Adirelle.VERSION,
-		type = 'group',
-		disabled = function() return InCombatLockdown() end,
+		type = 'group',		
 		args = {
 			modules = {
 				name = 'Modules',
 				type = 'group',
 				order = 10,
+				disabled = function() return InCombatLockdown() end,
 				args = {
 					_info = {
 						type = 'description',
@@ -136,6 +141,7 @@ local function GetOptions()
 				name = 'Frames',
 				type = 'group',
 				order = 20,
+				disabled = function() return InCombatLockdown() end,
 				args = {
 					frames = {
 						name = 'Enabled frames',
@@ -176,6 +182,73 @@ local function GetOptions()
 						func = function()
 							LibMovable.ResetLayout("oUF_Adirelle")
 						end,
+					},
+				},
+			},
+			elements = {
+				name = 'Elements',
+				type = 'group',
+				order = 25,
+				get = function(info, key)
+					return oUF_Adirelle.db.profile.elements[key]
+				end,
+				set = function(info, key, value)
+					oUF_Adirelle.db.profile.elements[key] = value
+					oUF_Adirelle.ApplyElementSettings()
+				end,
+				args = {
+					_warn = {
+						name = 'Some elements may be linked together.',
+						type = 'description',
+						order = 1,
+					},
+					bars = {
+						name = 'Bars / powers',
+						type = 'multiselect',
+						order = 10,
+						values = {
+							Experience = "Experience",
+							IncomingHeal = "Incoming heals",
+							RuneBar = "Runes",
+							ThreatBar = "Threat",
+							TotemBar = "Totems",
+							Castbar = "Spell casting",
+							HolyPower = "Holy power",
+							SoulShards = "Soul Shards",
+							ComboPoints = "Combo points",
+							EclipseBar = "Eclipse energy",
+						},
+					},
+					icons = {
+						name = 'Icons',
+						type = 'multiselect',
+						order = 20,
+						values = {
+							RoleIcon = "Role or raid icon",
+							StatusIcon = "Status",
+							WarningIcon = "Warning",
+							Assistant = "Raid assistant",
+							Leader = "Party/raid leader",
+							MasterLooter = "Master looter",
+							PvP = "PvP flag",
+							Resting = "Resting",
+							RaidIcon = "Raid icon",
+							ReadyCheck = "Ready check",
+							Happiness = "Happiness",			
+							TargetIcon = "Target raid icon"
+						},
+					},
+					misc = {
+						name = 'Miscellaneous',
+						type = 'multiselect',
+						order = 30, 
+						values = {
+							Dragon = "Classification dragon",
+							LowHealth = "Low health glow",
+							PvPTimer = "PvP timer",
+							SmartThreat = "Threat glow",
+							XRange = "Range fading",
+						},
 					},
 				},
 			},
