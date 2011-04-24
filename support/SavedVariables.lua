@@ -24,6 +24,9 @@ local DEFAULTS = {
 }
 
 local function OnDatabaseChanged(event)
+	-- Publish the database
+	oUF_Adirelle.db = db
+
 	-- Call all the callbacks
 	for _, callback in ipairs(callbacks) do
 		callback(db.profile)
@@ -99,13 +102,28 @@ local function Frame_SetEnabledSetting(self, enabled)
 	end
 end
 
+local togglableFrames = {}
+oUF_Adirelle.togglableFrames = togglableFrames
+
 -- Register a frame that can be permanently enabled/disabled
-function oUF_Adirelle.RegisterTogglableFrame(frame, key)
+function oUF_Adirelle.RegisterTogglableFrame(frame, key, label)
 	if frame.GetEnabledSetting then return end
+	togglableFrames[key] = frame
 	frame.dbKey = key
+	frame.label = label
 	frame.Enable = frame.Enable or frame.Show
 	frame.Disable = frame.Disable or frame.Hide
 	frame.GetEnabledSetting = Frame_GetEnabledSetting
 	frame.SetEnabledSetting = Frame_SetEnabledSetting
-	oUF_Adirelle.RegisterVariableLoadedCallback(function() if not frame:GetEnabledSetting() then frame:Disable() else frame:Enable() end end)
 end
+
+oUF_Adirelle.RegisterVariableLoadedCallback(function()
+	for key, frame in pairs(togglableFrames) do
+		if frame:GetEnabledSetting() then
+			frame:Enable()
+		else
+			frame:Disable()
+		end
+	end
+end)
+
