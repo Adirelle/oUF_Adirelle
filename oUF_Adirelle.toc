@@ -37,6 +37,9 @@ support\Movable.lua
 # Texture helper
 support\StatusBarTexture.lua
 
+# Color helper
+support\Colors.lua
+
 # Icon helper
 support\CreateIcon.lua
 

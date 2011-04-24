@@ -27,8 +27,9 @@ local function OnDatabaseChanged(event)
 	oUF_Adirelle.db = db
 
 	-- Call all the callbacks
+	local profile, first = db.profile, (event == 'ADDON_LOADED')
 	for _, callback in ipairs(callbacks) do
-		callback(db.profile)
+		callback(profile, first)
 	end
 	
 	-- Update all the frames
@@ -42,7 +43,7 @@ frame:SetScript('OnEvent', function(self, event, name)
 	if name ~= addonName then return end
 	self:UnregisterEvent('ADDON_LOADED')
 	self:SetScript('OnEvent', nil)
-	
+
 	-- Initialize the database
 	db = LibStub('AceDB-3.0'):New("oUF_Adirelle_DB2", DEFAULTS, true)
 	LibStub('LibDualSpec-1.0'):EnhanceDatabase(db, addonName)
@@ -70,7 +71,7 @@ frame:SetScript('OnEvent', function(self, event, name)
 	db.RegisterCallback(self, "OnProfileChanged", OnDatabaseChanged)
 	db.RegisterCallback(self, "OnProfileCopied", OnDatabaseChanged)
 	db.RegisterCallback(self, "OnProfileReset", OnDatabaseChanged)
-
+	
 	-- Call the callbacks
 	return OnDatabaseChanged('ADDON_LOADED')
 end)

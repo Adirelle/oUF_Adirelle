@@ -155,11 +155,11 @@ local function UpdateColor(self, event, unit)
 		self.__stateColor = state
 		local r, g, b = 0.5, 0.5, 0.5
 		if class then
-			r, g, b = unpack(self.colors.class[class])
+			r, g, b = unpack(oUF.colors.class[class])
 		end
 		local nR, nG, nB = r, g, b
 		if state == "DEAD" or state == "DISCONNECTED" then
-			r, g, b = unpack(self.colors.disconnected)
+			r, g, b = unpack(oUF.colors.disconnected)
 		elseif state == "CHARMED" then
 			r, g, b, nR, nG, nB = 1, 0, 0, 1, 0.6, 0.3
 		elseif state == "INVEHICLE" then
@@ -400,6 +400,10 @@ local function AltPowerBar_Layout(bar)
 	end
 end
 
+local function IncomingHeal_UpdateColor(bar)
+	bar:SetTexture(unpack(oUF.colors.incomingHeal[bar.source], 1, 4))
+end
+
 -- ------------------------------------------------------------------------------
 -- Unit frame initialization
 -- ------------------------------------------------------------------------------
@@ -421,9 +425,10 @@ local function InitFrame(self, unit)
 	hp:SetPoint("TOPLEFT")
 	hp:SetPoint("BOTTOMRIGHT")
 	hp.frequentUpdates = true
+	hp.PostUpdate = Health_PostUpdate
+	self.Health = hp
 	self:RegisterStatusBarTexture(hp)
 	hp:SetStatusBarColor(0, 0, 0, 0.75)
-	self.Health = hp
 
 	self.bgColor = { 1, 1, 1 }
 	self.nameColor = { 1, 1, 1 }
@@ -431,29 +436,32 @@ local function InitFrame(self, unit)
 	local hpbg = hp:CreateTexture(nil, "BACKGROUND", nil, -1)
 	hpbg:SetAllPoints(hp)
 	hpbg:SetAlpha(1)
-	self:RegisterStatusBarTexture(hpbg)
 	hp.bg = hpbg
+	self:RegisterStatusBarTexture(hpbg)
+	self:RegisterColor(self, UpdateColor)
 
 	-- Incoming heals
 	local heal = hp:CreateTexture(nil, "OVERLAY")
-	heal:SetTexture(0, 1, 0, 0.5)
 	heal:SetBlendMode("BLEND")
 	heal:SetPoint("TOP")
 	heal:SetPoint("BOTTOM")
 	heal:Hide()
+	heal.source = "self"
 	heal.PostUpdate = IncomingHeal_PostUpdate
 	heal.current, heal.max, heal.incoming, heal.incomingOthers = 0, 0, 0, 0
 	self.IncomingHeal = heal
+	self:RegisterColor(heal, IncomingHeal_UpdateColor)
+	IncomingHeal_UpdateColor(heal)
 
 	local othersHeal = hp:CreateTexture(nil, "OVERLAY")
-	othersHeal:SetTexture(0.5, 0, 1, 0.5)
 	othersHeal:SetBlendMode("BLEND")
 	othersHeal:SetPoint("TOP")
 	othersHeal:SetPoint("BOTTOM")
 	othersHeal:Hide()
+	othersHeal.source = "others"
 	self.IncomingOthersHeal = othersHeal
-
-	hp.PostUpdate = Health_PostUpdate
+	self:RegisterColor(othersHeal, IncomingHeal_UpdateColor)
+	IncomingHeal_UpdateColor(othersHeal)
 
 	-- Indicator overlays
 	local overlay = CreateFrame("Frame", nil, self)
