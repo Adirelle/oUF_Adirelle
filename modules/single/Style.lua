@@ -453,9 +453,6 @@ local function InitFrame(settings, self, unit)
 
 			castbar:SetPoint("TOPLEFT", icon, "TOPRIGHT", GAP, 0)
 			CastBar_Update(castbar)
-			
-			-- Enable the element depending on a CVar
-			self.OptionalCastbar = true
 		end
 	end
 
