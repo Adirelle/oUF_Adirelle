@@ -218,7 +218,7 @@ end
 -- General bar layuot
 local function LayoutBars(self)
 	local width, height = self:GetSize()
-	if width == 0 or height == 0 then return end
+	if not width or not height or width == 0 or height == 0 then return end
 	self.Border:SetWidth(width + 2 * BORDER_WIDTH)
 	self.Border:SetHeight(height + 2 * BORDER_WIDTH)
 	local portrait = self.Portrait
@@ -239,6 +239,10 @@ local function LayoutBars(self)
 	if self.AuxiliaryBars then
 		LayoutAuxiliaryBars(self)
 	end
+end
+
+local function Element_Layout(element)
+	return LayoutBars(element.__owner)
 end
 
 local DRAGON_TEXTURES = {
@@ -314,14 +318,6 @@ local function InitFrame(settings, self, unit)
 	end
 	self.BarContainer = barContainer
 
-	-- Dynamic bar layout
-	local UpdateLayout = function()
-		local width, height = self:GetWidth(), self:GetHeight()
-		if width and height then
-			return LayoutBars(self, width, height)
-		end
-	end
-
 	-- Health bar
 	local health = SpawnStatusBar(self, false, "TOPLEFT", barContainer)
 	health:SetPoint("TOPRIGHT", barContainer)
@@ -384,9 +380,9 @@ local function InitFrame(settings, self, unit)
 			if bar then
 				bar:SetPoint('TOPLEFT', self.Power, 'BOTTOMLEFT', 0, -GAP)
 				bar:SetPoint('BOTTOMRIGHT', self.BarContainer)	
-				local LayoutScript = function() return LayoutBars(self) end
-				bar:HookScript('OnShow', LayoutScript)
-				bar:HookScript('OnHide', LayoutScript)
+				bar.__owner = self
+				bar:HookScript('OnShow', Element_Layout)
+				bar:HookScript('OnHide', Element_Layout)
 				self.SecondaryPowerBar = bar
 			end
 		end
@@ -694,8 +690,8 @@ local function InitFrame(settings, self, unit)
 	end
 
 	-- Update layout at least once
-	self:HookScript('OnSizeChanged', UpdateLayout)
-	UpdateLayout()
+	self:HookScript('OnSizeChanged', LayoutBars)
+	LayoutBars(self)
 end
 
 local single_style = setmetatable({
