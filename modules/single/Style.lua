@@ -195,6 +195,14 @@ local function AltPowerBar_PostUpdate(bar, min, cur, max)
 	bar:SetStatusBarColor(r, g, b)
 end
 
+local function LowHealth_UpdateColor(bar)
+	bar:SetTexture(unpack(oUF.colors.lowHealth, 1, 4))
+end
+
+local function IncomingHeal_UpdateColor(bar)
+	bar:SetTexture(unpack(oUF.colors.incomingHeal.self, 1, 4))
+end
+
 -- Additional auxiliary bars
 local function LayoutAuxiliaryBars(self)
 	local bars = self.AuxiliaryBars
@@ -347,7 +355,8 @@ local function InitFrame(settings, self, unit)
 	health.colorSmooth = (unit ~= "arena")
 	health.frequentUpdates = true
 	self.Health = health
-
+	self:RegisterColor(health, "ForceUpdate")
+	
 	-- Name
 	local name = SpawnText(health, "OVERLAY", "TOPLEFT", "TOPLEFT", TEXT_MARGIN)
 	name:SetPoint("BOTTOMLEFT", health, "BOTTOMLEFT", TEXT_MARGIN)
@@ -360,20 +369,22 @@ local function InitFrame(settings, self, unit)
 		local lowHealth = self:CreateTexture(nil, "OVERLAY")
 		lowHealth:SetPoint("TOPLEFT", self, -2, 2)
 		lowHealth:SetPoint("BOTTOMRIGHT", self, 2, -2)
-		lowHealth:SetTexture(1, 0, 0, 0.4)
 		self.LowHealth = lowHealth
-
+		self:RegisterColor(lowHealth, LowHealth_UpdateColor)
+		LowHealth_UpdateColor(lowHealth)
+		
 		-- Incoming heals
 		local incomingHeal = health:CreateTexture(nil, "OVERLAY")
-		incomingHeal:SetTexture([[Interface\AddOns\oUF_Adirelle\media\white16x16]])
-		incomingHeal:SetVertexColor(0, 1, 0, 0.5)
 		incomingHeal:SetBlendMode("ADD")
 		incomingHeal:SetPoint("TOP", health)
 		incomingHeal:SetPoint("BOTTOM", health)
 		incomingHeal.PostUpdate = IncomingHeal_PostUpdate
 		incomingHeal.current, incomingHeal.max, incomingHeal.incoming = 0, 0, 0
 		self.IncomingHeal = incomingHeal
-
+		self:RegisterColor(incomingHeal, IncomingHeal_UpdateColor)
+		IncomingHeal_UpdateColor(incomingHeal)
+		
+		-- PostUpdate is only needed with incoming heals
 		health.PostUpdate = Health_PostUpdate
 	end
 
@@ -392,6 +403,7 @@ local function InitFrame(settings, self, unit)
 		power.frequentUpdates = true
 		power.PostUpdate = Power_PostUpdate
 		self.Power = power
+		self:RegisterColor(power, "ForceUpdate")
 
 		if unit == "player" and private.SetupSecondaryPowerBar then
 			-- Add player specific secondary power bar

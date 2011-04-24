@@ -66,9 +66,6 @@ end
 
 -- Some common "constants"
 
--- Recolor mana
-oUF.colors.power.MANA = { 0.3, 0.5, 1.0 }
-
 -- Get player class once
 local _
 _, oUF_Adirelle.playerClass = _G. UnitClass("player")

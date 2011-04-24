@@ -163,16 +163,8 @@ elseif playerClass == "WARLOCK" then
 
 elseif playerClass == 'DEATHKNIGHT' then
 	-- Runes
-
-	local colors = oUF.colors.runes or {
-		{ 1, 0, 0  },
-		{ 0, 0.5, 0 },
-		{ 0, 1, 1 },
-		{ 0.8, 0.1, 1 },
-	}
-
 	local function UpdateRuneColor(rune)
-		local color = colors[GetRuneType(rune.index) or false]
+		local color = oUF.colors.runes[GetRuneType(rune.index) or false]
 		if color then
 			rune:SetStatusBarColor(unpack(color))
 		end
@@ -189,20 +181,13 @@ elseif playerClass == 'DEATHKNIGHT' then
 
 elseif playerClass == "SHAMAN" then
 	-- Totems
-
 	private.SetupSecondaryPowerBar = function(self)
 		local MAX_TOTEMS, SHAMAN_TOTEM_PRIORITIES = _G.MAX_TOTEMS, _G.SHAMAN_TOTEM_PRIORITIES
-		local colors = oUF.colors.totems or {
-			[_G.FIRE_TOTEM_SLOT] = { 1, 0.3, 0.0  },
-			[_G.EARTH_TOTEM_SLOT] = { 0.3, 1, 0.2 },
-			[_G.WATER_TOTEM_SLOT] = { 0.3, 0.2, 1 },
-			[_G.AIR_TOTEM_SLOT] = { 0.2, 0.8, 1 },
-		}
 		local bar = private.SpawnDiscreteBar(self, MAX_TOTEMS, true)
 		for i = 1, MAX_TOTEMS do
 			local totemType = SHAMAN_TOTEM_PRIORITIES[i]
 			bar[i].totemType = totemType
-			bar[i]:SetStatusBarColor(unpack(colors[totemType], 1, 3))
+			bar[i]:SetStatusBarColor(unpack(oUF.colors.totems[totemType], 1, 3))
 		end
 		self.TotemBar = bar
 		return bar

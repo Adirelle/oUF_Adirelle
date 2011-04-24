@@ -10,10 +10,13 @@ local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 -- Make most globals local so I can check global leaks using "luac -l | grep GLOBAL"
 local LibStub = _G.LibStub
-local select, pairs, wipe, gsub = _G.select, _G.pairs, _G.wipe, _G.gsub
+local select, pairs, wipe, gsub, unpack = _G.select, _G.pairs, _G.wipe, _G.gsub, _G.unpack
+local type, format = _G.type, _G.format
 local GetAddOnInfo, EnableAddOn = _G.GetAddOnInfo, _G.EnableAddOn
 local DisableAddOn, GetAddOnInfo = _G.DisableAddOn, _G.GetAddOnInfo
 local IsAddOnLoaded, InCombatLockdown = _G.IsAddOnLoaded, _G.InCombatLockdown
+
+local AceGUIWidgetLSMlists = _G.AceGUIWidgetLSMlists
 
 local options
 local function GetOptions()
@@ -32,19 +35,71 @@ local function GetOptions()
 	local togglableFrameList = {}
 	local togglableFrames = oUF_Adirelle.togglableFrames
 	
+	local function SetColor(info, r, g, b, a)
+		info.arg[1], info.arg[2], info.arg[3] = r, g, b
+		if info.option.hasAlpha then
+			info.arg[4] = a
+		end
+		oUF_Adirelle.ColorsChanged()
+	end
+	local function GetColor(info)
+		return unpack(info.arg, 1, info.option.hasAlpha and 4 or 3)
+	end
+	local function BuildColorArg(name, color, hasAlpha, order)	
+		return { name = name, type = 'color', arg = color, hasAlpha = hasAlpha, order = order or 10, get = GetColor, set = SetColor }
+	end
+	local function BuildColorGroup(name, colors, names, hasAlpha)
+		if not colors then return end
+		local group = { name = name, type = 'group', inline = true, order = 20, args = {} }
+		for key, color in pairs(colors) do
+			local entryName
+			if type(names) == "table" then
+				entryName = names[key] or key
+			elseif type(names) == "string" then
+				entryName = _G[format(names, key)]
+			else
+				entryName = key
+			end
+			group.args[tostring(key)] = BuildColorArg(entryName, color, hasAlpha, tonumber(key))
+		end
+		return group
+	end
+	
+	local colorArgs = {
+		class = BuildColorGroup("Class", oUF.colors.class, _G.LOCALIZED_CLASS_NAMES_MALE),
+		reaction = BuildColorGroup("Reaction", oUF.colors.reaction, "FACTION_STANDING_LABEL%d"),
+		power = BuildColorGroup("Power", oUF.colors.power, "%s"),
+		happiness = BuildColorGroup("Pet happiness", oUF.colors.happiness, "PET_HAPPINESS%d"),
+		disconnected = BuildColorArg('Disconnected', oUF.colors.disconnected),
+		tapped = BuildColorArg('Tapped', oUF.colors.tapped),
+		incoming = BuildColorGroup("Incoming heals", oUF.colors.incomingHeal, { self = "Self", others = "Others'" }, true),
+		lowHealth = BuildColorArg("Low health warning", oUF.colors.lowHealth, true),
+		runes = BuildColorGroup('Runes', oUF.colors.runes, { "Blood", "Unholy", "Frost", "Death" }),
+		totems = BuildColorGroup('Totems', oUF.colors.totems, {
+			[_G.FIRE_TOTEM_SLOT] = "Fire",
+			[_G.EARTH_TOTEM_SLOT] = "Earth",
+			[_G.WATER_TOTEM_SLOT] = "Water",
+			[_G.AIR_TOTEM_SLOT] = "Air",	
+		}),
+	}
+	
 	options = {
 		name = 'oUF_Adirelle '..oUF_Adirelle.VERSION,
 		type = 'group',
 		disabled = function() return InCombatLockdown() end,
 		args = {
-			general = {
-				name = 'Modules & frames',
+			modules = {
+				name = 'Modules',
 				type = 'group',
 				order = 10,
 				args = {
+					_info = {
+						type = 'description',
+						name = 'You can select which modules should be loaded. Changes require to reload the user interface. These settings do not depend on the profile.',
+						order = 1,
+					},
 					modules = {
-						name = 'Modules',
-						desc = 'Select frame modules to enable. Changes requrie to reload the user interface.',
+						name = 'Enabled modules',
 						type = 'multiselect',
 						order = 10,
 						values = moduleList,
@@ -75,6 +130,13 @@ local function GetOptions()
 						func = _G.ReloadUI,
 						hidden = function() return not reloadNeeded end,
 					},
+				},
+			},
+			frames = {
+				name = 'Frames',
+				type = 'group',
+				order = 20,
+				args = {
 					frames = {
 						name = 'Enabled frames',
 						type = 'multiselect',
@@ -120,7 +182,7 @@ local function GetOptions()
 			media = {
 				name = 'Texture & fonts',
 				type = 'group',
-				order = 20,
+				order = 30,
 				args = {
 					statusbar = {
 						name = 'Bar texture',
@@ -161,9 +223,15 @@ local function GetOptions()
 					--]]
 				},
 			},
+			colors = {
+				name = 'Colors',
+				type = 'group',
+				order = 40,
+				args = colorArgs,
+			},
 		},
 	}
-	
+		
 	local db = oUF_Adirelle.db
 	local dbOptions = LibStub('AceDBOptions-3.0'):GetOptionsTable(db)
 	LibStub('LibDualSpec-1.0'):EnhanceOptions(dbOptions, db)
