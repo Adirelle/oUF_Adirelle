@@ -49,6 +49,7 @@ end
 local function Disable(self)
 	if self.IncomingHeal then
 		self:UnregisterEvent("UNIT_HEAL_PREDICTION", Path)
+		self.IncomingHeal:Hide()
 	end
 end
 

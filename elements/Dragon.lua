@@ -48,7 +48,10 @@ local function Enable(self)
 end
 
 local function Disable(self)
-	self:UnregisterEvent('UNIT_CLASSIFICATION_CHANGED', Update)
+	if self.Dragon then
+		self.Dragon:Hide()
+		self:UnregisterEvent('UNIT_CLASSIFICATION_CHANGED', Update)
+	end
 end
 
 oUF:AddElement('Dragon', Update, Enable, Disable)

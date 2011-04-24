@@ -51,6 +51,7 @@ end
 local function Disable(self)
 	if self.TotemBar then
 		self:UnregisterEvent('PLAYER_TOTEM_UPDATE', Update)
+		self.TotemBar:Hide()
 	end
 end
 

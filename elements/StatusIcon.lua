@@ -130,6 +130,7 @@ end
 
 local function Disable(self)
 	if self.StatusIcon then
+		self.StatusIcon:Hide()
 		self:UnregisterEvent('UNIT_AURA', Update)
 		self:UnregisterEvent('UNIT_HEALTH', Update)
 		self:UnregisterEvent('UNIT_CONNECTION', Update)
