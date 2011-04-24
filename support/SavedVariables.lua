@@ -19,6 +19,7 @@ local DEFAULTS = {
 	profile = {
 		anchors = { ['*'] = {} },
 		disabled = { ['*'] = false },
+		elements = { ['*'] = true },
 	}
 }
 
@@ -57,7 +58,7 @@ frame:SetScript('OnEvent', function(self, event, name)
 			end
 		end
 		for key, pos in pairs(old) do
-			if key ~= "disable" and type(pos) == "table" and (pos.pointFrom or pos.pointTo or point.refFrame or point.xOffset or point.yOffset) then
+			if key ~= "disable" and type(pos) == "table" and (pos.pointFrom or pos.pointTo or pos.refFrame or pos.xOffset or pos.yOffset) then
 				for k,v in pairs(pos) do
 					db.profile.anchors[key][k] = v
 				end
@@ -127,4 +128,66 @@ oUF_Adirelle.RegisterVariableLoadedCallback(function()
 		end
 	end
 end)
+
+-- Elements that can be disabled
+local optionalElements = {
+	"Assistant",
+	"Castbar",
+	"ComboPoints",
+	"Dragon",
+	"EclipseBar",
+	"Experience",
+	"Happiness",
+	"HolyPower",
+	"IncomingHeal",
+	"Leader",
+	"LowHealth",
+	"MasterLooter",
+	"PvP",
+	"PvPTimer",
+	"RaidIcon",
+	"ReadyCheck",
+	"Resting",
+	"RoleIcon",
+	"RuneBar",
+	"SmartThreat",
+	"SoulShards",
+	"StatusIcon",
+	"TargetIcon",
+	"ThreatBar",
+	"TotemBar",
+	"WarningIcon",
+	"XRange",
+}
+oUF_Adirelle.optionalElements = optionalElements
+
+local function ApplyElementSettings(self)
+	local changed = false
+	for i, name in ipairs(optionalElements) do
+		if self[name] then
+			if db.profile.elements[name] then
+				if not self:IsElementEnabled(name) then
+					self:EnableElement(name)
+					changed = true
+				end
+			elseif self:IsElementEnabled(name) then
+				self:DisableElement(name)
+				changed = true
+			end
+		end
+	end
+	if changed then
+		self:UpdateAllElements("OnElementSettingChanged")
+	end
+end
+
+oUF:RegisterInitCallback(ApplyElementSettings)
+
+function oUF_Adirelle.ApplyElementSettings()
+	for j, frame in ipairs(oUF.objects) do
+		ApplyElementSettings(frame)
+	end
+end
+
+oUF_Adirelle.RegisterVariableLoadedCallback(oUF_Adirelle.ApplyElementSettings)
 
