@@ -10,8 +10,7 @@ local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 -- Make most globals local so I can check global leaks using "luac -l | grep GLOBAL"
 local type, pairs, ipairs, tinsert = _G.type, _G.pairs, _G.ipairs, _G.tinsert
-
-local GetLib = oUF_Adirelle.GetLib
+local LibStub = _G.LibStub
 
 local callbacks = {}
 local db
@@ -45,7 +44,8 @@ frame:SetScript('OnEvent', function(self, event, name)
 	self:SetScript('OnEvent', nil)
 	
 	-- Initialize the database
-	db = GetLib('AceDB-3.0'):New("oUF_Adirelle_DB2", DEFAULTS, true)
+	db = LibStub('AceDB-3.0'):New("oUF_Adirelle_DB2", DEFAULTS, true)
+	LibStub('LibDualSpec-1.0'):EnhanceDatabase(db, addonName)
 	
 	-- Convert the old database
 	if type(_G.oUF_Adirelle_DB) == "table" then

@@ -120,8 +120,9 @@ local function GetOptions()
 		},
 	}
 	
-	local dbOptions = LibStub('AceDBOptions-3.0'):GetOptionsTable(oUF_Adirelle.db)
-	--LibStub('LibDualSpec-1.0'):EnhanceOptions(dbOptions, addon.db)
+	local db = oUF_Adirelle.db
+	local dbOptions = LibStub('AceDBOptions-3.0'):GetOptionsTable(db)
+	LibStub('LibDualSpec-1.0'):EnhanceOptions(dbOptions, db)
 	options.args.profiles = dbOptions
 	
 	return options
