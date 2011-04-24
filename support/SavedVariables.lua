@@ -164,16 +164,14 @@ oUF_Adirelle.optionalElements = optionalElements
 local function ApplyElementSettings(self)
 	local changed = false
 	for i, name in ipairs(optionalElements) do
-		if self[name] then
-			if db.profile.elements[name] then
-				if not self:IsElementEnabled(name) then
-					self:EnableElement(name)
-					changed = true
-				end
-			elseif self:IsElementEnabled(name) then
-				self:DisableElement(name)
+		if db.profile.elements[name] then
+			if not self:IsElementEnabled(name) then
+				self:EnableElement(name)
 				changed = true
 			end
+		elseif self:IsElementEnabled(name) then
+			self:DisableElement(name)
+			changed = true
 		end
 	end
 	if changed then
