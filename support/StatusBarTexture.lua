@@ -11,36 +11,51 @@ local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 local SharedMedia = oUF_Adirelle.GetLib('LibSharedMedia-3.0')
 if SharedMedia then
 
-	local function StatusBar_Callback(bar, media, value)
-		if media == "statusbar" then
-			local r, g, b, a = bar:GetStatusBarColor()
-			bar:SetStatusBarTexture(SharedMedia:Fetch("statusbar", value))
-			bar:SetStatusBarColor(r, g, b, a)
-		end
+	local bars = {}
+
+	local function StatusBar_Callback(bar, texture)
+		local r, g, b, a = bar:GetStatusBarColor()
+		bar:SetStatusBarTexture(texture)
+		bar:SetStatusBarColor(r, g, b, a)
 	end
 	
-	local function Texture_Callback(bar, media, value)
-		if media == "statusbar" then
-			local r, g, b, a = bar:GetVertexColor()
-			bar:SetTexture(SharedMedia:Fetch("statusbar", value))
-			bar:SetVertexColor(r, g, b, a)
+	local function Texture_Callback(bar, texture)
+		local r, g, b, a = bar:GetVertexColor()
+		bar:SetTexture(texture)
+		bar:SetVertexColor(r, g, b, a)
+	end
+	
+	local db
+	
+	function oUF_Adirelle.UpdateStatusBarTextures(media)
+		if media and media ~= "statusbar" then return end
+		local texture = SharedMedia:Fetch("statusbar", db and db.statusbar)
+		for bar, callback in pairs(bars)  do
+			callback(bar, texture)
 		end
 	end
 
-	local defaultTexture = SharedMedia:Fetch("statusbar", 'BantoBar') or [[Interface\TargetingFrame\UI-StatusBar]]
+	SharedMedia.RegisterCallback(addonName, 'LibSharedMedia_SetGlobal', oUF_Adirelle.UpdateStatusBarTextures)
 	
+	local defaultTexture = SharedMedia:Fetch("statusbar", 'BantoBar') or [[Interface\TargetingFrame\UI-StatusBar]]
+
+	-- The meta to allow unit frames to register their textures	
 	oUF:RegisterMetaFunction('RegisterStatusBarTexture', function(self, bar)
-		if bar:IsObjectType("StatusBar") then
-			bar:SetStatusBarTexture(defaultTexture)
-			SharedMedia.RegisterCallback(bar, 'LibSharedMedia_SetGlobal', StatusBar_Callback, bar)
-		elseif bar:IsObjectType("Texture") then
-			bar:SetTexture(defaultTexture)
-			SharedMedia.RegisterCallback(bar, 'LibSharedMedia_SetGlobal', Texture_Callback, bar)
-		else
-			assert(false, "object should be a Texture or a StatusBar")
-		end
+		local callback = assert(
+			bar:IsObjectType("StatusBar") and StatusBar_Callback
+			or bar:IsObjectType("Texture") and Texture_Callback,
+			"object should be a Texture or a StatusBar"
+		)
+		bars[bar] = callback
+		callback(bar, defaultTexture)
 	end)
-		
+	
+	-- Database callback to update the texture on profile changes
+	oUF_Adirelle.RegisterVariableLoadedCallback(function(newDB)
+		db = newDB
+		return oUF_Adirelle.UpdateStatusBarTextures()
+	end)
+
 else
 	-- Not library, just use a default texture, no planned update
 	local defaultTexture = [[Interface\TargetingFrame\UI-StatusBar]]
