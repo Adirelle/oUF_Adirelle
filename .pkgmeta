@@ -14,6 +14,9 @@ externals:
     tag: latest
   libs/BugGrabber:
     url: svn://svn.wowace.com/wow/bug-grabber/mainline/trunk
+  libs/AceDB-3.0:
+    url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceDB-3.0
+    tag: latest
   oUF: git://github.com/Adirelle/oUF.git
   libs/LibMovable-1.0: git://github.com/Adirelle/LibMovable-1.0.git
   libs/DRData-1.0: git://git.wowace.com/wow/drdata-1-0/mainline.git
