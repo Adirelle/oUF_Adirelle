@@ -10,7 +10,7 @@ local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 -- Make most globals local so I can check global leaks using "luac -l | grep GLOBAL"
 local LibStub = _G.LibStub
-local select, pairs = _G.select, _G.pairs
+local select, pairs, wipe, gsub = _G.select, _G.pairs, _G.wipe, _G.gsub
 local GetAddOnInfo, EnableAddOn = _G.GetAddOnInfo, _G.EnableAddOn
 local DisableAddOn, GetAddOnInfo = _G.DisableAddOn, _G.GetAddOnInfo
 local IsAddOnLoaded, InCombatLockdown = _G.IsAddOnLoaded, _G.InCombatLockdown
@@ -28,7 +28,7 @@ local function GetOptions()
 		oUF_Adirelle_Boss = 'Boss frames',
 		oUF_Adirelle_Arena = 'Arena enemy frames',
 	}
-	
+		
 	local togglableFrameList = {}
 	local togglableFrames = oUF_Adirelle.togglableFrames
 	
@@ -117,12 +117,57 @@ local function GetOptions()
 					},
 				},
 			},
+			media = {
+				name = 'Texture & fonts',
+				type = 'group',
+				order = 20,
+				args = {
+					statusbar = {
+						name = 'Bar texture',
+						type = 'select',
+						dialogControl = 'LSM30_Statusbar',
+						order = 10,
+						values = AceGUIWidgetLSMlists.statusbar,
+						get = function()
+							return oUF_Adirelle.db.profile.statusbar
+						end,
+						set = function(_, value)
+							oUF_Adirelle.db.profile.statusbar = value
+							oUF_Adirelle.UpdateStatusBarTextures()
+						end,
+					},
+					--[[
+					font = {
+						name = 'Font',
+						type = 'input',
+						order = 10,
+					},
+					size = {
+						name = 'Scale',
+						type = 'range',
+						order = 20,
+						isPercent = true,
+						min = 0.1,
+						max = 1.0,
+						step = 0.05,
+					},
+					outline = {
+						name = 'Outline',
+						type = 'select',
+						order = 30,
+						values = {
+						},
+					},
+					--]]
+				},
+			},
 		},
 	}
 	
 	local db = oUF_Adirelle.db
 	local dbOptions = LibStub('AceDBOptions-3.0'):GetOptionsTable(db)
 	LibStub('LibDualSpec-1.0'):EnhanceOptions(dbOptions, db)
+	dbOptions.order = -1
 	options.args.profiles = dbOptions
 	
 	return options
