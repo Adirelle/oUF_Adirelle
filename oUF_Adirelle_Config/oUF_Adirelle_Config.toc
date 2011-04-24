@@ -1,0 +1,17 @@
+## Interface: 40000
+## Author: Adirelle
+## Version: 1.0
+## Title: oUF_Adirelle - configuration
+## Notes: oUF_Adirelle configuration interface.
+## RequiredDeps: oUF_Adirelle
+#-# LoadOnDemand: 1
+
+# Libraries
+#@no-lib-strip@
+..\oUF_Adirelle\libs\AceGUI-3.0\AceGUI-3.0.xml
+..\oUF_Adirelle\libs\AceConfig-3.0\AceConfig-3.0.xml
+..\oUF_Adirelle\libs\AceDBOptions-3.0\AceDBOptions-3.0.xml
+#@end-no-lib-strip@
+
+..\oUF_Adirelle\Config.lua
+
