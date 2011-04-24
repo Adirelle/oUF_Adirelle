@@ -245,6 +245,19 @@ local function Element_Layout(element)
 	return LayoutBars(element.__owner)
 end
 
+local function CastBar_Update(castbar)
+	local self = castbar.__owner
+	if castbar:IsVisible() then
+		local height = castbar:GetHeight()
+		if height then
+			castbar.Icon:SetSize(height, height)
+		end
+		self.Power:Hide()
+	else
+		self.Power:Show()
+	end
+end
+
 local DRAGON_TEXTURES = {
 	rare  = { [[Interface\Addons\oUF_Adirelle\media\rare_graphic]],  6/128, 123/128, 17/128, 112/128, },
 	elite = { [[Interface\Addons\oUF_Adirelle\media\elite_graphic]], 6/128, 123/128, 17/128, 112/128, },
@@ -400,20 +413,19 @@ local function InitFrame(settings, self, unit)
 		if unit ~= 'player' then
 			local castbar = CreateFrame("StatusBar", nil, self)
 			castbar:Hide()
+			castbar.__owner = self
 			castbar:SetPoint('BOTTOMRIGHT', power)
+			castbar.PostCastStart = function() castbar:SetStatusBarColor(1.0, 0.7, 0.0) end
+			castbar.PostChannelStart = function() castbar:SetStatusBarColor(0.0, 1.0, 0.0) end
+			castbar:SetScript('OnSizeChanged', CastBar_Update)
+			castbar:SetScript('OnShow', CastBar_Update)
+			castbar:SetScript('OnHide', CastBar_Update)
 			self:RegisterStatusBarTexture(castbar)
 			self.Castbar = castbar
 
-			castbar.PostCastStart = function()
-				castbar:SetStatusBarColor(1.0, 0.7, 0.0)
-			end
-			castbar.PostChannelStart = function()
-				castbar:SetStatusBarColor(0.0, 1.0, 0.0)
-			end
-
 			local icon = castbar:CreateTexture(nil, "ARTWORK")
-			icon:SetPoint('TOPRIGHT', castbar, 'TOPLEFT', -GAP, 0)
-			icon:SetTexCoord(0.05, 0.95, 0.05, 0.95)
+			icon:SetPoint('TOPLEFT', power)
+			icon:SetTexCoord(4/64, 60/64, 4/64, 60/64)
 			castbar.Icon = icon
 
 			local spellText = SpawnText(castbar, "OVERLAY")
@@ -421,25 +433,9 @@ local function InitFrame(settings, self, unit)
 			spellText:SetPoint('BOTTOMRIGHT', castbar, 'BOTTOMRIGHT', -TEXT_MARGIN, 0)
 			castbar.Text = spellText
 
-			local UpdateSize = function()
-				local height = castbar:GetHeight()
-				if height and height ~= castbar.__height then
-					castbar.__height = height
-					castbar:SetPoint('TOPLEFT', power, 'TOPLEFT', GAP + height, 0)
-					icon:SetWidth(height)
-					icon:SetHeight(height)
-				end
-			end
-			castbar:SetScript('OnSizeChanged', UpdateSize)
-			castbar:SetScript('OnShow', function() power:Hide() UpdateSize() end)
-			castbar:SetScript('OnHide', function() power:Show() end)
-			UpdateSize()
-
-			local ptFrame = CreateFrame("Frame", nil, self)
-			ptFrame:SetAllPoints(power)
-			ptFrame:SetFrameLevel(castbar:GetFrameLevel()+1)
-			power.Text:SetParent(ptFrame)
-
+			castbar:SetPoint("TOPLEFT", icon, "TOPRIGHT", GAP, 0)
+			CastBar_Update(castbar)
+			
 			-- Enable the element depending on a CVar
 			self.OptionalCastbar = true
 		end
