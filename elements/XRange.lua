@@ -203,6 +203,7 @@ end
 
 local function Disable(self)
 	objects[self] = nil
+	self:SetAlpha(1)
 end
 
 oUF:AddElement('XRange', Update, Enable, Disable)

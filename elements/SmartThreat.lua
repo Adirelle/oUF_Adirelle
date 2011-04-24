@@ -70,6 +70,7 @@ local Disable = function(self)
 		self:UnregisterEvent("UNIT_THREAT_SITUATION_UPDATE", Path)
 		self:UnregisterEvent("UNIT_THREAT_LIST_UPDATE", Path)
 		self:UnregisterEvent("UNIT_TARGET", Path)
+		threat:Hide()
 	end
 end
 

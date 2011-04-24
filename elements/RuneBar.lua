@@ -71,6 +71,7 @@ local function Disable(self)
 	if self.RuneBar then
 		self:UnregisterEvent('RUNE_POWER_UPDATE', Update)
 		self:UnregisterEvent('RUNE_TYPE_UPDATE', Update)		
+		self.RuneBar:Hide()
 	end
 end
 
