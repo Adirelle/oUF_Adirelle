@@ -602,3 +602,6 @@ end
 -- ------------------------------------------------------------------------------
 
 oUF:RegisterStyle("Adirelle_Raid", InitFrame)
+
+oUF_Adirelle.RaidStyle = true
+

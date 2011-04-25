@@ -98,7 +98,7 @@ local function GetOptions()
 			name = 'Group member status',
 			type = 'group',
 			inline = true,
-			hidden = function() return not IsAddOnLoaded('oUF_Adirelle_Raid') or layoutDB.profile.disabled.group end,
+			hidden = function() return not oUF_Adirelle.RaidStyle or layoutDB.profile.disabled.anchor end,
 			args = {
 				vehicle = BuildColorGroup('In vehicle', oUF.colors.vehicle, {name="Name", background="Background"}),
 				charmed = BuildColorGroup('Charmed', oUF.colors.charmed, {name="Name", background="Background"}),
