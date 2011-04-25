@@ -195,19 +195,13 @@ local function GetOptions()
 									togglableFrames[key]:SetEnabledSetting(enabled)
 								end,
 							},
-							lock = {
+							lock = oUF_Adirelle.ToggleLock and {
 								name = function()
-									return LibMovable.IsLocked("oUF_Adirelle") and "Unlock" or "Lock"
+									return oUF_Adirelle.IsLocked() and "Unlock" or "Lock"
 								end,
 								type = 'execute',
 								order = 40,
-								func = function()
-									if LibMovable.IsLocked("oUF_Adirelle") then
-										LibMovable.Unlock("oUF_Adirelle")
-									else
-										LibMovable.Lock("oUF_Adirelle")
-									end
-								end,
+								func = oUF_Adirelle.ToggleLock,
 							},
 							reset = {
 								name = 'Reset positions',

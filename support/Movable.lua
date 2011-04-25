@@ -58,3 +58,14 @@ oUF_Adirelle.RegisterVariableLoadedCallback(function(newProfile, _, first)
 	end		
 end)
 
+function oUF_Adirelle.IsLocked()
+	return libmovable.IsLocked("oUF_Adirelle")
+end
+
+function oUF_Adirelle.ToggleLock()
+	if libmovable.IsLocked("oUF_Adirelle") then
+		libmovable.Unlock("oUF_Adirelle")
+	else
+		libmovable.Lock("oUF_Adirelle")
+	end
+end
