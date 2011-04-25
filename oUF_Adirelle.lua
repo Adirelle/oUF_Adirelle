@@ -64,6 +64,27 @@ function oUF_Adirelle.RegisterDiminishingReturns()
 	_G.DiminishingReturns:DeclareOUF(parent, oUF)
 end
 
+-- Configuration
+
+local function ToggleConfig(arg, button)
+		oUF_Adirelle.ToggleConfig()
+end
+
+_G.SLASH_OUFADIRELLE1 = "/ouf_adirelle"
+_G.SLASH_OUFADIRELLE2 = "/oufa"
+_G.SlashCmdList.OUFADIRELLE = ToggleConfig
+
+local LDB = LibStub('LibDataBroker-1.1', true)
+if LDB then
+	oUF_Adirelle.launcher = LDB:NewDataObject(parent, {
+		type = 'launcher',
+		icon = [[Interface\Icons\Ability_Vehicle_ShellShieldGenerator]],
+		tocname = parent,
+		label = parent,
+		OnClick = ToggleConfig,
+	})
+end
+
 -- Some common "constants"
 
 -- Get player class once

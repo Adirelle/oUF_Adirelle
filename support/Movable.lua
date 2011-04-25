@@ -58,14 +58,3 @@ oUF_Adirelle.RegisterVariableLoadedCallback(function(newProfile, _, first)
 	end		
 end)
 
--- Register the slash command
-_G.SLASH_OUFADIRELLE1 = "/ouf_adirelle"
-_G.SLASH_OUFADIRELLE2 = "/oufa"
-_G.SlashCmdList.OUFADIRELLE = function()
-	if libmovable.IsLocked(addonName) then
-		libmovable.Unlock(addonName)
-	else
-		libmovable.Lock(addonName)
-	end
-end
-
