@@ -120,7 +120,7 @@ local function GetOptions()
 						name = 'Enabled modules',
 						type = 'multiselect',
 						order = 10,
-						width = "full",
+						width = "double",
 						values = moduleList,
 						get = function(info, addon)
 							return select(4, GetAddOnInfo(addon))
@@ -341,6 +341,13 @@ local function GetOptions()
 end
 
 LibStub("AceConfig-3.0"):RegisterOptionsTable("oUF_Adirelle", GetOptions)
-local mainPanel = LibStub("AceConfigDialog-3.0"):AddToBlizOptions('oUF_Adirelle', "oUF_Adirelle")
+--local mainPanel = LibStub("AceConfigDialog-3.0"):AddToBlizOptions('oUF_Adirelle', "oUF_Adirelle")
 
+local AceConfigDialog = LibStub("AceConfigDialog-3.0")
+
+function oUF_Adirelle.ToggleConfig()
+	if not AceConfigDialog:Close("oUF_Adirelle") then
+		AceConfigDialog:Open("oUF_Adirelle")
+	end
+end
 
