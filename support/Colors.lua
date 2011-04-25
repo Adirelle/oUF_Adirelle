@@ -14,21 +14,23 @@ local wipe, pairs, type = _G.wipe, _G.pairs, _G.type
 -- Recolor mana
 oUF.colors.power.MANA = { 0.3, 0.5, 1.0 }
 
--- Rune colors
-oUF.colors.runes = {
-	[1] = { 1.0, 0.0, 0.0 },
-	[2] = { 0.0, 0.5, 0.0 },
-	[3] = { 0.0, 1.0, 1.0 },
-	[4] = { 0.8, 0.1, 1.0 },
-}
-
--- Totem colors
-oUF.colors.totems = {
-	[_G.FIRE_TOTEM_SLOT]  = { 1.0, 0.3, 0.0 },
-	[_G.EARTH_TOTEM_SLOT] = { 0.3, 1.0, 0.2 },
-	[_G.WATER_TOTEM_SLOT] = { 0.3, 0.2, 1.0 },
-	[_G.AIR_TOTEM_SLOT]   = { 0.2, 0.8, 1.0 },	
-}
+if oUF_Adirelle.playerClass == "DEATHKNIGHT" then
+	-- Rune colors
+	oUF.colors.runes = {
+		[1] = { 1.0, 0.0, 0.0 },
+		[2] = { 0.0, 0.5, 0.0 },
+		[3] = { 0.0, 1.0, 1.0 },
+		[4] = { 0.8, 0.1, 1.0 },
+	}
+elseif oUF_Adirelle.playerClass == "SHAMAN" then
+	-- Totem colors
+	oUF.colors.totems = {
+		[_G.FIRE_TOTEM_SLOT]  = { 1.0, 0.3, 0.0 },
+		[_G.EARTH_TOTEM_SLOT] = { 0.3, 1.0, 0.2 },
+		[_G.WATER_TOTEM_SLOT] = { 0.3, 0.2, 1.0 },
+		[_G.AIR_TOTEM_SLOT]   = { 0.2, 0.8, 1.0 },	
+	}
+end
 
 oUF.colors.incomingHeal = {
 	self = { 0, 1, 0, 0.5 },
@@ -36,6 +38,16 @@ oUF.colors.incomingHeal = {
 }
 
 oUF.colors.lowHealth = { 1, 0, 0, 0.4 }
+
+oUF.colors.vehicle = {
+	name = { 0.4, 0.8, 0.2 },
+	background = { 0.2, 0.6, 0 },
+}
+
+oUF.colors.charmed = {
+	name = { 1, 0.6, 0.3 },
+	background =  { 1, 0, 0 },
+}
 
 local callbacks = {}
 local profile
