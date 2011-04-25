@@ -67,6 +67,9 @@ end
 -- Configuration
 
 local function ToggleConfig(arg, button)
+	if oUF_Adirelle.ToggleLock and (arg == "lock" or button == "LeftButton") then
+		return oUF_Adirelle.ToggleLock()
+	end
 	if not IsAddOnLoaded("oUF_Adirelle_Config") then
 		LoadAddOn("oUF_Adirelle_Config")
 	end
@@ -87,6 +90,14 @@ if LDB then
 		tocname = parent,
 		label = parent,
 		OnClick = ToggleConfig,
+		OnTooltipShow = function(tooltip)
+			if not tooltip then tooltip = _G.GameTooltip end
+			tooltip:AddLine('oUF_Adirelle '..oUF_Adirelle.VERSION, 1, 1, 1)
+			if oUF_Adirelle.ToggleLock then
+				tooltip:AddLine("Left click to (un)lock the frames.")
+			end
+			tooltip:AddLine("Right click to open the configuration window.")
+		end
 	})
 end
 
