@@ -22,7 +22,7 @@ local layout, theme
 
 -- Elements that can be disabled
 local optionalElements = {
-	"Assistant", "Castbar", "ComboPoints", "Dragon", "EclipseBar", "Experience",
+	"Assistant", "Castbar", "ComboPoints", "Combat", "Dragon", "EclipseBar", "Experience",
 	"Happiness", "HolyPower", "IncomingHeal", "Leader", "LowHealth","MasterLooter",
 	"PvP", "PvPTimer", "RaidIcon", "ReadyCheck", "Resting", "RoleIcon", "RuneBar",
 	"SmartThreat", "SoulShards", "StatusIcon", "TargetIcon", "ThreatBar",
