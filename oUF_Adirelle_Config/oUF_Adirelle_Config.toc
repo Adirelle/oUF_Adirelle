@@ -5,7 +5,7 @@
 ## Notes: oUF_Adirelle configuration interface.
 ## RequiredDeps: oUF_Adirelle
 ## OptionalDeps: AceGUI-3.0-SharedMediaWidgets
-#-# LoadOnDemand: 1
+## LoadOnDemand: 1
 
 # Libraries
 #@no-lib-strip@

@@ -67,7 +67,12 @@ end
 -- Configuration
 
 local function ToggleConfig(arg, button)
+	if not IsAddOnLoaded("oUF_Adirelle_Config") then
+		LoadAddOn("oUF_Adirelle_Config")
+	end
+	if oUF_Adirelle.ToggleConfig then
 		oUF_Adirelle.ToggleConfig()
+	end
 end
 
 _G.SLASH_OUFADIRELLE1 = "/ouf_adirelle"
