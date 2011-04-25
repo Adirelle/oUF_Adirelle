@@ -8,6 +8,8 @@ local _G, addonName, private = _G, ...
 local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
+local texture = [[Interface\TargetingFrame\UI-StatusBar]]
+
 local SharedMedia = oUF_Adirelle.GetLib('LibSharedMedia-3.0')
 if SharedMedia then
 
@@ -25,19 +27,18 @@ if SharedMedia then
 		bar:SetVertexColor(r, g, b, a)
 	end
 	
-	local db
+	local profile
 	
-	function oUF_Adirelle.UpdateStatusBarTextures(media)
+	function oUF_Adirelle.UpdateStatusBarTextures(event, media)
 		if media and media ~= "statusbar" then return end
-		local texture = SharedMedia:Fetch("statusbar", db and db.statusbar)
+		texture = SharedMedia:Fetch("statusbar", profile and profile.statusbar)		
+		oUF_Adirelle.Debug('UpdateStatusBarTextures', event, media, '=>', texture)
 		for bar, callback in pairs(bars)  do
 			callback(bar, texture)
 		end
 	end
 
 	SharedMedia.RegisterCallback(addonName, 'LibSharedMedia_SetGlobal', oUF_Adirelle.UpdateStatusBarTextures)
-	
-	local defaultTexture = SharedMedia:Fetch("statusbar", 'BantoBar') or [[Interface\TargetingFrame\UI-StatusBar]]
 
 	-- The meta to allow unit frames to register their textures	
 	oUF:RegisterMetaFunction('RegisterStatusBarTexture', function(self, bar)
@@ -47,24 +48,23 @@ if SharedMedia then
 			"object should be a Texture or a StatusBar"
 		)
 		bars[bar] = callback
-		callback(bar, defaultTexture)
+		callback(bar, texture)
 	end)
 	
 	-- Database callback to update the texture on profile changes
-	oUF_Adirelle.RegisterVariableLoadedCallback(function(newDB)
-		db = newDB
-		return oUF_Adirelle.UpdateStatusBarTextures()
+	oUF_Adirelle.RegisterVariableLoadedCallback(function(_, newProfile)
+		profile = newProfile
+		return oUF_Adirelle.UpdateStatusBarTextures('ConfigChanged')
 	end)
 
 else
 	-- Not library, just use a default texture, no planned update
-	local defaultTexture = [[Interface\TargetingFrame\UI-StatusBar]]
 
 	oUF:RegisterMetaFunction('RegisterStatusBarTexture', function(self, bar)
 		if bar:IsObjectType("StatusBar") then
-			bar:SetStatusBarTexture(defaultTexture)
+			bar:SetStatusBarTexture(texture)
 		elseif bar:IsObjectType("Texture") then
-			bar:SetTexture(defaultTexture)
+			bar:SetTexture(texture)
 		else
 			assert(false, "object should be a Texture or a StatusBar")
 		end
