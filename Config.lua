@@ -291,7 +291,8 @@ local function GetOptions()
 									RaidIcon = "Raid icon",
 									ReadyCheck = "Ready check",
 									Happiness = "Happiness",			
-									TargetIcon = "Target raid icon"
+									TargetIcon = "Target raid icon",
+									Combat = "Combat",
 								},
 							},
 							misc = {
