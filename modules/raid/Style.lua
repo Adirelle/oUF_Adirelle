@@ -161,9 +161,11 @@ local function UpdateColor(self, event, unit)
 		if state == "DEAD" or state == "DISCONNECTED" then
 			r, g, b = unpack(oUF.colors.disconnected)
 		elseif state == "CHARMED" then
-			r, g, b, nR, nG, nB = 1, 0, 0, 1, 0.6, 0.3
+			r, g, b = unpack(oUF.colors.charmed.background)
+			nR, nG, nB = unpack(oUF.colors.charmed.name)
 		elseif state == "INVEHICLE" then
-			r, g, b, nR, nG, nB = 0.2, 0.6, 0, 0.4, 0.8, 0.2
+			r, g, b = unpack(oUF.colors.vehicle.background)
+			nR, nG, nB = unpack(oUF.colors.vehicle.name)
 		end
 		self.bgColor[1], self.bgColor[2], self.bgColor[3] = r, g, b
 		self.Health.bg:SetVertexColor(r, g, b, 1)

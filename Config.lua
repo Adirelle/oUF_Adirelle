@@ -79,6 +79,18 @@ local function GetOptions()
 		tapped = BuildColorArg('Tapped', oUF.colors.tapped),
 		incoming = BuildColorGroup("Incoming heals", oUF.colors.incomingHeal, { self = "Self", others = "Others'" }, true),
 		lowHealth = BuildColorArg("Low health warning", oUF.colors.lowHealth, true),
+		group = {
+			name = 'Group member status',
+			type = 'group',
+			inline = true,
+			hidden = function() return not IsAddOnLoaded('oUF_Adirelle_Raid') or layoutDB.profile.disabled.group end,
+			args = {
+				vehicle = BuildColorGroup('In vehicle', oUF.colors.vehicle, {name="Name", background="Background"}),
+				charmed = BuildColorGroup('Charmed', oUF.colors.charmed, {name="Name", background="Background"}),
+			},
+		},
+	}
+	
 		runes = BuildColorGroup('Runes', oUF.colors.runes, { "Blood", "Unholy", "Frost", "Death" }),
 		totems = BuildColorGroup('Totems', oUF.colors.totems, {
 			[_G.FIRE_TOTEM_SLOT] = "Fire",
