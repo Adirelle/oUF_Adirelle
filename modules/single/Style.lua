@@ -20,7 +20,7 @@ local UnitClass, UnitIsConnected = _G.UnitClass, _G.UnitIsConnected
 local UnitIsDeadOrGhost, UnitIsUnit = _G.UnitIsDeadOrGhost, _G.UnitIsUnit
 local UnitFrame_OnEnter, UnitFrame_OnLeave = _G.UnitFrame_OnEnter, _G.UnitFrame_OnLeave
 local ipairs, select, setmetatable = _G.ipairs, _G.select, _G.setmetatable
-local gsub, strmatch, tinsert = _G.gsub, _G.strmatch, _G.tinsert
+local gsub, strmatch, tinsert, unpack = _G.gsub, _G.strmatch, _G.tinsert, _G.unpack
 local mmin, mmax, floor, sort = _G.min, _G.max, _G.floor, _G.table.sort
 local GameFontNormal = _G.GameFontNormal
 
@@ -272,6 +272,25 @@ local function CastBar_Update(castbar)
 	end
 end
 
+local function OnApplySettings(self, layout, theme, first)
+	local unit, isArenaUnit = self.baseUnit, self.isArenaUnit
+	
+	local health = self.Health
+	for k,v in pairs(theme.Health) do
+		health[k] = v
+	end	
+	if unit == "arena" then
+		health.colorSmooth = false
+	end
+	
+	local power = self.Power
+	if power then
+		for k,v in pairs(theme.Power) do
+			power[k] = v
+		end
+	end
+end
+
 local DRAGON_TEXTURES = {
 	rare  = { [[Interface\Addons\oUF_Adirelle\media\rare_graphic]],  6/128, 123/128, 17/128, 112/128, },
 	elite = { [[Interface\Addons\oUF_Adirelle\media\elite_graphic]], 6/128, 123/128, 17/128, 112/128, },
@@ -284,6 +303,7 @@ end
 local function InitFrame(settings, self, unit)
 	local unit = gsub(unit or self.unit, "%d+", "")	
 	local isArenaUnit = strmatch(unit, "arena")
+	self.baseUnit, self.isArenaUnit = unit, isArenaUnit
 
 	self:SetSize(settings['initial-width'], settings['initial-height'])
 
@@ -353,6 +373,7 @@ local function InitFrame(settings, self, unit)
 	health.colorHappiness = (unit == "pet")
 	health.colorClass = true
 	health.colorSmooth = (unit ~= "arena")
+	health.colorHealth = true
 	health.frequentUpdates = true
 	self.Health = health
 	self:RegisterColor(health, "ForceUpdate")
@@ -696,6 +717,8 @@ local function InitFrame(settings, self, unit)
 		AddAuxiliaryBar(self, altPowerBar)
 	end
 
+	self.OnApplySettings = OnApplySettings
+	
 	-- Update layout at least once
 	self:HookScript('OnSizeChanged', LayoutBars)
 	LayoutBars(self)

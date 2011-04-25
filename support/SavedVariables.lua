@@ -90,6 +90,27 @@ local LAYOUT_DEFAULTS = {
 local THEME_DEFAULTS = {
 	profile = {
 		statusbar = 'BantoBar',
+		Health = {
+			colorTapping = true,
+			colorDisconnected = true,
+			colorHappiness = true,
+			colorClass = true,
+			colorClassNPC = false,
+			colorClassPet = false,
+			colorReaction = false,
+			colorSmooth = false,
+		},
+		Power = {
+			colorTapping = false,
+			colorDisconnected = true,
+			colorHappiness = false,
+			colorPower = true,
+			colorClass = false,
+			colorClassNPC = false,
+			colorClassPet = false,
+			colorReaction = false,
+			colorSmooth = false,
+		},
 	}
 }
 

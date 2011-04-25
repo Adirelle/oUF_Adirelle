@@ -12,6 +12,7 @@ local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 local LibStub = _G.LibStub
 local select, pairs, wipe, gsub, unpack = _G.select, _G.pairs, _G.wipe, _G.gsub, _G.unpack
 local type, format, tostring, tonumber = _G.type, _G.format, _G.tostring, _G.tonumber
+local next = _G.next
 local GetAddOnInfo, EnableAddOn = _G.GetAddOnInfo, _G.EnableAddOn
 local DisableAddOn, GetAddOnInfo = _G.DisableAddOn, _G.GetAddOnInfo
 local IsAddOnLoaded, InCombatLockdown = _G.IsAddOnLoaded, _G.InCombatLockdown
@@ -32,6 +33,16 @@ local function GetOptions()
 		oUF_Adirelle_Arena = 'Arena enemy frames',
 	}
 		
+	local layoutDB = oUF_Adirelle.layoutDB
+	local layoutDBOptions = LibStub('AceDBOptions-3.0'):GetOptionsTable(layoutDB)
+	LibStub('LibDualSpec-1.0'):EnhanceOptions(layoutDBOptions, layoutDB)
+	layoutDBOptions.order = -1
+
+	local themeDB = oUF_Adirelle.themeDB
+	local themeDBOptions = LibStub('AceDBOptions-3.0'):GetOptionsTable(themeDB)
+	LibStub('LibDualSpec-1.0'):EnhanceOptions(themeDBOptions, themeDB)
+	themeDBOptions.order = -1
+
 	local togglableFrameList = {}
 	local togglableFrames = oUF_Adirelle.togglableFrames
 	
@@ -57,26 +68,30 @@ local function GetOptions()
 		if not colors then return end
 		local group = { name = name, type = 'group', inline = true, order = 20, args = {} }
 		for key, color in pairs(colors) do
-			local entryName
+			local entryName = key
 			if type(names) == "table" then
-				entryName = names[key] or key
+				entryName = names[key]
 			elseif type(names) == "string" then
 				entryName = _G[format(names, key)]
-			else
-				entryName = key
 			end
-			group.args[tostring(key)] = BuildColorArg(entryName, color, hasAlpha, tonumber(key))
+			if entryName then
+				group.args[tostring(key)] = BuildColorArg(entryName, color, hasAlpha, tonumber(key))
+			end	
 		end
-		return group
+		if next(group.args) then
+			return group
+		end
 	end
 	
 	local colorArgs = {
 		class = BuildColorGroup("Class", oUF.colors.class, _G.LOCALIZED_CLASS_NAMES_MALE),
 		reaction = BuildColorGroup("Reaction", oUF.colors.reaction, "FACTION_STANDING_LABEL%d"),
-		power = BuildColorGroup("Power", oUF.colors.power, "%s"),
-		happiness = BuildColorGroup("Pet happiness", oUF.colors.happiness, "PET_HAPPINESS%d"),
-		disconnected = BuildColorArg('Disconnected', oUF.colors.disconnected),
-		tapped = BuildColorArg('Tapped', oUF.colors.tapped),
+		power = BuildColorGroup("Power", oUF.colors.power, {
+			MANA = _G.MANA, RAGE = _G.RAGE, ENERGY = _G.ENERGY, FOCUS = _G.FOCUS, RUNIC_POWER = _G.RUNIC_POWER
+		}),
+		health = BuildColorArg('Health', oUF.colors.health),
+		disconnected = BuildColorArg('Disconnected player', oUF.colors.disconnected),
+		tapped = BuildColorArg('Tapped mob', oUF.colors.tapped),
 		incoming = BuildColorGroup("Incoming heals", oUF.colors.incomingHeal, { self = "Self", others = "Others'" }, true),
 		lowHealth = BuildColorArg("Low health warning", oUF.colors.lowHealth, true),
 		group = {
@@ -91,26 +106,31 @@ local function GetOptions()
 		},
 	}
 	
-		runes = BuildColorGroup('Runes', oUF.colors.runes, { "Blood", "Unholy", "Frost", "Death" }),
-		totems = BuildColorGroup('Totems', oUF.colors.totems, {
+	colorArgs.reaction.hidden = function() return not (themeDB.profile.Health.colorReaction or themeDB.profile.Power.colorReaction) end
+	colorArgs.tapped.hidden = function() return not (themeDB.profile.Health.colorTapping or themeDB.profile.Power.colorTapping) end
+	colorArgs.power.hidden = function() return not themeDB.profile.Power.colorPower end
+	colorArgs.lowHealth.hidden = function() return not layoutDB.profile.elements.LowHealth end
+	colorArgs.incoming.hidden = function() return not layoutDB.profile.elements.IncomingHeal end
+	
+	if oUF_Adirelle.playerClass == "HUNTER" and oUF.colors.happiness then
+		local happiness = BuildColorGroup("Pet happiness", oUF.colors.happiness, "PET_HAPPINESS%d")
+		happiness.hidden = function() return not (themeDB.profile.Health.colorHappiness or themeDB.profile.Power.colorHappiness) end
+		colorArgs.happiness = happiness
+	elseif oUF_Adirelle.playerClass == "DEATHKNIGHT" then
+		local runes = BuildColorGroup('Runes', oUF.colors.runes, { "Blood", "Unholy", "Frost", "Death" })
+		runes.hidden = function() return not layoutDB.profile.elements.RuneBar end
+		colorArgs.runes = runes
+	elseif oUF_Adirelle.playerClass == "SHAMAN" then
+		local totems = BuildColorGroup('Totems', oUF.colors.totems, {
 			[_G.FIRE_TOTEM_SLOT] = "Fire",
 			[_G.EARTH_TOTEM_SLOT] = "Earth",
 			[_G.WATER_TOTEM_SLOT] = "Water",
 			[_G.AIR_TOTEM_SLOT] = "Air",	
-		}),
-	}
+		})
+		totems.hidden = function() return not layoutDB.profile.elements.TotemBar end
+		colorArgs.totems = totems
+	end
 
-		
-	local layoutDB = oUF_Adirelle.layoutDB
-	local layoutDBOptions = LibStub('AceDBOptions-3.0'):GetOptionsTable(layoutDB)
-	LibStub('LibDualSpec-1.0'):EnhanceOptions(layoutDBOptions, layoutDB)
-	layoutDBOptions.order = -1
-
-	local themeDB = oUF_Adirelle.themeDB
-	local themeDBOptions = LibStub('AceDBOptions-3.0'):GetOptionsTable(themeDB)
-	LibStub('LibDualSpec-1.0'):EnhanceOptions(themeDBOptions, themeDB)
-	themeDBOptions.order = -1
-	
 	options = {
 		name = 'oUF_Adirelle '..oUF_Adirelle.VERSION,
 		type = 'group',		
@@ -123,13 +143,9 @@ local function GetOptions()
 				order = 10,
 				disabled = function() return InCombatLockdown() end,
 				args = {
-					_info = {
-						type = 'description',
-						name = 'You can select which modules should be loaded. Changes require to reload the user interface. These settings do not depend on the profile.',
-						order = 1,
-					},
 					modules = {
 						name = 'Enabled modules',
+						desc = 'There you can enable and disable the frame modules. This is the same as disabling the matching addons on the character selection screen. These settings are specific to each character and require to reload the interface to apply the changes.',
 						type = 'multiselect',
 						order = 10,
 						width = "double",
@@ -191,7 +207,7 @@ local function GetOptions()
 						args = {
 							frames = {
 								name = 'Enabled frames',
-								type = 'multiselect',
+								type = 'multiselect',							
 								order = 30,
 								values = function()
 									local t = wipe(togglableFrameList)
@@ -304,7 +320,7 @@ local function GetOptions()
 					media = {
 						name = 'Texture & fonts',
 						type = 'group',
-						order = 30,
+						order = 10,
 						args = {
 							statusbar = {
 								name = 'Bar texture',
@@ -345,10 +361,61 @@ local function GetOptions()
 							--]]
 						},
 					},
+					single = {
+						name = 'Basic/arena/boss frames',
+						type = 'group',
+						order = 20, 		
+						hidden = function() return not oUF_Adirelle.SingleStyle end,			
+						args = {
+							healthColor = {
+								name = 'Health bar color',
+								desc = 'Select which conditions affect the health bar color',
+								type = 'multiselect',
+								order = 10,
+								get = function(info, key) return themeDB.profile.Health[key] end,
+								set = function(info, key, value)
+									themeDB.profile.Health[key] = value
+									oUF_Adirelle.ApplySettings('OnConfigChanged')
+								end,
+								values = {
+									colorTapping = 'Tapped mobs',
+									colorDisconnected = 'Disconnected players',
+									colorHappiness = 'Happiness',
+									colorClass = 'Class (Player)',
+									colorClassNPC = 'Class (NPC)',
+									colorClassPet = 'Class (Pet)',
+									colorReaction = 'Reaction',
+									colorSmooth = 'Smooth',
+								},
+							},
+							powerColor = {
+								name = 'Power bar color',
+								desc = 'Select which conditions affect the power bar color',
+								type = 'multiselect',
+								order = 20,
+								get = function(info, key) return themeDB.profile.Power[key] end,
+								set = function(info, key, value)
+									themeDB.profile.Power[key] = value
+									oUF_Adirelle.ApplySettings('OnConfigChanged')
+								end,
+								values = {
+									colorTapping = 'Tapped mobs',
+									colorDisconnected = 'Disconnected players',
+									colorHappiness = 'Happiness',
+									colorPower = 'Power type',
+									colorClass = 'Class (Player)',
+									colorClassNPC = 'Class (NPC)',
+									colorClassPet = 'Class (Pet)',
+									colorReaction = 'Reaction',
+									colorSmooth = 'Smooth',								
+								},
+							},
+						},
+					},					
 					colors = {
 						name = 'Colors',
 						type = 'group',
-						order = 40,
+						order = -10,
 						args = colorArgs,
 					},
 					profiles = themeDBOptions
@@ -361,7 +428,6 @@ local function GetOptions()
 end
 
 LibStub("AceConfig-3.0"):RegisterOptionsTable("oUF_Adirelle", GetOptions)
---local mainPanel = LibStub("AceConfigDialog-3.0"):AddToBlizOptions('oUF_Adirelle', "oUF_Adirelle")
 
 local AceConfigDialog = LibStub("AceConfigDialog-3.0")
 
