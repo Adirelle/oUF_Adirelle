@@ -81,7 +81,10 @@ local LAYOUT_DEFAULTS = {
 		anchors = { ['*'] = {} },
 		disabled = { ['*'] = false },
 		elements = { ['*'] = true },
-	}
+	},
+	global = {
+		minimapIcon = {},
+	},
 }
 
 local THEME_DEFAULTS = {
@@ -141,6 +144,13 @@ frame:SetScript('OnEvent', function(self, event, name)
 	themeDB.RegisterCallback(self, "OnProfileChanged", OnDatabaseChanged)
 	themeDB.RegisterCallback(self, "OnProfileCopied", OnDatabaseChanged)
 	themeDB.RegisterCallback(self, "OnProfileReset", OnDatabaseChanged)
+	
+	-- Optional launcher icon on the minimap
+	local LibDBIcon = LibStub('LibDBIcon-1.0', true)
+	if oUF_Adirelle.launcher and LibDBIcon then
+		oUF_Adirelle.hasMinimapIcon = true
+		LibDBIcon:Register("oUF_Adirelle", oUF_Adirelle.launcher, layoutDB.global.minimapIcon)
+	end
 	
 	-- Call the callbacks
 	return OnDatabaseChanged('ADDON_LOADED')

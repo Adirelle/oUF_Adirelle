@@ -3,7 +3,7 @@
 ## Version: @project-version@
 ## Title: oUF_Adirelle - core
 ## Notes: Adirelle's unit frames, based on haste's oUF.
-## OptionalDeps: LibSharedMedia-3.0, LibMovable-1.0, LibDispellable-1.0, Ace3, SharedMedia, SharedMedia_MyMedia, !SurfaceControl, !ClassColors, DRData-1.0, AdiDebug, AdiProfiler
+## OptionalDeps: LibSharedMedia-3.0, LibMovable-1.0, LibDispellable-1.0, Ace3, SharedMedia, LibDataBroker-1.1, LibDBIcon-1.0, SharedMedia_MyMedia, !SurfaceControl, !ClassColors, DRData-1.0, AdiDebug, AdiProfiler
 ## SavedVariables: oUF_Adirelle_DB, oUF_Adirelle_Layout, oUF_Adirelle_Theme
 ## LoadOnDemand: 1
 
@@ -19,6 +19,10 @@ libs\LibDualSpec-1.0\LibDualSpec-1.0.lua
 libs\LibSharedMedia-3.0\lib.xml
 libs\DRData-1.0\DRData-1.0.xml
 libs\LibDispellable-1.0\LibDispellable-1.0.lua
+#@end-no-lib-strip@
+libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
+#@no-lib-strip@
+libs\LibDBIcon-1.0\LibDBIcon-1.0.lua
 #@end-no-lib-strip@
 
 # Embedded oUF

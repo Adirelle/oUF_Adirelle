@@ -149,6 +149,20 @@ local function GetOptions()
 						func = _G.ReloadUI,
 						hidden = function() return not reloadNeeded end,
 					},
+					minimapIcon = oUF_Adirelle.hasMinimapIcon and {
+						name = 'Display minimap icon',
+						type = 'toggle',
+						order = 30,
+						get = function() return not layoutDB.global.minimapIcon.hide end,
+						set = function(_, value)
+							layoutDB.global.minimapIcon.hide = not value
+							if value then
+								LibStub('LibDBIcon-1.0'):Show('oUF_Adirelle')
+							else
+								LibStub('LibDBIcon-1.0'):Hide('oUF_Adirelle')
+							end
+						end,
+					} or nil,
 				},
 			},
 			layout = {
