@@ -12,10 +12,71 @@ local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 local type, pairs, ipairs, tinsert = _G.type, _G.pairs, _G.ipairs, _G.tinsert
 local LibStub = _G.LibStub
 
-local callbacks = {}
-local db
+-- ------------------------------------------------------------------------------
+-- Upvalues and constants
+-- ------------------------------------------------------------------------------
 
-local DEFAULTS = {
+local callbacks = {}
+local togglableFrames = {}
+local layout, theme 
+
+-- Elements that can be disabled
+local optionalElements = {
+	"Assistant", "Castbar", "ComboPoints", "Dragon", "EclipseBar", "Experience",
+	"Happiness", "HolyPower", "IncomingHeal", "Leader", "LowHealth","MasterLooter",
+	"PvP", "PvPTimer", "RaidIcon", "ReadyCheck", "Resting", "RoleIcon", "RuneBar",
+	"SmartThreat", "SoulShards", "StatusIcon", "TargetIcon", "ThreatBar",
+	"TotemBar", "WarningIcon", "XRange",
+}
+
+oUF_Adirelle.togglableFrames = togglableFrames
+oUF_Adirelle.optionalElements = optionalElements
+
+-- ------------------------------------------------------------------------------
+-- Callbacks
+-- ------------------------------------------------------------------------------
+
+function oUF_Adirelle.ApplySettings(event)
+	oUF_Adirelle.Debug('ApplySettings', event)
+
+	-- Call the callbacks
+	local first = (event == 'ADDON_LOADED')
+	for _, callback in ipairs(callbacks) do
+		callback(layout, theme, first)
+	end
+	
+	-- Update the togglable frames
+	for _, frame in pairs(togglableFrames) do
+		-- Enable/disable the frame
+		if frame:GetEnabledSetting() then
+			frame:Enable()
+		else
+			frame:Disable()
+		end	
+	end
+
+	-- Update all the frames
+	for _, frame in ipairs(oUF.objects) do
+		if frame:IsVisible() then
+			frame:ApplySettings(first)
+		end
+	end
+
+end
+
+-- Register a func to be called once the saved variables are loaded
+function oUF_Adirelle.RegisterVariableLoadedCallback(callback)
+	tinsert(callbacks, callback)
+	if layout and theme then
+		callback(layout, theme, true)
+	end
+end
+
+-- ------------------------------------------------------------------------------
+-- Initialization and update
+-- ------------------------------------------------------------------------------
+
+local LAYOUT_DEFAULTS = {
 	profile = {
 		anchors = { ['*'] = {} },
 		disabled = { ['*'] = false },
@@ -23,20 +84,16 @@ local DEFAULTS = {
 	}
 }
 
-local function OnDatabaseChanged(event)
-	-- Publish the database
-	oUF_Adirelle.db = db
+local THEME_DEFAULTS = {
+	profile = {
+		statusbar = 'BantoBar',
+	}
+}
 
-	-- Call all the callbacks
-	local profile, first = db.profile, (event == 'ADDON_LOADED')
-	for _, callback in ipairs(callbacks) do
-		callback(profile, first)
-	end
-	
-	-- Update all the frames
-	for _, frame in ipairs(oUF.objects) do
-		frame:UpdateAllElements(event)
-	end	
+-- Publish the databases and apply the settings
+local function OnDatabaseChanged(event)
+	layout, theme = oUF_Adirelle.layoutDB.profile, oUF_Adirelle.themeDB.profile
+	return oUF_Adirelle.ApplySettings(event)
 end
 
 local frame = _G.CreateFrame("Frame")
@@ -45,22 +102,30 @@ frame:SetScript('OnEvent', function(self, event, name)
 	self:UnregisterEvent('ADDON_LOADED')
 	self:SetScript('OnEvent', nil)
 
-	-- Initialize the database
-	db = LibStub('AceDB-3.0'):New("oUF_Adirelle_DB2", DEFAULTS, true)
-	LibStub('LibDualSpec-1.0'):EnhanceDatabase(db, addonName)
+	-- Initialize the databases
+	local layoutDB = LibStub('AceDB-3.0'):New("oUF_Adirelle_Layout", LAYOUT_DEFAULTS, true)
+	local themeDB = LibStub('AceDB-3.0'):New("oUF_Adirelle_Theme", THEME_DEFAULTS, true)
 	
+	LibStub('LibDualSpec-1.0'):EnhanceDatabase(layoutDB, addonName.." Layout")
+	LibStub('LibDualSpec-1.0'):EnhanceDatabase(themeDB, addonName.." Theme")
+	
+	oUF_Adirelle.layoutDB, oUF_Adirelle.themeDB = layoutDB, themeDB
+	
+	-- First initialization
+	layout, theme = oUF_Adirelle.layoutDB.profile, oUF_Adirelle.themeDB.profile
+
 	-- Convert the old database
 	if type(_G.oUF_Adirelle_DB) == "table" then
 		local old = _G.oUF_Adirelle_DB
 		if old.disabled then
 			for k,v in pairs(old.disabled) do
-				db.profile.disabled[k] = not not v
+				layout.disabled[k] = not not v
 			end
 		end
 		for key, pos in pairs(old) do
 			if key ~= "disable" and type(pos) == "table" and (pos.pointFrom or pos.pointTo or pos.refFrame or pos.xOffset or pos.yOffset) then
 				for k,v in pairs(pos) do
-					db.profile.anchors[key][k] = v
+					layout.anchors[key][k] = v
 				end
 			end
 		end
@@ -68,34 +133,34 @@ frame:SetScript('OnEvent', function(self, event, name)
 	end
 	
 	-- Register AceDB callbacks
-	db.RegisterCallback(self, "OnNewProfile", OnDatabaseChanged)
-	db.RegisterCallback(self, "OnProfileChanged", OnDatabaseChanged)
-	db.RegisterCallback(self, "OnProfileCopied", OnDatabaseChanged)
-	db.RegisterCallback(self, "OnProfileReset", OnDatabaseChanged)
+	layoutDB.RegisterCallback(self, "OnNewProfile", OnDatabaseChanged)
+	layoutDB.RegisterCallback(self, "OnProfileChanged", OnDatabaseChanged)
+	layoutDB.RegisterCallback(self, "OnProfileCopied", OnDatabaseChanged)
+	layoutDB.RegisterCallback(self, "OnProfileReset", OnDatabaseChanged)
+	themeDB.RegisterCallback(self, "OnNewProfile", OnDatabaseChanged)
+	themeDB.RegisterCallback(self, "OnProfileChanged", OnDatabaseChanged)
+	themeDB.RegisterCallback(self, "OnProfileCopied", OnDatabaseChanged)
+	themeDB.RegisterCallback(self, "OnProfileReset", OnDatabaseChanged)
 	
 	-- Call the callbacks
 	return OnDatabaseChanged('ADDON_LOADED')
 end)
 frame:RegisterEvent('ADDON_LOADED')
 
--- Register a func to be called once the saved variables are loaded
-function oUF_Adirelle.RegisterVariableLoadedCallback(callback)
-	tinsert(callbacks, callback)
-	if db then
-		callback(db.profile)
-	end
-end
+-- ------------------------------------------------------------------------------
+-- Frame activation handling
+-- ------------------------------------------------------------------------------
 
 -- Register a frame so it can be disabled
 local function Frame_GetEnabledSetting(self)
-	return not (db and db.profile.disabled[self.dbKey])
+	return not (layout and layout.disabled[self.dbKey])
 end
 
 local function Frame_SetEnabledSetting(self, enabled)
-	if db then
+	if layout then
 		local disabled = not enabled
-		if db.profile.disabled[self.dbKey] == disabled then return end
-		db.profile.disabled[self.dbKey] = disabled
+		if layout.disabled[self.dbKey] == disabled then return end
+		layout.disabled[self.dbKey] = disabled
 	end
 	if enabled then
 		self:Enable()
@@ -103,9 +168,6 @@ local function Frame_SetEnabledSetting(self, enabled)
 		self:Disable()
 	end
 end
-
-local togglableFrames = {}
-oUF_Adirelle.togglableFrames = togglableFrames
 
 -- Register a frame that can be permanently enabled/disabled
 function oUF_Adirelle.RegisterTogglableFrame(frame, key, label)
@@ -117,75 +179,46 @@ function oUF_Adirelle.RegisterTogglableFrame(frame, key, label)
 	frame.Disable = frame.Disable or frame.Hide
 	frame.GetEnabledSetting = Frame_GetEnabledSetting
 	frame.SetEnabledSetting = Frame_SetEnabledSetting
-end
-
-oUF_Adirelle.RegisterVariableLoadedCallback(function()
-	for key, frame in pairs(togglableFrames) do
+	if layout then
 		if frame:GetEnabledSetting() then
 			frame:Enable()
 		else
 			frame:Disable()
 		end
 	end
-end)
+end
 
--- Elements that can be disabled
-local optionalElements = {
-	"Assistant",
-	"Castbar",
-	"ComboPoints",
-	"Dragon",
-	"EclipseBar",
-	"Experience",
-	"Happiness",
-	"HolyPower",
-	"IncomingHeal",
-	"Leader",
-	"LowHealth",
-	"MasterLooter",
-	"PvP",
-	"PvPTimer",
-	"RaidIcon",
-	"ReadyCheck",
-	"Resting",
-	"RoleIcon",
-	"RuneBar",
-	"SmartThreat",
-	"SoulShards",
-	"StatusIcon",
-	"TargetIcon",
-	"ThreatBar",
-	"TotemBar",
-	"WarningIcon",
-	"XRange",
-}
-oUF_Adirelle.optionalElements = optionalElements
+-- ------------------------------------------------------------------------------
+-- Frame updating
+-- ------------------------------------------------------------------------------
 
-local function ApplyElementSettings(self)
-	local changed = false
+oUF:RegisterMetaFunction("ApplySettings", function(self, first)
+	self:Debug("ApplySettings", first)
+	
+	-- Enable/disable the elements
 	for i, name in ipairs(optionalElements) do
-		if db.profile.elements[name] then
+		if layout.elements[name] then
 			if not self:IsElementEnabled(name) then
 				self:EnableElement(name)
-				changed = true
 			end
 		elseif self:IsElementEnabled(name) then
 			self:DisableElement(name)
-			changed = true
 		end
 	end
-	if changed then
-		self:UpdateAllElements("OnElementSettingChanged")
+	
+	-- Frame specific handler
+	if self.OnApplySettings then
+		self:OnApplySettings(layout, theme, first)
 	end
-end
+	
+	-- Enforce a full update
+	return self:UpdateAllElements("ApplySettings")
+end)
 
-oUF:RegisterInitCallback(ApplyElementSettings)
-
-function oUF_Adirelle.ApplyElementSettings()
-	for j, frame in ipairs(oUF.objects) do
-		ApplyElementSettings(frame)
-	end
-end
-
-oUF_Adirelle.RegisterVariableLoadedCallback(oUF_Adirelle.ApplyElementSettings)
-
+-- Used for postponed initialization
+oUF:RegisterInitCallback(function(self)
+	if layout and theme then
+		self:Debug("ApplySettings on init callback")
+		self:ApplySettings(true)
+	end 
+end)

@@ -87,14 +87,27 @@ local function GetOptions()
 			[_G.AIR_TOTEM_SLOT] = "Air",	
 		}),
 	}
+
+		
+	local layoutDB = oUF_Adirelle.layoutDB
+	local layoutDBOptions = LibStub('AceDBOptions-3.0'):GetOptionsTable(layoutDB)
+	LibStub('LibDualSpec-1.0'):EnhanceOptions(layoutDBOptions, layoutDB)
+	layoutDBOptions.order = -1
+
+	local themeDB = oUF_Adirelle.themeDB
+	local themeDBOptions = LibStub('AceDBOptions-3.0'):GetOptionsTable(themeDB)
+	LibStub('LibDualSpec-1.0'):EnhanceOptions(themeDBOptions, themeDB)
+	themeDBOptions.order = -1
 	
 	options = {
 		name = 'oUF_Adirelle '..oUF_Adirelle.VERSION,
 		type = 'group',		
+		childGroups = 'tab',
 		args = {
 			modules = {
 				name = 'Modules',
 				type = 'group',
+				childGroups = 'tree',
 				order = 10,
 				disabled = function() return InCombatLockdown() end,
 				args = {
@@ -107,6 +120,7 @@ local function GetOptions()
 						name = 'Enabled modules',
 						type = 'multiselect',
 						order = 10,
+						width = "full",
 						values = moduleList,
 						get = function(info, addon)
 							return select(4, GetAddOnInfo(addon))
@@ -137,179 +151,191 @@ local function GetOptions()
 					},
 				},
 			},
-			frames = {
-				name = 'Frames',
+			layout = {
+				name = 'Layout',
 				type = 'group',
 				order = 20,
+				childGroups = 'tree',
 				disabled = function() return InCombatLockdown() end,
 				args = {
 					frames = {
-						name = 'Enabled frames',
-						type = 'multiselect',
-						order = 30,
-						values = function()
-							local t = wipe(togglableFrameList)
-							for key, frame in pairs(togglableFrames) do
-								t[key] = gsub(frame.label, "%s+[fF]rames?$", "")
-							end
-							return t
-						end,
-						get = function(info, key) 
-							return togglableFrames[key]:GetEnabledSetting()
-						end,
-						set = function(info, key, enabled)
-							togglableFrames[key]:SetEnabledSetting(enabled)
-						end,
-					},
-					lock = {
-						name = function()
-							return LibMovable.IsLocked("oUF_Adirelle") and "Unlock" or "Lock"
-						end,
-						type = 'execute',
-						order = 40,
-						func = function()
-							if LibMovable.IsLocked("oUF_Adirelle") then
-								LibMovable.Unlock("oUF_Adirelle")
-							else
-								LibMovable.Lock("oUF_Adirelle")
-							end
-						end,
-					},
-					reset = {
-						name = 'Reset positions',
-						type = 'execute',
-						order = 50,
-						func = function()
-							LibMovable.ResetLayout("oUF_Adirelle")
-						end,
-					},
-				},
-			},
-			elements = {
-				name = 'Elements',
-				type = 'group',
-				order = 25,
-				get = function(info, key)
-					return oUF_Adirelle.db.profile.elements[key]
-				end,
-				set = function(info, key, value)
-					oUF_Adirelle.db.profile.elements[key] = value
-					oUF_Adirelle.ApplyElementSettings()
-				end,
-				args = {
-					_warn = {
-						name = 'Some elements may be linked together.',
-						type = 'description',
-						order = 1,
-					},
-					bars = {
-						name = 'Bars / powers',
-						type = 'multiselect',
-						order = 10,
-						values = {
-							Experience = "Experience",
-							IncomingHeal = "Incoming heals",
-							RuneBar = "Runes",
-							ThreatBar = "Threat",
-							TotemBar = "Totems",
-							Castbar = "Spell casting",
-							HolyPower = "Holy power",
-							SoulShards = "Soul Shards",
-							ComboPoints = "Combo points",
-							EclipseBar = "Eclipse energy",
-						},
-					},
-					icons = {
-						name = 'Icons',
-						type = 'multiselect',
+						name = 'Frames',
+						type = 'group',
 						order = 20,
-						values = {
-							RoleIcon = "Role or raid icon",
-							StatusIcon = "Status",
-							WarningIcon = "Warning",
-							Assistant = "Raid assistant",
-							Leader = "Party/raid leader",
-							MasterLooter = "Master looter",
-							PvP = "PvP flag",
-							Resting = "Resting",
-							RaidIcon = "Raid icon",
-							ReadyCheck = "Ready check",
-							Happiness = "Happiness",			
-							TargetIcon = "Target raid icon"
+						args = {
+							frames = {
+								name = 'Enabled frames',
+								type = 'multiselect',
+								order = 30,
+								values = function()
+									local t = wipe(togglableFrameList)
+									for key, frame in pairs(togglableFrames) do
+										t[key] = gsub(frame.label, "%s+[fF]rames?$", "")
+									end
+									return t
+								end,
+								get = function(info, key) 
+									return togglableFrames[key]:GetEnabledSetting()
+								end,
+								set = function(info, key, enabled)
+									togglableFrames[key]:SetEnabledSetting(enabled)
+								end,
+							},
+							lock = {
+								name = function()
+									return LibMovable.IsLocked("oUF_Adirelle") and "Unlock" or "Lock"
+								end,
+								type = 'execute',
+								order = 40,
+								func = function()
+									if LibMovable.IsLocked("oUF_Adirelle") then
+										LibMovable.Unlock("oUF_Adirelle")
+									else
+										LibMovable.Lock("oUF_Adirelle")
+									end
+								end,
+							},
+							reset = {
+								name = 'Reset positions',
+								type = 'execute',
+								order = 50,
+								func = function()
+									LibMovable.ResetLayout("oUF_Adirelle")
+								end,
+							},
 						},
 					},
-					misc = {
-						name = 'Miscellaneous',
-						type = 'multiselect',
-						order = 30, 
-						values = {
-							Dragon = "Classification dragon",
-							LowHealth = "Low health glow",
-							PvPTimer = "PvP timer",
-							SmartThreat = "Threat glow",
-							XRange = "Range fading",
+					elements = {
+						name = 'Elements',
+						type = 'group',
+						order = 25,
+						get = function(info, key)
+							return layoutDB.profile.elements[key]
+						end,
+						set = function(info, key, value)
+							layoutDB.profile.elements[key] = value
+							oUF_Adirelle.ApplySettings("OnConfigChanged")
+						end,
+						args = {
+							_warn = {
+								name = 'Some elements may be linked together.',
+								type = 'description',
+								order = 1,
+							},
+							bars = {
+								name = 'Bars / powers',
+								type = 'multiselect',
+								order = 10,
+								values = {
+									Experience = "Experience",
+									IncomingHeal = "Incoming heals",
+									RuneBar = "Runes",
+									ThreatBar = "Threat",
+									TotemBar = "Totems",
+									Castbar = "Spell casting",
+									HolyPower = "Holy power",
+									SoulShards = "Soul Shards",
+									ComboPoints = "Combo points",
+									EclipseBar = "Eclipse energy",
+								},
+							},
+							icons = {
+								name = 'Icons',
+								type = 'multiselect',
+								order = 20,
+								values = {
+									RoleIcon = "Role or raid icon",
+									StatusIcon = "Status",
+									WarningIcon = "Warning",
+									Assistant = "Raid assistant",
+									Leader = "Party/raid leader",
+									MasterLooter = "Master looter",
+									PvP = "PvP flag",
+									Resting = "Resting",
+									RaidIcon = "Raid icon",
+									ReadyCheck = "Ready check",
+									Happiness = "Happiness",			
+									TargetIcon = "Target raid icon"
+								},
+							},
+							misc = {
+								name = 'Miscellaneous',
+								type = 'multiselect',
+								order = 30, 
+								values = {
+									Dragon = "Classification dragon",
+									LowHealth = "Low health glow",
+									PvPTimer = "PvP timer",
+									SmartThreat = "Threat glow",
+									XRange = "Range fading",
+								},
+							},
 						},
 					},
+					profiles = layoutDBOptions,
 				},
 			},
-			media = {
-				name = 'Texture & fonts',
+			theme = {
+				name = 'Theme',
 				type = 'group',
 				order = 30,
+				childGroups = 'tree',
 				args = {
-					statusbar = {
-						name = 'Bar texture',
-						type = 'select',
-						dialogControl = 'LSM30_Statusbar',
-						order = 10,
-						values = AceGUIWidgetLSMlists.statusbar,
-						get = function()
-							return oUF_Adirelle.db.profile.statusbar
-						end,
-						set = function(_, value)
-							oUF_Adirelle.db.profile.statusbar = value
-							oUF_Adirelle.UpdateStatusBarTextures()
-						end,
-					},
-					--[[
-					font = {
-						name = 'Font',
-						type = 'input',
-						order = 10,
-					},
-					size = {
-						name = 'Scale',
-						type = 'range',
-						order = 20,
-						isPercent = true,
-						min = 0.1,
-						max = 1.0,
-						step = 0.05,
-					},
-					outline = {
-						name = 'Outline',
-						type = 'select',
+					media = {
+						name = 'Texture & fonts',
+						type = 'group',
 						order = 30,
-						values = {
+						args = {
+							statusbar = {
+								name = 'Bar texture',
+								type = 'select',
+								dialogControl = 'LSM30_Statusbar',
+								order = 10,
+								values = AceGUIWidgetLSMlists.statusbar,
+								get = function()
+									return themeDB.profile.statusbar
+								end,
+								set = function(_, value)
+									themeDB.profile.statusbar = value
+									oUF_Adirelle.ApplySettings("OnConfigChanged")
+								end,
+							},
+							--[[
+							font = {
+								name = 'Font',
+								type = 'input',
+								order = 10,
+							},
+							size = {
+								name = 'Scale',
+								type = 'range',
+								order = 20,
+								isPercent = true,
+								min = 0.1,
+								max = 1.0,
+								step = 0.05,
+							},
+							outline = {
+								name = 'Outline',
+								type = 'select',
+								order = 30,
+								values = {
+								},
+							},
+							--]]
 						},
 					},
-					--]]
+					colors = {
+						name = 'Colors',
+						type = 'group',
+						order = 40,
+						args = colorArgs,
+					},
+					profiles = themeDBOptions
 				},
-			},
-			colors = {
-				name = 'Colors',
-				type = 'group',
-				order = 40,
-				args = colorArgs,
 			},
 		},
 	}
-		
-	local db = oUF_Adirelle.db
-	local dbOptions = LibStub('AceDBOptions-3.0'):GetOptionsTable(db)
-	LibStub('LibDualSpec-1.0'):EnhanceOptions(dbOptions, db)
-	dbOptions.order = -1
-	options.args.profiles = dbOptions
 	
 	return options
 end

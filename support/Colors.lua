@@ -78,11 +78,11 @@ function oUF_Adirelle.ColorsChanged()
 	end
 end
 	
-oUF_Adirelle.RegisterVariableLoadedCallback(function(newProfile, first)
+oUF_Adirelle.RegisterVariableLoadedCallback(function(_, newProfile, first)
 	if first then
 		DeepCopy(oUF.colors, DEFAULTS)
-		oUF_Adirelle.db.RegisterCallback(callbacks, "OnDatabaseShutdown", SaveColors)
-		oUF_Adirelle.db.RegisterCallback(callbacks, "OnProfileShutdown", SaveColors)
+		oUF_Adirelle.themeDB.RegisterCallback(callbacks, "OnDatabaseShutdown", SaveColors)
+		oUF_Adirelle.themeDB.RegisterCallback(callbacks, "OnProfileShutdown", SaveColors)
 	end
 	
 	-- Update the upvalue
