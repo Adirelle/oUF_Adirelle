@@ -111,6 +111,10 @@ local THEME_DEFAULTS = {
 			colorReaction = false,
 			colorSmooth = false,
 		},
+		XRange = {
+			inRangeAlpha = 1,
+			outsideRangeAlpha = 0.4,
+		},
 	}
 }
 

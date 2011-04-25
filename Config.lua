@@ -412,7 +412,38 @@ local function GetOptions()
 								},
 							},
 						},
-					},					
+					},			
+					XRange = {
+						name = 'Range fading',
+						order = 30,
+						type = 'group',
+						hidden = function() return not layoutDB.profile.elements.XRange end,
+						get = function(info) return themeDB.profile.XRange[info[#info]] end,
+						set = function(info, value)
+							themeDB.profile.XRange[info[#info]] = value
+							oUF_Adirelle.ApplySettings('OnConfigChanged')
+						end,
+						args = {
+							inRangeAlpha = {
+								name = 'In range',
+								type = 'range',
+								order = 10,
+								isPercent = true,
+								min = 0.1,
+								max = 1.0,
+								step = 0.01,
+							},
+							outsideRangeAlpha = {
+								name = 'Out of range',
+								type = 'range',
+								order = 20,
+								isPercent = true,
+								min = 0,
+								max = 1.0,
+								step = 0.01,
+							},
+						},
+					},
 					colors = {
 						name = 'Colors',
 						type = 'group',

@@ -289,6 +289,11 @@ local function OnApplySettings(self, layout, theme, first)
 			power[k] = v
 		end
 	end
+	
+	if self.XRange then
+		self.inRangeAlpha = theme.XRange.inRangeAlpha
+		self.outsideRangeAlpha = theme.XRange.outsideRangeAlpha
+	end
 end
 
 local DRAGON_TEXTURES = {
