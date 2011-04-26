@@ -51,21 +51,22 @@ oUF:Factory(function()
 	
 	local function Header_ApplySettings(self, layout, theme, first)
 		local c = layout.Raid
-		self:Debug('Header_ApplySettings', 'orientation=', c.orientation, 'origin=', c.origin, 'spacing=', c.spacing)
+		local spacing, alignment = c.unitSpacing, c.alignment
+		self:Debug('Header_ApplySettings', 'orientation=', c.orientation, 'alignment=', alignment, 'unitSpacing=', spacing)
 		self:SetAttribute('_ignore', true)
 		if c.orientation == "horizontal" then
-			self:SetAttribute('xOffset', strmatch(c.origin, 'RIGHT') and -c.spacing or c.spacing)
+			self:SetAttribute('xOffset', strmatch(alignment, 'RIGHT') and -spacing or spacing)
 			self:SetAttribute('yOffset', 0)
-			self:SetAttribute('point', strmatch(c.origin, 'RIGHT') or 'LEFT')
-			self:SetAttribute('columnAnchorPoint', strmatch(c.origin, 'TOP') or 'BOTTOM')
+			self:SetAttribute('point', strmatch(alignment, 'RIGHT') or 'LEFT')
+			self:SetAttribute('columnAnchorPoint', strmatch(alignment, 'TOP') or 'BOTTOM')
 		else
 			self:SetAttribute('xOffset', 0)
-			self:SetAttribute('yOffset', strmatch(c.origin, 'TOP') and -c.spacing or c.spacing)
-			self:SetAttribute('point', strmatch(c.origin, 'TOP') or 'BOTTOM')
-			self:SetAttribute('columnAnchorPoint', strmatch(c.origin, 'RIGHT') or 'LEFT')
+			self:SetAttribute('yOffset', strmatch(alignment, 'TOP') and -spacing or spacing)
+			self:SetAttribute('point', strmatch(alignment, 'TOP') or 'BOTTOM')
+			self:SetAttribute('columnAnchorPoint', strmatch(alignment, 'RIGHT') or 'LEFT')
 		end
 		
-		--  Blizzard header code never clears the button anchorins
+		--  Blizzard headers never clear the button anchors
 		for i = 1, math.huge do
 			local button = self:GetAttribute("child"..i)
 			if button then
@@ -76,7 +77,7 @@ oUF:Factory(function()
 		end
 		
 		self:SetAttribute('_ignore', nil)
-		self:SetAttribute('columnSpacing', c.spacing)
+		self:SetAttribute('columnSpacing', c.groppSpacing)
 	end
 
 	local function SpawnHeader(name, template, ...)
@@ -200,25 +201,26 @@ oUF:Factory(function()
 	
 	oUF_Adirelle.RegisterVariableLoadedCallback(function(layout, theme, first) 
 		local c = layout.Raid
-		oUF_Adirelle.Debug('Alignment:', c.alignment, 'Origin:', c.origin)
+		local alignment = c.alignment
+		oUF_Adirelle.Debug('Alignment:', alignment)
 		players:ClearAllPoints()
-		players:SetPoint(c.alignment, anchor)
+		players:SetPoint(alignment, anchor)
 		pets:ClearAllPoints()
 		if c.orientation == "horizontal" then
-			anchor:SetSize(c.spacing * 4 + WIDTH * 5, c.spacing * 7 + HEIGHT_SMALL * 8)
-			local vert = strmatch(c.origin, "LEFT") or strmatch(c.origin, "RIGHT") or ""			
-			if strmatch(c.origin, "TOP") then
-				pets:SetPoint("TOP"..vert, players, "BOTTOM"..vert, 0, -2*c.spacing)
+			anchor:SetSize(c.unitSpacing * 4 + WIDTH * 5, c.groupSpacing * 7 + HEIGHT_SMALL * 8)
+			local vert = strmatch(alignment, "LEFT") or strmatch(alignment, "RIGHT") or ""			
+			if strmatch(alignment, "TOP") then
+				pets:SetPoint("TOP"..vert, players, "BOTTOM"..vert, 0, -2*c.groupSpacing)
 			else
-				pets:SetPoint("BOTTOM"..vert, players, "TOP"..vert, 0, 2*c.spacing)
+				pets:SetPoint("BOTTOM"..vert, players, "TOP"..vert, 0, 2*c.groupSpacing)
 			end
 		else
-			anchor:SetSize(c.spacing * 7 + WIDTH * 8, c.spacing * 4 + HEIGHT * 5)
-			local horiz = strmatch(c.origin, "TOP") or strmatch(c.origin, "BOTTOM") or ""			
-			if strmatch(c.origin, "RIGHT") then
-				pets:SetPoint(horiz.."RIGHT", players, horiz.."LEFT", -2*c.spacing, 0)
+			anchor:SetSize(c.groupSpacing * 7 + WIDTH * 8, c.unitSpacing * 4 + HEIGHT * 5)
+			local horiz = strmatch(alignment, "TOP") or strmatch(alignment, "BOTTOM") or ""			
+			if strmatch(alignment, "RIGHT") then
+				pets:SetPoint(horiz.."RIGHT", players, horiz.."LEFT", -2*c.groupSpacing, 0)
 			else
-				pets:SetPoint(horiz.."LEFT", players, horiz.."RIGHT", 2*c.spacing, 0)
+				pets:SetPoint(horiz.."LEFT", players, horiz.."RIGHT", 2*c.groupSpacing, 0)
 			end
 		end
 		UpdateHeightDriver()

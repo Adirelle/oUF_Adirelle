@@ -83,9 +83,9 @@ local LAYOUT_DEFAULTS = {
 		elements = { ['*'] = true },
 		Raid = {
 			alignment = "BOTTOM",
-			origin = "BOTTOM",
 			orientation = "horizontal",
-			spacing = oUF_Adirelle.SPACING,
+			unitSpacing = 2,
+			groupSpacing = 2,
 		},
 	},
 	global = {
