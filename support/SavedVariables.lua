@@ -82,6 +82,8 @@ local LAYOUT_DEFAULTS = {
 		disabled = { ['*'] = false },
 		elements = { ['*'] = true },
 		Raid = {
+			alignment = "BOTTOM",
+			origin = "BOTTOM",
 			orientation = "horizontal",
 			spacing = oUF_Adirelle.SPACING,
 		},
@@ -102,10 +104,10 @@ local THEME_DEFAULTS = {
 			colorClassNPC = false,
 			colorClassPet = false,
 			colorReaction = false,
-			colorSmooth = false,
+			colorSmooth = true,
 		},
 		Power = {
-			colorTapping = false,
+			colorTapping = true,
 			colorDisconnected = true,
 			colorHappiness = false,
 			colorPower = true,

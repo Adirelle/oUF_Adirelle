@@ -324,43 +324,56 @@ local function GetOptions()
 						name = 'Group frames',
 						type = 'group',
 						order = 30,
-						get = function(info) return themeDB.profile.Raid[info[#info]] end,
+						get = function(info) return layoutDB.profile.Raid[info[#info]] end,
 						set = function(info, value)
-							themeDB.profile.Raid[info[#info]] = value
+							layoutDB.profile.Raid[info[#info]] = value
 							oUF_Adirelle.ApplySettings("OnConfigChanged")
 						end,
-						hidden = function() return themeDB.profile.disabled.anchor end,
+						hidden = function() return layoutDB.profile.disabled.anchor end,
 						args = {
-							alignement = {
+							alignment = {
 								name = 'Alignement',
 								desc = 'Select how the units should be aligned with regard to the anchor.',
 								type = 'select',
 								order = 10,
 								values = {
 									TOPLEFT = 'Top left',
-									TOP = 'Top Center',
+									TOP = 'Top',
 									TOPRIGHT = 'Top right',
-									LEFT = 'Middle Left',
+									LEFT = 'Left',
 									CENTER = 'Center',
-									RIGHT = 'Middle right',
+									RIGHT = 'Right',
 									BOTTOMLEFT = 'Bottom left',
+									BOTTOM = 'Bottom',
 									BOTTOMRIGHT = 'Bottom right',
 								},
 							},
 							orientation = {
-								name = 'Group orientation',
+								name = 'Group shape',
+								desc = 'Select how each group is displayed individually.',
 								type = 'select',
 								order = 20,
 								values = {
-									horizontal = "Horizontal",
-									vertical = "Vertical",
+									horizontal = "Rows",
+									vertical = "Columns",
 								},
 							},
-							direction = {
-								name = 'Group direction',
+							origin = {
+								name = 'Growth origin',
+								desc = 'Select at which point the first frames are added.', 
 								type = 'select',
 								order = 30,
-								values = function() return directions[themeDB.profile.Raid.orientation] end,
+								values = {
+									TOPLEFT = 'Top left',
+									TOP = 'Top',
+									TOPRIGHT = 'Top right',
+									LEFT = 'Left',
+									CENTER = 'Center',
+									RIGHT = 'Right',
+									BOTTOMLEFT = 'Bottom left',
+									BOTTOM = 'Bottom',
+									BOTTOMRIGHT = 'Bottom right',
+								},
 							},
 							spacing = {
 								name = 'Cell spacing',								
