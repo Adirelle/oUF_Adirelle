@@ -81,6 +81,10 @@ local LAYOUT_DEFAULTS = {
 		anchors = { ['*'] = {} },
 		disabled = { ['*'] = false },
 		elements = { ['*'] = true },
+		Raid = {
+			orientation = "horizontal",
+			spacing = oUF_Adirelle.SPACING,
+		},
 	},
 	global = {
 		minimapIcon = {},
