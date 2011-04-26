@@ -130,6 +130,17 @@ local function GetOptions()
 		totems.hidden = function() return not layoutDB.profile.elements.TotemBar end
 		colorArgs.totems = totems
 	end
+	
+	local directions = {
+		horizontal = {
+			positive = 'Left to right',
+			negative = 'Right to left',
+		},
+		vertical = {
+			positive = 'Bottom to top',
+			negative = 'Top to bottom',
+		},
+	}
 
 	options = {
 		name = 'oUF_Adirelle '..oUF_Adirelle.VERSION,
@@ -306,6 +317,58 @@ local function GetOptions()
 									SmartThreat = "Threat glow",
 									XRange = "Range fading",
 								},
+							},
+						},
+					},
+					Raid = {
+						name = 'Group frames',
+						type = 'group',
+						order = 30,
+						get = function(info) return themeDB.profile.Raid[info[#info]] end,
+						set = function(info, value)
+							themeDB.profile.Raid[info[#info]] = value
+							oUF_Adirelle.ApplySettings("OnConfigChanged")
+						end,
+						hidden = function() return themeDB.profile.disabled.anchor end,
+						args = {
+							alignement = {
+								name = 'Alignement',
+								desc = 'Select how the units should be aligned with regard to the anchor.',
+								type = 'select',
+								order = 10,
+								values = {
+									TOPLEFT = 'Top left',
+									TOP = 'Top Center',
+									TOPRIGHT = 'Top right',
+									LEFT = 'Middle Left',
+									CENTER = 'Center',
+									RIGHT = 'Middle right',
+									BOTTOMLEFT = 'Bottom left',
+									BOTTOMRIGHT = 'Bottom right',
+								},
+							},
+							orientation = {
+								name = 'Group orientation',
+								type = 'select',
+								order = 20,
+								values = {
+									horizontal = "Horizontal",
+									vertical = "Vertical",
+								},
+							},
+							direction = {
+								name = 'Group direction',
+								type = 'select',
+								order = 30,
+								values = function() return directions[themeDB.profile.Raid.orientation] end,
+							},
+							spacing = {
+								name = 'Cell spacing',								
+								type = 'range',
+								order = 40,
+								min = 2,
+								max = 20, 
+								step = 1,
 							},
 						},
 					},
