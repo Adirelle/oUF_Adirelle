@@ -48,6 +48,36 @@ oUF:Factory(function()
 	--------------------------------------------------------------------------------
 	-- Helper
 	--------------------------------------------------------------------------------
+	
+	local function Header_ApplySettings(self, layout, theme, first)
+		local c = layout.Raid
+		self:Debug('Header_ApplySettings', 'orientation=', c.orientation, 'origin=', c.origin, 'spacing=', c.spacing)
+		self:SetAttribute('_ignore', true)
+		if c.orientation == "horizontal" then
+			self:SetAttribute('xOffset', strmatch(c.origin, 'RIGHT') and -c.spacing or c.spacing)
+			self:SetAttribute('yOffset', 0)
+			self:SetAttribute('point', strmatch(c.origin, 'RIGHT') or 'LEFT')
+			self:SetAttribute('columnAnchorPoint', strmatch(c.origin, 'TOP') or 'BOTTOM')
+		else
+			self:SetAttribute('xOffset', 0)
+			self:SetAttribute('yOffset', strmatch(c.origin, 'TOP') and -c.spacing or c.spacing)
+			self:SetAttribute('point', strmatch(c.origin, 'TOP') or 'BOTTOM')
+			self:SetAttribute('columnAnchorPoint', strmatch(c.origin, 'RIGHT') or 'LEFT')
+		end
+		
+		--  Blizzard header code never clears the button anchorins
+		for i = 1, math.huge do
+			local button = self:GetAttribute("child"..i)
+			if button then
+				button:ClearAllPoints()
+			else
+				break
+			end			
+		end
+		
+		self:SetAttribute('_ignore', nil)
+		self:SetAttribute('columnSpacing', c.spacing)
+	end
 
 	local function SpawnHeader(name, template, ...)
 		local header = oUF:SpawnHeader(
@@ -66,9 +96,10 @@ oUF:Factory(function()
 				local header = self:GetParent()
 				self:SetAttribute('*type1', 'target')
 				self:SetAttribute('*type2', nil)
-				self:SetWidth(]]..WIDTH..[[)
+				self:SetWidth(header:GetAttribute('unitWidth'))
 				self:SetHeight(header:GetAttribute('unitHeight'))
 			]],
+			"unitWidth", WIDTH,
 			"unitHeight", HEIGHT_SMALL,
 			"minHeight", HEIGHT_SMALL,
 			...
@@ -76,6 +107,7 @@ oUF:Factory(function()
 		header.Debug = Debug
 		header:SetScale(SCALE)
 		header:SetParent(anchor)
+		oUF_Adirelle.RegisterVariableLoadedCallback(function(...) return Header_ApplySettings(header, ...) end)
 		return header
 	end
 
@@ -165,6 +197,31 @@ oUF:Factory(function()
 	end
 
 	oUF_Adirelle.RegisterPlayerRoleCallback(UpdateHeightDriver)
-	UpdateHeightDriver()
+	
+	oUF_Adirelle.RegisterVariableLoadedCallback(function(layout, theme, first) 
+		local c = layout.Raid
+		oUF_Adirelle.Debug('Alignment:', c.alignment, 'Origin:', c.origin)
+		players:ClearAllPoints()
+		players:SetPoint(c.alignment, anchor)
+		pets:ClearAllPoints()
+		if c.orientation == "horizontal" then
+			anchor:SetSize(c.spacing * 4 + WIDTH * 5, c.spacing * 7 + HEIGHT_SMALL * 8)
+			local vert = strmatch(c.origin, "LEFT") or strmatch(c.origin, "RIGHT") or ""			
+			if strmatch(c.origin, "TOP") then
+				pets:SetPoint("TOP"..vert, players, "BOTTOM"..vert, 0, -2*c.spacing)
+			else
+				pets:SetPoint("BOTTOM"..vert, players, "TOP"..vert, 0, 2*c.spacing)
+			end
+		else
+			anchor:SetSize(c.spacing * 7 + WIDTH * 8, c.spacing * 4 + HEIGHT * 5)
+			local horiz = strmatch(c.origin, "TOP") or strmatch(c.origin, "BOTTOM") or ""			
+			if strmatch(c.origin, "RIGHT") then
+				pets:SetPoint(horiz.."RIGHT", players, horiz.."LEFT", -2*c.spacing, 0)
+			else
+				pets:SetPoint(horiz.."LEFT", players, horiz.."RIGHT", 2*c.spacing, 0)
+			end
+		end
+		UpdateHeightDriver()
+	end)
 
 end)
