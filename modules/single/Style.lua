@@ -273,20 +273,17 @@ local function CastBar_Update(castbar)
 end
 
 local function OnApplySettings(self, layout, theme, first)
-	local unit, isArenaUnit = self.baseUnit, self.isArenaUnit
-	
 	local health = self.Health
 	for k,v in pairs(theme.Health) do
 		health[k] = v
 	end	
-	if unit == "arena" then
+	if self.baseUnit == "arena" then
 		health.colorSmooth = false
 	end
 	
-	local power = self.Power
-	if power then
+	if self.Power then
 		for k,v in pairs(theme.Power) do
-			power[k] = v
+			self.Power[k] = v
 		end
 	end
 	
@@ -373,12 +370,6 @@ local function InitFrame(settings, self, unit)
 	-- Health bar
 	local health = SpawnStatusBar(self, false, "TOPLEFT", barContainer)
 	health:SetPoint("TOPRIGHT", barContainer)
-	health.colorTapping = (unit ~= "boss" and not isArenaUnit)
-	health.colorDisconnected = health.colorTapping
-	health.colorHappiness = (unit == "pet")
-	health.colorClass = true
-	health.colorSmooth = (unit ~= "arena")
-	health.colorHealth = true
 	health.frequentUpdates = true
 	self.Health = health
 	self:RegisterColor(health, "ForceUpdate")
@@ -424,8 +415,6 @@ local function InitFrame(settings, self, unit)
 	if not settings.noPower then
 		local power = SpawnStatusBar(self, false, "TOPLEFT", health, "BOTTOMLEFT", 0, -GAP)
 		power:SetPoint('RIGHT', barContainer)
-		power.colorDisconnected = true
-		power.colorPower = true
 		power.frequentUpdates = true
 		power.PostUpdate = Power_PostUpdate
 		self.Power = power
