@@ -77,7 +77,7 @@ oUF:Factory(function()
 		end
 		
 		self:SetAttribute('_ignore', nil)
-		self:SetAttribute('columnSpacing', c.groppSpacing)
+		self:SetAttribute('columnSpacing', c.groupSpacing)
 	end
 
 	local function SpawnHeader(name, template, ...)
