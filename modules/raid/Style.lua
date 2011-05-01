@@ -586,9 +586,12 @@ local function InitFrame(self, unit)
 	self.OnApplySettings = OnApplySettings
 
 	-- Range fading
-	self.XRange = true
-	self.inRangeAlpha = 1.0
-	self.outsideRangeAlpha = 0.40
+	local xrange = overlay:CreateTexture(nil, "OVERLAY")
+	xrange:SetAllPoints(self)
+	xrange:SetTexture(0.4, 0.4, 0.4)
+	xrange:SetBlendMode("MOD")
+	self.XRange = xrange
+	--self.XRange = true
 	
 	-- Hook OnSizeChanged to layout internal on size change
 	self:HookScript('OnSizeChanged', OnSizeChanged)

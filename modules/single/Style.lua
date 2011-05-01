@@ -678,8 +678,15 @@ local function InitFrame(settings, self, unit)
 		AddAuxiliaryBar(self, xpFrame)
 	end
 
-	-- Range fading
-	self.XRange = true
+	-- Range indicator
+	if unit ~= "player" then
+		local xrange = indicators:CreateTexture(nil, "BACKGROUND")
+		xrange:SetAllPoints(self)
+		xrange:SetTexture(0.4, 0.4, 0.4)
+		xrange:SetBlendMode("MOD")
+		self.XRange = xrange
+		--self.XRange = true
+	end
 
 	-- Special events
 	if unit == "boss" then
