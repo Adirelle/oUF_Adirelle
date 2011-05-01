@@ -174,7 +174,6 @@ oUF:Factory(function()
 	]===])
 
 	RegisterStateDriver(anchor, "pets", "[@raid26,exists] hide; show")
-	local healerHeightExpr =  format("[@raid26,exists] %d; %d", HEIGHT_SMALL, HEIGHT_FULL)
 
 	local function UpdateHeightDriver()
 		if not anchor:CanChangeAttribute() then
@@ -186,14 +185,17 @@ oUF:Factory(function()
 			anchor:SetScript('OnEvent', nil)
 			anchor:UnregisterEvent('PLAYER_REGEN_ENABLED')
 		end
+		
+		local height_small = anchor:GetAttribute('heightSmall')
+		local height = anchor:GetAttribute('heightFull')
 
 		if GetPlayerRole() == "HEALER" then
 			anchor:Debug("UpdateHeightDriver, healer => dynamic height")
-			RegisterStateDriver(anchor, "height", healerHeightExpr)
+			RegisterStateDriver(anchor, "height", format("[@raid26,exists] %d; %d", height_small, height))
 		else
 			anchor:Debug("UpdateHeightDriver, not healer => fixed height")
 			UnregisterStateDriver(anchor, "height")
-			anchor:SetAttribute("height", HEIGHT_SMALL)
+			anchor:SetAttribute("height", height_small)
 		end
 	end
 
@@ -201,13 +203,14 @@ oUF:Factory(function()
 	
 	oUF_Adirelle.RegisterVariableLoadedCallback(function(layout, theme, first) 
 		local c = layout.Raid
+		local width, height, height_small = c.width, c.healerHeight, c.height
 		local alignment = c.alignment
 		oUF_Adirelle.Debug('Alignment:', alignment)
 		players:ClearAllPoints()
 		players:SetPoint(alignment, anchor)
 		pets:ClearAllPoints()
 		if c.orientation == "horizontal" then
-			anchor:SetSize(c.unitSpacing * 4 + WIDTH * 5, c.groupSpacing * 7 + HEIGHT_SMALL * 8)
+			anchor:SetSize(c.unitSpacing * 4 + width * 5, c.groupSpacing * 7 + height_small * 8)
 			local vert = strmatch(alignment, "LEFT") or strmatch(alignment, "RIGHT") or ""			
 			if strmatch(alignment, "TOP") then
 				pets:SetPoint("TOP"..vert, players, "BOTTOM"..vert, 0, -2*c.groupSpacing)
@@ -215,7 +218,7 @@ oUF:Factory(function()
 				pets:SetPoint("BOTTOM"..vert, players, "TOP"..vert, 0, 2*c.groupSpacing)
 			end
 		else
-			anchor:SetSize(c.groupSpacing * 7 + WIDTH * 8, c.unitSpacing * 4 + HEIGHT * 5)
+			anchor:SetSize(c.groupSpacing * 7 + width * 8, c.unitSpacing * 4 + height * 5)
 			local horiz = strmatch(alignment, "TOP") or strmatch(alignment, "BOTTOM") or ""			
 			if strmatch(alignment, "RIGHT") then
 				pets:SetPoint(horiz.."RIGHT", players, horiz.."LEFT", -2*c.groupSpacing, 0)
@@ -223,6 +226,9 @@ oUF:Factory(function()
 				pets:SetPoint(horiz.."LEFT", players, horiz.."RIGHT", 2*c.groupSpacing, 0)
 			end
 		end
+		anchor:SetAttribute('width', width)
+		anchor:SetAttribute('heightFull', height)		
+		anchor:SetAttribute('heightSmall', height_small)
 		UpdateHeightDriver()
 	end)
 

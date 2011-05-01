@@ -82,6 +82,9 @@ local LAYOUT_DEFAULTS = {
 		disabled = { ['*'] = false },
 		elements = { ['*'] = true },
 		Raid = {
+			width = 80,
+			height = 20,
+			healerHeight = 25,
 			alignment = "BOTTOM",
 			orientation = "horizontal",
 			unitSpacing = 2,
