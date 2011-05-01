@@ -208,18 +208,13 @@ oUF:AddElement('Adirelle_Raid:UpdateColor',
 local function OnSizeChanged(self, width, height)
 	width = width or self:GetWidth()
 	height = height or self:GetHeight()
-	self.Border:SetWidth(width + 2 * BORDER_WIDTH)
-	self.Border:SetHeight(height + 2 * BORDER_WIDTH)
-	self.ReadyCheck:SetWidth(height)
-	self.ReadyCheck:SetHeight(height)
-	if self.DeathIcon then
-		self.DeathIcon:SetWidth(height*2)
-		self.DeathIcon:SetHeight(height)
-	end
-	if self.StatusIcon then
-		self.StatusIcon:SetWidth(height*2)
-		self.StatusIcon:SetHeight(height)
-	end
+	if not width or not height then return end
+	local w = BORDER_WIDTH / self:GetEffectiveScale()
+	self.Border:SetSize(width + 2 * w, height + 2 * w)
+	self.ReadyCheck:SetSize(height, height)
+	self.StatusIcon:SetSize(height*2, height)
+	self.WarningIconBuff:SetPoint("CENTER", self, "LEFT", width / 4, 0)
+	self.WarningIconDebuff:SetPoint("CENTER", self, "RIGHT", width / 4, 0)
 end
 
 -- ------------------------------------------------------------------------------
@@ -411,6 +406,7 @@ local function OnApplySettings(self, layout, theme, first)
 		self.inRangeAlpha = theme.XRange.inRangeAlpha
 		self.outsideRangeAlpha = theme.XRange.outsideRangeAlpha
 	end
+	self:SetSize(layout.Raid.width, layout.Raid.height)
 end
 
 -- ------------------------------------------------------------------------------
@@ -490,9 +486,7 @@ local function InitFrame(self, unit)
 	-- Border
 	local border = CreateFrame("Frame", nil, self)
 	border:SetFrameStrata("BACKGROUND")
-	border:SetPoint("CENTER", self)
-	border:SetWidth(WIDTH + 2 * BORDER_WIDTH)
-	border:SetHeight(HEIGHT + 2 * BORDER_WIDTH)
+	border:SetPoint("CENTER")
 	border:SetBackdrop(borderBackdrop)
 	border:SetBackdropColor(0, 0, 0, 0)
 	border:SetBackdropBorderColor(1, 1, 1, 1)
@@ -502,8 +496,6 @@ local function InitFrame(self, unit)
 
 	-- Big status icon
 	local status = hp:CreateTexture(nil, "OVERLAY", nil, 1)
-	status:SetWidth(HEIGHT)
-	status:SetHeight(HEIGHT)
 	status:SetPoint("CENTER")
 	status:SetAlpha(0.75)
 	status:SetBlendMode("ADD")
@@ -514,9 +506,7 @@ local function InitFrame(self, unit)
 	-- ReadyCheck icon
 	local rc = CreateFrame("Frame", self:GetName().."ReadyCheck", overlay)
 	rc:SetFrameLevel(self:GetFrameLevel()+5)
-	rc:SetPoint('CENTER', self)
-	rc:SetWidth(HEIGHT)
-	rc:SetHeight(HEIGHT)
+	rc:SetPoint('CENTER')
 	rc:SetAlpha(1)
 	rc:Hide()
 	rc.icon = rc:CreateTexture(rc:GetName().."Texture")
@@ -554,8 +544,7 @@ local function InitFrame(self, unit)
 
 	-- Role/Raid icon
 	local roleIcon = overlay:CreateTexture(nil, "OVERLAY")
-	roleIcon:SetWidth(8)
-	roleIcon:SetHeight(8)
+	roleIcon:SetSize(SMALL_ICON_SIZE, SMALL_ICON_SIZE)
 	roleIcon:SetPoint("LEFT", self, INSET, 0)
 	roleIcon.noDamager = true
 	roleIcon.noCircle = true
@@ -563,18 +552,13 @@ local function InitFrame(self, unit)
 
 	-- Target raid icon
 	local targetIcon = overlay:CreateTexture(nil, "OVERLAY")
-	targetIcon:SetWidth(8)
-	targetIcon:SetHeight(8)
+	roleIcon:SetSize(SMALL_ICON_SIZE, SMALL_ICON_SIZE)
 	targetIcon:SetPoint("RIGHT", self, -INSET, 0)
 	self.TargetIcon = targetIcon
 
-	-- Hook OnSizeChanged to layout internal on size change
-	self:HookScript('OnSizeChanged', OnSizeChanged)
-
 	-- LowHealth warning
 	local lowHealth = hp:CreateTexture(nil, "OVERLAY")
-	lowHealth:SetPoint("TOPLEFT", self, -2, 2)
-	lowHealth:SetPoint("BOTTOMRIGHT", self, 2, -2)
+	lowHealth:SetAllPoints(border)
 	lowHealth:SetTexture(1, 0, 0, 0.5)
 	self.LowHealth = lowHealth
 
@@ -605,6 +589,10 @@ local function InitFrame(self, unit)
 	self.XRange = true
 	self.inRangeAlpha = 1.0
 	self.outsideRangeAlpha = 0.40
+	
+	-- Hook OnSizeChanged to layout internal on size change
+	self:HookScript('OnSizeChanged', OnSizeChanged)
+	OnSizeChanged(self, WIDTH, HEIGHT)
 end
 
 -- ------------------------------------------------------------------------------
