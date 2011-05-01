@@ -495,7 +495,7 @@ local function InitFrame(self, unit)
 	self.Border = border
 
 	-- Big status icon
-	local status = hp:CreateTexture(nil, "OVERLAY", nil, 1)
+	local status = overlay:CreateTexture(nil, "BORDER", nil, 1)
 	status:SetPoint("CENTER")
 	status:SetAlpha(0.75)
 	status:SetBlendMode("ADD")
@@ -586,10 +586,13 @@ local function InitFrame(self, unit)
 	self.OnApplySettings = OnApplySettings
 
 	-- Range fading
-	local xrange = overlay:CreateTexture(nil, "OVERLAY")
+	local xrange = overlay:CreateTexture(nil, "BACKGROUND")
 	xrange:SetAllPoints(self)
 	xrange:SetTexture(0.4, 0.4, 0.4)
 	xrange:SetBlendMode("MOD")
+	local Show, Hide = xrange.Show, xrange.Hide
+	xrange.Show = function() Show(xrange) overlay:SetAlpha(0.4) end
+	xrange.Hide = function() Hide(xrange) overlay:SetAlpha(1) end
 	self.XRange = xrange
 	--self.XRange = true
 	
