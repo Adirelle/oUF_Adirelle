@@ -152,9 +152,10 @@ local timer = 0
 
 local function Update(self, event, unit)
 	if unit and unit ~= self.unit then return end
-	local alpha = IsInRange(unit) and self.inRangeAlpha or self.outsideRangeAlpha
-	if alpha ~= self:GetAlpha() then
-		self:SetAlpha(alpha)
+	if IsInRange(unit) then
+		self.XRange:Hide()
+	else
+		self.XRange:Show()
 	end
 end
 
@@ -194,16 +195,24 @@ local function Enable(self)
 			end
 		end
 		updateFrame:Show()
-		self.inRangeAlpha = self.inRangeAlpha or 1.0
-		self.outsideRangeAlpha = self.outsideRangeAlpha or 0.4
+		if type(self.XRange) ~= "table" or type(self.XRange.Show) ~= "function" or type(self.XRange.Hide) ~= "function" then
+			self.inRangeAlpha = self.inRangeAlpha or 1.0
+			self.outsideRangeAlpha = self.outsideRangeAlpha or 0.4
+			self.XRange = {
+				Show = function() self:SetAlpha(self.outsideRangeAlpha) end,
+				Hide = function() self:SetAlpha(self.inRangeAlpha) end,
+			}
+		end
 		objects[self] = true
 		return true
 	end
 end
 
 local function Disable(self)
-	objects[self] = nil
-	self:SetAlpha(1)
+	if objects[self] then
+		objects[self] = nil
+		self.XRange:Hide()
+	end
 end
 
 oUF:AddElement('XRange', Update, Enable, Disable)
