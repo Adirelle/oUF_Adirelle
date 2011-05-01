@@ -1,4 +1,4 @@
-## Interface: 40000
+## Interface: 40100
 ## Author: Adirelle
 ## Version: 1.0
 ## Title: oUF_Adirelle - party/raid frames
