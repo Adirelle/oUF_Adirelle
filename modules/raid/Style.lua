@@ -569,15 +569,15 @@ local function InitFrame(self, unit)
 	-- Role/Raid icon
 	local roleIcon = overlay:CreateTexture(nil, "OVERLAY")
 	roleIcon:SetSize(SMALL_ICON_SIZE, SMALL_ICON_SIZE)
-	roleIcon:SetPoint("LEFT", self, INSET, 0)
+	roleIcon:SetPoint("LEFT", self, "LEFT", INSET, 0)
 	roleIcon.noDamager = true
 	roleIcon.noCircle = true
 	self.RoleIcon = roleIcon
 
 	-- Target raid icon
 	local targetIcon = overlay:CreateTexture(nil, "OVERLAY")
-	roleIcon:SetSize(SMALL_ICON_SIZE, SMALL_ICON_SIZE)
-	targetIcon:SetPoint("RIGHT", self, -INSET, 0)
+	targetIcon:SetSize(SMALL_ICON_SIZE, SMALL_ICON_SIZE)
+	targetIcon:SetPoint("RIGHT", self, "RIGHT", -INSET, 0)
 	self.TargetIcon = targetIcon
 
 	-- LowHealth warning
