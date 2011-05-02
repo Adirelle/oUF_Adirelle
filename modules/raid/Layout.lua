@@ -14,7 +14,8 @@ oUF:Factory(function()
 	local GetNumRaidMembers = _G.GetNumRaidMembers
 	local GetNumPartyMembers = _G.GetNumPartyMembers
 	local GetRaidRosterInfo = _G.GetRaidRosterInfo
-	local pairs, ipairs, format = _G.pairs, _G.ipairs, _G.format
+	local pairs, ipairs, format, strmatch = _G.pairs, _G.ipairs, _G.format, _G.strmatch
+	local max, huge = _G.math.max, _G.math.huge
 	local CreateFrame, UIParent = _G.CreateFrame, _G.UIParent
 	local SecureHandlerSetFrameRef = _G.SecureHandlerSetFrameRef
 	local RegisterStateDriver, UnregisterStateDriver = _G.RegisterStateDriver, _G.UnregisterStateDriver
@@ -67,7 +68,7 @@ oUF:Factory(function()
 		end
 		
 		--  Blizzard headers never clear the button anchors
-		for i = 1, math.huge do
+		for i = 1, huge do
 			local button = self:GetAttribute("child"..i)
 			if button then
 				button:ClearAllPoints()
@@ -173,8 +174,6 @@ oUF:Factory(function()
 		end
 	]===])
 
-	RegisterStateDriver(anchor, "pets", "[@raid26,exists] hide; show")
-
 	local function UpdateHeightDriver()
 		if not anchor:CanChangeAttribute() then
 			anchor:Debug("UpdateHeightDriver, locked down, waiting end of combat")
@@ -210,8 +209,8 @@ oUF:Factory(function()
 		players:SetPoint(alignment, anchor)
 		pets:ClearAllPoints()
 		if c.orientation == "horizontal" then
-			anchor:SetSize(c.unitSpacing * 4 + width * 5, c.groupSpacing * 7 + height_small * 8)
-			local vert = strmatch(alignment, "LEFT") or strmatch(alignment, "RIGHT") or ""			
+			anchor:SetSize(c.unitSpacing * 4 + width * 5, c.groupSpacing * 7 + max(height * 5 + height_small * 3, height_small * 8))
+			local vert = strmatch(alignment, "LEFT") or strmatch(alignment, "RIGHT") or ""
 			if strmatch(alignment, "TOP") then
 				pets:SetPoint("TOP"..vert, players, "BOTTOM"..vert, 0, -2*c.groupSpacing)
 			else
@@ -226,6 +225,18 @@ oUF:Factory(function()
 				pets:SetPoint(horiz.."LEFT", players, horiz.."RIGHT", 2*c.groupSpacing, 0)
 			end
 		end
+
+		UnregisterStateDriver(anchor, "pets")
+		if c.showPets.raid25 or c.showPets.raid10 or c.showPets.party then
+			RegisterStateDriver(anchor, "pets", format("[@raid26,exists]hide;[@raid11,exists]%s;[@raid6,exists]%s;%s",
+				c.showPets.raid25 and "show" or "hide",
+				c.showPets.raid10 and "show" or "hide",
+				c.showPets.party and "show" or "hide"
+			))
+		else
+			pets:Hide()
+		end
+
 		anchor:SetAttribute('width', width)
 		anchor:SetAttribute('heightFull', height)		
 		anchor:SetAttribute('heightSmall', height_small)

@@ -422,6 +422,21 @@ local function GetOptions()
 								max = 32,
 								step = 1,
 							},
+							showPets = {
+								name = 'Show pets in ...',
+								type = 'multiselect',
+								order = 90,
+								values = {
+									party = "5-man party/raid",
+									raid10 = "10-man raid",
+									raid25 = "25-man raid",
+								},
+								get = function(info, key) return layoutDB.profile.Raid.showPets[key] end,
+								set = function(info, key, value)
+									layoutDB.profile.Raid.showPets[key] = value
+									oUF_Adirelle.ApplySettings("OnConfigChanged")
+								end,
+							},
 						},
 					},
 					profiles = layoutDBOptions,
