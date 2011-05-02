@@ -19,7 +19,7 @@ local SecureButton_GetUnit = _G.SecureButton_GetUnit
 local CreateFrame, GetTime = _G.CreateFrame, _G.GetTime
 local gsub, strmatch, format, strsub = _G.gsub, _G.strmatch, _G.format, _G.strsub
 local mmin, mmax, huge, floor, abs = _G.min, _G.max, _G.math.huge, _G.floor, _G.math.abs
-local tostring, unpack, select = _G.tostring, _G.unpack, _G.select
+local tostring, unpack, select, pairs = _G.tostring, _G.unpack, _G.select, _G.pairs
 local UNKNOWN = _G.UNKNOWN
 local ALTERNATE_POWER_INDEX = _G.ALTERNATE_POWER_INDEX
 
@@ -242,11 +242,17 @@ do
 				GetOwnAuraFilter(8936, 0, 0.6, 0)
 			)
 			-- Lifebloom
+			local prev
 			for i = 1, 3 do
-				self:AddAuraIcon(
-					SpawnSmallIcon(self, "TOPRIGHT", self, "TOPRIGHT", -INSET - SMALL_ICON_SIZE*(i-1), -INSET),
-					GetOwnStackedAuraFilter(33763, i, 0, 1, 0)
-				).blinkThreshold = 4
+				local icon = SpawnSmallIcon(self)
+				icon.blinkThreshold = 4
+				if i == 1 then
+					icon:SetPoint("TOPRIGHT", -INSET, -INSET)
+				else
+					icon:SetPoint("TOPRIGHT", prev, "TOPLEFT", -INSET, 0)
+				end
+				prev = icon
+				self:AddAuraIcon(icon, GetOwnStackedAuraFilter(33763, i, 0, 1, 0))
 			end
 			-- Wild Growth
 			self:AddAuraIcon(
@@ -267,11 +273,16 @@ do
 	elseif playerClass == "SHAMAN" then
 		function CreateClassAuraIcons(self)
 			-- Earth Shield
+			local prev
 			for i = 1, 6 do
-				self:AddAuraIcon(
-					SpawnSmallIcon(self, "BOTTOMRIGHT", self, "BOTTOMRIGHT", -INSET - SMALL_ICON_SIZE*(i-1), INSET),
-					GetOwnStackedAuraFilter(974, i)
-				)
+				local icon = SpawnSmallIcon(self)
+				if i == 1 then
+					icon:SetPoint("BOTTOMRIGHT", -INSET, -INSET)
+				else
+					icon:SetPoint("BOTTOMRIGHT", prev, "BOTTOMLEFT", -INSET, 0)
+				end
+				prev = icon
+				self:AddAuraIcon(icon, GetOwnStackedAuraFilter(974, i))
 			end
 			-- Riptide
 			self:AddAuraIcon(
@@ -407,6 +418,18 @@ local function OnApplySettings(self, layout, theme, first)
 		self.outsideRangeAlpha = theme.XRange.outsideRangeAlpha
 	end
 	self:SetSize(layout.Raid.width, layout.Raid.height)
+	local small, big = layout.Raid.smallIconSize, layout.Raid.bigIconSize
+	self.WarningIconBuff:SetSize(big, big)
+	self.WarningIconDebuff:SetSize(big, big)
+	self.RoleIcon:SetSize(small, small)
+	self.TargetIcon:SetSize(small, small)
+	for icon in pairs(self.AuraIcons) do
+		if icon.big then
+			icon:SetSize(big, big)
+		else
+			icon:SetSize(small, small)
+		end
+	end
 end
 
 -- ------------------------------------------------------------------------------
@@ -522,6 +545,7 @@ local function InitFrame(self, unit)
 	
 	-- Cureable debuffs
 	local debuff = self:CreateIcon(self.Overlay, ICON_SIZE, false, false, false, false, "CENTER")
+	debuff.big = true
 	self:AddAuraIcon(debuff, "CureableDebuff")
 	
 	-- Important debuffs
