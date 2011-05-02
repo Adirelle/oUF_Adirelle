@@ -91,6 +91,7 @@ local LAYOUT_DEFAULTS = {
 			orientation = "horizontal",
 			unitSpacing = 2,
 			groupSpacing = 2,
+			showPets = { ['*'] = true },
 		},
 	},
 	global = {
