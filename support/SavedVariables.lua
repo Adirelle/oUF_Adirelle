@@ -42,7 +42,7 @@ function oUF_Adirelle.ApplySettings(event)
 	-- Call the callbacks
 	local first = (event == 'ADDON_LOADED')
 	for _, callback in ipairs(callbacks) do
-		callback(layout, theme, first)
+		callback(layout, theme, first, event)
 	end
 	
 	-- Update the togglable frames
@@ -58,7 +58,7 @@ function oUF_Adirelle.ApplySettings(event)
 	-- Update all the frames
 	for _, frame in ipairs(oUF.objects) do
 		if frame:IsVisible() then
-			frame:ApplySettings(first)
+			frame:ApplySettings(event, first)
 		end
 	end
 
@@ -236,8 +236,8 @@ end
 -- Frame updating
 -- ------------------------------------------------------------------------------
 
-oUF:RegisterMetaFunction("ApplySettings", function(self, first)
-	self:Debug("ApplySettings", first)
+oUF:RegisterMetaFunction("ApplySettings", function(self, event, first)
+	self:Debug("ApplySettings", event, first)
 	
 	-- Enable/disable the elements
 	for i, name in ipairs(optionalElements) do
@@ -252,17 +252,17 @@ oUF:RegisterMetaFunction("ApplySettings", function(self, first)
 	
 	-- Frame specific handler
 	if self.OnApplySettings then
-		self:OnApplySettings(layout, theme, first)
+		self:OnApplySettings(layout, theme, first, event)
 	end
 	
 	-- Enforce a full update
-	return self:UpdateAllElements("ApplySettings")
+	return self:UpdateAllElements("event")
 end)
 
 -- Used for postponed initialization
 oUF:RegisterInitCallback(function(self)
 	if layout and theme then
 		self:Debug("ApplySettings on init callback")
-		self:ApplySettings(true)
+		self:ApplySettings("OnInit", true)
 	end 
 end)
