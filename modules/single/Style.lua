@@ -21,7 +21,7 @@ local UnitIsDeadOrGhost, UnitIsUnit = _G.UnitIsDeadOrGhost, _G.UnitIsUnit
 local UnitFrame_OnEnter, UnitFrame_OnLeave = _G.UnitFrame_OnEnter, _G.UnitFrame_OnLeave
 local ipairs, select, setmetatable = _G.ipairs, _G.select, _G.setmetatable
 local gsub, strmatch, tinsert, unpack = _G.gsub, _G.strmatch, _G.tinsert, _G.unpack
-local mmin, mmax, floor, sort = _G.min, _G.max, _G.floor, _G.table.sort
+local mmin, mmax, floor, sort, pairs = _G.min, _G.max, _G.floor, _G.table.sort, _G.pairs
 local GameFontNormal = _G.GameFontNormal
 
 local GAP, BORDER_WIDTH, TEXT_MARGIN = private.GAP, private.BORDER_WIDTH, private.TEXT_MARGIN
@@ -195,14 +195,6 @@ local function AltPowerBar_PostUpdate(bar, min, cur, max)
 	bar:SetStatusBarColor(r, g, b)
 end
 
-local function LowHealth_UpdateColor(bar)
-	bar:SetTexture(unpack(oUF.colors.lowHealth, 1, 4))
-end
-
-local function IncomingHeal_UpdateColor(bar)
-	bar:SetTexture(unpack(oUF.colors.incomingHeal.self, 1, 4))
-end
-
 -- Additional auxiliary bars
 local function LayoutAuxiliaryBars(self)
 	local bars = self.AuxiliaryBars
@@ -229,7 +221,7 @@ local function AddAuxiliaryBar(self, bar)
 	bar:HookScript('OnHide', LayoutAuxiliaryBars_Hook)
 end
 
--- General bar layuot
+-- General bar layout
 local function LayoutBars(self)
 	local width, height = self:GetSize()
 	if not width or not height or width == 0 or height == 0 then return end
@@ -272,24 +264,32 @@ local function CastBar_Update(castbar)
 	end
 end
 
-local function OnApplySettings(self, layout, theme, first)
-	local health = self.Health
-	for k,v in pairs(theme.Health) do
-		health[k] = v
-	end	
-	if self.baseUnit == "arena" then
-		health.colorSmooth = false
-	end
-	
-	if self.Power then
-		for k,v in pairs(theme.Power) do
-			self.Power[k] = v
+local function OnApplySettings(self, layout, theme, first, event)
+	if first or event == 'OnThemeModified' then
+		local health = self.Health
+		for k,v in pairs(theme.Health) do
+			health[k] = v
+		end	
+		if self.baseUnit == "arena" then
+			health.colorSmooth = false
+		end
+		if self.Power then
+			for k,v in pairs(theme.Power) do
+				self.Power[k] = v
+			end
 		end
 	end
-	
-	if self.XRange then
-		self.inRangeAlpha = theme.XRange.inRangeAlpha
-		self.outsideRangeAlpha = theme.XRange.outsideRangeAlpha
+	if first or event == 'OnColorChanged' then
+		if self.LowHealth then
+			self.LowHealth:SetTexture(unpack(oUF.colors.lowHealth, 1, 4))
+		end
+		if self.IncomingHeal then
+			self.IncomingHeal:SetTexture(unpack(oUF.colors.incomingHeal.self, 1, 4))
+		end
+		self.Health:ForceUpdate()
+		if self.Power then
+			self.Power:ForceUpdate()
+		end
 	end
 end
 
@@ -372,7 +372,6 @@ local function InitFrame(settings, self, unit)
 	health:SetPoint("TOPRIGHT", barContainer)
 	health.frequentUpdates = true
 	self.Health = health
-	self:RegisterColor(health, "ForceUpdate")
 	
 	-- Name
 	local name = SpawnText(health, "OVERLAY", "TOPLEFT", "TOPLEFT", TEXT_MARGIN)
@@ -387,8 +386,6 @@ local function InitFrame(settings, self, unit)
 		lowHealth:SetPoint("TOPLEFT", self, -2, 2)
 		lowHealth:SetPoint("BOTTOMRIGHT", self, 2, -2)
 		self.LowHealth = lowHealth
-		self:RegisterColor(lowHealth, LowHealth_UpdateColor)
-		LowHealth_UpdateColor(lowHealth)
 		
 		-- Incoming heals
 		local incomingHeal = health:CreateTexture(nil, "OVERLAY")
@@ -398,9 +395,7 @@ local function InitFrame(settings, self, unit)
 		incomingHeal.PostUpdate = IncomingHeal_PostUpdate
 		incomingHeal.current, incomingHeal.max, incomingHeal.incoming = 0, 0, 0
 		self.IncomingHeal = incomingHeal
-		self:RegisterColor(incomingHeal, IncomingHeal_UpdateColor)
-		IncomingHeal_UpdateColor(incomingHeal)
-		
+
 		-- PostUpdate is only needed with incoming heals
 		health.PostUpdate = Health_PostUpdate
 	end
@@ -418,7 +413,6 @@ local function InitFrame(settings, self, unit)
 		power.frequentUpdates = true
 		power.PostUpdate = Power_PostUpdate
 		self.Power = power
-		self:RegisterColor(power, "ForceUpdate")
 
 		if unit == "player" and private.SetupSecondaryPowerBar then
 			-- Add player specific secondary power bar
