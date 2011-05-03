@@ -21,7 +21,7 @@ local UnitIsDeadOrGhost, UnitIsUnit = _G.UnitIsDeadOrGhost, _G.UnitIsUnit
 local UnitFrame_OnEnter, UnitFrame_OnLeave = _G.UnitFrame_OnEnter, _G.UnitFrame_OnLeave
 local ipairs, select, setmetatable = _G.ipairs, _G.select, _G.setmetatable
 local gsub, strmatch, tinsert, unpack = _G.gsub, _G.strmatch, _G.tinsert, _G.unpack
-local mmin, mmax, floor, sort, pairs = _G.min, _G.max, _G.floor, _G.table.sort, _G.pairs
+local mmin, mmax, floor, sort, pairs, huge = _G.min, _G.max, _G.floor, _G.table.sort, _G.pairs, _G.math.huge
 local GameFontNormal = _G.GameFontNormal
 
 local GAP, BORDER_WIDTH, TEXT_MARGIN = private.GAP, private.BORDER_WIDTH, private.TEXT_MARGIN
@@ -92,6 +92,7 @@ local IsEncounterDebuff = oUF_Adirelle.IsEncounterDebuff
 local canSteal = select(2, UnitClass("player")) == "MAGE"
 
 local function Buffs_CustomFilter(icons, unit, icon, name, rank, texture, count, dtype, duration, timeLeft, caster, isStealable, shouldConsolidate, spellID, canApplyAura)
+	icon.expires = (expires ~= 0) and expires or huge
 	if IsEncounterDebuff(spellID) then
 		icon.bigger = true
 	elseif UnitCanAttack("player", unit) then
@@ -108,6 +109,7 @@ local function Buffs_CustomFilter(icons, unit, icon, name, rank, texture, count,
 end
 
 local function Debuffs_CustomFilter(icons, unit, icon, name, rank, texture, count, dtype, duration, timeLeft, caster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossDebuff)
+	icon.expires = (expires ~= 0) and expires or huge
 	if isBossDebuff or IsEncounterDebuff(spellID) or IsMine(caster) then
 		icon.bigger = true
 	elseif UnitCanAssist("player", unit) then
@@ -125,46 +127,71 @@ do
 			return true
 		elseif not a.bigger and b.bigger then
 			return false
-		else
+		elseif a.expires == b.expires then
 			return a:GetID() < b:GetID()
+		else
+			return a.expires < b.expires
 		end
 	end
 
 	function Auras_SetPosition(icons, numIcons)
 		if not icons or numIcons == 0 then return end
 		local spacing = icons.spacing or 1
-		local size = icons.size or 16
+		local width, height = icons:GetSize()
+		local size = icons.size or 12
 		local anchor = icons.initialAnchor or "BOTTOMLEFT"
 		local growthx = icons.growthx or 1
 		local growthy = icons.growthy or 1
-		local x = 0
-		local y = 0
-		local rowSize = 0
-		local width = floor(icons:GetWidth() / size) * size
-		local height = floor(icons:GetHeight() / size) * size
 
+		-- Sort auras by size, then by expiration time (sooner first)
 		sort(icons, CompareIcons)
-		for i = 1, #icons do
+		
+		local i, num = 1, #icons
+		local x, y = 0, 0
+		
+		-- Layout large icons
+		local bigSize = mmin(size * 3 / 2, icons:GetWidth(), icons:GetHeight())
+		if icons.enlarge then
+			local step = bigSize + spacing
+			local maxx = width - bigSize
+			while i <= num and icons[i].bigger and x <= maxx do
+				local button = icons[i]
+				if button:IsShown() then
+					button:SetSize(bigSize, bigSize)
+					button:ClearAllPoints()
+					button:SetPoint(anchor, icons, anchor, growthx * x, 0)
+					x = x + step
+				end
+				i = i + 1
+			end
+		end
+		
+		-- Layout normal-sized icons 
+		local baseX, step = x, size + spacing
+		local maxx, maxy = width - size, height - size
+		while i <= num and x <= maxx and y <= maxy do
 			local button = icons[i]
 			if button:IsShown() then
-				local iconSize = button.bigger and size or size * 0.75
-				rowSize = mmax(rowSize, iconSize)
+				button:SetSize(size, size)
 				button:ClearAllPoints()
-				button:SetSize(iconSize, iconSize)
-				button:SetPoint(anchor, icons, anchor, x * growthx, y * growthy)
-				x = x + iconSize + spacing
-				if x >= width then
-					y = y + rowSize + spacing
-					x = 0
-					rowSize = 0
-					if y >= height then
-						for j = i+1, #icons do
-							icons[j]:Hide()
-						end
-						return
+				button:SetPoint(anchor, icons, anchor, growthx * x, growthy * y)
+				x = x + step
+				if x > maxx then					
+					y = y + step
+					if y >= bigSize then
+						x = 0
+					else
+						x = baseX
 					end
 				end
 			end
+			i = i + 1
+		end
+		
+		-- Hide remaining icons
+		while i <= num do
+			icons[i]:Hide()
+			i = i + 1
 		end
 	end
 end
@@ -663,9 +690,6 @@ local function InitFrame(settings, self, unit)
 		buffs.PostCreateIcon = Auras_PostCreateIcon
 		buffs.PostUpdateIcon = Auras_PostUpdateIcon
 		self.Buffs = buffs
-		buffs:SetBackdrop(oUF_Adirelle.glowBorderBackdrop)
-		buffs:SetBackdropColor(0,0,0,0)
-		buffs:SetBackdropBorderColor(0,1,0,1)
 	end
 	if debuffs then
 		debuffs.size = AURA_SIZE
@@ -676,9 +700,6 @@ local function InitFrame(settings, self, unit)
 		debuffs.PostCreateIcon = Auras_PostCreateIcon
 		debuffs.PostUpdateIcon = Auras_PostUpdateIcon
 		self.Debuffs = debuffs
-		debuffs:SetBackdrop(oUF_Adirelle.glowBorderBackdrop)
-		debuffs:SetBackdropColor(0,0,0,0)
-		debuffs:SetBackdropBorderColor(1,0,0,1)
 	end
 	
 	if buffs or debuffs then
