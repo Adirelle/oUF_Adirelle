@@ -413,10 +413,6 @@ local function IncomingHeal_UpdateColor(bar)
 end
 
 local function OnApplySettings(self, layout, theme, first, event)
-	if self.XRange and (first or event == 'OnThemeModified') then
-		self.inRangeAlpha = theme.XRange.inRangeAlpha
-		self.outsideRangeAlpha = theme.XRange.outsideRangeAlpha
-	end
 	if first or event == 'OnRaidLayoutModified' then
 		local small, big = layout.Raid.smallIconSize, layout.Raid.bigIconSize
 		self.WarningIconBuff:SetSize(big, big)
@@ -618,8 +614,7 @@ local function InitFrame(self, unit)
 	xrange.Show = function() Show(xrange) overlay:SetAlpha(0.4) end
 	xrange.Hide = function() Hide(xrange) overlay:SetAlpha(1) end
 	self.XRange = xrange
-	--self.XRange = true
-	
+
 	-- Hook OnSizeChanged to layout internal on size change
 	self:HookScript('OnSizeChanged', OnSizeChanged)
 	OnSizeChanged(self, WIDTH, HEIGHT)
