@@ -51,7 +51,8 @@ oUF:Factory(function()
 	-- Helper
 	--------------------------------------------------------------------------------
 	
-	local function Header_ApplySettings(self, layout, theme, first)
+	local function Header_ApplySettings(self, layout, _, first, event)
+		if not first and event ~= 'OnRaidLayoutModified' then return end
 		local c = layout.Raid
 		local spacing, alignment = c.unitSpacing, c.alignment
 		self:Debug('Header_ApplySettings', 'orientation=', c.orientation, 'alignment=', alignment, 'unitSpacing=', spacing)
@@ -228,7 +229,8 @@ oUF:Factory(function()
 	UpdateHeightDriver()
 
 	-- Apply settings
-	oUF_Adirelle.RegisterVariableLoadedCallback(function(layout, theme, first) 
+	oUF_Adirelle.RegisterVariableLoadedCallback(function(layout, _, first, event) 
+		if not first and event ~= 'OnRaidLayoutModified' then return end
 		local c = layout.Raid
 		local width, heightBig, heightSmall = c.width, c.healerHeight, c.height
 		local alignment = c.alignment

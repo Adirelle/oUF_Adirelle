@@ -412,21 +412,23 @@ local function IncomingHeal_UpdateColor(bar)
 	bar:SetTexture(unpack(oUF.colors.incomingHeal[bar.source], 1, 4))
 end
 
-local function OnApplySettings(self, layout, theme, first)
-	if self.XRange then
+local function OnApplySettings(self, layout, theme, first, event)
+	if self.XRange and (first or event == 'OnThemeModified') then
 		self.inRangeAlpha = theme.XRange.inRangeAlpha
 		self.outsideRangeAlpha = theme.XRange.outsideRangeAlpha
 	end
-	local small, big = layout.Raid.smallIconSize, layout.Raid.bigIconSize
-	self.WarningIconBuff:SetSize(big, big)
-	self.WarningIconDebuff:SetSize(big, big)
-	self.RoleIcon:SetSize(small, small)
-	self.TargetIcon:SetSize(small, small)
-	for icon in pairs(self.AuraIcons) do
-		if icon.big then
-			icon:SetSize(big, big)
-		else
-			icon:SetSize(small, small)
+	if first or event == 'OnRaidLayoutModified' then
+		local small, big = layout.Raid.smallIconSize, layout.Raid.bigIconSize
+		self.WarningIconBuff:SetSize(big, big)
+		self.WarningIconDebuff:SetSize(big, big)
+		self.RoleIcon:SetSize(small, small)
+		self.TargetIcon:SetSize(small, small)
+		for icon in pairs(self.AuraIcons) do
+			if icon.big then
+				icon:SetSize(big, big)
+			else
+				icon:SetSize(small, small)
+			end
 		end
 	end
 end

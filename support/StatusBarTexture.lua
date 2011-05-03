@@ -52,9 +52,11 @@ if SharedMedia then
 	end)
 	
 	-- Database callback to update the texture on profile changes
-	oUF_Adirelle.RegisterVariableLoadedCallback(function(_, newProfile)
-		profile = newProfile
-		return oUF_Adirelle.UpdateStatusBarTextures('ConfigChanged')
+	oUF_Adirelle.RegisterVariableLoadedCallback(function(_, newProfile, first, event)
+		if first or event == 'OnThemeModified' then
+			profile = newProfile			
+			return oUF_Adirelle.UpdateStatusBarTextures(event)
+		end
 	end)
 
 else

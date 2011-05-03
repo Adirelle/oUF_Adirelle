@@ -261,7 +261,7 @@ local function GetOptions()
 						end,
 						set = function(info, key, value)
 							layoutDB.profile.elements[key] = value
-							oUF_Adirelle.ApplySettings("OnConfigChanged")
+							oUF_Adirelle.ApplySettings("OnElementsModified")
 						end,
 						args = {
 							_warn = {
@@ -327,7 +327,7 @@ local function GetOptions()
 						get = function(info) return layoutDB.profile.Raid[info[#info]] end,
 						set = function(info, value)
 							layoutDB.profile.Raid[info[#info]] = value
-							oUF_Adirelle.ApplySettings("OnConfigChanged")
+							oUF_Adirelle.ApplySettings("OnRaidLayoutModified")
 						end,
 						hidden = function() return layoutDB.profile.disabled.anchor end,
 						args = {
@@ -434,7 +434,7 @@ local function GetOptions()
 								get = function(info, key) return layoutDB.profile.Raid.showPets[key] end,
 								set = function(info, key, value)
 									layoutDB.profile.Raid.showPets[key] = value
-									oUF_Adirelle.ApplySettings("OnConfigChanged")
+									oUF_Adirelle.ApplySettings("OnRaidLayoutModified")
 								end,
 							},
 						},
@@ -464,7 +464,7 @@ local function GetOptions()
 								end,
 								set = function(_, value)
 									themeDB.profile.statusbar = value
-									oUF_Adirelle.ApplySettings("OnConfigChanged")
+									oUF_Adirelle.ApplySettings("OnThemeModified")
 								end,
 							},
 							--[[
@@ -506,7 +506,7 @@ local function GetOptions()
 								get = function(info, key) return themeDB.profile.Health[key] end,
 								set = function(info, key, value)
 									themeDB.profile.Health[key] = value
-									oUF_Adirelle.ApplySettings('OnConfigChanged')
+									oUF_Adirelle.ApplySettings('OnThemeModified')
 								end,
 								values = {
 									colorTapping = 'Tapped mobs',
@@ -527,7 +527,7 @@ local function GetOptions()
 								get = function(info, key) return themeDB.profile.Power[key] end,
 								set = function(info, key, value)
 									themeDB.profile.Power[key] = value
-									oUF_Adirelle.ApplySettings('OnConfigChanged')
+									oUF_Adirelle.ApplySettings('OnThemeModified')
 								end,
 								values = {
 									colorTapping = 'Tapped mobs',
@@ -551,7 +551,7 @@ local function GetOptions()
 						get = function(info) return themeDB.profile.XRange[info[#info]] end,
 						set = function(info, value)
 							themeDB.profile.XRange[info[#info]] = value
-							oUF_Adirelle.ApplySettings('OnConfigChanged')
+							oUF_Adirelle.ApplySettings('OnThemeModified')
 						end,
 						args = {
 							inRangeAlpha = {
