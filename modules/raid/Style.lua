@@ -417,7 +417,6 @@ local function OnApplySettings(self, layout, theme, first)
 		self.inRangeAlpha = theme.XRange.inRangeAlpha
 		self.outsideRangeAlpha = theme.XRange.outsideRangeAlpha
 	end
-	self:SetSize(layout.Raid.width, layout.Raid.height)
 	local small, big = layout.Raid.smallIconSize, layout.Raid.bigIconSize
 	self.WarningIconBuff:SetSize(big, big)
 	self.WarningIconDebuff:SetSize(big, big)
