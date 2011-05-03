@@ -19,7 +19,7 @@ oUF:Factory(function()
 	local CreateFrame, UIParent = _G.CreateFrame, _G.UIParent
 	local SecureHandlerSetFrameRef = _G.SecureHandlerSetFrameRef
 	local RegisterStateDriver, UnregisterStateDriver = _G.RegisterStateDriver, _G.UnregisterStateDriver
-	
+
 	local Debug = oUF_Adirelle.Debug
 
 	-- Fetch some shared variables into local namespace
@@ -31,7 +31,7 @@ oUF:Factory(function()
 
 	local HEIGHT_FULL = HEIGHT
 	local HEIGHT_SMALL = 20
-	
+
 	--------------------------------------------------------------------------------
 	-- Anchor
 	--------------------------------------------------------------------------------
@@ -44,13 +44,13 @@ oUF:Factory(function()
 	anchor:SetAttribute('unitWidth', WIDTH)
 	anchor:SetAttribute('unitHeightSmall', HEIGHT_SMALL)
 	anchor:SetAttribute('unitHeightBig', HEIGHT)
-			
+
 	oUF_Adirelle.RegisterMovable(anchor, 'anchor', "Party/raid frames")
 
 	--------------------------------------------------------------------------------
 	-- Helper
 	--------------------------------------------------------------------------------
-	
+
 	local function Header_ApplySettings(self, layout, _, force, event)
 		if not force and event ~= 'OnRaidLayoutModified' then return end
 		local c = layout.Raid
@@ -68,7 +68,7 @@ oUF:Factory(function()
 			self:SetAttribute('point', strmatch(alignment, 'TOP') or 'BOTTOM')
 			self:SetAttribute('columnAnchorPoint', strmatch(alignment, 'RIGHT') or 'LEFT')
 		end
-		
+
 		--  Blizzard headers never clear the button anchors
 		for i = 1, huge do
 			local button = self:GetAttribute("child"..i)
@@ -76,9 +76,9 @@ oUF:Factory(function()
 				button:ClearAllPoints()
 			else
 				break
-			end			
+			end
 		end
-		
+
 		self:SetAttribute('_ignore', nil)
 		self:SetAttribute('columnSpacing', c.groupSpacing)
 	end
@@ -119,7 +119,7 @@ oUF:Factory(function()
 	--------------------------------------------------------------------------------
 	-- Creating group headers
 	--------------------------------------------------------------------------------
-	
+
 	oUF:SetActiveStyle("Adirelle_Raid")
 
 	local players = SpawnHeader(
@@ -197,7 +197,7 @@ oUF:Factory(function()
 		local heightType = self:GetAttribute('state-heightType')
 		self:RunAttribute('UpdateHeaderSize', 'players', width, self:GetAttribute('unitHeight'..heightType))
 	]===])
-	
+
 
 	-- Player height updating
 	anchor:SetAttribute('_onstate-size', "self:RunAttribute('UpdateSize')")
@@ -229,7 +229,7 @@ oUF:Factory(function()
 	UpdateHeightDriver()
 
 	-- Apply settings
-	oUF_Adirelle.RegisterVariableLoadedCallback(function(layout, _, force, event) 
+	oUF_Adirelle.RegisterVariableLoadedCallback(function(layout, _, force, event)
 		if not force and event ~= 'OnRaidLayoutModified' then return end
 		local c = layout.Raid
 		local width, heightBig, heightSmall = c.width, c.healerHeight, c.height
@@ -237,7 +237,7 @@ oUF:Factory(function()
 		players:ClearAllPoints()
 		players:SetPoint(alignment, anchor)
 		pets:ClearAllPoints()
-		
+
 		-- Update anchors for orientation and alignment
 		if c.orientation == "horizontal" then
 			anchor:SetSize(c.unitSpacing * 4 + width * 5, c.groupSpacing * 7 + max(heightBig * 5 + heightSmall * 3, heightSmall * 8))
@@ -249,7 +249,7 @@ oUF:Factory(function()
 			end
 		else
 			anchor:SetSize(c.groupSpacing * 7 + width * 8, c.unitSpacing * 4 + heightBig * 5)
-			local horiz = strmatch(alignment, "TOP") or strmatch(alignment, "BOTTOM") or ""			
+			local horiz = strmatch(alignment, "TOP") or strmatch(alignment, "BOTTOM") or ""
 			if strmatch(alignment, "RIGHT") then
 				pets:SetPoint(horiz.."RIGHT", players, horiz.."LEFT", -2*c.groupSpacing, 0)
 			else
@@ -276,7 +276,7 @@ oUF:Factory(function()
 			anchor:SetAttribute('unitHeightSmall', heightSmall)
 			anchor:SetAttribute('state-size', GetTime())
 		end
-		
+
 	end)
 
 end)

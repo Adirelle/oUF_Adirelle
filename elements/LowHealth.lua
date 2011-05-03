@@ -83,9 +83,9 @@ local function PrintThreshold()
 	local msg
 	if not threshold then
 		msg = "disabled"
-	elseif threshold < 0 then 
+	elseif threshold < 0 then
 		msg = format("threshold set to %d%%", -threshold)
-	elseif threshold > 0 then 
+	elseif threshold > 0 then
 		msg = format("threshold set to %d", threshold)
 	end
 	print("|cff33ff99oUF_Adirelle LowHealth:|r "..msg..".")

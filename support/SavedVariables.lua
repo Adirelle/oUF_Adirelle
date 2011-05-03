@@ -18,7 +18,7 @@ local LibStub = _G.LibStub
 
 local callbacks = {}
 local togglableFrames = {}
-local layout, theme 
+local layout, theme
 
 -- Elements that can be disabled
 local optionalElements = {
@@ -43,7 +43,7 @@ function oUF_Adirelle.ApplySettings(event, force)
 	for _, callback in ipairs(callbacks) do
 		callback(layout, theme, force, event)
 	end
-	
+
 	if force then
 		-- Update the togglable frames
 		for _, frame in pairs(togglableFrames) do
@@ -52,10 +52,10 @@ function oUF_Adirelle.ApplySettings(event, force)
 				frame:Enable()
 			else
 				frame:Disable()
-			end	
+			end
 		end
 	end
-	
+
 	-- Update all the frames
 	for _, frame in ipairs(oUF.objects) do
 		frame:ApplySettings(event, force)
@@ -154,12 +154,12 @@ frame:SetScript('OnEvent', function(self, event, name)
 	-- Initialize the databases
 	local layoutDB = LibStub('AceDB-3.0'):New("oUF_Adirelle_Layout", LAYOUT_DEFAULTS, true)
 	local themeDB = LibStub('AceDB-3.0'):New("oUF_Adirelle_Theme", THEME_DEFAULTS, true)
-	
+
 	LibStub('LibDualSpec-1.0'):EnhanceDatabase(layoutDB, addonName.." Layout")
 	LibStub('LibDualSpec-1.0'):EnhanceDatabase(themeDB, addonName.." Theme")
-	
+
 	oUF_Adirelle.layoutDB, oUF_Adirelle.themeDB = layoutDB, themeDB
-	
+
 	-- force initialization
 	layout, theme = oUF_Adirelle.layoutDB.profile, oUF_Adirelle.themeDB.profile
 
@@ -180,7 +180,7 @@ frame:SetScript('OnEvent', function(self, event, name)
 		end
 		_G.oUF_Adirelle_DB = nil
 	end
-	
+
 	-- Register AceDB callbacks
 	layoutDB.RegisterCallback(self, "OnNewProfile", OnDatabaseChanged)
 	layoutDB.RegisterCallback(self, "OnProfileChanged", OnDatabaseChanged)
@@ -190,14 +190,14 @@ frame:SetScript('OnEvent', function(self, event, name)
 	themeDB.RegisterCallback(self, "OnProfileChanged", OnDatabaseChanged)
 	themeDB.RegisterCallback(self, "OnProfileCopied", OnDatabaseChanged)
 	themeDB.RegisterCallback(self, "OnProfileReset", OnDatabaseChanged)
-	
+
 	-- Optional launcher icon on the minimap
 	local LibDBIcon = LibStub('LibDBIcon-1.0', true)
 	if oUF_Adirelle.launcher and LibDBIcon then
 		oUF_Adirelle.hasMinimapIcon = true
 		LibDBIcon:Register("oUF_Adirelle", oUF_Adirelle.launcher, layoutDB.global.minimapIcon)
 	end
-	
+
 	-- Call the callbacks
 	return oUF_Adirelle.ApplySettings("OnInitialize", true)
 end)
@@ -250,7 +250,7 @@ end
 
 oUF:RegisterMetaFunction("ApplySettings", function(self, event, force)
 	self:Debug("ApplySettings", event, force)
-	
+
 	if force or event == 'OnElementsModified' then
 		-- Enable/disable the elements
 		for i, name in ipairs(optionalElements) do
@@ -263,12 +263,12 @@ oUF:RegisterMetaFunction("ApplySettings", function(self, event, force)
 			end
 		end
 	end
-	
+
 	-- Frame specific handler
 	if self.OnApplySettings then
 		self:OnApplySettings(layout, theme, force, event)
 	end
-	
+
 	-- Enforce a full update
 	return self:UpdateAllElements("event")
 end)

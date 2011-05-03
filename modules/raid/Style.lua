@@ -38,7 +38,7 @@ local INSET = 1
 local SMALL_ICON_SIZE = 8
 local borderBackdrop = { edgeFile = [[Interface\Addons\oUF_Adirelle\media\white16x16]], edgeSize = BORDER_WIDTH }
 
--- Export some constants	
+-- Export some constants
 oUF_Adirelle.SCALE, oUF_Adirelle.WIDTH, oUF_Adirelle.SPACING, oUF_Adirelle.HEIGHT, oUF_Adirelle.BORDER_WIDTH, oUF_Adirelle.ICON_SIZE = SCALE, WIDTH, SPACING, HEIGHT, BORDER_WIDTH, ICON_SIZE
 
 -- ------------------------------------------------------------------------------
@@ -225,7 +225,7 @@ local CreateClassAuraIcons
 do
 	local playerClass = oUF_Adirelle.playerClass
 	local GetOwnAuraFilter, GetOwnStackedAuraFilter, GetAnyAuraFilter = private.GetOwnAuraFilter, private.GetOwnStackedAuraFilter, private.GetAnyAuraFilter
-	
+
 	local function SpawnSmallIcon(self, ...) return self:CreateIcon(self.Overlay, SMALL_ICON_SIZE, true, true, true, false, ...)	end
 
 	-- Create the specific icons depending on player class
@@ -360,7 +360,7 @@ local function AltPowerBar_OnUpdate(bar, elapsed)
 		if bar.highlight > 0 then
 			bar.highlight = mmax(bar.highlight - elapsed / 0.3, 0)
 		end
-		if target < value then	
+		if target < value then
 			value = mmax(value - bar.range * elapsed / 3, target)
 		end
 	end
@@ -377,7 +377,7 @@ local function AltPowerBar_Update(self, event, unit, powerType)
 	local bar, _ = self.AltPowerBar
 	if event == "ForceUpdate" or event == "UNIT_MAXPOWER" then
 		_, bar.min, _, _, bar.smooth = UnitAlternatePowerInfo(unit)
-		bar.max = UnitPowerMax(unit, ALTERNATE_POWER_INDEX)	
+		bar.max = UnitPowerMax(unit, ALTERNATE_POWER_INDEX)
 		bar.red, bar.green, bar.blue = select(2, UnitAlternatePowerTextureInfo(unit, 2))
 		bar.range = bar.max - bar.min
 		bar:SetMinMaxValues(bar.min, bar.max)
@@ -546,12 +546,12 @@ local function InitFrame(self, unit)
 
 	-- Important class buffs
 	self.WarningIconBuff = self:CreateIcon(self.Overlay, ICON_SIZE, false, false, false, false, "CENTER", self, "LEFT", WIDTH * 0.25, 0)
-	
+
 	-- Cureable debuffs
 	local debuff = self:CreateIcon(self.Overlay, ICON_SIZE, false, false, false, false, "CENTER")
 	debuff.big = true
 	self:AddAuraIcon(debuff, "CureableDebuff")
-	
+
 	-- Important debuffs
 	self.WarningIconDebuff = self:CreateIcon(self.Overlay, ICON_SIZE, false, false, false, false, "CENTER", self, "RIGHT", -WIDTH * 0.25, 0)
 
@@ -559,7 +559,7 @@ local function InitFrame(self, unit)
 	if CreateClassAuraIcons then
 		CreateClassAuraIcons(self)
 	end
-		
+
 	-- Threat glow
 	local threat = CreateFrame("Frame", nil, self)
 	threat:SetAllPoints(self)
@@ -594,7 +594,7 @@ local function InitFrame(self, unit)
 	local altPowerBar = CreateFrame("StatusBar", nil, self)
 	altPowerBar:SetBackdrop(backdrop)
 	altPowerBar:SetBackdropColor(0, 0, 0, 1)
-	altPowerBar:SetBackdropBorderColor(0, 0, 0, 0)	
+	altPowerBar:SetBackdropBorderColor(0, 0, 0, 0)
 	altPowerBar:SetPoint("BOTTOMLEFT")
 	altPowerBar:SetPoint("BOTTOMRIGHT")
 	altPowerBar:SetHeight(5)
@@ -610,7 +610,7 @@ local function InitFrame(self, unit)
 	self:RegisterStatusBarTexture(altPowerBar)
 	self.AltPowerBar = altPowerBar
 
-	-- Setting callback	
+	-- Setting callback
 	self.OnApplySettings = OnApplySettings
 
 	-- Range fading

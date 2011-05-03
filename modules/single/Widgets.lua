@@ -17,7 +17,7 @@ local format, tostring, floor, strjoin = _G.format, _G.tostring, _G.floor, _G.st
 
 local GAP, TEXT_MARGIN = private.GAP, private.TEXT_MARGIN
 local GetLib = oUF_Adirelle.GetLib
- 
+
 local function smartValue(value)
 	if value >= 10000000 then
 		return format("%.1fm", value/1000000)
@@ -124,7 +124,7 @@ local function SpawnDiscreteBar(self, numItems, createStatusBar)
 	local bar = CreateFrame("Frame", nil, self)
 	bar.numItems = numItems
 	bar:SetScript('OnShow', DiscreteBar_Layout)
-	bar:SetScript('OnSizeChanged', DiscreteBar_Layout)	
+	bar:SetScript('OnSizeChanged', DiscreteBar_Layout)
 	for i = 1, numItems do
 		local item
 		if createStatusBar then

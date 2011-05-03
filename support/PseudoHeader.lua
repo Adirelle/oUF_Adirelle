@@ -56,7 +56,7 @@ function headerProto:OnEvent(event, ...)
 	if event == "PLAYER_REGEN_ENABLED" then
 		self:UnregisterEvent('PLAYER_REGEN_ENABLED')
 	end
-	self:Debug('Updating on', event)	
+	self:Debug('Updating on', event)
 	if self:GetEnabledSetting() and self:ShouldEnable() then
 		self:Enable()
 	else

@@ -20,18 +20,18 @@ if SharedMedia then
 		bar:SetStatusBarTexture(texture)
 		bar:SetStatusBarColor(r, g, b, a)
 	end
-	
+
 	local function Texture_Callback(bar, texture)
 		local r, g, b, a = bar:GetVertexColor()
 		bar:SetTexture(texture)
 		bar:SetVertexColor(r, g, b, a)
 	end
-	
+
 	local profile
-	
+
 	function oUF_Adirelle.UpdateStatusBarTextures(event, media)
 		if media and media ~= "statusbar" then return end
-		texture = SharedMedia:Fetch("statusbar", profile and profile.statusbar)		
+		texture = SharedMedia:Fetch("statusbar", profile and profile.statusbar)
 		oUF_Adirelle.Debug('UpdateStatusBarTextures', event, media, '=>', texture)
 		for bar, callback in pairs(bars)  do
 			callback(bar, texture)
@@ -40,7 +40,7 @@ if SharedMedia then
 
 	SharedMedia.RegisterCallback(addonName, 'LibSharedMedia_SetGlobal', oUF_Adirelle.UpdateStatusBarTextures)
 
-	-- The meta to allow unit frames to register their textures	
+	-- The meta to allow unit frames to register their textures
 	oUF:RegisterMetaFunction('RegisterStatusBarTexture', function(self, bar)
 		local callback = assert(
 			bar:IsObjectType("StatusBar") and StatusBar_Callback
@@ -50,11 +50,11 @@ if SharedMedia then
 		bars[bar] = callback
 		callback(bar, texture)
 	end)
-	
+
 	-- Database callback to update the texture on profile changes
 	oUF_Adirelle.RegisterVariableLoadedCallback(function(_, newProfile, force, event)
 		if force or event == 'OnThemeModified' then
-			profile = newProfile			
+			profile = newProfile
 			return oUF_Adirelle.UpdateStatusBarTextures(event)
 		end
 	end)
@@ -71,5 +71,5 @@ else
 			assert(false, "object should be a Texture or a StatusBar")
 		end
 	end)
-	
+
 end

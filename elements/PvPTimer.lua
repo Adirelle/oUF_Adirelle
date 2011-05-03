@@ -45,7 +45,7 @@ end
 
 local function Enable(self)
 	local timer = self.PvPTimer
-	if timer then 
+	if timer then
 		timer:Hide()
 		if self.unit == "player" then
 			timer:SetScript('OnUpdate', OnUpdate)
