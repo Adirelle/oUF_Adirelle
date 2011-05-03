@@ -152,11 +152,28 @@ local timer = 0
 
 local function Update(self, event, unit)
 	if unit and unit ~= self.unit then return end
-	if IsInRange(unit) then
-		self.XRange:Hide()
+	local xrange = self.XRange
+	local inRange = IsInRange(self.unit)
+	if inRange then
+		if xrange:IsShown() or event == 'ForceUpdate' then
+			xrange:Hide()
+		else
+			return
+		end
 	else
-		self.XRange:Show()
+		if not xrange:IsShown() or event == 'ForceUpdate' then
+			xrange:Show()
+		else
+			return
+		end
 	end
+	if xrange.PostUpdate then
+		xrange:PostUpdate(event, self.unit, inRange)
+	end
+end
+
+local function ForceUpdate(element)
+	return Update(element.__owner, "ForceUpdate")
 end
 
 local function OnUpdate(self, elapsed)
@@ -183,7 +200,8 @@ local function Initialize()
 end
 
 local function Enable(self)
-	if self.XRange and self.unit ~= 'player' then
+	local xrange = self.XRange
+	if xrange and self.unit ~= 'player' then
 		if not updateFrame then
 			updateFrame = CreateFrame("Frame")
 			-- Postpone initialization so all spells are available
@@ -195,14 +213,8 @@ local function Enable(self)
 			end
 		end
 		updateFrame:Show()
-		if type(self.XRange) ~= "table" or type(self.XRange.Show) ~= "function" or type(self.XRange.Hide) ~= "function" then
-			self.inRangeAlpha = self.inRangeAlpha or 1.0
-			self.outsideRangeAlpha = self.outsideRangeAlpha or 0.4
-			self.XRange = {
-				Show = function() self:SetAlpha(self.outsideRangeAlpha) end,
-				Hide = function() self:SetAlpha(self.inRangeAlpha) end,
-			}
-		end
+		xrange.__owner, xrange.ForceUpdate = self, ForceUpdate
+		xrange:Hide()
 		objects[self] = true
 		return true
 	end

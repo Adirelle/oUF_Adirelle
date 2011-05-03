@@ -408,8 +408,15 @@ local function AltPowerBar_Layout(bar)
 	end
 end
 
-local function IncomingHeal_UpdateColor(bar)
-	bar:SetTexture(unpack(oUF.colors.incomingHeal[bar.source], 1, 4))
+local function XRange_PostUpdate(xrange, event, unit, inRange)
+	if inRange then
+		xrange.__owner:SetAlpha(1)
+		xrange.__owner.Overlay:SetAlpha(1)
+	else
+		local alpha = oUF.colors.outOfRange[4]
+		xrange.__owner:SetAlpha(alpha)
+		xrange.__owner.Overlay:SetAlpha(alpha > 0.8 and 0.4 or 1)
+	end
 end
 
 local function OnApplySettings(self, layout, theme, force, event)
@@ -427,10 +434,11 @@ local function OnApplySettings(self, layout, theme, force, event)
 			end
 		end
 	end
-	if force or event == 'OnColorChanged' then	
+	if force or event == 'OnColorChanged' then
 		self.IncomingHeal:SetTexture(unpack(oUF.colors.incomingHeal.self, 1, 4))
 		self.IncomingOthersHeal:SetTexture(unpack(oUF.colors.incomingHeal.others, 1, 4))
 		self.XRange:SetTexture(unpack(oUF.colors.outOfRange, 1, 3))
+		self.XRange:ForceUpdate()
 		UpdateColor(self)
 	end
 end
@@ -610,9 +618,7 @@ local function InitFrame(self, unit)
 	xrange:SetAllPoints(self)
 	xrange:SetTexture(0.4, 0.4, 0.4)
 	xrange:SetBlendMode("MOD")
-	local Show, Hide = xrange.Show, xrange.Hide
-	xrange.Show = function() Show(xrange) overlay:SetAlpha(0.4) end
-	xrange.Hide = function() Hide(xrange) overlay:SetAlpha(1) end
+	xrange.PostUpdate = XRange_PostUpdate
 	self.XRange = xrange
 
 	-- Hook OnSizeChanged to layout internal on size change

@@ -290,6 +290,10 @@ local function CastBar_Update(castbar)
 	end
 end
 
+local function XRange_PostUpdate(xrange, event, unit, inRange)
+	xrange.__owner:SetAlpha(inRange and 1 or oUF.colors.outOfRange[4])
+end
+
 local function ApplyAuraPosition(self, target, initialAnchor, anchorTo, growthx, growthy, dx, dy)
 	self:Debug('ApplyAuraPosition', target, initialAnchor, anchorTo, growthx, growthy, dx, dy)
 	target.initialAnchor = initialAnchor
@@ -379,6 +383,7 @@ local function OnApplySettings(self, layout, theme, force, event)
 		end
 		if self.XRange then
 			self.XRange:SetTexture(unpack(oUF.colors.outOfRange, 1, 3))
+			self.XRange:ForceUpdate()
 		end
 		if self.IncomingHeal then
 			self.IncomingHeal:SetTexture(unpack(oUF.colors.incomingHeal.self, 1, 4))
@@ -774,8 +779,8 @@ local function InitFrame(settings, self, unit)
 		xrange:SetAllPoints(self)
 		xrange:SetTexture(0.4, 0.4, 0.4)
 		xrange:SetBlendMode("MOD")
+		xrange.PostUpdate = XRange_PostUpdate
 		self.XRange = xrange
-		--self.XRange = true
 	end
 
 	-- Special events
