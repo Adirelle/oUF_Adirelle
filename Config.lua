@@ -92,6 +92,7 @@ local function GetOptions()
 		health = BuildColorArg('Health', oUF.colors.health),
 		disconnected = BuildColorArg('Disconnected player', oUF.colors.disconnected),
 		tapped = BuildColorArg('Tapped mob', oUF.colors.tapped),
+		outOfRange = BuildColorArg('Out of range', oUF.colors.outOfRange),
 		incoming = BuildColorGroup("Incoming heals", oUF.colors.incomingHeal, { self = "Self", others = "Others'" }, true),
 		lowHealth = BuildColorArg("Low health warning", oUF.colors.lowHealth, true),
 		group = {
@@ -111,6 +112,7 @@ local function GetOptions()
 	colorArgs.power.hidden = function() return not themeDB.profile.Power.colorPower end
 	colorArgs.lowHealth.hidden = function() return not layoutDB.profile.elements.LowHealth end
 	colorArgs.incoming.hidden = function() return not layoutDB.profile.elements.IncomingHeal end
+	colorArgs.outOfRange.hidden = function() return not layoutDB.profile.elements.XRange end
 	
 	if oUF_Adirelle.playerClass == "HUNTER" and oUF.colors.happiness then
 		local happiness = BuildColorGroup("Pet happiness", oUF.colors.happiness, "PET_HAPPINESS%d")

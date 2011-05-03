@@ -434,6 +434,7 @@ local function OnApplySettings(self, layout, theme, first, event)
 	if first or event == 'OnColorChanged' then	
 		self.IncomingHeal:SetTexture(unpack(oUF.colors.incomingHeal.self, 1, 4))
 		self.IncomingOthersHeal:SetTexture(unpack(oUF.colors.incomingHeal.others, 1, 4))
+		self.XRange:SetTexture(unpack(oUF.colors.outOfRange, 1, 3))
 		UpdateColor(self)
 	end
 end
