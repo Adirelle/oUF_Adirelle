@@ -283,6 +283,9 @@ local function OnApplySettings(self, layout, theme, first, event)
 		if self.LowHealth then
 			self.LowHealth:SetTexture(unpack(oUF.colors.lowHealth, 1, 4))
 		end
+		if self.XRange then
+			self.XRange:SetTexture(unpack(oUF.colors.outOfRange, 1, 3))
+		end
 		if self.IncomingHeal then
 			self.IncomingHeal:SetTexture(unpack(oUF.colors.incomingHeal.self, 1, 4))
 		end
