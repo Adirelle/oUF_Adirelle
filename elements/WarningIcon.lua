@@ -140,6 +140,36 @@ do
 				Arcane Amplifier: 89354, 95179 = 100
 			Argaloth
 				Consuming Darkness: 88954, 95173 = 100
+		Zul'Gurub:
+			Jin'do the Godbreaker:
+				Shadows of Hakkar: 97173 = 100
+				Spirit Warrior's Gaze: 97597 = 100
+			High Priestess Kilnara:
+				--
+			Bloodlord Mandokir:
+				Bloodletting: 96776 = 100
+			High Priest Venoxis
+				Whispers of Hethiss: 96466, 96469 = 80
+				Toxic link: 96477, 96478 = 100
+			Zanzil:
+				--
+			Edge Of Madness:
+				Waking Nightmare (Hazza'rah adds): 96757 = 100
+			Trashs:
+				Pursuit (Gurubashi Berserker): 96306 = 100
+		Zul'Aman:
+			Akil'zon:
+				Electrical Storm: 43648 = 80
+				Plucked: 97318 = 100
+			Daakara:
+				Claw Rage: 43150 = 80
+				Grievous Throw: 97639 = 100
+			Jan'alai:
+				--
+			Hex Lord Malacrass:
+				Siphon Soul: 43501 = 100
+			Nalorakk
+				Surge: 42402 = 100
 		Items/consumables:
 			Concentration Potion: 78993 = 40
 	]=]
