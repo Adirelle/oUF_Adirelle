@@ -92,6 +92,20 @@ local LAYOUT_DEFAULTS = {
 			groupSpacing = 2,
 			showPets = { ['*'] = true },
 		},
+		Single = {
+			width = 190,
+			heightBig = 47,
+			heightSmall = 20,
+			Auras = {
+				size = 12,
+				spacing = 1,
+				enlarge = true,
+				sides = {
+					['*'] = 'RIGHT',
+					pet = 'TOP',
+				},
+			},
+		},
 	},
 	global = {
 		minimapIcon = {},
@@ -121,10 +135,6 @@ local THEME_DEFAULTS = {
 			colorClassPet = false,
 			colorReaction = false,
 			colorSmooth = false,
-		},
-		XRange = {
-			inRangeAlpha = 1,
-			outsideRangeAlpha = 0.4,
 		},
 	}
 }
