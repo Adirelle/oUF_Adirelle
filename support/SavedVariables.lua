@@ -36,11 +36,10 @@ oUF_Adirelle.optionalElements = optionalElements
 -- Callbacks
 -- ------------------------------------------------------------------------------
 
-function oUF_Adirelle.ApplySettings(event)
+function oUF_Adirelle.ApplySettings(event, first)
 	oUF_Adirelle.Debug('ApplySettings', event)
 
 	-- Call the callbacks
-	local first = (event == 'ADDON_LOADED')
 	for _, callback in ipairs(callbacks) do
 		callback(layout, theme, first, event)
 	end
@@ -68,7 +67,7 @@ end
 function oUF_Adirelle.RegisterVariableLoadedCallback(callback)
 	tinsert(callbacks, callback)
 	if layout and theme then
-		callback(layout, theme, true)
+		callback(layout, theme, true, "OnInitialize")
 	end
 end
 
@@ -131,9 +130,9 @@ local THEME_DEFAULTS = {
 }
 
 -- Publish the databases and apply the settings
-local function OnDatabaseChanged(event)
+local function OnDatabaseChanged()
 	layout, theme = oUF_Adirelle.layoutDB.profile, oUF_Adirelle.themeDB.profile
-	return oUF_Adirelle.ApplySettings(event)
+	return oUF_Adirelle.ApplySettings("OnDatabaseChanged")
 end
 
 local frame = _G.CreateFrame("Frame")
@@ -190,7 +189,7 @@ frame:SetScript('OnEvent', function(self, event, name)
 	end
 	
 	-- Call the callbacks
-	return OnDatabaseChanged('ADDON_LOADED')
+	return oUF_Adirelle.ApplySettings("OnInitialize", true)
 end)
 frame:RegisterEvent('ADDON_LOADED')
 
@@ -265,7 +264,6 @@ end)
 -- Used for postponed initialization
 oUF:RegisterInitCallback(function(self)
 	if layout and theme then
-		self:Debug("ApplySettings on init callback")
-		self:ApplySettings("OnInit", true)
-	end 
+		self:ApplySettings("OnInitialize", true)
+	end
 end)
