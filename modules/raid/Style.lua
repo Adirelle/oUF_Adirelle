@@ -431,6 +431,11 @@ local function OnApplySettings(self, layout, theme, first, event)
 			end
 		end
 	end
+	if first or event == 'OnColorChanged' then	
+		self.IncomingHeal:SetTexture(unpack(oUF.colors.incomingHeal.self, 1, 4))
+		self.IncomingOthersHeal:SetTexture(unpack(oUF.colors.incomingHeal.others, 1, 4))
+		UpdateColor(self)
+	end
 end
 
 -- ------------------------------------------------------------------------------
@@ -467,7 +472,6 @@ local function InitFrame(self, unit)
 	hpbg:SetAlpha(1)
 	hp.bg = hpbg
 	self:RegisterStatusBarTexture(hpbg)
-	self:RegisterColor(self, UpdateColor)
 
 	-- Incoming heals
 	local heal = hp:CreateTexture(nil, "OVERLAY")
@@ -475,22 +479,16 @@ local function InitFrame(self, unit)
 	heal:SetPoint("TOP")
 	heal:SetPoint("BOTTOM")
 	heal:Hide()
-	heal.source = "self"
 	heal.PostUpdate = IncomingHeal_PostUpdate
 	heal.current, heal.max, heal.incoming, heal.incomingOthers = 0, 0, 0, 0
 	self.IncomingHeal = heal
-	self:RegisterColor(heal, IncomingHeal_UpdateColor)
-	IncomingHeal_UpdateColor(heal)
 
 	local othersHeal = hp:CreateTexture(nil, "OVERLAY")
 	othersHeal:SetBlendMode("BLEND")
 	othersHeal:SetPoint("TOP")
 	othersHeal:SetPoint("BOTTOM")
 	othersHeal:Hide()
-	othersHeal.source = "others"
 	self.IncomingOthersHeal = othersHeal
-	self:RegisterColor(othersHeal, IncomingHeal_UpdateColor)
-	IncomingHeal_UpdateColor(othersHeal)
 
 	-- Indicator overlays
 	local overlay = CreateFrame("Frame", nil, self)

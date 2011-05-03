@@ -49,7 +49,6 @@ oUF.colors.charmed = {
 	background =  { 1, 0, 0 },
 }
 
-local callbacks = {}
 local profile
 
 local function DeepCopy(from, to, merge, defaults)
@@ -78,35 +77,19 @@ local function SaveColors()
 	end
 	DeepCopy(oUF.colors, profile.colors, false, DEFAULTS)
 end
-
-function oUF_Adirelle.ColorsChanged()
-	-- Update the frames	
-	for frame, callback in pairs(callbacks) do
-		if type(callback) == "string" then
-			frame[callback](frame)
-		else
-			callback(frame)
-		end
-	end
-end
 	
-oUF_Adirelle.RegisterVariableLoadedCallback(function(_, newProfile, first)
+oUF_Adirelle.RegisterVariableLoadedCallback(function(_, newProfile, first, event)
 	if first then
 		DeepCopy(oUF.colors, DEFAULTS)
-		oUF_Adirelle.themeDB.RegisterCallback(callbacks, "OnDatabaseShutdown", SaveColors)
-		oUF_Adirelle.themeDB.RegisterCallback(callbacks, "OnProfileShutdown", SaveColors)
+		oUF_Adirelle.themeDB.RegisterCallback(addonName.."_colors", "OnDatabaseShutdown", SaveColors)
+		oUF_Adirelle.themeDB.RegisterCallback(addonName.."_colors", "OnProfileShutdown", SaveColors)
 	end
-	
-	-- Update the upvalue
-	profile = newProfile
-
-	-- Copy the colors
-	DeepCopy(profile.colors or DEFAULTS, oUF.colors, true)
-	
-	return oUF_Adirelle.ColorsChanged()
+	if first or profile ~= newProfile then
+		-- Update the upvalue
+		profile = newProfile
+		-- Copy the colors
+		DeepCopy(profile.colors or DEFAULTS, oUF.colors, true)
+	end
 end)
 
-oUF:RegisterMetaFunction("RegisterColor", function(self, frame, func)
-	callbacks[frame] = func
-end)
 

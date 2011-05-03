@@ -56,7 +56,7 @@ local function GetOptions()
 		if info.option.hasAlpha then
 			info.arg[4] = a
 		end
-		oUF_Adirelle.ColorsChanged()
+		oUF_Adirelle.ApplySettings('OnColorChanged')
 	end
 	local function GetColor(info)
 		return unpack(info.arg, 1, info.option.hasAlpha and 4 or 3)
