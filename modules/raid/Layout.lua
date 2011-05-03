@@ -41,9 +41,10 @@ oUF:Factory(function()
 	anchor:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, 230)
 	anchor:SetSize(SPACING * 4 + WIDTH * 5, SPACING * 7 + HEIGHT_SMALL * 8)
 
-	anchor:SetAttribute('heightSmall', HEIGHT_SMALL)
-	anchor:SetAttribute('heightFull', HEIGHT)
-
+	anchor:SetAttribute('unitWidth', WIDTH)
+	anchor:SetAttribute('unitHeightSmall', HEIGHT_SMALL)
+	anchor:SetAttribute('unitHeightBig', HEIGHT)
+			
 	oUF_Adirelle.RegisterMovable(anchor, 'anchor', "Party/raid frames")
 
 	--------------------------------------------------------------------------------
@@ -94,16 +95,17 @@ oUF:Factory(function()
 			"unitsPerColumn", 5,
 			"columnSpacing", SPACING,
 			"columnAnchorPoint", "BOTTOM",
-			'oUF-initialConfigFunction', [[
+			'oUF-initialConfigFunction', [===[
 				local header = self:GetParent()
 				self:SetAttribute('*type1', 'target')
 				self:SetAttribute('*type2', nil)
-				self:SetWidth(header:GetAttribute('unitWidth'))
-				self:SetHeight(header:GetAttribute('unitHeight'))
-			]],
+				local width, height = header:GetAttribute('unitWidth'), header:GetAttribute('unitHeight')
+				header:CallMethod('Debug', 'oUF-initialConfigFunction:', self:GetName(), header:GetAttribute('heightType'), 'new size:', width, height)
+	  		self:SetWidth(width)
+	  		self:SetHeight(height)
+			]===],
 			"unitWidth", WIDTH,
 			"unitHeight", HEIGHT_SMALL,
-			"minHeight", HEIGHT_SMALL,
 			...
 		)
 		header.Debug = Debug
@@ -148,21 +150,7 @@ oUF:Factory(function()
 	pets:SetPoint("BOTTOM", players, "TOP", 0, 2*SPACING)
 	SecureHandlerSetFrameRef(anchor, 'pets', pets)
 
-	-- Unit height updating
-	anchor:SetAttribute('_onstate-height', [===[
-		local height = tonumber(newstate)
-		local players = self:GetFrameRef('players')
-		if not height or height == players:GetAttribute('unitHeight') then return end
-		self:CallMethod('Debug', "_onstate-height", height)
-		units = wipe(units or newtable())
-		players:GetChildList(units)
-		for _, unit in next, units do
-			unit:SetHeight(height)
-		end
-		players:SetAttribute('unitHeight', height)
-		players:SetAttribute('minHeight', height)
-	]===])
-
+	-- Pet visibility
 	anchor:SetAttribute('_onstate-pets', [===[
 		local pets = self:GetFrameRef('pets')
 		if newstate == 'show' and not pets:IsShown() then
@@ -174,6 +162,46 @@ oUF:Factory(function()
 		end
 	]===])
 
+	-- Generic size updating
+	anchor:SetAttribute('UpdateHeaderSize', [===[
+		local headerName, width, height = ...
+		if not width or not height then return end
+		local header = self:GetFrameRef(headerName)
+		local changed = false
+		if width ~= header:GetAttribute('unitWidth') then
+			header:SetAttribute('unitWidth', width)
+			changed = true
+		end
+		if height ~= header:GetAttribute('unitHeight') then
+			header:SetAttribute('unitHeight', height)
+			changed = true
+		end
+		if not changed then return end
+		if children then
+			table.wipe(children)
+		else
+			children = newtable()
+		end
+		header:GetChildList(children)
+		header:CallMethod('Debug', 'UpdateHeaderSize', width, height, #children)
+		for i, child in pairs(children) do
+			child:SetWidth(width)
+			child:SetHeight(height)
+		end
+	]===])
+
+	anchor:SetAttribute('UpdateSize', [===[
+		local width = self:GetAttribute('unitWidth')
+		self:RunAttribute('UpdateHeaderSize', 'pets', width, self:GetAttribute('unitHeightSmall'))
+		local heightType = self:GetAttribute('state-heightType')
+		self:RunAttribute('UpdateHeaderSize', 'players', width, self:GetAttribute('unitHeight'..heightType))
+	]===])
+	
+
+	-- Player height updating
+	anchor:SetAttribute('_onstate-size', "self:RunAttribute('UpdateSize')")
+	anchor:SetAttribute('_onstate-heightType', "self:RunAttribute('UpdateSize')")
+
 	local function UpdateHeightDriver()
 		if not anchor:CanChangeAttribute() then
 			anchor:Debug("UpdateHeightDriver, locked down, waiting end of combat")
@@ -184,32 +212,33 @@ oUF:Factory(function()
 			anchor:SetScript('OnEvent', nil)
 			anchor:UnregisterEvent('PLAYER_REGEN_ENABLED')
 		end
-		
-		local height_small = anchor:GetAttribute('heightSmall')
-		local height = anchor:GetAttribute('heightFull')
 
 		if GetPlayerRole() == "HEALER" then
 			anchor:Debug("UpdateHeightDriver, healer => dynamic height")
-			RegisterStateDriver(anchor, "height", format("[@raid26,exists] %d; %d", height_small, height))
+			RegisterStateDriver(anchor, "heightType", "[@raid26,exists] Small; Big")
 		else
 			anchor:Debug("UpdateHeightDriver, not healer => fixed height")
-			UnregisterStateDriver(anchor, "height")
-			anchor:SetAttribute("height", height_small)
+			UnregisterStateDriver(anchor, "heightType")
+			anchor:SetAttribute("heightType", "Small")
 		end
 	end
 
+	-- Player height updating
 	oUF_Adirelle.RegisterPlayerRoleCallback(UpdateHeightDriver)
-	
+	UpdateHeightDriver()
+
+	-- Apply settings
 	oUF_Adirelle.RegisterVariableLoadedCallback(function(layout, theme, first) 
 		local c = layout.Raid
-		local width, height, height_small = c.width, c.healerHeight, c.height
+		local width, heightBig, heightSmall = c.width, c.healerHeight, c.height
 		local alignment = c.alignment
-		oUF_Adirelle.Debug('Alignment:', alignment)
 		players:ClearAllPoints()
 		players:SetPoint(alignment, anchor)
 		pets:ClearAllPoints()
+		
+		-- Update anchors for orientation and alignment
 		if c.orientation == "horizontal" then
-			anchor:SetSize(c.unitSpacing * 4 + width * 5, c.groupSpacing * 7 + max(height * 5 + height_small * 3, height_small * 8))
+			anchor:SetSize(c.unitSpacing * 4 + width * 5, c.groupSpacing * 7 + max(heightBig * 5 + heightSmall * 3, heightSmall * 8))
 			local vert = strmatch(alignment, "LEFT") or strmatch(alignment, "RIGHT") or ""
 			if strmatch(alignment, "TOP") then
 				pets:SetPoint("TOP"..vert, players, "BOTTOM"..vert, 0, -2*c.groupSpacing)
@@ -217,7 +246,7 @@ oUF:Factory(function()
 				pets:SetPoint("BOTTOM"..vert, players, "TOP"..vert, 0, 2*c.groupSpacing)
 			end
 		else
-			anchor:SetSize(c.groupSpacing * 7 + width * 8, c.unitSpacing * 4 + height * 5)
+			anchor:SetSize(c.groupSpacing * 7 + width * 8, c.unitSpacing * 4 + heightBig * 5)
 			local horiz = strmatch(alignment, "TOP") or strmatch(alignment, "BOTTOM") or ""			
 			if strmatch(alignment, "RIGHT") then
 				pets:SetPoint(horiz.."RIGHT", players, horiz.."LEFT", -2*c.groupSpacing, 0)
@@ -226,7 +255,7 @@ oUF:Factory(function()
 			end
 		end
 
-		UnregisterStateDriver(anchor, "pets")
+		-- Apply pet visibility setting
 		if c.showPets.raid25 or c.showPets.raid10 or c.showPets.party then
 			RegisterStateDriver(anchor, "pets", format("[@raid26,exists]hide;[@raid11,exists]%s;[@raid6,exists]%s;%s",
 				c.showPets.raid25 and "show" or "hide",
@@ -234,13 +263,18 @@ oUF:Factory(function()
 				c.showPets.party and "show" or "hide"
 			))
 		else
+			UnregisterStateDriver(anchor, "pets")
 			pets:Hide()
 		end
 
-		anchor:SetAttribute('width', width)
-		anchor:SetAttribute('heightFull', height)		
-		anchor:SetAttribute('heightSmall', height_small)
-		UpdateHeightDriver()
+		-- Apply sizes
+		if width ~= anchor:GetAttribute('unitWidth') or heightBig ~= anchor:GetAttribute('unitHeightBig') or heightSmall ~= anchor:GetAttribute('unitHeightSmall') then
+			anchor:SetAttribute('unitWidth', width)
+			anchor:SetAttribute('unitHeightBig', heightBig)
+			anchor:SetAttribute('unitHeightSmall', heightSmall)
+			anchor:SetAttribute('state-size', GetTime())
+		end
+		
 	end)
 
 end)
