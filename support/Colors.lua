@@ -28,7 +28,7 @@ elseif oUF_Adirelle.playerClass == "SHAMAN" then
 		[_G.FIRE_TOTEM_SLOT]  = { 1.0, 0.3, 0.0 },
 		[_G.EARTH_TOTEM_SLOT] = { 0.3, 1.0, 0.2 },
 		[_G.WATER_TOTEM_SLOT] = { 0.3, 0.2, 1.0 },
-		[_G.AIR_TOTEM_SLOT]   = { 0.2, 0.8, 1.0 },	
+		[_G.AIR_TOTEM_SLOT]   = { 0.2, 0.8, 1.0 },
 	}
 end
 
@@ -79,7 +79,7 @@ local function SaveColors()
 	end
 	DeepCopy(oUF.colors, profile.colors, false, DEFAULTS)
 end
-	
+
 oUF_Adirelle.RegisterVariableLoadedCallback(function(_, newProfile, force, event)
 	if not DEFAULTS then
 		DEFAULTS = {}

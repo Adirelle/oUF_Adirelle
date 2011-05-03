@@ -62,7 +62,7 @@ function frame:PLAYER_ALIVE()
 	-- Unregister and free this method
 	self:UnregisterEvent('PLAYER_ALIVE')
 	self.PLAYER_ALIVE = nil
-	
+
 	self:RegisterEvent('RAID_ROSTER_UPDATE')
 	self:RegisterEvent('ACTIVE_TALENT_GROUP_CHANGED')
 	self:RegisterEvent('PLAYER_REGEN_DISABLED')

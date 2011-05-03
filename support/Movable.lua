@@ -14,7 +14,7 @@ local libmovable = oUF_Adirelle.GetLib('LibMovable-1.0')
 
 local profile
 
--- Functions used once the settings are loaded	
+-- Functions used once the settings are loaded
 local function LM10_Enable(frame) return frame:SetEnabledSetting(true) end
 local function LM10_Disable(frame) return frame:SetEnabledSetting(false) end
 local function DoRegister(frame, key, label, mask)
@@ -24,7 +24,7 @@ local function DoRegister(frame, key, label, mask)
 	frame.LM10_IsEnabled = frame.GetEnabledSetting
 	frame.LM10_Enable = LM10_Enable
 	frame.LM10_Disable = LM10_Disable
-	
+
 	libmovable.RegisterMovable(addonName, frame, function() return profile[key] end, label, mask)
 end
 
@@ -40,25 +40,25 @@ oUF_Adirelle.RegisterVariableLoadedCallback(function(newProfile, _, force)
 
 	-- Get the anchor settings
 	profile = newProfile.anchors
-	
+
 	if oUF_Adirelle.RegisterMovable ~= DoRegister then
-		-- First initialization		
-					
+		-- First initialization
+
 		-- Replace RegisterMovable with the function that actually registers the frame
 		oUF_Adirelle.RegisterMovable = DoRegister
-		
+
 		-- Process already registered frames
 		if postponed then
 			for frame, params in pairs(postponed) do
 				DoRegister(frame, unpack(params))
 			end
-			postponed = nil			
+			postponed = nil
 		end
-		
+
 	else
 		-- Already initialized, only apply the new layout
 		libmovable.UpdateLayout(addonName)
-	end		
+	end
 end)
 
 function oUF_Adirelle.IsLocked()

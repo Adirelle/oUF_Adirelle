@@ -16,7 +16,7 @@ local GetRuneCooldown = _G.GetRuneCooldown
 local RuneFrame = _G.RuneFrame
 local tonumber = _G.tonumber
 
-local function OnUpdate(rune)			
+local function OnUpdate(rune)
 	local now = GetTime()
 	rune:SetValue(now)
 	if now > rune.readyTime then
@@ -37,29 +37,29 @@ local function RuneUpdate(self, event, index)
 		rune:SetMinMaxValues(start, start + duration)
 		rune:SetScript('OnUpdate', OnUpdate)
 	else
-		rune:SetScript('OnUpdate', nil)		
+		rune:SetScript('OnUpdate', nil)
 	end
 end
 
 local function Update(self, event, index, ...)
 	if not tonumber(index) then
-		if self.unit ~= 'player' then 
+		if self.unit ~= 'player' then
 			return self.RuneBar:Hide()
 		else
 			self.RuneBar:Show()
 		end
-		for index = 1, 6 do 
-			RuneUpdate(self, event, index) 
+		for index = 1, 6 do
+			RuneUpdate(self, event, index)
 		end
 	else
-		RuneUpdate(self, event, index) 
-	end		
+		RuneUpdate(self, event, index)
+	end
 end
 
 local function Enable(self)
 	if self.RuneBar then
 		self:RegisterEvent('RUNE_POWER_UPDATE', Update)
-		self:RegisterEvent('RUNE_TYPE_UPDATE', Update)		
+		self:RegisterEvent('RUNE_TYPE_UPDATE', Update)
 		RuneFrame:Hide()
 		RuneFrame.Show = RuneFrame.Hide
 		RuneFrame:UnregisterAllEvents()
@@ -70,7 +70,7 @@ end
 local function Disable(self)
 	if self.RuneBar then
 		self:UnregisterEvent('RUNE_POWER_UPDATE', Update)
-		self:UnregisterEvent('RUNE_TYPE_UPDATE', Update)		
+		self:UnregisterEvent('RUNE_TYPE_UPDATE', Update)
 		self.RuneBar:Hide()
 	end
 end

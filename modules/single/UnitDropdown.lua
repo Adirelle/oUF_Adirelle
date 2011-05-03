@@ -51,12 +51,12 @@ local BLIZZARD_FRAMES = {
 function private.SetupUnitDropdown(self, unit)
 	local blizzardName = BLIZZARD_FRAMES[unit]
 	if not blizzardName then return end
-	
+
 	-- Redirect right-click to Blizzard frame
 	local blizzardFrame = _G[blizzardName]
 	self:SetAttribute("*type2", "click")
 	self:SetAttribute("*clickbutton2", blizzardFrame)
-	
+
 	-- Adjust the menu position
 	self.dropdownFrame = _G[blizzardName.."DropDown"]
 	self:HookScript("PostClick", DropDown_PostClick)

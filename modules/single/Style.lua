@@ -145,10 +145,10 @@ do
 
 		-- Sort auras by size, then by expiration time (sooner first)
 		sort(icons, CompareIcons)
-		
+
 		local i, num = 1, #icons
 		local x, y = 0, 0
-		
+
 		-- Layout large icons
 		local bigSize = mmin(size * 3 / 2, icons:GetWidth(), icons:GetHeight())
 		if icons.enlarge then
@@ -165,8 +165,8 @@ do
 				i = i + 1
 			end
 		end
-		
-		-- Layout normal-sized icons 
+
+		-- Layout normal-sized icons
 		local baseX, step = x, size + spacing
 		local maxx, maxy = width - size, height - size
 		while i <= num and x <= maxx and y <= maxy do
@@ -176,7 +176,7 @@ do
 				button:ClearAllPoints()
 				button:SetPoint(anchor, icons, anchor, growthx * x, growthy * y)
 				x = x + step
-				if x > maxx then					
+				if x > maxx then
 					y = y + step
 					if y >= bigSize then
 						x = 0
@@ -187,7 +187,7 @@ do
 			end
 			i = i + 1
 		end
-		
+
 		-- Hide remaining icons
 		while i <= num do
 			icons[i]:Hide()
@@ -260,9 +260,9 @@ local function LayoutBars(self)
 	local power = self.Power
 	if power then
 		local totalPowerHeight = height * 0.45 - GAP
-		local powerHeight = totalPowerHeight		
+		local powerHeight = totalPowerHeight
 		if self.SecondaryPowerBar and self.SecondaryPowerBar:IsShown() then
-			powerHeight = (totalPowerHeight - GAP) / 2	
+			powerHeight = (totalPowerHeight - GAP) / 2
 		end
 		power:SetHeight(powerHeight)
 		height = height - totalPowerHeight - GAP
@@ -305,18 +305,18 @@ end
 
 local function OnApplySettings(self, layout, theme, force, event)
 	if force or event == 'OnSingleLayoutModified' then
-	
+
 		-- Update frame size
 		local width, height = layout.Single.width, layout.Single['height'..self.heightType]
 		self:SetSize(width, height)
-		
+
 		-- Update aura layout
 		local buffs, debuffs = self.Buffs, self.Debuffs
 		if buffs then
 			local auras = layout.Single.Auras
 			local size, spacing, side = auras.size, auras.spacing, auras.sides[self.baseUnit]
 			buffs.size, buffs.spacing, buffs.enlarge = size, spacing, auras.enlarge
-			
+
 			-- Apply position
 			if side == 'LEFT' or side == 'RIGHT' then
 				local dx, opposite
@@ -349,7 +349,7 @@ local function OnApplySettings(self, layout, theme, force, event)
 					buffs:SetSize(width, height)
 				end
 			end
-			
+
 			-- Update the number of icons
 			local s = size+spacing
 			buffs.num = floor(buffs:GetWidth() / s) * floor(buffs:GetHeight() / s)
@@ -364,7 +364,7 @@ local function OnApplySettings(self, layout, theme, force, event)
 		local health = self.Health
 		for k,v in pairs(theme.Health) do
 			health[k] = v
-		end	
+		end
 		if self.baseUnit == "arena" then
 			-- No color smooting for arena units
 			health.colorSmooth = false
@@ -405,7 +405,7 @@ local function OoC_UnitFrame_OnEnter(...)
 end
 
 local function InitFrame(settings, self, unit)
-	local unit = gsub(unit or self.unit, "%d+", "")	
+	local unit = gsub(unit or self.unit, "%d+", "")
 	local isArenaUnit = strmatch(unit, "arena")
 	self.baseUnit, self.isArenaUnit = unit, isArenaUnit
 	self.heightType = settings.heightType
@@ -475,7 +475,7 @@ local function InitFrame(settings, self, unit)
 	health:SetPoint("TOPRIGHT", barContainer)
 	health.frequentUpdates = true
 	self.Health = health
-	
+
 	-- Name
 	local name = SpawnText(health, "OVERLAY", "TOPLEFT", "TOPLEFT", TEXT_MARGIN)
 	name:SetPoint("BOTTOMLEFT", health, "BOTTOMLEFT", TEXT_MARGIN)
@@ -489,7 +489,7 @@ local function InitFrame(settings, self, unit)
 		lowHealth:SetPoint("TOPLEFT", self, -2, 2)
 		lowHealth:SetPoint("BOTTOMRIGHT", self, 2, -2)
 		self.LowHealth = lowHealth
-		
+
 		-- Incoming heals
 		local incomingHeal = health:CreateTexture(nil, "OVERLAY")
 		incomingHeal:SetBlendMode("ADD")
@@ -522,7 +522,7 @@ local function InitFrame(settings, self, unit)
 			local bar = private.SetupSecondaryPowerBar(self)
 			if bar then
 				bar:SetPoint('TOPLEFT', self.Power, 'BOTTOMLEFT', 0, -GAP)
-				bar:SetPoint('BOTTOMRIGHT', self.BarContainer)	
+				bar:SetPoint('BOTTOMRIGHT', self.BarContainer)
 				bar.__owner = self
 				bar:HookScript('OnShow', Element_Layout)
 				bar:HookScript('OnHide', Element_Layout)
@@ -610,7 +610,7 @@ local function InitFrame(settings, self, unit)
 	threat:SetAlpha(glowBorderBackdrop.alpha)
 	threat:SetFrameLevel(self:GetFrameLevel()+2)
 	self.SmartThreat = threat
-		
+
 	if unit ~= "boss" and not isArenaUnit then
 		-- Various indicators
 		self.Leader = SpawnTexture(indicators, 16, "TOP"..left)
@@ -630,7 +630,7 @@ local function InitFrame(settings, self, unit)
 			pvp:SetTexCoord(0, 0.6, 0, 0.6)
 			pvp:SetPoint("CENTER", self.Portrait, "BOTTOM"..right)
 			self.PvP = pvp
-				
+
 			-- PvP timer
 			if unit == "player" then
 				local timer = CreateFrame("Frame", nil, indicators)
@@ -706,7 +706,7 @@ local function InitFrame(settings, self, unit)
 		debuffs.PostUpdateIcon = Auras_PostUpdateIcon
 		self.Debuffs = debuffs
 	end
-	
+
 	if buffs or debuffs then
 		self:RegisterEvent('UNIT_FACTION', Auras_ForceUpdate)
 		self:RegisterEvent('UNIT_TARGETABLE_CHANGED', Auras_ForceUpdate)
@@ -755,7 +755,7 @@ local function InitFrame(settings, self, unit)
 
 		local xpText = SpawnText(xpBar, "OVERLAY", "TOPRIGHT", "TOPRIGHT", -TEXT_MARGIN, 0)
 		xpText:SetPoint("BOTTOMRIGHT", xpBar, "BOTTOMRIGHT", -TEXT_MARGIN, 0)
-	
+
 		local smartValue = private.smartValue
 		xpBar.UpdateText = function(self, bar, current, max, rested, level)
 			levelText:SetFormattedText(level)
@@ -814,7 +814,7 @@ local function InitFrame(settings, self, unit)
 	end
 
 	self.OnApplySettings = OnApplySettings
-	
+
 	-- Update layout at least once
 	self:HookScript('OnSizeChanged', LayoutBars)
 	LayoutBars(self)
@@ -840,7 +840,7 @@ local single_style_right = setmetatable({
 oUF:RegisterStyle("Adirelle_Single_Right", single_style_right)
 
 local single_style_health = setmetatable({
-	["initial-height"] = 20,	
+	["initial-height"] = 20,
 	heightType = 'Small',
 	noPower = true,
 	noPortrait = true
