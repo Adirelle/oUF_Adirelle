@@ -71,7 +71,7 @@ local function DeepCopy(from, to, merge, defaults)
 	end
 end
 
-local DEFAULTS = {} 
+local DEFAULTS
 
 local function SaveColors()
 	if not profile.colors then
@@ -80,13 +80,14 @@ local function SaveColors()
 	DeepCopy(oUF.colors, profile.colors, false, DEFAULTS)
 end
 	
-oUF_Adirelle.RegisterVariableLoadedCallback(function(_, newProfile, first, event)
-	if first then
+oUF_Adirelle.RegisterVariableLoadedCallback(function(_, newProfile, force, event)
+	if not DEFAULTS then
+		DEFAULTS = {}
 		DeepCopy(oUF.colors, DEFAULTS)
 		oUF_Adirelle.themeDB.RegisterCallback(addonName.."_colors", "OnDatabaseShutdown", SaveColors)
 		oUF_Adirelle.themeDB.RegisterCallback(addonName.."_colors", "OnProfileShutdown", SaveColors)
 	end
-	if first or profile ~= newProfile then
+	if force or profile ~= newProfile then
 		-- Update the upvalue
 		profile = newProfile
 		-- Copy the colors

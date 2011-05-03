@@ -264,8 +264,8 @@ local function CastBar_Update(castbar)
 	end
 end
 
-local function OnApplySettings(self, layout, theme, first, event)
-	if first or event == 'OnThemeModified' then
+local function OnApplySettings(self, layout, theme, force, event)
+	if force or event == 'OnThemeModified' then
 		local health = self.Health
 		for k,v in pairs(theme.Health) do
 			health[k] = v
@@ -279,7 +279,7 @@ local function OnApplySettings(self, layout, theme, first, event)
 			end
 		end
 	end
-	if first or event == 'OnColorChanged' then
+	if force or event == 'OnColorChanged' then
 		if self.LowHealth then
 			self.LowHealth:SetTexture(unpack(oUF.colors.lowHealth, 1, 4))
 		end
