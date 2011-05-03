@@ -29,28 +29,31 @@ local function DoRegister(frame, key, label, mask)
 end
 
 -- Function used until the settings are loaded
-local postponed = {}
+local postponed
 oUF_Adirelle.RegisterMovable = function(frame, key, label, mask)
+	if not postponed then postponed = {} end
 	postponed[frame] = { key, label, mask }
 end
 
 -- Callback on database loaded/changed
-oUF_Adirelle.RegisterVariableLoadedCallback(function(newProfile, _, first)
+oUF_Adirelle.RegisterVariableLoadedCallback(function(newProfile, _, force)
 
 	-- Get the anchor settings
 	profile = newProfile.anchors
 	
-	if first then
+	if oUF_Adirelle.RegisterMovable ~= DoRegister then
 		-- First initialization		
 					
 		-- Replace RegisterMovable with the function that actually registers the frame
 		oUF_Adirelle.RegisterMovable = DoRegister
 		
 		-- Process already registered frames
-		for frame, params in pairs(postponed) do
-			DoRegister(frame, unpack(params))
+		if postponed then
+			for frame, params in pairs(postponed) do
+				DoRegister(frame, unpack(params))
+			end
+			postponed = nil			
 		end
-		postponed = nil			
 		
 	else
 		-- Already initialized, only apply the new layout

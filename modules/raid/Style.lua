@@ -412,8 +412,8 @@ local function IncomingHeal_UpdateColor(bar)
 	bar:SetTexture(unpack(oUF.colors.incomingHeal[bar.source], 1, 4))
 end
 
-local function OnApplySettings(self, layout, theme, first, event)
-	if first or event == 'OnRaidLayoutModified' then
+local function OnApplySettings(self, layout, theme, force, event)
+	if force or event == 'OnRaidLayoutModified' then
 		local small, big = layout.Raid.smallIconSize, layout.Raid.bigIconSize
 		self.WarningIconBuff:SetSize(big, big)
 		self.WarningIconDebuff:SetSize(big, big)
@@ -427,7 +427,7 @@ local function OnApplySettings(self, layout, theme, first, event)
 			end
 		end
 	end
-	if first or event == 'OnColorChanged' then	
+	if force or event == 'OnColorChanged' then	
 		self.IncomingHeal:SetTexture(unpack(oUF.colors.incomingHeal.self, 1, 4))
 		self.IncomingOthersHeal:SetTexture(unpack(oUF.colors.incomingHeal.others, 1, 4))
 		self.XRange:SetTexture(unpack(oUF.colors.outOfRange, 1, 3))

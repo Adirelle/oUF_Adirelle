@@ -15,7 +15,7 @@ oUF:Factory(function()
 	local GetNumPartyMembers = _G.GetNumPartyMembers
 	local GetRaidRosterInfo = _G.GetRaidRosterInfo
 	local pairs, ipairs, format, strmatch = _G.pairs, _G.ipairs, _G.format, _G.strmatch
-	local max, huge = _G.math.max, _G.math.huge
+	local max, huge, GetTime = _G.math.max, _G.math.huge, _G.GetTime
 	local CreateFrame, UIParent = _G.CreateFrame, _G.UIParent
 	local SecureHandlerSetFrameRef = _G.SecureHandlerSetFrameRef
 	local RegisterStateDriver, UnregisterStateDriver = _G.RegisterStateDriver, _G.UnregisterStateDriver
@@ -51,8 +51,8 @@ oUF:Factory(function()
 	-- Helper
 	--------------------------------------------------------------------------------
 	
-	local function Header_ApplySettings(self, layout, _, first, event)
-		if not first and event ~= 'OnRaidLayoutModified' then return end
+	local function Header_ApplySettings(self, layout, _, force, event)
+		if not force and event ~= 'OnRaidLayoutModified' then return end
 		local c = layout.Raid
 		local spacing, alignment = c.unitSpacing, c.alignment
 		self:Debug('Header_ApplySettings', 'orientation=', c.orientation, 'alignment=', alignment, 'unitSpacing=', spacing)
@@ -229,8 +229,8 @@ oUF:Factory(function()
 	UpdateHeightDriver()
 
 	-- Apply settings
-	oUF_Adirelle.RegisterVariableLoadedCallback(function(layout, _, first, event) 
-		if not first and event ~= 'OnRaidLayoutModified' then return end
+	oUF_Adirelle.RegisterVariableLoadedCallback(function(layout, _, force, event) 
+		if not force and event ~= 'OnRaidLayoutModified' then return end
 		local c = layout.Raid
 		local width, heightBig, heightSmall = c.width, c.healerHeight, c.height
 		local alignment = c.alignment

@@ -36,29 +36,29 @@ oUF_Adirelle.optionalElements = optionalElements
 -- Callbacks
 -- ------------------------------------------------------------------------------
 
-function oUF_Adirelle.ApplySettings(event, first)
+function oUF_Adirelle.ApplySettings(event, force)
 	oUF_Adirelle.Debug('ApplySettings', event)
 
 	-- Call the callbacks
 	for _, callback in ipairs(callbacks) do
-		callback(layout, theme, first, event)
+		callback(layout, theme, force, event)
 	end
 	
-	-- Update the togglable frames
-	for _, frame in pairs(togglableFrames) do
-		-- Enable/disable the frame
-		if frame:GetEnabledSetting() then
-			frame:Enable()
-		else
-			frame:Disable()
-		end	
+	if force then
+		-- Update the togglable frames
+		for _, frame in pairs(togglableFrames) do
+			-- Enable/disable the frame
+			if frame:GetEnabledSetting() then
+				frame:Enable()
+			else
+				frame:Disable()
+			end	
+		end
 	end
-
+	
 	-- Update all the frames
 	for _, frame in ipairs(oUF.objects) do
-		if frame:IsVisible() then
-			frame:ApplySettings(event, first)
-		end
+		frame:ApplySettings(event, force)
 	end
 
 end
@@ -132,7 +132,7 @@ local THEME_DEFAULTS = {
 -- Publish the databases and apply the settings
 local function OnDatabaseChanged()
 	layout, theme = oUF_Adirelle.layoutDB.profile, oUF_Adirelle.themeDB.profile
-	return oUF_Adirelle.ApplySettings("OnDatabaseChanged")
+	return oUF_Adirelle.ApplySettings("OnDatabaseChanged", true)
 end
 
 local frame = _G.CreateFrame("Frame")
@@ -150,7 +150,7 @@ frame:SetScript('OnEvent', function(self, event, name)
 	
 	oUF_Adirelle.layoutDB, oUF_Adirelle.themeDB = layoutDB, themeDB
 	
-	-- First initialization
+	-- force initialization
 	layout, theme = oUF_Adirelle.layoutDB.profile, oUF_Adirelle.themeDB.profile
 
 	-- Convert the old database
@@ -238,23 +238,25 @@ end
 -- Frame updating
 -- ------------------------------------------------------------------------------
 
-oUF:RegisterMetaFunction("ApplySettings", function(self, event, first)
-	self:Debug("ApplySettings", event, first)
+oUF:RegisterMetaFunction("ApplySettings", function(self, event, force)
+	self:Debug("ApplySettings", event, force)
 	
-	-- Enable/disable the elements
-	for i, name in ipairs(optionalElements) do
-		if layout.elements[name] then
-			if not self:IsElementEnabled(name) then
-				self:EnableElement(name)
+	if force or event == 'OnElementsModified' then
+		-- Enable/disable the elements
+		for i, name in ipairs(optionalElements) do
+			if layout.elements[name] then
+				if not self:IsElementEnabled(name) then
+					self:EnableElement(name)
+				end
+			elseif self:IsElementEnabled(name) then
+				self:DisableElement(name)
 			end
-		elseif self:IsElementEnabled(name) then
-			self:DisableElement(name)
 		end
 	end
 	
 	-- Frame specific handler
 	if self.OnApplySettings then
-		self:OnApplySettings(layout, theme, first, event)
+		self:OnApplySettings(layout, theme, force, event)
 	end
 	
 	-- Enforce a full update
