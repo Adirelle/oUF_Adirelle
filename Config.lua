@@ -92,7 +92,7 @@ local function GetOptions()
 		health = BuildColorArg('Health', oUF.colors.health),
 		disconnected = BuildColorArg('Disconnected player', oUF.colors.disconnected),
 		tapped = BuildColorArg('Tapped mob', oUF.colors.tapped),
-		outOfRange = BuildColorArg('Out of range', oUF.colors.outOfRange),
+		outOfRange = BuildColorArg('Out of range', oUF.colors.outOfRange, true),
 		incoming = BuildColorGroup("Incoming heals", oUF.colors.incomingHeal, { self = "Self", others = "Others'" }, true),
 		lowHealth = BuildColorArg("Low health warning", oUF.colors.lowHealth, true),
 		group = {
