@@ -214,7 +214,7 @@ local function OnSizeChanged(self, width, height)
 	self.ReadyCheck:SetSize(height, height)
 	self.StatusIcon:SetSize(height*2, height)
 	self.WarningIconBuff:SetPoint("CENTER", self, "LEFT", width / 4, 0)
-	self.WarningIconDebuff:SetPoint("CENTER", self, "RIGHT", width / 4, 0)
+	self.WarningIconDebuff:SetPoint("CENTER", self, "RIGHT", -width / 4, 0)
 end
 
 -- ------------------------------------------------------------------------------
@@ -549,7 +549,7 @@ local function InitFrame(self, unit)
 	self:AddAuraIcon(debuff, "CureableDebuff")
 	
 	-- Important debuffs
-	self.WarningIconDebuff = self:CreateIcon(self.Overlay, ICON_SIZE, false, false, false, false, "CENTER", self, "LEFT", WIDTH * 0.75, 0)
+	self.WarningIconDebuff = self:CreateIcon(self.Overlay, ICON_SIZE, false, false, false, false, "CENTER", self, "RIGHT", -WIDTH * 0.25, 0)
 
 	-- Class-specific icons
 	if CreateClassAuraIcons then
