@@ -22,7 +22,7 @@ local AceGUIWidgetLSMlists = _G.AceGUIWidgetLSMlists
 local options
 local function GetOptions()
 	if options then return options end
-	
+
 	local LibMovable = oUF_Adirelle.GetLib('LibMovable-1.0')
 
 	local reloadNeeded = false
@@ -32,7 +32,7 @@ local function GetOptions()
 		oUF_Adirelle_Boss = 'Boss frames',
 		oUF_Adirelle_Arena = 'Arena enemy frames',
 	}
-		
+
 	local layoutDB = oUF_Adirelle.layoutDB
 	local layoutDBOptions = LibStub('AceDBOptions-3.0'):GetOptionsTable(layoutDB)
 	LibStub('LibDualSpec-1.0'):EnhanceOptions(layoutDBOptions, layoutDB)
@@ -45,12 +45,12 @@ local function GetOptions()
 
 	local togglableFrameList = {}
 	local togglableFrames = oUF_Adirelle.togglableFrames
-	
+
 	local elementList = {}
 	for i, key in pairs(oUF_Adirelle.optionalElements) do
 		elementList[key] = gsub(key, "([a-z])([A-Z])", "%1 %2")
 	end
-	
+
 	local function SetColor(info, r, g, b, a)
 		info.arg[1], info.arg[2], info.arg[3] = r, g, b
 		if info.option.hasAlpha then
@@ -61,7 +61,7 @@ local function GetOptions()
 	local function GetColor(info)
 		return unpack(info.arg, 1, info.option.hasAlpha and 4 or 3)
 	end
-	local function BuildColorArg(name, color, hasAlpha, order)	
+	local function BuildColorArg(name, color, hasAlpha, order)
 		return { name = name, type = 'color', arg = color, hasAlpha = hasAlpha, order = order or 10, get = GetColor, set = SetColor }
 	end
 	local function BuildColorGroup(name, colors, names, hasAlpha)
@@ -76,13 +76,13 @@ local function GetOptions()
 			end
 			if entryName then
 				group.args[tostring(key)] = BuildColorArg(entryName, color, hasAlpha, tonumber(key))
-			end	
+			end
 		end
 		if next(group.args) then
 			return group
 		end
 	end
-	
+
 	local colorArgs = {
 		class = BuildColorGroup("Class", oUF.colors.class, _G.LOCALIZED_CLASS_NAMES_MALE),
 		reaction = BuildColorGroup("Reaction", oUF.colors.reaction, "FACTION_STANDING_LABEL%d"),
@@ -106,14 +106,14 @@ local function GetOptions()
 			},
 		},
 	}
-	
+
 	colorArgs.reaction.hidden = function() return not (themeDB.profile.Health.colorReaction or themeDB.profile.Power.colorReaction) end
 	colorArgs.tapped.hidden = function() return not (themeDB.profile.Health.colorTapping or themeDB.profile.Power.colorTapping) end
 	colorArgs.power.hidden = function() return not themeDB.profile.Power.colorPower end
 	colorArgs.lowHealth.hidden = function() return not layoutDB.profile.elements.LowHealth end
 	colorArgs.incoming.hidden = function() return not layoutDB.profile.elements.IncomingHeal end
 	colorArgs.outOfRange.hidden = function() return not layoutDB.profile.elements.XRange end
-	
+
 	if oUF_Adirelle.playerClass == "HUNTER" and oUF.colors.happiness then
 		local happiness = BuildColorGroup("Pet happiness", oUF.colors.happiness, "PET_HAPPINESS%d")
 		happiness.hidden = function() return not (themeDB.profile.Health.colorHappiness or themeDB.profile.Power.colorHappiness) end
@@ -127,12 +127,31 @@ local function GetOptions()
 			[_G.FIRE_TOTEM_SLOT] = "Fire",
 			[_G.EARTH_TOTEM_SLOT] = "Earth",
 			[_G.WATER_TOTEM_SLOT] = "Water",
-			[_G.AIR_TOTEM_SLOT] = "Air",	
+			[_G.AIR_TOTEM_SLOT] = "Air",
 		})
 		totems.hidden = function() return not layoutDB.profile.elements.TotemBar end
 		colorArgs.totems = totems
 	end
-	
+
+	local function BuildAuraSideOption(label, order)
+		return {
+			name = label,
+			type = 'select',
+			order = order,
+			get = function(info) return layoutDB.profile.Single.Auras.sides[info[#info]] end,
+			set = function(info, value)
+				layoutDB.profile.Single.Auras.sides[info[#info]] = value
+				oUF_Adirelle.ApplySettings("OnSingleLayoutModified")
+			end,
+			values = {
+				TOP = 'Top',
+				BOTTOM = 'Bottom',
+				RIGHT = 'Right',
+				LEFT = 'Left',
+			},
+		}
+	end
+
 	local directions = {
 		horizontal = {
 			positive = 'Left to right',
@@ -146,7 +165,7 @@ local function GetOptions()
 
 	options = {
 		name = 'oUF_Adirelle '..oUF_Adirelle.VERSION,
-		type = 'group',		
+		type = 'group',
 		childGroups = 'tab',
 		args = {
 			modules = {
@@ -170,7 +189,7 @@ local function GetOptions()
 							if value then
 								EnableAddOn(addon)
 							else
-								DisableAddOn(addon)		
+								DisableAddOn(addon)
 							end
 							reloadNeeded = false
 							for name in pairs(moduleList) do
@@ -220,7 +239,7 @@ local function GetOptions()
 						args = {
 							frames = {
 								name = 'Enabled frames',
-								type = 'multiselect',							
+								type = 'multiselect',
 								order = 30,
 								values = function()
 									local t = wipe(togglableFrameList)
@@ -229,7 +248,7 @@ local function GetOptions()
 									end
 									return t
 								end,
-								get = function(info, key) 
+								get = function(info, key)
 									return togglableFrames[key]:GetEnabledSetting()
 								end,
 								set = function(info, key, enabled)
@@ -303,7 +322,7 @@ local function GetOptions()
 									Resting = "Resting",
 									RaidIcon = "Raid icon",
 									ReadyCheck = "Ready check",
-									Happiness = "Happiness",			
+									Happiness = "Happiness",
 									TargetIcon = "Target raid icon",
 									Combat = "Combat",
 								},
@@ -311,7 +330,7 @@ local function GetOptions()
 							misc = {
 								name = 'Miscellaneous',
 								type = 'multiselect',
-								order = 30, 
+								order = 30,
 								values = {
 									Dragon = "Classification dragon",
 									LowHealth = "Low health glow",
@@ -322,10 +341,93 @@ local function GetOptions()
 							},
 						},
 					},
+					Single = {
+						name = 'Unit frames',
+						type = 'group',
+						order = 30,
+						get = function(info) return layoutDB.profile.Single[info[#info]] end,
+						set = function(info, value)
+							layoutDB.profile.Single[info[#info]] = value
+							oUF_Adirelle.ApplySettings("OnSingleLayoutModified")
+						end,
+						hidden = function() return not oUF_Adirelle.SingleStyle end,
+						args = {
+							width = {
+								name = 'Width',
+								type = 'range',
+								order = 10,
+								min = 80,
+								max = 250,
+								step = 1,
+								bigStep = 5,
+							},
+							heightBig = {
+								name = 'Large frame height',
+								type = 'range',
+								order = 20,
+								min = 37,
+								max = 87,
+								step = 1,
+								bigStep = 5,
+							},
+							heightSmall = {
+								name = 'Thin frame height',
+								type = 'range',
+								order = 30,
+								min = 10,
+								max = 40,
+								step = 1,
+							},
+							Auras = {
+								name = 'Buffs & debuffs',
+								type = 'group',
+								inline = true,
+								order = 40,
+								get = function(info) return layoutDB.profile.Single.Auras[info[#info]] end,
+								set = function(info, value)
+									layoutDB.profile.Single.Auras[info[#info]] = value
+									oUF_Adirelle.ApplySettings("OnSingleLayoutModified")
+								end,
+								args = {
+									size = {
+										name = 'Icon size',
+										type = 'range',
+										order = 10,
+										min = 8,
+										max = 32,
+										step = 1,
+									},
+									spacing = {
+										name = 'Spacing',
+										type = 'range',
+										order = 20,
+										min = 0,
+										max = 8,
+										step = 1,
+									},
+									enlarge = {
+										name = 'Enlarge special auras',
+										type = 'toggle',
+										order = 30,
+									},
+									_sides = {
+										name = 'Aura side',
+										type = 'header',
+										order = 40,
+									},
+									target = BuildAuraSideOption('Target', 50),
+									focus = BuildAuraSideOption('Focus', 60),
+									pet = BuildAuraSideOption('Pet', 70),
+									boss = BuildAuraSideOption('Boss', 80),
+									arena = BuildAuraSideOption('Arena enemies', 90),
+								},
+							},
+						},
+					},
 					Raid = {
 						name = 'Group grid',
 						type = 'group',
-						order = 30,
+						order = 40,
 						get = function(info) return layoutDB.profile.Raid[info[#info]] end,
 						set = function(info, value)
 							layoutDB.profile.Raid[info[#info]] = value
@@ -334,12 +436,12 @@ local function GetOptions()
 						hidden = function() return layoutDB.profile.disabled.anchor end,
 						args = {
 							width = {
-								name = 'Cell width',								
+								name = 'Cell width',
 								desc = 'The width of each unit cell, in pixels.',
 								order = 10,
 								type = 'range',
 								min = 60,
-								max = 160, 
+								max = 160,
 								step = 1,
 								bigStep = 5,
 							},
@@ -389,12 +491,12 @@ local function GetOptions()
 								},
 							},
 							unitSpacing = {
-								name = 'Unit spacing',	
-								desc = 'The size of the space between cells of the same group, in pixels.',		
-								type = 'range', 
+								name = 'Unit spacing',
+								desc = 'The size of the space between cells of the same group, in pixels.',
+								type = 'range',
 								order = 60,
 								min = 2,
-								max = 20, 
+								max = 20,
 								step = 1,
 							},
 							groupSpacing = {
@@ -403,7 +505,7 @@ local function GetOptions()
 								type = 'range',
 								order = 70,
 								min = 2,
-								max = 20, 
+								max = 20,
 								step = 1,
 							},
 							smallIconSize = {
@@ -497,8 +599,8 @@ local function GetOptions()
 					single = {
 						name = 'Basic/arena/boss frames',
 						type = 'group',
-						order = 20, 		
-						hidden = function() return not oUF_Adirelle.SingleStyle end,			
+						order = 20,
+						hidden = function() return not oUF_Adirelle.SingleStyle end,
 						args = {
 							healthColor = {
 								name = 'Health bar color',
@@ -540,11 +642,11 @@ local function GetOptions()
 									colorClassNPC = 'Class (NPC)',
 									colorClassPet = 'Class (Pet)',
 									colorReaction = 'Reaction',
-									colorSmooth = 'Smooth',								
+									colorSmooth = 'Smooth',
 								},
 							},
 						},
-					},			
+					},
 					colors = {
 						name = 'Colors',
 						type = 'group',
@@ -556,7 +658,7 @@ local function GetOptions()
 			},
 		},
 	}
-	
+
 	return options
 end
 

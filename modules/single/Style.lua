@@ -135,8 +135,8 @@ do
 		local spacing = icons.spacing or 1
 		local size = icons.size or 16
 		local anchor = icons.initialAnchor or "BOTTOMLEFT"
-		local growthx = (icons["growth-x"] == "LEFT" and -1) or 1
-		local growthy = (icons["growth-y"] == "DOWN" and -1) or 1
+		local growthx = icons.growthx or 1
+		local growthy = icons.growthy or 1
 		local x = 0
 		local y = 0
 		local rowSize = 0
@@ -150,8 +150,7 @@ do
 				local iconSize = button.bigger and size or size * 0.75
 				rowSize = mmax(rowSize, iconSize)
 				button:ClearAllPoints()
-				button:SetWidth(iconSize)
-				button:SetHeight(iconSize)
+				button:SetSize(iconSize, iconSize)
 				button:SetPoint(anchor, icons, anchor, x * growthx, y * growthy)
 				x = x + iconSize + spacing
 				if x >= width then
@@ -264,22 +263,90 @@ local function CastBar_Update(castbar)
 	end
 end
 
+local function ApplyAuraPosition(self, target, initialAnchor, anchorTo, growthx, growthy, dx, dy)
+	self:Debug('ApplyAuraPosition', target, initialAnchor, anchorTo, growthx, growthy, dx, dy)
+	target.initialAnchor = initialAnchor
+	target.growthx = growthx
+	target.growthy = growthy
+	target:ClearAllPoints()
+	target:SetPoint(initialAnchor, self, anchorTo, dx * FRAME_MARGIN, dy * FRAME_MARGIN)
+end
+
 local function OnApplySettings(self, layout, theme, force, event)
+	if force or event == 'OnSingleLayoutModified' then
+	
+		-- Update frame size
+		local width, height = layout.Single.width, layout.Single['height'..self.heightType]
+		self:SetSize(width, height)
+		
+		-- Update aura layout
+		local buffs, debuffs = self.Buffs, self.Debuffs
+		if buffs then
+			local auras = layout.Single.Auras
+			local size, spacing, side = auras.size, auras.spacing, auras.sides[self.baseUnit]
+			buffs.size, buffs.spacing, buffs.enlarge = size, spacing, auras.enlarge
+			
+			-- Apply position
+			if side == 'LEFT' or side == 'RIGHT' then
+				local dx, opposite
+				if side == 'LEFT' then
+					dx, opposite = -1, 'RIGHT'
+				else
+					dx, opposite = 1, 'LEFT'
+				end
+				ApplyAuraPosition(self, buffs, 'BOTTOM'..opposite, 'BOTTOM'..side, dx, -1, dx, 0)
+				if debuffs then
+					ApplyAuraPosition(self, debuffs, 'TOP'..opposite, 'TOP'..side, dx, 1, dx, 0)
+					buffs:SetSize(width, height / 2)
+					debuffs:SetSize(width, height / 2)
+				else
+					buffs:SetSize(width, height)
+				end
+			else
+				local dy, opposite
+				if side == 'TOP' then
+					dy, opposite = 1, 'BOTTOM'
+				else
+					dy, opposite = -1, 'TOP'
+				end
+				ApplyAuraPosition(self, buffs, opposite..'LEFT', side..'LEFT', 1, dy, 0, dy)
+				if debuffs then
+					ApplyAuraPosition(self, debuffs, opposite..'RIGHT', side..'RIGHT', -1, dy, 0, dy)
+					buffs:SetSize(width / 2, height)
+					debuffs:SetSize(width / 2, height)
+				else
+					buffs:SetSize(width, height)
+				end
+			end
+			
+			-- Update the number of icons
+			local s = size+spacing
+			buffs.num = floor(buffs:GetWidth() / s) * floor(buffs:GetHeight() / s)
+			if debuffs then
+				debuffs.num = floor(debuffs:GetWidth() / s) * floor(debuffs:GetHeight() / s)
+			end
+
+		end
+	end
 	if force or event == 'OnThemeModified' then
+		-- Update health coloring flags
 		local health = self.Health
 		for k,v in pairs(theme.Health) do
 			health[k] = v
 		end	
 		if self.baseUnit == "arena" then
+			-- No color smooting for arena units
 			health.colorSmooth = false
 		end
 		if self.Power then
+			-- Update power coloring flags
 			for k,v in pairs(theme.Power) do
 				self.Power[k] = v
 			end
 		end
 	end
 	if force or event == 'OnColorChanged' then
+		-- Update colors
 		if self.LowHealth then
 			self.LowHealth:SetTexture(unpack(oUF.colors.lowHealth, 1, 4))
 		end
@@ -309,6 +376,7 @@ local function InitFrame(settings, self, unit)
 	local unit = gsub(unit or self.unit, "%d+", "")	
 	local isArenaUnit = strmatch(unit, "arena")
 	self.baseUnit, self.isArenaUnit = unit, isArenaUnit
+	self.heightType = settings.heightType
 
 	self:SetSize(settings['initial-width'], settings['initial-height'])
 
@@ -567,46 +635,50 @@ local function InitFrame(settings, self, unit)
 		buffs = CreateFrame("Frame", nil, self)
 		buffs:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, FRAME_MARGIN)
 		buffs.initialAnchor = "BOTTOMLEFT"
-		buffs['growth-x'] = "RIGHT"
-		buffs['growth-y'] = "UP"
+		buffs.growthx = 1
+		buffs.growthy = -1
 
 	elseif unit == "target" or unit == "focus" or unit == "boss" or unit == "arena" then
 		buffs = CreateFrame("Frame", nil, self)
 		buffs:SetPoint("BOTTOM"..right, self, "BOTTOM"..left, -FRAME_MARGIN*dir, 0)
 		buffs.showType = true
 		buffs.initialAnchor = "BOTTOM"..right
-		buffs['growth-x'] = left
-		buffs['growth-y'] = "UP"
+		buffs.growthx = (left == "LEFT") and -1 or 1
+		buffs.growthy = 1
 
 		debuffs = CreateFrame("Frame", nil, self)
 		debuffs:SetPoint("TOP"..right, self, "TOP"..left, -FRAME_MARGIN*dir, 0)
 		debuffs.showType = true
 		debuffs.initialAnchor = "TOP"..right
-		debuffs['growth-x'] = left
-		debuffs['growth-y'] = "DOWN"
+		debuffs.growthx = (left == "LEFT") and -1 or 1
+		debuffs.growthy = -1
 	end
 
 	if buffs then
 		buffs.size = AURA_SIZE
 		buffs.num = 12
-		buffs:SetWidth(AURA_SIZE * 12)
-		buffs:SetHeight(AURA_SIZE)
+		buffs:SetSize(AURA_SIZE * 12, AURA_SIZE)
 		buffs.CustomFilter = Buffs_CustomFilter
 		buffs.SetPosition = Auras_SetPosition
 		buffs.PostCreateIcon = Auras_PostCreateIcon
 		buffs.PostUpdateIcon = Auras_PostUpdateIcon
 		self.Buffs = buffs
+		buffs:SetBackdrop(oUF_Adirelle.glowBorderBackdrop)
+		buffs:SetBackdropColor(0,0,0,0)
+		buffs:SetBackdropBorderColor(0,1,0,1)
 	end
 	if debuffs then
 		debuffs.size = AURA_SIZE
 		debuffs.num = 12
-		debuffs:SetWidth(AURA_SIZE * 12)
-		debuffs:SetHeight(AURA_SIZE)
+		debuffs:SetSize(AURA_SIZE * 12, AURA_SIZE)
 		debuffs.CustomFilter = Debuffs_CustomFilter
 		debuffs.SetPosition = Auras_SetPosition
 		debuffs.PostCreateIcon = Auras_PostCreateIcon
 		debuffs.PostUpdateIcon = Auras_PostUpdateIcon
 		self.Debuffs = debuffs
+		debuffs:SetBackdrop(oUF_Adirelle.glowBorderBackdrop)
+		debuffs:SetBackdropColor(0,0,0,0)
+		debuffs:SetBackdropBorderColor(1,0,0,1)
 	end
 	
 	if buffs or debuffs then
@@ -725,6 +797,7 @@ end
 local single_style = setmetatable({
 	["initial-width"] = 190,
 	["initial-height"] = 47,
+	heightType = 'Big',
 }, {
 	__call = InitFrame,
 })
@@ -741,7 +814,8 @@ local single_style_right = setmetatable({
 oUF:RegisterStyle("Adirelle_Single_Right", single_style_right)
 
 local single_style_health = setmetatable({
-	["initial-height"] = 20,
+	["initial-height"] = 20,	
+	heightType = 'Small',
 	noPower = true,
 	noPortrait = true
 }, {
