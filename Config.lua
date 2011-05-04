@@ -19,6 +19,10 @@ local IsAddOnLoaded, InCombatLockdown = _G.IsAddOnLoaded, _G.InCombatLockdown
 
 local AceGUIWidgetLSMlists = _G.AceGUIWidgetLSMlists
 
+-- ------------------------------------------------------------------------------
+-- Main option builder
+-- ------------------------------------------------------------------------------
+
 local options
 local function GetOptions()
 	if options then return options end
@@ -26,6 +30,8 @@ local function GetOptions()
 	local LibMovable = oUF_Adirelle.GetLib('LibMovable-1.0')
 
 	local reloadNeeded = false
+
+	-- The list of modules
 	local moduleList = {
 		oUF_Adirelle_Raid = 'Party/raid grid',
 		oUF_Adirelle_Single = 'Player, pet, target and focus frames',
@@ -33,116 +39,168 @@ local function GetOptions()
 		oUF_Adirelle_Arena = 'Arena enemy frames',
 	}
 
+	-- Map "base" units to their respective modules
+	local unitModuleMap = {
+		raid = "oUF_Adirelle_Raid",
+		arena = "oUF_Adirelle_Arena",
+		arenapet = "oUF_Adirelle_Arena",
+		boss = "oUF_Adirelle_Boss",
+		player = "oUF_Adirelle_Single",
+		pet = "oUF_Adirelle_Single",
+		pettarget = "oUF_Adirelle_Single",
+		target = "oUF_Adirelle_Single",
+		targettarget = "oUF_Adirelle_Single",
+		focus = "oUF_Adirelle_Single",
+	}
+
+	-- Create the profile options of the layout
 	local layoutDB = oUF_Adirelle.layoutDB
 	local layoutDBOptions = LibStub('AceDBOptions-3.0'):GetOptionsTable(layoutDB)
 	LibStub('LibDualSpec-1.0'):EnhanceOptions(layoutDBOptions, layoutDB)
 	layoutDBOptions.order = -1
 
+	-- Create the profile options of the theme
 	local themeDB = oUF_Adirelle.themeDB
 	local themeDBOptions = LibStub('AceDBOptions-3.0'):GetOptionsTable(themeDB)
 	LibStub('LibDualSpec-1.0'):EnhanceOptions(themeDBOptions, themeDB)
 	themeDBOptions.order = -1
 
+	-- Fetch the list of togglable frames
 	local togglableFrameList = {}
 	local togglableFrames = oUF_Adirelle.togglableFrames
 
-	local elementList = {}
+	local function IsAddOnEnabled(name) return name and select(4, GetAddOnInfo(name)) end
+
+	-- Test if a frame is disabled
+	local IsFrameDisabled = {}
+	for key, module in pairs(unitModuleMap) do
+		if key ~= "arenapet" then
+			local key, module = key, module -- Make them fixed upvalues
+			IsFrameDisabled[key] = function() return not IsAddOnEnabled(module) or layoutDB.profile.disabled[key] end
+		end
+	end
+	IsFrameDisabled.arenapet = IsFrameDisabled.arena
+
+	-- Test if the raid style is not used
+	local function IsRaidStyleUnused()
+		return not oUF_Adirelle.RaidStyle or layoutDB.profile.disabled.raid
+	end
+
+	-- Test if the single style is not used
+	local function IsSingleStyleUnused()
+		local d = layoutDB.profile.disabled
+		return not oUF_Adirelle.SingleStyle or (d.arena and d.boss and d.player and d.pet and d.pettarget and d.target and d.targettarget and d.focus)
+	end
+
+	-- Fetch the list of elements that can be disabled
+	local elementList, IsElementDisabled = {}, {}
 	for i, key in pairs(oUF_Adirelle.optionalElements) do
+		local key = key
 		elementList[key] = gsub(key, "([a-z])([A-Z])", "%1 %2")
+		IsElementDisabled[key] = function() return not layoutDB.profile.elements[key] end
 	end
 
-	local function SetColor(info, r, g, b, a)
-		info.arg[1], info.arg[2], info.arg[3] = r, g, b
-		if info.option.hasAlpha then
-			info.arg[4] = a
-		end
-		oUF_Adirelle.ApplySettings('OnColorChanged')
-	end
-	local function GetColor(info)
-		return unpack(info.arg, 1, info.option.hasAlpha and 4 or 3)
-	end
-	local function BuildColorArg(name, color, hasAlpha, order)
-		return { name = name, type = 'color', arg = color, hasAlpha = hasAlpha, order = order or 10, get = GetColor, set = SetColor }
-	end
-	local function BuildColorGroup(name, colors, names, hasAlpha)
-		if not colors then return end
-		local group = { name = name, type = 'group', inline = true, order = 20, args = {} }
-		for key, color in pairs(colors) do
-			local entryName = key
-			if type(names) == "table" then
-				entryName = names[key]
-			elseif type(names) == "string" then
-				entryName = _G[format(names, key)]
+	local colorArgs
+	do
+		-- Helpers to build color options
+		local function SetColor(info, r, g, b, a)
+			info.arg[1], info.arg[2], info.arg[3] = r, g, b
+			if info.option.hasAlpha then
+				info.arg[4] = a
 			end
-			if entryName then
-				group.args[tostring(key)] = BuildColorArg(entryName, color, hasAlpha, tonumber(key))
-			end
+			oUF_Adirelle.ApplySettings('OnColorChanged')
 		end
-		if next(group.args) then
-			return group
+		local function GetColor(info)
+			return unpack(info.arg, 1, info.option.hasAlpha and 4 or 3)
 		end
-	end
 
-	local colorArgs = {
-		class = BuildColorGroup("Class", oUF.colors.class, _G.LOCALIZED_CLASS_NAMES_MALE),
-		reaction = BuildColorGroup("Reaction", oUF.colors.reaction, "FACTION_STANDING_LABEL%d"),
-		power = BuildColorGroup("Power", oUF.colors.power, {
-			MANA = _G.MANA, RAGE = _G.RAGE, ENERGY = _G.ENERGY, FOCUS = _G.FOCUS, RUNIC_POWER = _G.RUNIC_POWER
-		}),
-		health = BuildColorArg('Health', oUF.colors.health),
-		disconnected = BuildColorArg('Disconnected player', oUF.colors.disconnected),
-		tapped = BuildColorArg('Tapped mob', oUF.colors.tapped),
-		outOfRange = BuildColorArg('Out of range', oUF.colors.outOfRange, true),
-		incoming = BuildColorGroup("Incoming heals", oUF.colors.incomingHeal, { self = "Self", others = "Others'" }, true),
-		lowHealth = BuildColorArg("Low health warning", oUF.colors.lowHealth, true),
-		group = {
-			name = 'Group member status',
-			type = 'group',
-			inline = true,
-			hidden = function() return not oUF_Adirelle.RaidStyle or layoutDB.profile.disabled.anchor end,
-			args = {
-				vehicle = BuildColorGroup('In vehicle', oUF.colors.vehicle, {name="Name", background="Background"}),
-				charmed = BuildColorGroup('Charmed', oUF.colors.charmed, {name="Name", background="Background"}),
+		-- Build one color option
+		local function BuildColorArg(name, color, hasAlpha, order)
+			return { name = name, type = 'color', arg = color, hasAlpha = hasAlpha, order = order or 10, get = GetColor, set = SetColor }
+		end
+
+		-- Build a group of color options from a table of colors
+		local function BuildColorGroup(name, colors, names, hasAlpha)
+			if not colors then return end
+			local group = { name = name, type = 'group', inline = true, order = 20, args = {} }
+			for key, color in pairs(colors) do
+				local entryName = key
+				if type(names) == "table" then
+					entryName = names[key]
+				elseif type(names) == "string" then
+					entryName = _G[format(names, key)]
+				end
+				if entryName then
+					group.args[tostring(key)] = BuildColorArg(entryName, color, hasAlpha, tonumber(key))
+				end
+			end
+			if next(group.args) then
+				return group
+			end
+		end
+
+		-- The base color
+		colorArgs = {
+			class = BuildColorGroup("Class", oUF.colors.class, _G.LOCALIZED_CLASS_NAMES_MALE),
+			reaction = BuildColorGroup("Reaction", oUF.colors.reaction, "FACTION_STANDING_LABEL%d"),
+			power = BuildColorGroup("Power", oUF.colors.power, {
+				MANA = _G.MANA, RAGE = _G.RAGE, ENERGY = _G.ENERGY, FOCUS = _G.FOCUS, RUNIC_POWER = _G.RUNIC_POWER
+			}),
+			health = BuildColorArg('Health', oUF.colors.health),
+			disconnected = BuildColorArg('Disconnected player', oUF.colors.disconnected),
+			tapped = BuildColorArg('Tapped mob', oUF.colors.tapped),
+			outOfRange = BuildColorArg('Out of range', oUF.colors.outOfRange, true),
+			incoming = BuildColorGroup("Incoming heals", oUF.colors.incomingHeal, { self = "Self", others = "Others'" }, true),
+			lowHealth = BuildColorArg("Low health warning", oUF.colors.lowHealth, true),
+			group = {
+				name = 'Group member status',
+				type = 'group',
+				inline = true,
+				hidden = IsRaidStyleUnused,
+				args = {
+					vehicle = BuildColorGroup('In vehicle', oUF.colors.vehicle, {name="Name", background="Background"}),
+					charmed = BuildColorGroup('Charmed', oUF.colors.charmed, {name="Name", background="Background"}),
+				},
 			},
-		},
-	}
+		}
 
-	colorArgs.reaction.hidden = function() return not (themeDB.profile.Health.colorReaction or themeDB.profile.Power.colorReaction) end
-	colorArgs.tapped.hidden = function() return not (themeDB.profile.Health.colorTapping or themeDB.profile.Power.colorTapping) end
-	colorArgs.power.hidden = function() return not themeDB.profile.Power.colorPower end
-	colorArgs.lowHealth.hidden = function() return not layoutDB.profile.elements.LowHealth end
-	colorArgs.incoming.hidden = function() return not layoutDB.profile.elements.IncomingHeal end
-	colorArgs.outOfRange.hidden = function() return not layoutDB.profile.elements.XRange end
+		-- Set up the conditions to show some color options
+		colorArgs.reaction.hidden = function() return IsSingleStyleUnused() or not (themeDB.profile.Health.colorReaction or themeDB.profile.Power.colorReaction) end
+		colorArgs.tapped.hidden = function() return IsSingleStyleUnused() or not (themeDB.profile.Health.colorTapping or themeDB.profile.Power.colorTapping) end
+		colorArgs.power.hidden = function() return IsSingleStyleUnused() or not themeDB.profile.Power.colorPower end
+		colorArgs.lowHealth.hidden = IsElementDisabled.LowHealth
+		colorArgs.incoming.hidden = IsElementDisabled.IncomingHeal
+		colorArgs.outOfRange.hidden = IsElementDisabled.XRange
 
-	if oUF_Adirelle.playerClass == "HUNTER" and oUF.colors.happiness then
-		local happiness = BuildColorGroup("Pet happiness", oUF.colors.happiness, "PET_HAPPINESS%d")
-		happiness.hidden = function() return not (themeDB.profile.Health.colorHappiness or themeDB.profile.Power.colorHappiness) end
-		colorArgs.happiness = happiness
-	elseif oUF_Adirelle.playerClass == "DEATHKNIGHT" then
-		local runes = BuildColorGroup('Runes', oUF.colors.runes, { "Blood", "Unholy", "Frost", "Death" })
-		runes.hidden = function() return not layoutDB.profile.elements.RuneBar end
-		colorArgs.runes = runes
-	elseif oUF_Adirelle.playerClass == "SHAMAN" then
-		local totems = BuildColorGroup('Totems', oUF.colors.totems, {
-			[_G.FIRE_TOTEM_SLOT] = "Fire",
-			[_G.EARTH_TOTEM_SLOT] = "Earth",
-			[_G.WATER_TOTEM_SLOT] = "Water",
-			[_G.AIR_TOTEM_SLOT] = "Air",
-		})
-		totems.hidden = function() return not layoutDB.profile.elements.TotemBar end
-		colorArgs.totems = totems
+		-- Class-specific colors
+		if oUF_Adirelle.playerClass == "DEATHKNIGHT" then
+			local runes = BuildColorGroup('Runes', oUF.colors.runes, { "Blood", "Unholy", "Frost", "Death" })
+			runes.hidden = IsElementDisabled.RuneBar
+			colorArgs.runes = runes
+		elseif oUF_Adirelle.playerClass == "SHAMAN" then
+			local totems = BuildColorGroup('Totems', oUF.colors.totems, {
+				[_G.FIRE_TOTEM_SLOT] = "Fire",
+				[_G.EARTH_TOTEM_SLOT] = "Earth",
+				[_G.WATER_TOTEM_SLOT] = "Water",
+				[_G.AIR_TOTEM_SLOT] = "Air",
+			})
+			totems.hidden = IsElementDisabled.TotemBar
+			colorArgs.totems = totems
+		end
 	end
 
-	local function BuildAuraSideOption(label, order)
+	-- Build an option to set the position of auras
+	local function BuildAuraSideOption(key, label, order)
 		return {
 			name = label,
 			type = 'select',
 			order = order,
-			get = function(info) return layoutDB.profile.Single.Auras.sides[info[#info]] end,
+			get = function(info) return layoutDB.profile.Single.Auras.sides[key] end,
 			set = function(info, value)
-				layoutDB.profile.Single.Auras.sides[info[#info]] = value
+				layoutDB.profile.Single.Auras.sides[key] = value
 				oUF_Adirelle.ApplySettings("OnSingleLayoutModified")
 			end,
+			hidden = IsFrameDisabled[key],
 			values = {
 				TOP = 'Top',
 				BOTTOM = 'Bottom',
@@ -152,6 +210,7 @@ local function GetOptions()
 		}
 	end
 
+	-- Build the big
 	options = {
 		name = 'oUF_Adirelle '..oUF_Adirelle.VERSION,
 		type = 'group',
@@ -339,7 +398,7 @@ local function GetOptions()
 							layoutDB.profile.Single[info[#info]] = value
 							oUF_Adirelle.ApplySettings("OnSingleLayoutModified")
 						end,
-						hidden = function() return not oUF_Adirelle.SingleStyle end,
+						hidden = IsSingleStyleUnused,
 						args = {
 							width = {
 								name = 'Width',
@@ -422,7 +481,7 @@ local function GetOptions()
 							layoutDB.profile.Raid[info[#info]] = value
 							oUF_Adirelle.ApplySettings("OnRaidLayoutModified")
 						end,
-						hidden = function() return layoutDB.profile.disabled.anchor end,
+						hidden = IsRaidStyleUnused,
 						args = {
 							width = {
 								name = 'Cell width',
@@ -589,7 +648,7 @@ local function GetOptions()
 						name = 'Basic/arena/boss frames',
 						type = 'group',
 						order = 20,
-						hidden = function() return not oUF_Adirelle.SingleStyle end,
+						hidden = IsSingleStyleUnused,
 						args = {
 							healthColor = {
 								name = 'Health bar color',
