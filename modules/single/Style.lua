@@ -465,6 +465,10 @@ local function InitFrame(settings, self, unit)
 		barContainer = CreateFrame("Frame", nil, self)
 		barContainer:SetPoint("TOP"..left, portrait, "TOP"..right, GAP*dir, 0)
 		barContainer:SetPoint("BOTTOM"..right)
+
+		-- Have the bars cover the whole frame if the portrait is disabled
+		portrait:SetScript('OnShow', function() barContainer:SetPoint("TOP"..left, portrait, "TOP"..right, GAP*dir, 0) end)
+		portrait:SetScript('OnHide', function() barContainer:SetPoint("TOP"..left, self, "TOP"..left, 0, 0) end)
 	else
 		barContainer = self
 	end
