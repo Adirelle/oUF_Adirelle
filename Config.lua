@@ -370,7 +370,6 @@ local function GetOptions()
 									Resting = "Resting",
 									RaidIcon = "Raid icon",
 									ReadyCheck = "Ready check",
-									Happiness = "Happiness",
 									TargetIcon = "Target raid icon",
 									Combat = "Combat",
 								},
@@ -663,7 +662,6 @@ local function GetOptions()
 								values = {
 									colorTapping = 'Tapped mobs',
 									colorDisconnected = 'Disconnected players',
-									colorHappiness = 'Happiness',
 									colorClass = 'Class (Player)',
 									colorClassNPC = 'Class (NPC)',
 									colorClassPet = 'Class (Pet)',
@@ -684,7 +682,6 @@ local function GetOptions()
 								values = {
 									colorTapping = 'Tapped mobs',
 									colorDisconnected = 'Disconnected players',
-									colorHappiness = 'Happiness',
 									colorPower = 'Power type',
 									colorClass = 'Class (Player)',
 									colorClassNPC = 'Class (NPC)',
