@@ -26,7 +26,7 @@ local optionalElements = {
 	"Happiness", "HolyPower", "IncomingHeal", "Leader", "LowHealth","MasterLooter",
 	"PvP", "PvPTimer", "RaidIcon", "ReadyCheck", "Resting", "RoleIcon", "RuneBar",
 	"SmartThreat", "SoulShards", "StatusIcon", "TargetIcon", "ThreatBar",
-	"TotemBar", "WarningIcon", "XRange",
+	"TotemBar", "WarningIcon", "XRange", "Portrait",
 }
 
 oUF_Adirelle.togglableFrames = togglableFrames
