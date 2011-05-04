@@ -319,34 +319,51 @@ local function OnApplySettings(self, layout, theme, force, event)
 
 			-- Apply position
 			if side == 'LEFT' or side == 'RIGHT' then
+				-- Left or right
 				local dx, opposite
 				if side == 'LEFT' then
 					dx, opposite = -1, 'RIGHT'
 				else
 					dx, opposite = 1, 'LEFT'
 				end
-				ApplyAuraPosition(self, buffs, 'BOTTOM'..opposite, 'BOTTOM'..side, dx, -1, dx, 0)
+				ApplyAuraPosition(self, buffs, 'BOTTOM'..opposite, 'BOTTOM'..side, dx, -1, dx, 0)				
+
+				-- Ensure we can display at least 12 normal icons or 5 large ones
+				local auraWidth = size * 12 + spacing * 11
+				if auras.enlarge then
+					auraWidth = mmax(mmin(size * 1.5, height) * 6 + spacing * 5)
+				end
+				
+				-- Share the available space with debuffs, if necessary
 				if debuffs then
 					ApplyAuraPosition(self, debuffs, 'TOP'..opposite, 'TOP'..side, dx, 1, dx, 0)
-					buffs:SetSize(width, height / 2)
-					debuffs:SetSize(width, height / 2)
+					buffs:SetSize(auraWidth, height / 2)
+					debuffs:SetSize(auraWidth, height / 2)
 				else
-					buffs:SetSize(width, height)
+					buffs:SetSize(auraWidth, height)
 				end
 			else
+				-- Top or bottom				
 				local dy, opposite
 				if side == 'TOP' then
 					dy, opposite = 1, 'BOTTOM'
 				else
 					dy, opposite = -1, 'TOP'
 				end
+				
+				-- Ensure we can display at least two rows of normal icons, or a row of large ones plus a row of normal ones
+				local auraHeight = size * 2 + spacing
+				if auras.enlarge then
+					auraHeight = mmax(auraHeight, mmin(size * 1.5, width) + spacing + size)
+				end
+				
 				ApplyAuraPosition(self, buffs, opposite..'LEFT', side..'LEFT', 1, dy, 0, dy)
 				if debuffs then
 					ApplyAuraPosition(self, debuffs, opposite..'RIGHT', side..'RIGHT', -1, dy, 0, dy)
-					buffs:SetSize(width / 2, height)
-					debuffs:SetSize(width / 2, height)
+					buffs:SetSize(width / 2, auraHeight)
+					debuffs:SetSize(width / 2, auraHeight)
 				else
-					buffs:SetSize(width, height)
+					buffs:SetSize(width, auraHeight)
 				end
 			end
 
