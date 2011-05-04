@@ -162,14 +162,14 @@ do
 				Electrical Storm: 43648 = 80
 				Plucked: 97318 = 100
 			Daakara:
-				Claw Rage: 43150 = 80
-				Grievous Throw: 97639 = 100
+				Grievous Throw: 97639 = 80
+				Creeping Paralysis: 43095, 43437 = 100
 			Jan'alai:
 				--
 			Hex Lord Malacrass:
 				Siphon Soul: 43501 = 100
 			Nalorakk
-				Surge: 42402 = 100
+				Surge: 42402 = 90
 		Items/consumables:
 			Concentration Potion: 78993 = 40
 	]=]
