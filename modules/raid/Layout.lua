@@ -45,7 +45,7 @@ oUF:Factory(function()
 	anchor:SetAttribute('unitHeightSmall', HEIGHT_SMALL)
 	anchor:SetAttribute('unitHeightBig', HEIGHT)
 
-	oUF_Adirelle.RegisterMovable(anchor, 'anchor', "Party/raid frames")
+	oUF_Adirelle.RegisterMovable(anchor, 'raid', "Party/raid frames")
 
 	--------------------------------------------------------------------------------
 	-- Helper

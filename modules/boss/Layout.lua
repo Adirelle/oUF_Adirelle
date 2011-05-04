@@ -11,7 +11,7 @@ local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 oUF_Adirelle.oUF:Factory(function()
 	local IsInInstance = _G.IsInInstance
 
-	local anchor = oUF_Adirelle.CreatePseudoHeader("oUF_Adirelle_Bosses", "bosses", "Boss frames", 190, 47*4+15*3, 'BOTTOMLEFT', _G.UIParent, "BOTTOM", 250, 355)
+	local anchor = oUF_Adirelle.CreatePseudoHeader("oUF_Adirelle_Bosses", "boss", "Boss frames", 190, 47*4+15*3, 'BOTTOMLEFT', _G.UIParent, "BOTTOM", 250, 355)
 
 	function anchor:ShouldEnable()
 		local _, iType = IsInInstance()
