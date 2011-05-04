@@ -515,11 +515,7 @@ local function InitFrame(settings, self, unit)
 		end
 	end
 
-	if unit == "pet" then
-		-- Pet happiness
-		self.Happiness = SpawnTexture(indicators, 16, "BOTTOMRIGHT")
-
-	elseif unit == "player" then
+	if unit == "player" then
 		-- Player resting status
 		self.Resting = SpawnTexture(indicators, 16, "BOTTOMLEFT")
 
