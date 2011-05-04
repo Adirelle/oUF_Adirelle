@@ -152,17 +152,6 @@ local function GetOptions()
 		}
 	end
 
-	local directions = {
-		horizontal = {
-			positive = 'Left to right',
-			negative = 'Right to left',
-		},
-		vertical = {
-			positive = 'Bottom to top',
-			negative = 'Top to bottom',
-		},
-	}
-
 	options = {
 		name = 'oUF_Adirelle '..oUF_Adirelle.VERSION,
 		type = 'group',
