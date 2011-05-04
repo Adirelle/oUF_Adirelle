@@ -23,7 +23,7 @@ local layout, theme
 -- Elements that can be disabled
 local optionalElements = {
 	"Assistant", "Castbar", "ComboPoints", "Combat", "Dragon", "EclipseBar", "Experience",
-	"Happiness", "HolyPower", "IncomingHeal", "Leader", "LowHealth","MasterLooter",
+	"HolyPower", "IncomingHeal", "Leader", "LowHealth","MasterLooter",
 	"PvP", "PvPTimer", "RaidIcon", "ReadyCheck", "Resting", "RoleIcon", "RuneBar",
 	"SmartThreat", "SoulShards", "StatusIcon", "TargetIcon", "ThreatBar",
 	"TotemBar", "WarningIcon", "XRange", "Portrait",
@@ -118,7 +118,6 @@ local THEME_DEFAULTS = {
 		Health = {
 			colorTapping = true,
 			colorDisconnected = true,
-			colorHappiness = true,
 			colorClass = true,
 			colorClassNPC = false,
 			colorClassPet = false,
@@ -128,7 +127,6 @@ local THEME_DEFAULTS = {
 		Power = {
 			colorTapping = true,
 			colorDisconnected = true,
-			colorHappiness = false,
 			colorPower = true,
 			colorClass = false,
 			colorClassNPC = false,
