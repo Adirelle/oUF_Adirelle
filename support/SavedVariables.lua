@@ -180,6 +180,19 @@ frame:SetScript('OnEvent', function(self, event, name)
 		end
 		_G.oUF_Adirelle_DB = nil
 	end
+	
+	-- Some frame keys have been renamed at some point, move their settings algon
+	local rename = { arena = "arenas", raid = "anchor", boss = "bosses" }
+	for new, old in pairs(rename) do
+		if layout.disabled[old] then
+			layout.disabled[new] = true
+			layout.disabled[old] = nil
+		end
+		if layout.anchors[old] then
+			layout.anchors[new] = layout.anchors[old]
+			layout.anchors[old] = nil
+		end
+	end
 
 	-- Register AceDB callbacks
 	layoutDB.RegisterCallback(self, "OnNewProfile", OnDatabaseChanged)
