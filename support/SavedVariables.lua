@@ -137,9 +137,30 @@ local THEME_DEFAULTS = {
 	}
 }
 
+local function UpdateProfiles()
+	-- Some frame keys have been renamed at some point, move their settings along
+	local rename = { arena = "arenas", raid = "anchor", boss = "bosses" }
+	for new, old in pairs(rename) do
+		if layout.disabled[old] ~= nil then
+			layout.disabled[new] = layout.disabled[old]
+			layout.disabled[old] = nil
+		end
+		if layout.anchors[old] ~= nil then
+			layout.anchors[new] = layout.anchors[old]
+			layout.anchors[old] = nil
+		end
+	end
+end
+
 -- Publish the databases and apply the settings
 local function OnDatabaseChanged()
+	-- Set up our upvalues
 	layout, theme = oUF_Adirelle.layoutDB.profile, oUF_Adirelle.themeDB.profile
+	
+	-- Update the profile, in case it wasn't loaded since we changed the structure
+	UpdateProfiles()
+	
+	-- Forcefully apply the settings
 	return oUF_Adirelle.ApplySettings("OnDatabaseChanged", true)
 end
 
@@ -178,20 +199,10 @@ frame:SetScript('OnEvent', function(self, event, name)
 		end
 		_G.oUF_Adirelle_DB = nil
 	end
-	
-	-- Some frame keys have been renamed at some point, move their settings algon
-	local rename = { arena = "arenas", raid = "anchor", boss = "bosses" }
-	for new, old in pairs(rename) do
-		if layout.disabled[old] then
-			layout.disabled[new] = true
-			layout.disabled[old] = nil
-		end
-		if layout.anchors[old] then
-			layout.anchors[new] = layout.anchors[old]
-			layout.anchors[old] = nil
-		end
-	end
 
+	-- Update the profile, in case it wasn't loaded since we changed the structure
+	UpdateProfiles()
+	
 	-- Register AceDB callbacks
 	layoutDB.RegisterCallback(self, "OnNewProfile", OnDatabaseChanged)
 	layoutDB.RegisterCallback(self, "OnProfileChanged", OnDatabaseChanged)
