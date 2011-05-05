@@ -12,8 +12,6 @@ local pairs, unpack = _G.pairs, _G.unpack
 
 local libmovable = oUF_Adirelle.GetLib('LibMovable-1.0')
 
-local profile
-
 -- Functions used once the settings are loaded
 local function LM10_Enable(frame) return frame:SetEnabledSetting(true) end
 local function LM10_Disable(frame) return frame:SetEnabledSetting(false) end
@@ -25,7 +23,7 @@ local function DoRegister(frame, key, label, mask)
 	frame.LM10_Enable = LM10_Enable
 	frame.LM10_Disable = LM10_Disable
 
-	libmovable.RegisterMovable(addonName, frame, function() return profile[key] end, label, mask)
+	libmovable.RegisterMovable(addonName, frame, function() return oUF_Adirelle.layoutDB.profile.anchors[key] end, label, mask)
 end
 
 -- Function used until the settings are loaded
@@ -37,9 +35,6 @@ end
 
 -- Callback on database loaded/changed
 oUF_Adirelle.RegisterVariableLoadedCallback(function(newProfile, _, force)
-
-	-- Get the anchor settings
-	profile = newProfile.anchors
 
 	if oUF_Adirelle.RegisterMovable ~= DoRegister then
 		-- First initialization
