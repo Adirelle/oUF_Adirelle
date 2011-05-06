@@ -37,6 +37,7 @@ local function UpdatePlayerRole(event)
 	if role and role ~= "NONE" then
 		if role ~= current then
 			Debug("Player role changed from", current, "to", role)
+			current = role
 			oUF_Adirelle:SendMessage("OnPlayerRoleChanged", role)
 		end
 		if inRaid and UnitGroupRolesAssigned("player") ~= role then
