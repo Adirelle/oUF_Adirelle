@@ -183,14 +183,20 @@ oUF_Adirelle.optionalElements = optionalElements
 
 local function UpdateElements(frame)
 	-- Enable/disable the elements
+	local changed = false
 	for i, name in ipairs(optionalElements) do
 		if layout.elements[name] then
 			if not frame:IsElementEnabled(name) then
 				frame:EnableElement(name)
+				changed = true
 			end
 		elseif frame:IsElementEnabled(name) then
 			frame:DisableElement(name)
+			changed = true
 		end
+	end
+	if changed then
+		frame:UpdateAllElements('UpdateElements')
 	end
 end
 
