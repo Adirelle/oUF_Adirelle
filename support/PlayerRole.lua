@@ -19,7 +19,6 @@ local Debug = oUF_Adirelle.Debug
 
 local current
 local inRaid
-local callbacks = {}
 
 local function UpdatePlayerRole(event)
 	local primaryTree = GetPrimaryTalentTree()
@@ -39,11 +38,7 @@ local function UpdatePlayerRole(event)
 	if role and role ~= "NONE" then
 		if role ~= current then
 			Debug("Player role changed from", current, "to", role)
-			current = role
-			for callback in pairs(callbacks) do
-				local ok, msg = pcall(callback, role)
-				if not ok then geterrorhandler()(msg) end
-			end
+			oUF_Adirelle:SendMessage("OnPlayerRoleChanged", role)
 		end
 		if inRaid and UnitGroupRolesAssigned("player") ~= role then
 			Debug("Setting raid role to", role, "on", event)
@@ -91,6 +86,3 @@ function oUF_Adirelle.GetPlayerRole()
 	return current or UpdatePlayerRole()
 end
 
-function oUF_Adirelle.RegisterPlayerRoleCallback(callback)
-	callbacks[callback] = true
-end

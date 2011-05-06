@@ -223,10 +223,8 @@ oUF:Factory(function()
 			anchor:SetAttribute("heightType", "Small")
 		end
 	end
-
-	-- Player height updating
-	oUF_Adirelle.RegisterPlayerRoleCallback(UpdateHeightDriver)
 	UpdateHeightDriver()
+	anchor:RegisterMessage('OnPlayerRoleChanged', UpdateHeightDriver)
 
 	-- Apply settings
 	oUF_Adirelle.RegisterVariableLoadedCallback(function(layout, _, force, event)
