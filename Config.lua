@@ -221,7 +221,7 @@ local function GetOptions()
 				type = 'group',
 				childGroups = 'tree',
 				order = 10,
-				disabled = function() return InCombatLockdown() end,
+				disabled = InCombatLockdown,
 				args = {
 					modules = {
 						name = 'Enabled modules',
@@ -278,12 +278,12 @@ local function GetOptions()
 				type = 'group',
 				order = 20,
 				childGroups = 'tree',
-				disabled = function() return InCombatLockdown() end,
 				args = {
 					frames = {
 						name = 'Frames',
 						type = 'group',
 						order = 20,
+						disabled = InCombatLockdown,
 						args = {
 							frames = {
 								name = 'Enabled frames',
@@ -402,6 +402,7 @@ local function GetOptions()
 							width = {
 								name = 'Width',
 								type = 'range',
+								disabled = InCombatLockdown,
 								order = 10,
 								min = 80,
 								max = 250,
@@ -411,6 +412,7 @@ local function GetOptions()
 							heightBig = {
 								name = 'Large frame height',
 								type = 'range',
+								disabled = InCombatLockdown,
 								order = 20,
 								min = 37,
 								max = 87,
@@ -420,6 +422,7 @@ local function GetOptions()
 							heightSmall = {
 								name = 'Thin frame height',
 								type = 'range',
+								disabled = InCombatLockdown,
 								order = 30,
 								min = 10,
 								max = 40,
@@ -481,6 +484,7 @@ local function GetOptions()
 							oUF_Adirelle.ApplySettings("OnRaidLayoutModified")
 						end,
 						hidden = IsRaidStyleUnused,
+						disabled = InCombatLockdown,
 						args = {
 							width = {
 								name = 'Cell width',
