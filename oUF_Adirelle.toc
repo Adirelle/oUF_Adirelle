@@ -31,6 +31,9 @@ oUF\oUF.xml
 # Setup namespace
 oUF_Adirelle.lua
 
+# Internal messaging system
+support\Messages.lua
+
 # Handling of saved variable
 support\SavedVariables.lua
 
