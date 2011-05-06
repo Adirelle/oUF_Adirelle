@@ -113,7 +113,7 @@ end
 
 local function ADDON_LOADED(self, event, name)
 	if name ~= addonName then return end
-	self:UnregisterEvent('ADDON_LOADED')
+	self:UnregisterEvent('ADDON_LOADED', ADDON_LOADED)
 	ADDON_LOADED = nil
 
 	-- Initialize the databases
@@ -123,10 +123,10 @@ local function ADDON_LOADED(self, event, name)
 	LibStub('LibDualSpec-1.0'):EnhanceDatabase(layoutDB, addonName.." Layout")
 	LibStub('LibDualSpec-1.0'):EnhanceDatabase(themeDB, addonName.." Theme")
 
-	oUF_Adirelle.layoutDB, oUF_Adirelle.themeDB = layoutDB, themeDB
+	self.layoutDB, self.themeDB = layoutDB, themeDB
 
 	-- force initialization
-	layout, theme = oUF_Adirelle.layoutDB.profile, oUF_Adirelle.themeDB.profile
+	layout, theme = layoutDB.profile, themeDB.profile
 
 	-- Convert the old database
 	if type(_G.oUF_Adirelle_DB) == "table" then
@@ -146,9 +146,6 @@ local function ADDON_LOADED(self, event, name)
 		_G.oUF_Adirelle_DB = nil
 	end
 
-	-- Update the profile, in case it wasn't loaded since we changed the structure
-	UpdateProfiles()
-	
 	-- Register AceDB callbacks
 	layoutDB.RegisterCallback(self, "OnNewProfile", OnDatabaseChanged)
 	layoutDB.RegisterCallback(self, "OnProfileChanged", OnDatabaseChanged)
@@ -161,13 +158,13 @@ local function ADDON_LOADED(self, event, name)
 
 	-- Optional launcher icon on the minimap
 	local LibDBIcon = LibStub('LibDBIcon-1.0', true)
-	if oUF_Adirelle.launcher and LibDBIcon then
-		oUF_Adirelle.hasMinimapIcon = true
-		LibDBIcon:Register("oUF_Adirelle", oUF_Adirelle.launcher, layoutDB.global.minimapIcon)
+	if self.launcher and LibDBIcon then
+		self.hasMinimapIcon = true
+		LibDBIcon:Register("oUF_Adirelle", self.launcher, layoutDB.global.minimapIcon)
 	end
-
-	-- Fire update callbacks
-	oUF_Adirelle.SettingsModified()
+	
+	-- Run
+	return OnDatabaseChanged()
 end
 oUF_Adirelle:RegisterEvent('ADDON_LOADED', ADDON_LOADED)
 

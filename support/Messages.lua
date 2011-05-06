@@ -121,10 +121,10 @@ end
 
 -- Send a message
 local function SendMessage(self, message, ...)
-	self:Debug('SendMessage', message, ...)
+	oUF_Adirelle.Debug(self, 'SendMessage', message, ...)
 	if not callbacks[message] then return end
 	for target, callback in pairs(callbacks[message]) do
-		self:Debug('SendMessage,callback', target, message, ...)
+		oUF_Adirelle.Debug(self, 'SendMessage,callback', target, message, ...)
 		callback(target, message, ...)
 	end
 end
@@ -132,7 +132,7 @@ end
 -- Trigger a message for one frame
 local function TriggerMessage(self, message, ...)
 	if callbacks[message] and callbacks[message][self] then
-		self:Debug('TriggerMessage', message, ...)
+		oUF_Adirelle.Debug(self, 'TriggerMessage', message, ...)
 		callbacks[message][self](self, message, ...)
 	end
 end

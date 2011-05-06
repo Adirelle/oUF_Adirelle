@@ -10,60 +10,43 @@ local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 local pairs, unpack = _G.pairs, _G.unpack
 
-local libmovable = oUF_Adirelle.GetLib('LibMovable-1.0')
+-- Embed LibMovable-1.0
+local libmovable = oUF_Adirelle.GetLib('LibMovable-1.0').Embed(oUF_Adirelle)
 
--- Functions used once the settings are loaded
+-- Return the "anchors" table for the given frame
+local function GetDatabase(frame)
+	return oUF_Adirelle.layoutDB and oUF_Adirelle.layoutDB.profile.anchors[frame.dbKey]
+end
+
+-- Enable/disable methods
 local function LM10_Enable(frame) return frame:SetEnabledSetting(true) end
 local function LM10_Disable(frame) return frame:SetEnabledSetting(false) end
-local function DoRegister(frame, key, label, mask)
-	frame:Debug('Registering movable', key, label, mask)
 
+local RegisterMovable = oUF_Adirelle.RegisterMovable
+function oUF_Adirelle.RegisterMovable(frame, key, label, mask)
+	frame:Debug('Registering movable', key, label, mask)
+	
+	-- The frame can be disabled
 	oUF_Adirelle.RegisterTogglableFrame(frame, key, label)
+	
+	-- Mix in our methods 
 	frame.LM10_IsEnabled = frame.GetEnabledSetting
 	frame.LM10_Enable = LM10_Enable
 	frame.LM10_Disable = LM10_Disable
-
-	libmovable.RegisterMovable(addonName, frame, function() return oUF_Adirelle.layoutDB.profile.anchors[key] end, label, mask)
+	
+	-- Now do register this frame as movable
+	RegisterMovable(oUF_Adirelle, frame, GetDatabase, label, mask)
 end
 
--- Function used until the settings are loaded
-local postponed
-oUF_Adirelle.RegisterMovable = function(frame, key, label, mask)
-	if not postponed then postponed = {} end
-	postponed[frame] = { key, label, mask }
-end
+-- Update the position when settings are loaded
+oUF_Adirelle:RegisterMessage('OnSettingsModified', "UpdateMovableLayout")
 
--- Callback on database loaded/changed
-oUF_Adirelle.RegisterVariableLoadedCallback(function(newProfile, _, force)
-
-	if oUF_Adirelle.RegisterMovable ~= DoRegister then
-		-- First initialization
-
-		-- Replace RegisterMovable with the function that actually registers the frame
-		oUF_Adirelle.RegisterMovable = DoRegister
-
-		-- Process already registered frames
-		if postponed then
-			for frame, params in pairs(postponed) do
-				DoRegister(frame, unpack(params))
-			end
-			postponed = nil
-		end
-
-	else
-		-- Already initialized, only apply the new layout
-		libmovable.UpdateLayout(addonName)
-	end
-end)
-
-function oUF_Adirelle.IsLocked()
-	return libmovable.IsLocked("oUF_Adirelle")
-end
-
+-- LibMovable compat layer
+function oUF_Adirelle.IsLocked() return oUF_Adirelle:AreMovablesLocked() end
 function oUF_Adirelle.ToggleLock()
-	if libmovable.IsLocked("oUF_Adirelle") then
-		libmovable.Unlock("oUF_Adirelle")
+	if oUF_Adirelle:AreMovablesLocked() then
+		oUF_Adirelle:UnlockMovables()
 	else
-		libmovable.Lock("oUF_Adirelle")
+		oUF_Adirelle:LockMovables()
 	end
 end

@@ -80,19 +80,18 @@ local function SaveColors()
 	DeepCopy(oUF.colors, profile.colors, false, DEFAULTS)
 end
 
-oUF_Adirelle.RegisterVariableLoadedCallback(function(_, newProfile, force, event)
+oUF_Adirelle:RegisterMessage('OnSettingsModified', function(self, event, _, newProfile) 
 	if not DEFAULTS then
 		DEFAULTS = {}
 		DeepCopy(oUF.colors, DEFAULTS)
 		oUF_Adirelle.themeDB.RegisterCallback(addonName.."_colors", "OnDatabaseShutdown", SaveColors)
 		oUF_Adirelle.themeDB.RegisterCallback(addonName.."_colors", "OnProfileShutdown", SaveColors)
 	end
-	if force or profile ~= newProfile then
+	if profile ~= newProfile then
 		-- Update the upvalue
 		profile = newProfile
 		-- Copy the colors
 		DeepCopy(profile.colors or DEFAULTS, oUF.colors, true)
 	end
 end)
-
 
