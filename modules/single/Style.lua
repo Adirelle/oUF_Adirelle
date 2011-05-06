@@ -303,112 +303,111 @@ local function ApplyAuraPosition(self, target, initialAnchor, anchorTo, growthx,
 	target:SetPoint(initialAnchor, self, anchorTo, dx * FRAME_MARGIN, dy * FRAME_MARGIN)
 end
 
-local function OnApplySettings(self, layout, theme, force, event)
-	if force or event == 'OnSingleLayoutModified' then
+local function OnAuraLayoutModified(self, event, layout)
+	local width, height = self:GetSize()
+	local buffs, debuffs = self.Buffs, self.Debuffs
+	
+	local auras = layout.Single.Auras
+	local size, spacing, side = auras.size, auras.spacing, auras.sides[self.baseUnit]
+	buffs.size, buffs.spacing, buffs.enlarge = size, spacing, auras.enlarge
 
-		-- Update frame size
-		local width, height = layout.Single.width, layout.Single['height'..self.heightType]
+	-- Apply position
+	if side == 'LEFT' or side == 'RIGHT' then
+		-- Left or right
+		local dx, opposite
+		if side == 'LEFT' then
+			dx, opposite = -1, 'RIGHT'
+		else
+			dx, opposite = 1, 'LEFT'
+		end
+		ApplyAuraPosition(self, buffs, 'BOTTOM'..opposite, 'BOTTOM'..side, dx, -1, dx, 0)				
+
+		-- Ensure we can display at least 12 normal icons or 5 large ones
+		local auraWidth = size * 12 + spacing * 11
+		if auras.enlarge then
+			auraWidth = mmax(mmin(size * 1.5, height) * 6 + spacing * 5)
+		end
+		
+		-- Share the available space with debuffs, if necessary
+		if debuffs then
+			ApplyAuraPosition(self, debuffs, 'TOP'..opposite, 'TOP'..side, dx, 1, dx, 0)
+			buffs:SetSize(auraWidth, height / 2)
+			debuffs:SetSize(auraWidth, height / 2)
+		else
+			buffs:SetSize(auraWidth, height)
+		end
+	else
+		-- Top or bottom				
+		local dy, opposite
+		if side == 'TOP' then
+			dy, opposite = 1, 'BOTTOM'
+		else
+			dy, opposite = -1, 'TOP'
+		end
+		
+		-- Ensure we can display at least two rows of normal icons, or a row of large ones plus a row of normal ones
+		local auraHeight = size * 2 + spacing
+		if auras.enlarge then
+			auraHeight = mmax(auraHeight, mmin(size * 1.5, width) + spacing + size)
+		end
+		
+		ApplyAuraPosition(self, buffs, opposite..'LEFT', side..'LEFT', 1, dy, 0, dy)
+		if debuffs then
+			ApplyAuraPosition(self, debuffs, opposite..'RIGHT', side..'RIGHT', -1, dy, 0, dy)
+			buffs:SetSize(width / 2, auraHeight)
+			debuffs:SetSize(width / 2, auraHeight)
+		else
+			buffs:SetSize(width, auraHeight)
+		end
+	end
+
+	-- Update the number of icons
+	local s = size+spacing
+	buffs.num = floor(buffs:GetWidth() / s) * floor(buffs:GetHeight() / s)
+	if debuffs then
+		debuffs.num = floor(debuffs:GetWidth() / s) * floor(debuffs:GetHeight() / s)
+	end
+end
+
+local function OnSingleLayoutModified(self, event, layout, theme)
+	local width, height = layout.Single.width, layout.Single['height'..self.heightType]
+	if self:CanChangeProtectedState() and (self:GetWidth() ~= width or self:GetHeight() ~= height) then
 		self:SetSize(width, height)
+	end
+end
 
-		-- Update aura layout
-		local buffs, debuffs = self.Buffs, self.Debuffs
-		if buffs then
-			local auras = layout.Single.Auras
-			local size, spacing, side = auras.size, auras.spacing, auras.sides[self.baseUnit]
-			buffs.size, buffs.spacing, buffs.enlarge = size, spacing, auras.enlarge
-
-			-- Apply position
-			if side == 'LEFT' or side == 'RIGHT' then
-				-- Left or right
-				local dx, opposite
-				if side == 'LEFT' then
-					dx, opposite = -1, 'RIGHT'
-				else
-					dx, opposite = 1, 'LEFT'
-				end
-				ApplyAuraPosition(self, buffs, 'BOTTOM'..opposite, 'BOTTOM'..side, dx, -1, dx, 0)				
-
-				-- Ensure we can display at least 12 normal icons or 5 large ones
-				local auraWidth = size * 12 + spacing * 11
-				if auras.enlarge then
-					auraWidth = mmax(mmin(size * 1.5, height) * 6 + spacing * 5)
-				end
-				
-				-- Share the available space with debuffs, if necessary
-				if debuffs then
-					ApplyAuraPosition(self, debuffs, 'TOP'..opposite, 'TOP'..side, dx, 1, dx, 0)
-					buffs:SetSize(auraWidth, height / 2)
-					debuffs:SetSize(auraWidth, height / 2)
-				else
-					buffs:SetSize(auraWidth, height)
-				end
-			else
-				-- Top or bottom				
-				local dy, opposite
-				if side == 'TOP' then
-					dy, opposite = 1, 'BOTTOM'
-				else
-					dy, opposite = -1, 'TOP'
-				end
-				
-				-- Ensure we can display at least two rows of normal icons, or a row of large ones plus a row of normal ones
-				local auraHeight = size * 2 + spacing
-				if auras.enlarge then
-					auraHeight = mmax(auraHeight, mmin(size * 1.5, width) + spacing + size)
-				end
-				
-				ApplyAuraPosition(self, buffs, opposite..'LEFT', side..'LEFT', 1, dy, 0, dy)
-				if debuffs then
-					ApplyAuraPosition(self, debuffs, opposite..'RIGHT', side..'RIGHT', -1, dy, 0, dy)
-					buffs:SetSize(width / 2, auraHeight)
-					debuffs:SetSize(width / 2, auraHeight)
-				else
-					buffs:SetSize(width, auraHeight)
-				end
-			end
-
-			-- Update the number of icons
-			local s = size+spacing
-			buffs.num = floor(buffs:GetWidth() / s) * floor(buffs:GetHeight() / s)
-			if debuffs then
-				debuffs.num = floor(debuffs:GetWidth() / s) * floor(debuffs:GetHeight() / s)
-			end
-
+local function OnSingleThemeModified(self, event, layout, theme)
+	-- Update health coloring flags
+	local health = self.Health
+	for k,v in pairs(theme.Health) do
+		health[k] = v
+	end
+	if self.baseUnit == "arena" then
+		-- No color smooting for arena units
+		health.colorSmooth = false
+	end
+	if self.Power then
+		-- Update power coloring flags
+		for k,v in pairs(theme.Power) do
+			self.Power[k] = v
 		end
 	end
-	if force or event == 'OnThemeModified' then
-		-- Update health coloring flags
-		local health = self.Health
-		for k,v in pairs(theme.Health) do
-			health[k] = v
-		end
-		if self.baseUnit == "arena" then
-			-- No color smooting for arena units
-			health.colorSmooth = false
-		end
-		if self.Power then
-			-- Update power coloring flags
-			for k,v in pairs(theme.Power) do
-				self.Power[k] = v
-			end
-		end
+end
+
+local function OnColorModified(self, event, layout, theme)
+	if self.LowHealth then
+		self.LowHealth:SetTexture(unpack(oUF.colors.lowHealth, 1, 4))
 	end
-	if force or event == 'OnColorChanged' then
-		-- Update colors
-		if self.LowHealth then
-			self.LowHealth:SetTexture(unpack(oUF.colors.lowHealth, 1, 4))
-		end
-		if self.XRange then
-			self.XRange:SetTexture(unpack(oUF.colors.outOfRange, 1, 3))
-			self.XRange:ForceUpdate()
-		end
-		if self.IncomingHeal then
-			self.IncomingHeal:SetTexture(unpack(oUF.colors.incomingHeal.self, 1, 4))
-		end
-		self.Health:ForceUpdate()
-		if self.Power then
-			self.Power:ForceUpdate()
-		end
+	if self.XRange then
+		self.XRange:SetTexture(unpack(oUF.colors.outOfRange, 1, 3))
+		self.XRange:ForceUpdate()
+	end
+	if self.IncomingHeal then
+		self.IncomingHeal:SetTexture(unpack(oUF.colors.incomingHeal.self, 1, 4))
+	end
+	self.Health:ForceUpdate()
+	if self.Power then
+		self.Power:ForceUpdate()
 	end
 end
 
@@ -443,6 +442,14 @@ local function InitFrame(settings, self, unit)
 	self:SetBackdrop(backdrop)
 	self:SetBackdropColor(0,0,0,backdrop.bgAlpha)
 	self:SetBackdropBorderColor(0,0,0,0)
+	
+	-- Register setting callbacks early
+	self:RegisterMessage('OnSingleLayoutModified', OnSingleLayoutModified)
+	self:RegisterMessage('OnSettingsModified', OnSingleLayoutModified)
+	self:RegisterMessage('OnSingleThemeModified', OnSingleThemeModified)
+	self:RegisterMessage('OnSettingsModified', OnSingleThemeModified)
+	self:RegisterMessage('OnColorModified', OnColorModified)
+	self:RegisterMessage('OnSettingsModified', OnColorModified)
 
 	-- Border
 	local border = CreateFrame("Frame", nil, self)
@@ -716,6 +723,8 @@ local function InitFrame(settings, self, unit)
 		buffs.PostCreateIcon = Auras_PostCreateIcon
 		buffs.PostUpdateIcon = Auras_PostUpdateIcon
 		self.Buffs = buffs
+		self:RegisterMessage('OnSettingsModified', OnAuraLayoutModified)
+		self:RegisterMessage('OnSingleLayoutModified', OnAuraLayoutModified)
 	end
 	if debuffs then
 		debuffs.size = AURA_SIZE
@@ -833,8 +842,6 @@ local function InitFrame(settings, self, unit)
 		self.AltPowerBar = altPowerBar
 		AddAuxiliaryBar(self, altPowerBar)
 	end
-
-	self.OnApplySettings = OnApplySettings
 
 	-- Update layout at least once
 	self:HookScript('OnSizeChanged', LayoutBars)

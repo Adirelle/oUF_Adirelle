@@ -419,28 +419,27 @@ local function XRange_PostUpdate(xrange, event, unit, inRange)
 	end
 end
 
-local function OnApplySettings(self, layout, theme, force, event)
-	if force or event == 'OnRaidLayoutModified' then
-		local small, big = layout.Raid.smallIconSize, layout.Raid.bigIconSize
-		self.WarningIconBuff:SetSize(big, big)
-		self.WarningIconDebuff:SetSize(big, big)
-		self.RoleIcon:SetSize(small, small)
-		self.TargetIcon:SetSize(small, small)
-		for icon in pairs(self.AuraIcons) do
-			if icon.big then
-				icon:SetSize(big, big)
-			else
-				icon:SetSize(small, small)
-			end
+local function OnRaidLayoutModified(self, event, layout)
+	local small, big = layout.Raid.smallIconSize, layout.Raid.bigIconSize
+	self.WarningIconBuff:SetSize(big, big)
+	self.WarningIconDebuff:SetSize(big, big)
+	self.RoleIcon:SetSize(small, small)
+	self.TargetIcon:SetSize(small, small)
+	for icon in pairs(self.AuraIcons) do
+		if icon.big then
+			icon:SetSize(big, big)
+		else
+			icon:SetSize(small, small)
 		end
 	end
-	if force or event == 'OnColorChanged' then
-		self.IncomingHeal:SetTexture(unpack(oUF.colors.incomingHeal.self, 1, 4))
-		self.IncomingOthersHeal:SetTexture(unpack(oUF.colors.incomingHeal.others, 1, 4))
-		self.XRange:SetTexture(unpack(oUF.colors.outOfRange, 1, 3))
-		self.XRange:ForceUpdate()
-		UpdateColor(self)
-	end
+end
+
+local function OnColorModified(self)
+	self.IncomingHeal:SetTexture(unpack(oUF.colors.incomingHeal.self, 1, 4))
+	self.IncomingOthersHeal:SetTexture(unpack(oUF.colors.incomingHeal.others, 1, 4))
+	self.XRange:SetTexture(unpack(oUF.colors.outOfRange, 1, 3))
+	self.XRange:ForceUpdate()
+	return UpdateColor(self)
 end
 
 -- ------------------------------------------------------------------------------
@@ -610,8 +609,11 @@ local function InitFrame(self, unit)
 	self:RegisterStatusBarTexture(altPowerBar)
 	self.AltPowerBar = altPowerBar
 
-	-- Setting callback
-	self.OnApplySettings = OnApplySettings
+	-- Setting callbacks
+	self:RegisterMessage('OnSettingsModified', OnRaidLayoutModified)
+	self:RegisterMessage('OnRaidLayoutModified', OnRaidLayoutModified)
+	self:RegisterMessage('OnSettingsModified', OnColorModified)
+	self:RegisterMessage('OnColorModified', OnColorModified)
 
 	-- Range fading
 	local xrange = overlay:CreateTexture(nil, "BACKGROUND")
