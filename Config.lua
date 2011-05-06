@@ -649,6 +649,54 @@ local function GetOptions()
 							--]]
 						},
 					},
+					Border = {
+						name = 'Mana "low level" thresholds',
+						type = 'group',
+						order = 10,
+						hidden = IsElementDisabled.Border,
+						get = function(info) return themeDB.profile.Border[info[#info]] end,
+						set = function(info, value)
+							themeDB.profile.Border[info[#info]] = value
+							SettingsModified('OnThemeModified')
+						end,
+						args = {
+							_desc = {
+								type = 'description',
+								order = 1,
+								name = 'These thresholds are used to display the blue border around units that are considered "low in mana".',
+							},
+							inCombatManaLevel = {
+								name = 'In combat',
+								type = 'range',
+								order = 10,
+								isPercent = true,
+								min = 0,
+								max = 1,
+								step = 0.01,
+								bigStep = 0.05,
+							},
+							oocInRaidManaLevel = {
+								name = 'Out of combat in raid instances',
+								type = 'range',
+								order = 20,
+								isPercent = true,
+								min = 0,
+								max = 1,
+								step = 0.01,
+								bigStep = 0.05,							
+							},
+							oocManaLevel = {
+								name = 'Out of combat',
+								type = 'range',
+								order = 30,
+								isPercent = true,
+								min = 0,
+								max = 1,
+								step = 0.01,
+								bigStep = 0.05,						
+							},
+						},
+					},
 					single = {
 						name = 'Basic/arena/boss frames',
 						type = 'group',

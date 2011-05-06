@@ -397,6 +397,14 @@ local function OnSingleThemeModified(self, event, layout, theme)
 	end
 end
 
+local function OnThemeModified(self, event, layout, theme)
+	local border = self.Border
+	for k, v in pairs(theme.Border) do
+		border[k] = v
+	end
+	border:ForceUpdate()
+end
+
 local function OnColorModified(self, event, layout, theme)
 	if self.LowHealth then
 		self.LowHealth:SetTexture(unpack(oUF.colors.lowHealth, 1, 4))
@@ -453,7 +461,9 @@ local function InitFrame(settings, self, unit)
 	self:RegisterMessage('OnSettingsModified', OnSingleThemeModified)
 	self:RegisterMessage('OnColorModified', OnColorModified)
 	self:RegisterMessage('OnSettingsModified', OnColorModified)
-
+	self:RegisterMessage('OnSettingsModified', OnThemeModified)
+	self:RegisterMessage('OnThemeModified', OnThemeModified)
+	
 	-- Border
 	local border = CreateFrame("Frame", nil, self)
 	border:SetFrameStrata("BACKGROUND")
