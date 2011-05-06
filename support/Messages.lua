@@ -10,7 +10,7 @@ local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 -- Make most globals local so I can check global leaks using "luac -l | grep GLOBAL"
 local setmetatable, type, rawget, tremove = _G.setmetatable, _G.type, _G.rawget, _G.tremove
-local next, pairs = _G.next, _G.pairs
+local next, pairs, CreateFrame = _G.next, _G.pairs, _G.CreateFrame
 
 -- The big table
 local callbacks = {}
@@ -154,4 +154,39 @@ end
 
 -- Embed messaging into oUF_Adirelle itself
 oUF_Adirelle:EmbedMessaging()
+
+-- Build an simple event broadcast system on top of the messaging system
+local eventFrame = CreateFrame("Frame")
+eventFrame:SetScript('OnEvent', SendMessage)
+
+-- Register an event for target, also register it to eventFrame if need be
+local function RegisterEvent(target, event, callback)
+	if RegisterMessage(target, event, callback) then
+		if callbacks[event] and not eventFrame:IsEventRegistered(event) then
+			oUF_Adirelle.Debug('Registering event', event)
+			eventFrame:RegisterEvent(event)
+		end
+		return true
+	end
+end
+
+-- Unregister an event for target, also unregister it from eventFrame if it is unused
+local function UnregisterEvent(target, event, callback)
+	if UnregisterMessage(target, event, callback) then
+		if not callbacks[event] and eventFrame:IsEventRegistered(event) then
+			oUF_Adirelle.Debug('Unregistering event', event)
+			eventFrame:UnregisterEvent(event)
+		end
+		return true
+	end
+end
+
+-- Embed our register methods into the target object
+function oUF_Adirelle.EmbedEventMessaging(target)
+	target.RegisterEvent = RegisterEvent
+	target.UnregisterEvent = UnregisterEvent
+end
+
+-- Embed it into ourself
+oUF_Adirelle:EmbedEventMessaging()
 
