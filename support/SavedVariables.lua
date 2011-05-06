@@ -111,11 +111,10 @@ local function OnDatabaseChanged()
 	oUF_Adirelle.SettingsModified()
 end
 
-local frame = _G.CreateFrame("Frame")
-frame:SetScript('OnEvent', function(self, event, name)
+local function ADDON_LOADED(self, event, name)
 	if name ~= addonName then return end
 	self:UnregisterEvent('ADDON_LOADED')
-	self:SetScript('OnEvent', nil)
+	ADDON_LOADED = nil
 
 	-- Initialize the databases
 	local layoutDB = LibStub('AceDB-3.0'):New("oUF_Adirelle_Layout", LAYOUT_DEFAULTS, true)
@@ -167,9 +166,11 @@ frame:SetScript('OnEvent', function(self, event, name)
 		LibDBIcon:Register("oUF_Adirelle", oUF_Adirelle.launcher, layoutDB.global.minimapIcon)
 	end
 
-end)
+	-- Fire update callbacks
 	oUF_Adirelle.SettingsModified()
-frame:RegisterEvent('ADDON_LOADED')
+end
+oUF_Adirelle:RegisterEvent('ADDON_LOADED', ADDON_LOADED)
+
 -- ------------------------------------------------------------------------------
 -- Handle optional elements
 -- ------------------------------------------------------------------------------
