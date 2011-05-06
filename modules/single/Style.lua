@@ -383,14 +383,17 @@ local function OnSingleThemeModified(self, event, layout, theme)
 		health[k] = v
 	end
 	if self.baseUnit == "arena" then
-		-- No color smooting for arena units
 		health.colorSmooth = false
 	end
-	if self.Power then
-		-- Update power coloring flags
+	health:ForceUpdate()
+	
+	-- Update power coloring flags
+	local power = self.Power
+	if power then
 		for k,v in pairs(theme.Power) do
-			self.Power[k] = v
+			power[k] = v
 		end
+		power:ForceUpdate()
 	end
 end
 
