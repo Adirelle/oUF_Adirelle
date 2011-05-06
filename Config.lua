@@ -30,6 +30,8 @@ local function GetOptions()
 	local LibMovable = oUF_Adirelle.GetLib('LibMovable-1.0')
 
 	local reloadNeeded = false
+	
+	local SettingsModified = oUF_Adirelle. SettingsModified
 
 	-- The list of modules
 	local moduleList = {
@@ -108,7 +110,7 @@ local function GetOptions()
 			if info.option.hasAlpha then
 				info.arg[4] = a
 			end
-			oUF_Adirelle.SettingsModified('OnColorModified')
+			SettingsModified('OnColorModified')
 		end
 		local function GetColor(info)
 			return unpack(info.arg, 1, info.option.hasAlpha and 4 or 3)
@@ -198,7 +200,7 @@ local function GetOptions()
 			get = function(info) return layoutDB.profile.Single.Auras.sides[key] end,
 			set = function(info, value)
 				layoutDB.profile.Single.Auras.sides[key] = value
-				oUF_Adirelle.ApplySettings("OnSingleLayoutModified")
+				SettingsModified("OnSingleLayoutModified")
 			end,
 			hidden = IsFrameDisabled[key],
 			values = {
@@ -330,7 +332,7 @@ local function GetOptions()
 						end,
 						set = function(info, key, value)
 							layoutDB.profile.elements[key] = value
-							oUF_Adirelle.SettingsModified("OnElementsModified")
+							SettingsModified("OnElementsModified")
 						end,
 						args = {
 							_warn = {
@@ -395,7 +397,7 @@ local function GetOptions()
 						get = function(info) return layoutDB.profile.Single[info[#info]] end,
 						set = function(info, value)
 							layoutDB.profile.Single[info[#info]] = value
-							oUF_Adirelle.SettingsModified("OnSingleLayoutModified")
+							SettingsModified("OnSingleLayoutModified")
 						end,
 						hidden = IsSingleStyleUnused,
 						args = {
@@ -436,7 +438,7 @@ local function GetOptions()
 								get = function(info) return layoutDB.profile.Single.Auras[info[#info]] end,
 								set = function(info, value)
 									layoutDB.profile.Single.Auras[info[#info]] = value
-									oUF_Adirelle.SettingsModified("OnSingleLayoutModified")
+									SettingsModified("OnSingleLayoutModified")
 								end,
 								args = {
 									size = {
@@ -481,7 +483,7 @@ local function GetOptions()
 						get = function(info) return layoutDB.profile.Raid[info[#info]] end,
 						set = function(info, value)
 							layoutDB.profile.Raid[info[#info]] = value
-							oUF_Adirelle.SettingsModified("OnRaidLayoutModified")
+							SettingsModified("OnRaidLayoutModified")
 						end,
 						hidden = IsRaidStyleUnused,
 						disabled = InCombatLockdown,
@@ -589,7 +591,7 @@ local function GetOptions()
 								get = function(info, key) return layoutDB.profile.Raid.showPets[key] end,
 								set = function(info, key, value)
 									layoutDB.profile.Raid.showPets[key] = value
-									oUF_Adirelle.SettingsModified("OnRaidLayoutModified")
+									SettingsModified("OnRaidLayoutModified")
 								end,
 							},
 						},
@@ -619,7 +621,7 @@ local function GetOptions()
 								end,
 								set = function(_, value)
 									themeDB.profile.statusbar = value
-									oUF_Adirelle.SettingsModified("OnTextureModified")
+									SettingsModified("OnTextureModified")
 								end,
 							},
 							--[[
@@ -661,7 +663,7 @@ local function GetOptions()
 								get = function(info, key) return themeDB.profile.Health[key] end,
 								set = function(info, key, value)
 									themeDB.profile.Health[key] = value
-									oUF_Adirelle.SettingsModified('OnSingleThemeModified')
+									SettingsModified('OnSingleThemeModified')
 								end,
 								values = {
 									colorTapping = 'Tapped mobs',
@@ -681,7 +683,7 @@ local function GetOptions()
 								get = function(info, key) return themeDB.profile.Power[key] end,
 								set = function(info, key, value)
 									themeDB.profile.Power[key] = value
-									oUF_Adirelle.SettingsModified('OnSingleThemeModified')
+									SettingsModified('OnSingleThemeModified')
 								end,
 								values = {
 									colorTapping = 'Tapped mobs',
