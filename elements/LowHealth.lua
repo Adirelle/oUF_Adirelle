@@ -116,7 +116,7 @@ local function SetThreshold(newThreshold, stealth)
 	end
 end
 
-oUF_Adirelle.RegisterVariableLoadedCallback(function(dbRef)
+oUF_Adirelle:RegisterMessage('OnSettingsModified', function(self, event, dbRef)
 	db = dbRef
 	return SetThreshold(db.LowHealthThreshold, true)
 end)

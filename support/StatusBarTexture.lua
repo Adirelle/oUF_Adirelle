@@ -33,7 +33,7 @@ oUF:RegisterMetaFunction('RegisterStatusBarTexture', function(self, bar)
 		or bar:IsObjectType("Texture") and Texture_Callback,
 		"RegisterStatusBarTexture(object): object should be a Texture or a StatusBar"
 	)
-	oUF_Adirelle:EmbedMessaging(bar)
+	oUF_Adirelle.EmbedMessaging(bar)
 	bar:RegisterMessage('SetStatusBarTexture', callback)
 	callback(bar) -- Update once immediately
 end)
