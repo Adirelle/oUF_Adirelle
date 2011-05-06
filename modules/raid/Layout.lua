@@ -44,18 +44,17 @@ oUF:Factory(function()
 	anchor:SetAttribute('unitWidth', WIDTH)
 	anchor:SetAttribute('unitHeightSmall', HEIGHT_SMALL)
 	anchor:SetAttribute('unitHeightBig', HEIGHT)
-
+	
 	oUF_Adirelle.RegisterMovable(anchor, 'raid', "Party/raid frames")
 
 	--------------------------------------------------------------------------------
 	-- Helper
 	--------------------------------------------------------------------------------
 
-	local function Header_ApplySettings(self, layout, _, force, event)
-		if not force and event ~= 'OnRaidLayoutModified' then return end
+	local function Header_OnRaidLayoutModified(self, event, layout)
 		local c = layout.Raid
 		local spacing, alignment = c.unitSpacing, c.alignment
-		self:Debug('Header_ApplySettings', 'orientation=', c.orientation, 'alignment=', alignment, 'unitSpacing=', spacing)
+		self:Debug('Header_OnRaidLayoutModified', 'orientation=', c.orientation, 'alignment=', alignment, 'unitSpacing=', spacing)
 		self:SetAttribute('_ignore', true)
 		if c.orientation == "horizontal" then
 			self:SetAttribute('xOffset', strmatch(alignment, 'RIGHT') and -spacing or spacing)
@@ -111,8 +110,10 @@ oUF:Factory(function()
 		)
 		header.Debug = Debug
 		header:SetScale(SCALE)
-		header:SetParent(anchor)
-		oUF_Adirelle.RegisterVariableLoadedCallback(function(...) return Header_ApplySettings(header, ...) end)
+		header:SetParent(anchor)		
+		oUF_Adirelle.EmbedMessaging(header)
+		header:RegisterMessage('OnSettingsModified', Header_OnRaidLayoutModified)
+		header:RegisterMessage('OnRaidLayoutModified', Header_OnRaidLayoutModified)
 		return header
 	end
 
@@ -227,8 +228,7 @@ oUF:Factory(function()
 	anchor:RegisterMessage('OnPlayerRoleChanged', UpdateHeightDriver)
 
 	-- Apply settings
-	oUF_Adirelle.RegisterVariableLoadedCallback(function(layout, _, force, event)
-		if not force and event ~= 'OnRaidLayoutModified' then return end
+	local function Anchor_OnRaidLayoutModified(self, event, layout)
 		local c = layout.Raid
 		local width, heightBig, heightSmall = c.width, c.healerHeight, c.height
 		local alignment = c.alignment
@@ -275,6 +275,15 @@ oUF:Factory(function()
 			anchor:SetAttribute('state-size', GetTime())
 		end
 
-	end)
+	end
+	
+	-- Setting callbacks
+	anchor:RegisterMessage('OnRaidLayoutModified', Anchor_OnRaidLayoutModified)
+	anchor:RegisterMessage('OnSettingsModified', Anchor_OnRaidLayoutModified)
+
+	local layout = oUF_Adirelle.layoutDB.profile
+	if layout then
+		anchor:TriggerMessage('OnSettingsModified', layout)
+	end
 
 end)
