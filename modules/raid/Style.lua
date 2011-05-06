@@ -434,6 +434,14 @@ local function OnRaidLayoutModified(self, event, layout)
 	end
 end
 
+local function OnThemeModified(self, event, layout, theme)
+	local border = self.Border
+	for k, v in pairs(theme.Border) do
+		border[k] = v
+	end
+	border:ForceUpdate()
+end
+
 local function OnColorModified(self)
 	self.IncomingHeal:SetTexture(unpack(oUF.colors.incomingHeal.self, 1, 4))
 	self.IncomingOthersHeal:SetTexture(unpack(oUF.colors.incomingHeal.others, 1, 4))
@@ -614,6 +622,8 @@ local function InitFrame(self, unit)
 	self:RegisterMessage('OnRaidLayoutModified', OnRaidLayoutModified)
 	self:RegisterMessage('OnSettingsModified', OnColorModified)
 	self:RegisterMessage('OnColorModified', OnColorModified)
+	self:RegisterMessage('OnSettingsModified', OnThemeModified)
+	self:RegisterMessage('OnThemeModified', OnThemeModified)
 
 	-- Range fading
 	local xrange = overlay:CreateTexture(nil, "BACKGROUND")

@@ -58,6 +58,11 @@ local LAYOUT_DEFAULTS = {
 local THEME_DEFAULTS = {
 	profile = {
 		statusbar = 'BantoBar',
+		Border = {
+			inCombatManaLevel = 0.3,
+			oocInRaidManaLevel = 0.9,
+			oocManaLevel = 0.6,
+		},
 		Health = {
 			colorTapping = true,
 			colorDisconnected = true,
@@ -84,11 +89,11 @@ local function UpdateProfiles()
 	-- Some frame keys have been renamed at some point, move their settings along
 	local rename = { arena = "arenas", raid = "anchor", boss = "bosses" }
 	for new, old in pairs(rename) do
-		if layout.disabled[old] ~= nil then
+		if rawget(layout.disabled, old) ~= nil then
 			layout.disabled[new] = layout.disabled[old]
 			layout.disabled[old] = nil
 		end
-		if layout.anchors[old] ~= nil then
+		if rawget(layout.anchors, old) ~= nil then
 			layout.anchors[new] = layout.anchors[old]
 			layout.anchors[old] = nil
 		end

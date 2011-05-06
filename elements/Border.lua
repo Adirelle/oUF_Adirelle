@@ -33,7 +33,7 @@ local function Update(self, event, unit)
 	if unit and UnitExists(unit) then
 		if not border.noTarget and UnitIsUnit('target', unit) then
 			r, g, b = 1, 1, 1
-		elseif not UnitIsDeadOrGhost(unit) and border.hasMana and UnitPower(unit, SPELL_POWER_MANA) / UnitPowerMax(unit, SPELL_POWER_MANA) <= border.manaThreshold then
+		elseif not UnitIsDeadOrGhost(unit) and border.manaThreshold and UnitPower(unit, SPELL_POWER_MANA) / UnitPowerMax(unit, SPELL_POWER_MANA) <= border.manaThreshold then
 			r, g, b = unpack(oUF.colors.power.MANA)
 		end
 	end
@@ -55,11 +55,19 @@ end
 local function TogglePowerUpdates(self, event, unit)
 	if unit and unit ~= self.unit then return end
 	local border = self.Border
-	local hasMana = UnitPowerType(self.unit) == SPELL_POWER_MANA
-	local manaThreshold = hasMana and (UnitAffectingCombat(self.unit) and 0.3 or select(2, IsInInstance()) == "raid" and 0.9 or 0.6)
-	if border.hasMana == hasMana and border.manaThreshold == manaThreshold then return end
-	border.hasMana, border.manaThreshold = hasMana, manaThreshold
-	if hasMana then
+	local manaThreshold
+	if UnitPowerType(self.unit) == SPELL_POWER_MANA then
+		if UnitAffectingCombat(self.unit) then
+			manaThreshold = border.inCombatManaLevel
+		elseif select(2, IsInInstance()) == "raid" then
+			manaThreshold = border.oocInRaidManaLevel
+		else
+			manaThreshold = border.oocManaLevel
+		end
+	end
+	if border.manaThreshold == manaThreshold then return end
+	border.manaThreshold = manaThreshold
+	if manaThreshold then
 		self:RegisterEvent("UNIT_POWER", PowerUpdate)
 		self:RegisterEvent("UNIT_MAXPOWER", PowerUpdate)
 	else
@@ -73,8 +81,17 @@ local function ForceUpdate(self, event)
 	return TogglePowerUpdates(self, event) or Update(self, event)
 end
 
+local function Element_ForceUpdate(element, event)
+	return ForceUpdate(element.__owner, event)
+end
+
 local function Enable(self)
-	if self.Border then
+	local border = self.Border
+	if border then
+		border.inCombatManaLevel = border.inCombatManaLevel or 0.3
+		border.oocInRaidManaLevel = border.oocInRaidManaLevel or 0.9
+		border.oocManaLevel = border.oocManaLevel or 0.6
+		border.__owner, border.ForceUpdate = self, Element_ForceUpdate
 		self:RegisterEvent("UNIT_DISPLAYPOWER", TogglePowerUpdates)
 		self:RegisterEvent("UNIT_FLAGS", TogglePowerUpdates)
 		self:RegisterEvent("PLAYER_TARGET_CHANGED", Update)
@@ -87,6 +104,7 @@ local function Disable(self)
 	local border = self.Border
 	if border then
 		border.hasMana, border.manaThreshold = nil, nil
+		
 		self:UnregisterEvent("UNIT_POWER", PowerUpdate)
 		self:UnregisterEvent("UNIT_MAXPOWER", PowerUpdate)
 		self:UnregisterEvent("UNIT_DISPLAYPOWER", TogglePowerUpdates)
