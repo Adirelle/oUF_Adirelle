@@ -97,27 +97,15 @@ local function ForceUpdate(element)
 	return Path(element.__owner, 'ForceUpdate')
 end
 
-local icons
-
-local function PlayerRoleUpdated()
-	for icon in pairs(icons) do
-		if UnitIsUnit(icon.__owner.unit or "none", "player") then
-			Update(icon.__owner, 'PlayerRoleUpdated')
-		end
-	end
+local function OnPlayerRoleChanged(self, event)
+	return Path(self, event, "player")
 end
-
 
 local function Enable(self)
 	local icon = self.RoleIcon
 	if icon then
 		icon.__owner, icon.ForceUpdate = self, ForceUpdate
-		if not icons then
-			icons = { [icon] = true }
-			oUF_Adirelle.RegisterPlayerRoleCallback(PlayerRoleUpdated)
-		else
-			icons[icon] = true
-		end
+		self:RegisterMessage('OnPlayerRoleChanged', OnPlayerRoleChanged)
 		self:RegisterEvent('PARTY_MEMBERS_CHANGED', Path)
 		self:RegisterEvent("RAID_TARGET_UPDATE", Path)
 		self:RegisterEvent('RAID_ROSTER_UPDATE', Path)
@@ -131,13 +119,13 @@ end
 local function Disable(self)
 	local icon = self.RoleIcon
 	if icon then
-		icons[icon] = nil
+		icon:Hide()
+		self:UnregisterMessage('OnPlayerRoleChanged', OnPlayerRoleChanged)
 		self:UnregisterEvent('PARTY_MEMBERS_CHANGED', Path)
 		self:UnregisterEvent("RAID_TARGET_UPDATE", Path)
 		self:UnregisterEvent('LFG_ROLE_UPDATE', Path)
 		self:UnregisterEvent('PLAYER_ROLES_ASSIGNED', Path)
 		self:UnregisterEvent('UNIT_CLASSIFICATION_CHANGED', Path)
-		icon:Hide()
 	end
 end
 
