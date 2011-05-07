@@ -121,10 +121,8 @@ end
 
 -- Send a message
 local function SendMessage(self, message, ...)
-	oUF_Adirelle.Debug(self, 'SendMessage', message, ...)
 	if not callbacks[message] then return end
 	for target, callback in pairs(callbacks[message]) do
-		oUF_Adirelle.Debug(self, 'SendMessage,callback', target, message, ...)
 		callback(target, message, ...)
 	end
 end
@@ -132,7 +130,6 @@ end
 -- Trigger a message for one frame
 local function TriggerMessage(self, message, ...)
 	if callbacks[message] and callbacks[message][self] then
-		oUF_Adirelle.Debug(self, 'TriggerMessage', message, ...)
 		callbacks[message][self](self, message, ...)
 	end
 end
@@ -163,7 +160,6 @@ eventFrame:SetScript('OnEvent', SendMessage)
 local function RegisterEvent(target, event, callback)
 	if RegisterMessage(target, event, callback) then
 		if callbacks[event] and not eventFrame:IsEventRegistered(event) then
-			oUF_Adirelle.Debug('Registering event', event)
 			eventFrame:RegisterEvent(event)
 		end
 		return true
@@ -174,7 +170,6 @@ end
 local function UnregisterEvent(target, event, callback)
 	if UnregisterMessage(target, event, callback) then
 		if not callbacks[event] and eventFrame:IsEventRegistered(event) then
-			oUF_Adirelle.Debug('Unregistering event', event)
 			eventFrame:UnregisterEvent(event)
 		end
 		return true
