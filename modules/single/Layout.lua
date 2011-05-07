@@ -32,7 +32,6 @@ oUF:Factory(function()
 
 	player:SetPoint('BOTTOMRIGHT', _G.UIParent, "BOTTOM", -250, 180)
 	pet:SetPoint('BOTTOM', player, "TOP", 0, 15)
-	pet:SetHeight(40)
 	pettarget:SetPoint('BOTTOM', pet, "TOP", 0, 15+22)
 	target:SetPoint('BOTTOMLEFT', _G.UIParent, "BOTTOM", 250, 180)
 	targettarget:SetPoint('BOTTOM', target, "TOP", 0, 15)
