@@ -383,6 +383,9 @@ end
 
 local function OnSingleLayoutModified(self, event, layout, theme)
 	local width, height = layout.Single.width, layout.Single['height'..self.heightType]
+	if self.heightFactor then
+		height = height * self.heightFactor
+	end
 	if self:CanChangeProtectedState() and (self:GetWidth() ~= width or self:GetHeight() ~= height) then
 		self:SetSize(width, height)
 	end
@@ -450,6 +453,9 @@ local function InitFrame(settings, self, unit)
 	self.heightType = settings.heightType
 
 	self:SetSize(settings['initial-width'], settings['initial-height'])
+	if unit == "pet" then
+		self.heightFactor = 40/47
+	end
 
 	self:RegisterForClicks("AnyDown")
 
