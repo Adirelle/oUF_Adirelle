@@ -15,7 +15,7 @@ local type, format, tostring, tonumber = _G.type, _G.format, _G.tostring, _G.ton
 local next = _G.next
 local GetAddOnInfo, EnableAddOn = _G.GetAddOnInfo, _G.EnableAddOn
 local DisableAddOn, GetAddOnInfo = _G.DisableAddOn, _G.GetAddOnInfo
-local IsAddOnLoaded, InCombatLockdown = _G.IsAddOnLoaded, _G.InCombatLockdown
+local IsAddOnLoaded, UnitAffectingCombat = _G.IsAddOnLoaded, _G.UnitAffectingCombat
 
 local AceGUIWidgetLSMlists = _G.AceGUIWidgetLSMlists
 
@@ -31,7 +31,9 @@ local function GetOptions()
 
 	local reloadNeeded = false
 	
-	local SettingsModified = oUF_Adirelle. SettingsModified
+	local SettingsModified = oUF_Adirelle.SettingsModified
+	
+	local function IsLockedDown() return UnitAffectingCombat("player") end
 
 	-- The list of modules
 	local moduleList = {
@@ -59,6 +61,7 @@ local function GetOptions()
 	local layoutDB = oUF_Adirelle.layoutDB
 	local layoutDBOptions = LibStub('AceDBOptions-3.0'):GetOptionsTable(layoutDB)
 	LibStub('LibDualSpec-1.0'):EnhanceOptions(layoutDBOptions, layoutDB)
+	layoutDBOptions.disabled = IsLockedDown
 	layoutDBOptions.order = -1
 
 	-- Create the profile options of the theme
@@ -218,12 +221,17 @@ local function GetOptions()
 		type = 'group',
 		childGroups = 'tab',
 		args = {
+			_combatLockdown = {
+				name = '|cffff0000WARNING:|r some settings are unavailable because of addon restrictions during fights.',
+				type = 'description',
+				hidden = function() return not IsLockedDown() end,
+			},
 			modules = {
 				name = 'Modules',
 				type = 'group',
 				childGroups = 'tree',
-				order = 10,
-				disabled = InCombatLockdown,
+				order = -10,
+				disabled = IsLockedDown,
 				args = {
 					modules = {
 						name = 'Enabled modules',
@@ -285,7 +293,7 @@ local function GetOptions()
 						name = 'Frames',
 						type = 'group',
 						order = 20,
-						disabled = InCombatLockdown,
+						disabled = IsLockedDown,
 						args = {
 							frames = {
 								name = 'Enabled frames',
@@ -405,7 +413,7 @@ local function GetOptions()
 							width = {
 								name = 'Width',
 								type = 'range',
-								disabled = InCombatLockdown,
+								disabled = IsLockedDown,
 								order = 10,
 								min = 80,
 								max = 250,
@@ -415,7 +423,7 @@ local function GetOptions()
 							heightBig = {
 								name = 'Large frame height',
 								type = 'range',
-								disabled = InCombatLockdown,
+								disabled = IsLockedDown,
 								order = 20,
 								min = 37,
 								max = 87,
@@ -425,7 +433,7 @@ local function GetOptions()
 							heightSmall = {
 								name = 'Thin frame height',
 								type = 'range',
-								disabled = InCombatLockdown,
+								disabled = IsLockedDown,
 								order = 30,
 								min = 10,
 								max = 40,
@@ -487,7 +495,7 @@ local function GetOptions()
 							SettingsModified("OnRaidLayoutModified")
 						end,
 						hidden = IsRaidStyleUnused,
-						disabled = InCombatLockdown,
+						disabled = IsLockedDown,
 						args = {
 							width = {
 								name = 'Cell width',
@@ -758,6 +766,13 @@ local function GetOptions()
 			},
 		},
 	}
+
+	local function UpdateConfig()
+		LibStub("AceConfigRegistry-3.0"):NotifyChange("oUF_Adirelle")
+	end
+
+	oUF_Adirelle:RegisterEvent("PLAYER_REGEN_DISABLED", UpdateConfig)
+	oUF_Adirelle:RegisterEvent("PLAYER_REGEN_ENABLED", UpdateConfig)
 
 	return options
 end
