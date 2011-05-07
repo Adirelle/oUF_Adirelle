@@ -138,7 +138,7 @@ do
 		if not icons or numIcons == 0 then return end
 		local spacing = icons.spacing or 1
 		local width, height = icons:GetSize()
-		local size = icons.size or 12
+		local size = icons.size
 		local anchor = icons.initialAnchor or "BOTTOMLEFT"
 		local growthx = icons.growthx or 1
 		local growthy = icons.growthy or 1
@@ -146,14 +146,17 @@ do
 		-- Sort auras by size, then by expiration time (sooner first)
 		sort(icons, CompareIcons)
 
+		-- Icon sizes
+		local bigSize = mmax(8, mmin(size * 3 / 2, width, height))
+		size = mmax(8, mmin(size, width, height))
+
 		local i, num = 1, #icons
 		local x, y = 0, 0
 
 		-- Layout large icons
-		local bigSize = mmin(size * 3 / 2, icons:GetWidth(), icons:GetHeight())
 		if icons.enlarge then
 			local step = bigSize + spacing
-			local maxx = width - bigSize
+			local maxx = mmax(1, width - bigSize)
 			while i <= num and icons[i].bigger and x <= maxx do
 				local button = icons[i]
 				if button:IsShown() then
@@ -168,7 +171,7 @@ do
 
 		-- Layout normal-sized icons
 		local baseX, step = x, size + spacing
-		local maxx, maxy = width - size, height - size
+		local maxx, maxy = mmax(1, width - size), mmax(1, height - size)
 		while i <= num and x <= maxx and y <= maxy do
 			local button = icons[i]
 			if button:IsShown() then
@@ -303,6 +306,13 @@ local function ApplyAuraPosition(self, target, initialAnchor, anchorTo, growthx,
 	target:SetPoint(initialAnchor, self, anchorTo, dx * FRAME_MARGIN, dy * FRAME_MARGIN)
 end
 
+local function UpdateAuraCount(target, size, spacing)
+	local width, height = target:GetSize()
+	local step = mmax(8, mmin(size, width, height)) + spacing
+	target.num = floor((width + spacing) / step) * floor((height + spacing) / step)
+	target:ForceUpdate()
+end
+
 local function OnAuraLayoutModified(self, event, layout)
 	local width, height = self:GetSize()
 	local buffs, debuffs = self.Buffs, self.Debuffs
@@ -310,6 +320,9 @@ local function OnAuraLayoutModified(self, event, layout)
 	local auras = layout.Single.Auras
 	local size, spacing, side = auras.size, auras.spacing, auras.sides[self.baseUnit]
 	buffs.size, buffs.spacing, buffs.enlarge = size, spacing, auras.enlarge
+	if debuffs then
+		debuffs.size, debuffs.spacing, debuffs.enlarge = size, spacing, auras.enlarge
+	end
 
 	-- Apply position
 	if side == 'LEFT' or side == 'RIGHT' then
@@ -362,12 +375,9 @@ local function OnAuraLayoutModified(self, event, layout)
 	end
 
 	-- Update the number of icons and update them
-	local s = size+spacing
-	buffs.num = floor(buffs:GetWidth() / s) * floor(buffs:GetHeight() / s)
-	buffs:ForceUpdate()
+	UpdateAuraCount(buffs, size, spacing)
 	if debuffs then
-		debuffs.num = floor(debuffs:GetWidth() / s) * floor(debuffs:GetHeight() / s)
-		debuffs:ForceUpdate()
+		UpdateAuraCount(debuffs, size, spacing)
 	end
 end
 
