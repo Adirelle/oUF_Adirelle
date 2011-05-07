@@ -361,11 +361,13 @@ local function OnAuraLayoutModified(self, event, layout)
 		end
 	end
 
-	-- Update the number of icons
+	-- Update the number of icons and update them
 	local s = size+spacing
 	buffs.num = floor(buffs:GetWidth() / s) * floor(buffs:GetHeight() / s)
+	buffs:ForceUpdate()
 	if debuffs then
 		debuffs.num = floor(debuffs:GetWidth() / s) * floor(debuffs:GetHeight() / s)
+		debuffs:ForceUpdate()
 	end
 end
 
