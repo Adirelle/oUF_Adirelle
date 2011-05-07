@@ -386,6 +386,7 @@ local function GetOptions()
 									PvPTimer = "PvP timer",
 									SmartThreat = "Threat glow",
 									XRange = "Range fading",
+									Portrait = "Portrait",
 								},
 							},
 						},
@@ -650,7 +651,7 @@ local function GetOptions()
 						},
 					},
 					Border = {
-						name = 'Mana "low level" thresholds',
+						name = '"Low mana" thresholds',
 						type = 'group',
 						order = 10,
 						hidden = IsElementDisabled.Border,
