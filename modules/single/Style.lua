@@ -388,7 +388,7 @@ local function OnSingleLayoutModified(self, event, layout, theme)
 	end
 	if self:CanChangeProtectedState() and (self:GetWidth() ~= width or self:GetHeight() ~= height) then
 		self:SetSize(width, height)
-		if self.buffs then
+		if self.Buffs then
 			return OnAuraLayoutModified(self, event, layout)
 		end
 	end
@@ -757,8 +757,6 @@ local function InitFrame(settings, self, unit)
 		buffs.PostCreateIcon = Auras_PostCreateIcon
 		buffs.PostUpdateIcon = Auras_PostUpdateIcon
 		self.Buffs = buffs
-		self:RegisterMessage('OnSettingsModified', OnAuraLayoutModified)
-		self:RegisterMessage('OnSingleLayoutModified', OnAuraLayoutModified)
 	end
 	if debuffs then
 		debuffs.size = AURA_SIZE
@@ -776,6 +774,8 @@ local function InitFrame(settings, self, unit)
 		self:RegisterEvent('UNIT_TARGETABLE_CHANGED', Auras_ForceUpdate)
 		self:RegisterEvent('PLAYER_REGEN_ENABLED', Auras_ForceUpdate)
 		self:RegisterEvent('PLAYER_REGEN_DISABLED', Auras_ForceUpdate)
+		self:RegisterMessage('OnSettingsModified', OnAuraLayoutModified)
+		self:RegisterMessage('OnSingleLayoutModified', OnAuraLayoutModified)
 	end
 
 	-- Classification dragon
