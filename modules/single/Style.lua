@@ -100,6 +100,7 @@ local function Buffs_CustomFilter(icons, unit, icon, name, rank, texture, count,
 			return true
 		end
 	end
+	icon.bigger = false
 	return true
 end
 
@@ -108,6 +109,8 @@ local function Debuffs_CustomFilter(icons, unit, icon, name, rank, texture, coun
 		icon.bigger = IsMine(caster)
 	elseif UnitCanAssist("player", unit) then
 		icon.bigger = isBossDebuff or IsMine(caster) or LibDispellable:CanDispel(unit, false, dtype, spellID)
+	else
+		icon.bigger = false
 	end
 	return true
 end
