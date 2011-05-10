@@ -409,14 +409,7 @@ local function AltPowerBar_Layout(bar)
 end
 
 local function XRange_PostUpdate(xrange, event, unit, inRange)
-	if inRange then
-		xrange.__owner:SetAlpha(1)
-		xrange.__owner.Overlay:SetAlpha(1)
-	else
-		local alpha = oUF.colors.outOfRange[4]
-		xrange.__owner:SetAlpha(alpha)
-		xrange.__owner.Overlay:SetAlpha(alpha > 0.8 and 0.4 or 1)
-	end
+	xrange.__owner:SetAlpha(inRange and 1 or oUF.colors.outOfRange[4])
 end
 
 local function OnRaidLayoutModified(self, event, layout)
@@ -445,7 +438,7 @@ end
 local function OnColorModified(self)
 	self.IncomingHeal:SetTexture(unpack(oUF.colors.incomingHeal.self, 1, 4))
 	self.IncomingOthersHeal:SetTexture(unpack(oUF.colors.incomingHeal.others, 1, 4))
-	self.XRange:SetTexture(unpack(oUF.colors.outOfRange, 1, 3))
+	self.XRange.Texture:SetTexture(unpack(oUF.colors.outOfRange, 1, 3))
 	self.XRange:ForceUpdate()
 	return UpdateColor(self)
 end
@@ -502,21 +495,6 @@ local function InitFrame(self, unit)
 	othersHeal:Hide()
 	self.IncomingOthersHeal = othersHeal
 
-	-- Indicator overlays
-	local overlay = CreateFrame("Frame", nil, self)
-	overlay:SetAllPoints(self)
-	overlay:SetFrameLevel(hp:GetFrameLevel()+3)
-	self.Overlay = overlay
-
-	-- Name
-	local name = overlay:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-	name:SetAllPoints(self)
-	name:SetJustifyH("CENTER")
-	name:SetJustifyV("MIDDLE")
-	name:SetFont(_G.GameFontNormal:GetFont(), 11)
-	name:SetTextColor(1, 1, 1, 1)
-	self.Name = name
-
 	-- Border
 	local border = CreateFrame("Frame", nil, self)
 	border:SetFrameStrata("BACKGROUND")
@@ -527,6 +505,21 @@ local function InitFrame(self, unit)
 	border.SetColor = border.SetBackdropBorderColor
 	border:Hide()
 	self.Border = border
+
+	-- Indicator overlays
+	local overlay = CreateFrame("Frame", nil, self)
+	overlay:SetAllPoints(self)
+	overlay:SetFrameLevel(border:GetFrameLevel()+3)
+	self.Overlay = overlay
+
+	-- Name
+	local name = overlay:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+	name:SetAllPoints(self)
+	name:SetJustifyH("CENTER")
+	name:SetJustifyV("MIDDLE")
+	name:SetFont(_G.GameFontNormal:GetFont(), 11)
+	name:SetTextColor(1, 1, 1, 1)
+	self.Name = name
 
 	-- Big status icon
 	local status = overlay:CreateTexture(nil, "BORDER", nil, 1)
@@ -578,7 +571,7 @@ local function InitFrame(self, unit)
 	self.SmartThreat = threat
 
 	-- Role/Raid icon
-	local roleIcon = overlay:CreateTexture(nil, "OVERLAY")
+	local roleIcon = overlay:CreateTexture(nil, "ARTWORK")
 	roleIcon:SetSize(SMALL_ICON_SIZE, SMALL_ICON_SIZE)
 	roleIcon:SetPoint("LEFT", self, "LEFT", INSET, 0)
 	roleIcon.noDamager = true
@@ -586,7 +579,7 @@ local function InitFrame(self, unit)
 	self.RoleIcon = roleIcon
 
 	-- Target raid icon
-	local targetIcon = overlay:CreateTexture(nil, "OVERLAY")
+	local targetIcon = overlay:CreateTexture(nil, "ARTWORK")
 	targetIcon:SetSize(SMALL_ICON_SIZE, SMALL_ICON_SIZE)
 	targetIcon:SetPoint("RIGHT", self, "RIGHT", -INSET, 0)
 	self.TargetIcon = targetIcon
@@ -626,11 +619,17 @@ local function InitFrame(self, unit)
 	self:RegisterMessage('OnThemeModified', OnThemeModified)
 
 	-- Range fading
-	local xrange = overlay:CreateTexture(nil, "BACKGROUND")
+	local xrange = CreateFrame("Frame", nil, overlay)
 	xrange:SetAllPoints(self)
-	xrange:SetTexture(0.4, 0.4, 0.4)
-	xrange:SetBlendMode("MOD")
+	xrange:SetFrameLevel(overlay:GetFrameLevel()+10)
 	xrange.PostUpdate = XRange_PostUpdate
+	
+	local tex = xrange:CreateTexture(nil, "OVERLAY")
+	tex:SetAllPoints(self)
+	tex:SetTexture(0.4, 0.4, 0.4)
+	tex:SetBlendMode("MOD")
+
+	xrange.Texture = tex
 	self.XRange = xrange
 
 	-- Hook OnSizeChanged to layout internal on size change
