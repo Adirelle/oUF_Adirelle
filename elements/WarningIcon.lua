@@ -128,9 +128,18 @@ do
 			Chimaeron
 				Break: 82881 = 100
 		Bastion of Twilight
+			Halfus Wyrmbreaker
+				Malevolent Strikes: 83908, 86158, 86157, 86159 = 100 [>=5]
 			Valiona and Theralion
 				Blackout: 86788, 92876, 92877, 92878 = 80
 				Engulfing Magic: 86622, 95639, 95640, 95641 = 100
+			Ascendant Council
+				TODO: Find out what these do
+				StaticOverload: 92067 = 80
+				GravityCore: 92075 = 80
+				FrostBeacon: 92307 = 100
+			Cho'Gall
+				Worship: 91317, 93365, 93366, 93367 = 100
 		Throne of the Four Winds
 			Conclave of Wind
 				Toxic Spores (Anshal's adds) : 86281, 86282 = 90
