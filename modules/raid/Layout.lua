@@ -56,7 +56,7 @@ oUF:Factory(function()
 			nil,
 			"point", "LEFT",
 			"xOffset", SPACING,
-			"sortMethod", "INDEX",
+			"sortMethod", "NAME",
 			"groupBy", "GROUP",
 			"groupingOrder", "1,2,3,4,5,6,7,8",
 			"unitsPerColumn", 5,
