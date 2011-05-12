@@ -134,10 +134,13 @@ do
 				Blackout: 86788, 92876, 92877, 92878 = 80
 				Engulfing Magic: 86622, 95639, 95640, 95641 = 100
 			Ascendant Council
-				TODO: Find out what these do
-				StaticOverload: 92067 = 80
-				GravityCore: 92075 = 80
-				FrostBeacon: 92307 = 100
+				Heart of Ice (Feludious): 82665, 82667 = 80
+				Burning Blood (Ignacious): 82662, 82660 = 80
+				Waterlogged (Feludious): 82762 = 100
+				Swirling Winds (P2): 83500 = 80
+				Grounded (P2): 83581 = 80
+				Lightning Rod (Arion): 83099 = 100
+				Gravity Crush (Elementium Monstrosity): 92486 = 100
 			Cho'Gall
 				Worship: 91317, 93365, 93366, 93367 = 100
 		Throne of the Four Winds
