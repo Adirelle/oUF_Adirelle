@@ -40,6 +40,8 @@ h3. Group unit frames
 ** lightning: disconnected unit,
 ** whirlwind: out of view (either really far unit or unit in another instance).
 
+More details about the cell layout are available "there":http://www.wowace.com/addons/ouf_adirelle/pages/docs/docs/group-cell-description/.
+
 h3. Single unit frames
 
 * frames for player, pet, target, target of target, focus,
