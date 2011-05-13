@@ -10,7 +10,7 @@ local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 -- Make most globals local so I can check global leaks using "luac -l | grep GLOBAL"
 local type, pairs, ipairs, tinsert = _G.type, _G.pairs, _G.ipairs, _G.tinsert
-local LibStub = _G.LibStub
+local LibStub, rawget = _G.LibStub, _G.rawget
 
 -- ------------------------------------------------------------------------------
 -- Main SV handling
@@ -186,22 +186,22 @@ local optionalElements = {
 }
 oUF_Adirelle.optionalElements = optionalElements
 
-local function UpdateElements(frame)
+local function UpdateElements(self, event, layout)
 	-- Enable/disable the elements
 	local changed = false
 	for i, name in ipairs(optionalElements) do
 		if layout.elements[name] then
-			if not frame:IsElementEnabled(name) then
-				frame:EnableElement(name)
+			if not self:IsElementEnabled(name) then
+				self:EnableElement(name)
 				changed = true
 			end
-		elseif frame:IsElementEnabled(name) then
-			frame:DisableElement(name)
+		elseif self:IsElementEnabled(name) then
+			self:DisableElement(name)
 			changed = true
 		end
 	end
-	if changed then
-		frame:UpdateAllElements('UpdateElements')
+	if changed and event ~= 'OnSettingsModified' then
+		self:UpdateAllElements(event)
 	end
 end
 
@@ -278,7 +278,7 @@ oUF:RegisterInitCallback(function(self)
 	-- Update all elements in the ends
 	self:RegisterMessage('OnSettingsModified', 'UpdateAllElements')
 	
-	-- Immediately update
+	-- Immediately update if possible
 	if layout and theme then
 		self:TriggerMessage('OnSettingsModified', layout, theme)
 	end
