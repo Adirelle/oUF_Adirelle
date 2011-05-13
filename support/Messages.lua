@@ -64,6 +64,7 @@ local function RegisterMessage(self, message, callback)
 				return false
 			end
 		end
+		tinsert(existing, callback)
 	else
 		callbacks[message][self] = callback
 	end
@@ -129,8 +130,9 @@ end
 
 -- Trigger a message for one frame
 local function TriggerMessage(self, message, ...)
-	if callbacks[message] and callbacks[message][self] then
-		callbacks[message][self](self, message, ...)
+	local callback = callbacks[message] and callbacks[message][self]
+	if callback then
+		return callback(self, message, ...)
 	end
 end
 
