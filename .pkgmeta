@@ -27,4 +27,4 @@ move-folders:
 
 ignore:
   - media/*.png
-
+  - docs
