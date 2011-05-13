@@ -5,5 +5,5 @@
 
 -
     type: textile
-    input-files:  docs/*.textile
+    input-files: docs/**/*.textile
     output-directory: docs
