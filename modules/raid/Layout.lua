@@ -85,15 +85,15 @@ oUF:Factory(function()
 		self:Debug('SetAnchoring', orientation, anchor, spacing)
 		if orientation == "horizontal" then
 			self:SetAttributes(
-				"point", strmatch(anchor, "TOP") or "BOTTOM",
-				"columnAnchorPoint", strmatch(anchor, "RIGHT") or "LEFT",
+				"point", strmatch(anchor, "RIGHT") or "LEFT",
+				"columnAnchorPoint", strmatch(anchor, "TOP") or "BOTTOM",
 				"xOffset", strmatch(anchor, "RIGHT") and -spacing or spacing,
 				"yOffset", 0
 			)
 		else
 			self:SetAttributes(
-				"point", strmatch(anchor, "RIGHT") or "LEFT",
-				"columnAnchorPoint", strmatch(anchor, "TOP") or "BOTTOM",
+				"point", strmatch(anchor, "TOP") or "BOTTOM",
+				"columnAnchorPoint", strmatch(anchor, "RIGHT") or "LEFT",
 				"xOffset", 0,
 				"yOffset", strmatch(anchor, "TOP") and -spacing or spacing
 			)
