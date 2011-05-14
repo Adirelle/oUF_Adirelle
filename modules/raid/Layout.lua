@@ -112,13 +112,7 @@ oUF:Factory(function()
 
 	local function CreateHeader(suffix, template)
 		oUF:SetActiveStyle("Adirelle_Raid")
-		local header = oUF:SpawnHeader("oUF_Raid"..tostring(suffix), template or "SecureGroupHeaderTemplate")
-		for k, v in pairs(headerProto) do
-			header[k] = v
-		end
-		header:Hide()
-		header:SetParent(anchor)
-		header:SetAttributes(
+		local header = oUF:SpawnHeader("oUF_Raid"..tostring(suffix), template or "SecureGroupHeaderTemplate", nil,
 			'_ignore', "attributeChanges",
 			'oUF-initialConfigFunction', [===[
 				self:SetAttribute('*type1', 'target')
@@ -132,14 +126,21 @@ oUF:Factory(function()
 			"groupingOrder", "1,2,3,4,5,6,7,8",
 			"unitsPerColumn", 5,
 			--@debug@--
-			"showSolo", true,
+			"showSolo", (suffix == "Pets" or suffix == 1),
 			--@end-debug@--
-			"showParty", true,
+			"showParty", (suffix == "Pets" or suffix == 1),
 			"showPlayer", true,
 			"showRaid", true,
 			"unitWidth", WIDTH,
-			"unitHeight", HEIGHT
+			"unitHeight", HEIGHT,
+			'minWidth', 2,
+			'minHeight', 2
 		)
+		for k, v in pairs(headerProto) do
+			header[k] = v
+		end
+		header:Hide()
+		header:SetParent(anchor)
 		header:HookScript('OnAttributeChanged', header.OnAttributeChanged)
 		header:Debug('New header')
 		return header
