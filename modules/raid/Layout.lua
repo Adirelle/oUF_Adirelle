@@ -43,6 +43,8 @@ oUF:Factory(function()
 
 	oUF_Adirelle.RegisterMovable(anchor, 'raid', "Party/raid frames")
 
+	oUF_Adirelle.EmbedEventMessaging(anchor)
+
 	--------------------------------------------------------------------------------
 	-- Header prototype
 	--------------------------------------------------------------------------------
@@ -350,15 +352,15 @@ oUF:Factory(function()
 	local delay = 0
 	function anchor:OnUpdate(elapsed)
 		delay = delay + elapsed
-		if delay > 0.5 then
+		if delay >= 0.1 then
 			delay = 0
 			return self:UpdateLayout('OnUpdate')
 		end
 	end
 
 	function anchor:TriggerUpdate(event)
+		self:Debug('TriggerUpdate', event)
 		if not self:GetScript('OnUpdate') then
-			self:Debug('TriggerUpdate', event)
 			delay = 0
 			self:SetScript('OnUpdate', self.OnUpdate)
 		end
