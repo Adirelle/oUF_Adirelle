@@ -33,7 +33,14 @@ local LAYOUT_DEFAULTS = {
 			orientation = "horizontal",
 			unitSpacing = 2,
 			groupSpacing = 2,
-			showPets = { ['*'] = true },
+			strictSize = false,
+			showTanks = false,
+			showPets = {
+				['*'] = true,
+				battleground = false,
+				raid25 = false,
+				raid40 = false,
+			},
 		},
 		Single = {
 			width = 190,
@@ -101,17 +108,17 @@ local function UpdateProfiles()
 end
 
 function oUF_Adirelle.SettingsModified(event)
-	oUF_Adirelle:SendMessage(event or 'OnSettingsModified', layout, theme)	
+	oUF_Adirelle:SendMessage(event or 'OnSettingsModified', layout, theme)
 end
 
 -- Publish the databases and apply the settings
 local function OnDatabaseChanged()
 	-- Set up our upvalues
 	layout, theme = oUF_Adirelle.layoutDB.profile, oUF_Adirelle.themeDB.profile
-	
+
 	-- Update the profile, in case it wasn't loaded since we changed the structure
 	UpdateProfiles()
-	
+
 	-- Fire update callbacks
 	oUF_Adirelle.SettingsModified()
 end
@@ -167,7 +174,7 @@ local function ADDON_LOADED(self, event, name)
 		self.hasMinimapIcon = true
 		LibDBIcon:Register("oUF_Adirelle", self.launcher, layoutDB.global.minimapIcon)
 	end
-	
+
 	-- Run
 	return OnDatabaseChanged()
 end
@@ -240,14 +247,14 @@ end
 -- Register a frame that can be permanently enabled/disabled
 function oUF_Adirelle.RegisterTogglableFrame(frame, key, label)
 	if frame.GetEnabledSetting then return end
-	
+
 	-- List the frame
 	togglableFrames[key] = frame
-	
+
 	-- Setup our properties
 	frame.dbKey = key
 	frame.label = label
-	
+
 	-- Mix in our methods
 	frame.Enable = frame.Enable or frame.Show
 	frame.Disable = frame.Disable or frame.Hide
@@ -258,7 +265,7 @@ function oUF_Adirelle.RegisterTogglableFrame(frame, key, label)
 	-- Setup setting callbacks
 	oUF_Adirelle.EmbedMessaging(frame)
 	frame:RegisterMessage('OnSettingsModified', ApplyEnabledSettings)
-	
+
 	-- Apply setting immediately if possible
 	if layout then
 		ApplyEnabledSettings(frame)
@@ -277,7 +284,7 @@ oUF:RegisterInitCallback(function(self)
 
 	-- Update all elements in the ends
 	self:RegisterMessage('OnSettingsModified', 'UpdateAllElements')
-	
+
 	-- Immediately update if possible
 	if layout and theme then
 		self:TriggerMessage('OnSettingsModified', layout, theme)

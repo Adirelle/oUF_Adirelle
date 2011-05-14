@@ -149,27 +149,42 @@ oUF:Factory(function()
 	--------------------------------------------------------------------------------
 	-- Layout core functions
 	--------------------------------------------------------------------------------
-
+	
+	local function GetRaidNumGroups(maxPlayers)
+		local numPlayers = GetNumRaidMembers()
+		local numGroups = ceil(numPlayers / 5)
+		if maxPlayers then
+			numGroups = max(numGroups, maxPlayers / 5)
+		end
+		for i = 1, numPlayers do
+			local _, _, group = GetRaidRosterInfo(i)
+			numGroups = max(numGroups, group)
+		end
+		return numGroups
+	end
+	
 	-- Returns (type, number of groups, PvE layout flag)
-	local function GetLayoutInfo()
+	local function GetLayoutInfo(strictSize)
 		local _, instanceType, _, _, maxPlayers = GetInstanceInfo()
+		anchor:Debug('GetLayoutInfo', 'raidSize=', GetNumRaidMembers(), 'partySize=', GetNumPartyMembers(), 'instanceInfo:', GetInstanceInfo())
 		if instanceType == "arena" then
 			return "arena", 1, false
 		elseif instanceType == "pvp" then
-			return "pvp", (maxPlayers or 40)/5, false
+			if strictSize and maxPlayers then
+				return "battleground", maxPlayers / 5, false
+			else
+				return "battleground", GetRaidNumGroups(maxPlayers), false
+			end
 		elseif instanceType == "party" then
 			return "party", 1, true
 		elseif instanceType == "raid" then
-			return "raid", (maxPlayers or 40)/5, true
-		elseif GetNumRaidMembers() > 0 then
-			local maxGroup = 1
-			for i = 1, GetNumRaidMembers() do
-				local _, _, subGroup = GetRaidRosterInfo(i)
-				if subGroup > maxGroup then
-					maxGroup = subGroup
-				end
+			if strictSize and maxPlayers then
+				return "raid", maxPlayers / 5, true
+			else
+				return "raid", GetRaidNumGroups(maxPlayers), true
 			end
-			return "raid", maxGroup, true
+		elseif GetNumRaidMembers() > 0 then
+			return "raid", GetRaidNumGroups(), true
 		elseif GetNumPartyMembers() > 0 then
 			return "party", 1, true
 		else
@@ -194,13 +209,12 @@ oUF:Factory(function()
 	end
 	--@end-debug@
 
-	function anchor:ConfigureHeaders(layoutType, numGroups, isPvE)
-		self:Debug('ConfigureHeaders', layoutType, numGroups, isPvE)
+	local function GroupList(n) if n > 0 then return tostring(n), GroupList(n-1) end end
+	
+	function anchor:ConfigureHeaders(layoutType, numGroups, showTanks, showPets)
+		self:Debug('ConfigureHeaders', layoutType, numGroups, showTanks, showPets)
 
 		local numHeaders = numGroups
-
-		local showTanks = isPvE and numGroups > 1
-		local showPets = isPvE
 		if showTanks then
 			numHeaders = numHeaders + 1
 		end
@@ -223,17 +237,20 @@ oUF:Factory(function()
 		-- Configure filters
 		local offset = 0
 		if showTanks then
-			headers[1]:SetAttributes('groupFilter', 'TANK')
+			headers[1]:SetAttribute('groupFilter', 'TANK')
 			offset = 1
 		end
 		for i = 1, numGroups do
-			headers[i + offset]:SetAttributes('groupFilter', tostring(i))
+			headers[i + offset]:SetAttribute('groupFilter', tostring(i))
 		end
 
 		-- Update pets
 		if showPets then
-			headers.pets = heap.pets or CreateHeader("Pets", "SecureGroupPetHeaderTemplate")
-			headers.pets:Show()
+			if not headers.pets then
+				headers.pets = heap.pets or CreateHeader("Pets", "SecureGroupPetHeaderTemplate")
+				headers.pets:Show()
+			end
+			headers.pets:SetAttribute('groupFilter', strjoin(',', GroupList(numGroups)))
 		elseif headers.pets then
 			heap.pets = headers.pets
 			headers.pets:Hide()
@@ -270,7 +287,7 @@ oUF:Factory(function()
 			if key == 1 then
 				header:SetPoint(from, anchor, from, 0, 0)
 			elseif key == 'pets' then
-				headers.pets:SetPoint(from, headers[#headers], to, xOffset, yOffset)
+				headers.pets:SetPoint(from, headers[#headers], to, xOffset*2, yOffset*2)
 			else
 				header:SetPoint(from, headers[key-1], to, xOffset, yOffset)
 			end
@@ -304,17 +321,35 @@ oUF:Factory(function()
 		end
 
 		-- Get information about the layout
-		local layoutType, numGroups, isPvE = GetLayoutInfo()
+		local layoutType, numGroups, isPvE = GetLayoutInfo(layout.strictSize)
+		
+		-- Should we show the tanks and the pets ?
+		local showTanks = isPvE and layout.showTanks
+		local showPets = false
+		if isPvE or layout.showPets[layoutType] then
+			local prefs = layout.showPets
+			if numGroups == 1 then
+				showPets = prefs.party
+			elseif numGroups <= 2 then
+				showPets = prefs.raid10
+			elseif numGroups <= 3 then
+				showPets = prefs.raid15
+			elseif numGroups <= 5 then
+				showPets = prefs.raid25
+			else
+				showPets = prefs.raid40
+			end
+		end
 
 		local changed = false
 
 		-- Update filters and visibility
-		if self.layoutType ~= layoutType and self.numGroups ~= numGroups and self.isPvE ~= isPvE then
-			self.layoutType, self.numGroups, self.isPvE = layoutType, numGroups, isPvE
-			self:ConfigureHeaders(layoutType, numGroups, isPvE)
+		if self.layoutType ~= layoutType or self.numGroups ~= numGroups or self.showTanks ~= showTanks or self.showPets ~= showPets then
+			self.layoutType, self.numGroups, self.showTanks, self.showPets = layoutType, numGroups, showTanks, showPets
+			self:ConfigureHeaders(layoutType, numGroups, showTanks, showPets)
 			changed = true
 		else
-			self:Debug('- layout, no change:', layoutType, numGroups, isPvE)
+			self:Debug('- layout, no change:', layoutType, numGroups, showTanks, showPets)
 		end
 
 		-- Reanchor
@@ -322,13 +357,14 @@ oUF:Factory(function()
 		if changed or self.alignment ~= alignment or self.orientation ~= orientation or self.unitSpacing ~= unitSpacing or self.groupSpacing ~= groupSpacing then
 			self.alignment, self.orientation, self.unitSpacing, self.groupSpacing = alignment, orientation, unitSpacing, groupSpacing
 			self:ConfigureAnchors(alignment, orientation, unitSpacing, groupSpacing)
+			changed = true
 		else
 			self:Debug('- anchoring, no change:', alignment, orientation, unitSpacing, groupSpacing)
 		end
 
 		-- Update size
 		local width, height = layout.width, layout[GetPlayerRole() == "HEALER" and "healerHeight" or "height"]
-		if self.unitWidth ~= width or self.unitHeight ~= height then
+		if changed or self.unitWidth ~= width or self.unitHeight ~= height then
 			self.unitWidth, self.unitHeight = width, height
 			self:ConfigureUnitSize(width, height, layout.height)
 		else
