@@ -41,249 +41,366 @@ oUF:Factory(function()
 	anchor:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, 230)
 	anchor:SetSize(SPACING * 4 + WIDTH * 5, SPACING * 7 + HEIGHT_SMALL * 8)
 
-	anchor:SetAttribute('unitWidth', WIDTH)
-	anchor:SetAttribute('unitHeightSmall', HEIGHT_SMALL)
-	anchor:SetAttribute('unitHeightBig', HEIGHT)
-	
 	oUF_Adirelle.RegisterMovable(anchor, 'raid', "Party/raid frames")
 
 	--------------------------------------------------------------------------------
-	-- Helper
+	-- Header prototype
 	--------------------------------------------------------------------------------
+	local headerProto = { Debug = Debug	}
 
-	local function Header_OnRaidLayoutModified(self, event, layout)
-		local c = layout.Raid
-		local spacing, alignment = c.unitSpacing, c.alignment
-		self:Debug('Header_OnRaidLayoutModified', 'orientation=', c.orientation, 'alignment=', alignment, 'unitSpacing=', spacing)
-		self:SetAttribute('_ignore', true)
-		if c.orientation == "horizontal" then
-			self:SetAttribute('xOffset', strmatch(alignment, 'RIGHT') and -spacing or spacing)
-			self:SetAttribute('yOffset', 0)
-			self:SetAttribute('point', strmatch(alignment, 'RIGHT') or 'LEFT')
-			self:SetAttribute('columnAnchorPoint', strmatch(alignment, 'TOP') or 'BOTTOM')
-		else
-			self:SetAttribute('xOffset', 0)
-			self:SetAttribute('yOffset', strmatch(alignment, 'TOP') and -spacing or spacing)
-			self:SetAttribute('point', strmatch(alignment, 'TOP') or 'BOTTOM')
-			self:SetAttribute('columnAnchorPoint', strmatch(alignment, 'RIGHT') or 'LEFT')
+	local function children_iterator(self, index)
+		index = index + 1
+		local child = self:GetAttribute('child'..index)
+		if child then
+			return index, child
 		end
-
-		--  Blizzard headers never clear the button anchors
-		for i = 1, huge do
-			local button = self:GetAttribute("child"..i)
-			if button then
-				button:ClearAllPoints()
-			else
-				break
-			end
-		end
-
-		self:SetAttribute('_ignore', nil)
-		self:SetAttribute('columnSpacing', c.groupSpacing)
 	end
 
-	local function SpawnHeader(name, template, ...)
-		local header = oUF:SpawnHeader(
-			name,
-			template,
-			nil,
-			"point", "LEFT",
-			"xOffset", SPACING,
+	function headerProto:IterateChildren()
+		return children_iterator, self, 0
+	end
+
+	function headerProto:OnAttributeChanged(name, value)
+		if name ~= '_changed' and name ~= '_ignore' then
+			self:Debug('OnAttributeChanged', name, value)
+			self:SetAttribute('_changed', true)
+		end
+		if name == 'columnAnchorPoint' or name == 'point' or name == 'unitsPerColumn' then
+			self:Debug('Clearing children anchors')
+			for _, child in self:IterateChildren() do
+				child:ClearAllPoints()
+			end
+		end
+	end
+
+	function headerProto:SetAttributes(...)
+		for i = 1, select('#', ...), 2 do
+			self:SetAttribute(select(i, ...))
+		end
+	end
+
+	function headerProto:SetAnchoring(orientation, anchor, spacing)
+		self:Debug('SetAnchoring', orientation, anchor, spacing)
+		if orientation == "horizontal" then
+			self:SetAttributes(
+				"point", strmatch(anchor, "TOP") or "BOTTOM",
+				"columnAnchorPoint", strmatch(anchor, "RIGHT") or "LEFT",
+				"xOffset", strmatch(anchor, "RIGHT") and -spacing or spacing,
+				"yOffset", 0
+			)
+		else
+			self:SetAttributes(
+				"point", strmatch(anchor, "RIGHT") or "LEFT",
+				"columnAnchorPoint", strmatch(anchor, "TOP") or "BOTTOM",
+				"xOffset", 0,
+				"yOffset", strmatch(anchor, "TOP") and -spacing or spacing
+			)
+		end
+	end
+
+	function headerProto:SetUnitSize(width, height)
+		if self:GetAttribute('unitWidth') ~= width or self:GetAttribute('unitHeight') ~= height then
+			self:Debug('SetUnitSize', width, height)
+			self:SetAttributes('unitWidth', width, 'unitHeight', height)
+			for _, child in self:IterateChildren() do
+				child:SetSize(width, height)
+			end
+		end
+	end
+
+	local function CreateHeader(suffix, template)
+		oUF:SetActiveStyle("Adirelle_Raid")
+		local header = oUF:SpawnHeader("oUF_Raid"..tostring(suffix), template or "SecureGroupHeaderTemplate")
+		for k, v in pairs(headerProto) do
+			header[k] = v
+		end
+		header:Hide()
+		header:SetParent(anchor)
+		header:SetAttributes(
+			'_ignore', "attributeChanges",
+			'oUF-initialConfigFunction', [===[
+				self:SetAttribute('*type1', 'target')
+				self:SetAttribute('*type2', nil)
+				local header = self:GetParent()
+				self:SetWidth(header:GetAttribute('unitWidth'))
+				self:SetHeight(header:GetAttribute('unitHeight'))
+			]===],
 			"sortMethod", "NAME",
 			"groupBy", "GROUP",
 			"groupingOrder", "1,2,3,4,5,6,7,8",
 			"unitsPerColumn", 5,
-			"columnSpacing", SPACING,
-			"columnAnchorPoint", "BOTTOM",
-			'oUF-initialConfigFunction', [===[
-				local header = self:GetParent()
-				self:SetAttribute('*type1', 'target')
-				self:SetAttribute('*type2', nil)
-				local width, height = header:GetAttribute('unitWidth'), header:GetAttribute('unitHeight')
-				header:CallMethod('Debug', 'oUF-initialConfigFunction:', self:GetName(), header:GetAttribute('heightType'), 'new size:', width, height)
-	  		self:SetWidth(width)
-	  		self:SetHeight(height)
-			]===],
+			--@debug@--
+			"showSolo", true,
+			--@end-debug@--
+			"showParty", true,
+			"showPlayer", true,
+			"showRaid", true,
 			"unitWidth", WIDTH,
-			"unitHeight", HEIGHT_SMALL,
-			...
+			"unitHeight", HEIGHT
 		)
-		header.Debug = Debug
-		header:SetScale(SCALE)
-		header:SetParent(anchor)		
-		oUF_Adirelle.EmbedMessaging(header)
-		header:RegisterMessage('OnSettingsModified', Header_OnRaidLayoutModified)
-		header:RegisterMessage('OnRaidLayoutModified', Header_OnRaidLayoutModified)
+		header:HookScript('OnAttributeChanged', header.OnAttributeChanged)
+		header:Debug('New header')
 		return header
 	end
 
 	--------------------------------------------------------------------------------
-	-- Creating group headers
+	-- Layout core functions
 	--------------------------------------------------------------------------------
 
-	oUF:SetActiveStyle("Adirelle_Raid")
-
-	local players = SpawnHeader(
-		"oUF_Raid",
-		"SecureGroupHeaderTemplate",
-		"maxColumns", 8,
-		--@debug@--
-		"showSolo", true,
-		--@end-debug@--
-		"showParty", true,
-		"showPlayer", true,
-		"showRaid", true
-	)
-	players:SetPoint("BOTTOM", anchor, "BOTTOM", 0, 0)
-	players:Show()
-	SecureHandlerSetFrameRef(anchor, 'players', players)
-
-	local pets = SpawnHeader(
-		"oUF_RaidPets",
-		"SecureGroupPetHeaderTemplate",
-		"maxColumns", 3,
-	--@debug@--
-		"showSolo", true,
-	--@end-debug@--
-		"showPlayer", true,
-		"showParty", true,
-		"showRaid", true
-	)
-	pets:SetPoint("BOTTOM", players, "TOP", 0, 2*SPACING)
-	SecureHandlerSetFrameRef(anchor, 'pets', pets)
-
-	-- Pet visibility
-	anchor:SetAttribute('_onstate-pets', [===[
-		local pets = self:GetFrameRef('pets')
-		if newstate == 'show' and not pets:IsShown() then
-			self:CallMethod('Debug', "_onstate-pets", newstate)
-			pets:Show()
-		elseif newstate == 'hide' and pets:IsShown() then
-			self:CallMethod('Debug', "_onstate-pets", newstate)
-			pets:Hide()
+	-- Returns (type, number of groups, PvE layout flag)
+	local function GetLayoutInfo()
+		local _, instanceType, _, _, maxPlayers = GetInstanceInfo()
+		if instanceType == "arena" then
+			return "arena", 1, false
+		elseif instanceType == "pvp" then
+			return "pvp", (maxPlayers or 40)/5, false
+		elseif instanceType == "party" then
+			return "party", 1, true
+		elseif instanceType == "raid" then
+			return "raid", (maxPlayers or 40)/5, true
+		elseif GetNumRaidMembers() > 0 then
+			local maxGroup = 1
+			for i = 1, GetNumRaidMembers() do
+				local _, _, subGroup = GetRaidRosterInfo(i)
+				if subGroup > maxGroup then
+					maxGroup = subGroup
+				end
+			end
+			return "raid", maxGroup, true
+		elseif GetNumPartyMembers() > 0 then
+			return "party", 1, true
+		else
+			return "solo", 1, true
 		end
-	]===])
+	end
 
-	-- Generic size updating
-	anchor:SetAttribute('UpdateHeaderSize', [===[
-		local headerName, width, height = ...
-		if not width or not height then return end
-		local header = self:GetFrameRef(headerName)
+	local heap = {}
+	local headers = {}
+
+	--@debug@
+	do
+		local function spy(self, ...)
+			for k, v in pairs(headers) do
+				if v == self then
+					return self:Debug('SecureGroup*Header_Update', ...)
+				end
+			end
+		end
+		hooksecurefunc('SecureGroupHeader_Update', spy)
+		hooksecurefunc('SecureGroupPetHeader_Update', spy)
+	end
+	--@end-debug@
+
+	function anchor:ConfigureHeaders(layoutType, numGroups, isPvE)
+		self:Debug('ConfigureHeaders', layoutType, numGroups, isPvE)
+
+		local numHeaders = numGroups
+
+		local showTanks = isPvE and numGroups > 1
+		local showPets = isPvE
+		if showTanks then
+			numHeaders = numHeaders + 1
+		end
+
+		-- Create new headers if need be
+		for i = #headers+1, numHeaders do
+			headers[i] = heap[i] or CreateHeader(i)
+			heap[i] = nil
+			headers[i]:Show()
+		end
+
+		-- Hide unused headers
+		for i = numHeaders+1, #headers do
+			local header = headers[i]
+			header:Hide()
+			heap[i] = header
+			headers[i] = nil
+		end
+
+		-- Configure filters
+		local offset = 0
+		if showTanks then
+			headers[1]:SetAttributes('groupFilter', 'TANK')
+			offset = 1
+		end
+		for i = 1, numGroups do
+			headers[i + offset]:SetAttributes('groupFilter', tostring(i))
+		end
+
+		-- Update pets
+		if showPets then
+			headers.pets = heap.pets or CreateHeader("Pets", "SecureGroupPetHeaderTemplate")
+			headers.pets:Show()
+		elseif headers.pets then
+			heap.pets = headers.pets
+			headers.pets:Hide()
+			headers.pets = nil
+		end
+	end
+
+	function anchor:ConfigureAnchors(alignment, orientation, unitSpacing, groupSpacing)
+		self:Debug('ConfigureAnchors', alignment, orientation, unitSpacing, groupSpacing)
+
+		-- Calculating the header anchoring parameters, depending on alignment and orientation
+		local from, xOffset, yOffset = alignment, 0, 0
+		local horiz, vert
+		if orientation == "horizontal" then
+			horiz = strmatch(from, "LEFT") or strmatch(from, "RIGHT") or ""
+			if strmatch(from, "TOP") then
+				vert, yOffset = "BOTTOM", -groupSpacing
+			else
+				vert, yOffset = "TOP", groupSpacing
+			end
+		else
+			vert = strmatch(from, "BOTTOM") or strmatch(from, "TOP") or ""
+			if strmatch(from, "RIGHT") then
+				horiz, xOffset = "LEFT", -groupSpacing
+			else
+				horiz, xOffset = "RIGHT", groupSpacing
+			end
+		end
+		local to = vert..horiz
+
+		for key, header in pairs(headers) do
+			header:ClearAllPoints()
+			header:SetAnchoring(orientation, alignment, unitSpacing)
+			if key == 1 then
+				header:SetPoint(from, anchor, from, 0, 0)
+			elseif key == 'pets' then
+				headers.pets:SetPoint(from, headers[#headers], to, xOffset, yOffset)
+			else
+				header:SetPoint(from, headers[key-1], to, xOffset, yOffset)
+			end
+		end
+
+	end
+
+	function anchor:ConfigureUnitSize(width, height, petHeight)
+		self:Debug('ConfigureUnitSize', width, height, petHeight)
+		for key, header in pairs(headers) do
+			if key == 'pets' then
+				header:SetUnitSize(width, petHeight)
+			else
+				header:SetUnitSize(width, height)
+			end
+		end
+	end
+
+	function anchor:UpdateLayout(event)
+		self:Debug('UpdateLayout', event)
+
+		-- Clear any pending update
+		self:SetScript('OnUpdate', nil)
+
+		-- Our saved variable
+		local layout = oUF_Adirelle.layoutDB.profile.Raid
+
+		-- Protect all headers against updates
+		for _, header in pairs(headers) do
+			header:SetAttribute('_ignore', "attributeChanges")
+		end
+
+		-- Get information about the layout
+		local layoutType, numGroups, isPvE = GetLayoutInfo()
+
 		local changed = false
-		if width ~= header:GetAttribute('unitWidth') then
-			header:SetAttribute('unitWidth', width)
+
+		-- Update filters and visibility
+		if self.layoutType ~= layoutType and self.numGroups ~= numGroups and self.isPvE ~= isPvE then
+			self.layoutType, self.numGroups, self.isPvE = layoutType, numGroups, isPvE
+			self:ConfigureHeaders(layoutType, numGroups, isPvE)
 			changed = true
-		end
-		if height ~= header:GetAttribute('unitHeight') then
-			header:SetAttribute('unitHeight', height)
-			changed = true
-		end
-		if not changed then return end
-		if children then
-			table.wipe(children)
 		else
-			children = newtable()
+			self:Debug('- layout, no change:', layoutType, numGroups, isPvE)
 		end
-		header:GetChildList(children)
-		header:CallMethod('Debug', 'UpdateHeaderSize', width, height, #children)
-		for i, child in pairs(children) do
-			child:SetWidth(width)
-			child:SetHeight(height)
-		end
-	]===])
 
-	anchor:SetAttribute('UpdateSize', [===[
-		local width = self:GetAttribute('unitWidth')
-		self:RunAttribute('UpdateHeaderSize', 'pets', width, self:GetAttribute('unitHeightSmall'))
-		local heightType = self:GetAttribute('state-heightType')
-		self:RunAttribute('UpdateHeaderSize', 'players', width, self:GetAttribute('unitHeight'..heightType))
-	]===])
-
-
-	-- Player height updating
-	anchor:SetAttribute('_onstate-size', "self:RunAttribute('UpdateSize')")
-	anchor:SetAttribute('_onstate-heightType', "self:RunAttribute('UpdateSize')")
-
-	local function UpdateHeightDriver()
-		if not anchor:CanChangeAttribute() then
-			anchor:Debug("UpdateHeightDriver, locked down, waiting end of combat")
-			anchor:SetScript('OnEvent', UpdateHeightDriver)
-			anchor:RegisterEvent('PLAYER_REGEN_ENABLED')
-			return
+		-- Reanchor
+		local alignment, orientation, unitSpacing, groupSpacing = layout.alignment, layout.orientation, layout.unitSpacing, layout.groupSpacing
+		if changed or self.alignment ~= alignment or self.orientation ~= orientation or self.unitSpacing ~= unitSpacing or self.groupSpacing ~= groupSpacing then
+			self.alignment, self.orientation, self.unitSpacing, self.groupSpacing = alignment, orientation, unitSpacing, groupSpacing
+			self:ConfigureAnchors(alignment, orientation, unitSpacing, groupSpacing)
 		else
-			anchor:SetScript('OnEvent', nil)
-			anchor:UnregisterEvent('PLAYER_REGEN_ENABLED')
+			self:Debug('- anchoring, no change:', alignment, orientation, unitSpacing, groupSpacing)
 		end
 
-		if GetPlayerRole() == "HEALER" then
-			anchor:Debug("UpdateHeightDriver, healer => dynamic height")
-			RegisterStateDriver(anchor, "heightType", "[@raid26,exists] Small; Big")
+		-- Update size
+		local width, height = layout.width, layout[GetPlayerRole() == "HEALER" and "healerHeight" or "height"]
+		if self.unitWidth ~= width or self.unitHeight ~= height then
+			self.unitWidth, self.unitHeight = width, height
+			self:ConfigureUnitSize(width, height, layout.height)
 		else
-			anchor:Debug("UpdateHeightDriver, not healer => fixed height")
-			UnregisterStateDriver(anchor, "heightType")
-			anchor:SetAttribute("heightType", "Small")
+			self:Debug('- unit size, no change:', width, height)
 		end
-	end
-	UpdateHeightDriver()
-	anchor:RegisterMessage('OnPlayerRoleChanged', UpdateHeightDriver)
 
-	-- Apply settings
-	local function Anchor_OnRaidLayoutModified(self, event, layout)
-		local c = layout.Raid
-		local width, heightBig, heightSmall = c.width, c.healerHeight, c.height
-		local alignment = c.alignment
-		players:ClearAllPoints()
-		players:SetPoint(alignment, anchor)
-		pets:ClearAllPoints()
-
-		-- Update anchors for orientation and alignment
-		if c.orientation == "horizontal" then
-			anchor:SetSize(c.unitSpacing * 4 + width * 5, c.groupSpacing * 7 + max(heightBig * 5 + heightSmall * 3, heightSmall * 8))
-			local vert = strmatch(alignment, "LEFT") or strmatch(alignment, "RIGHT") or ""
-			if strmatch(alignment, "TOP") then
-				pets:SetPoint("TOP"..vert, players, "BOTTOM"..vert, 0, -2*c.groupSpacing)
-			else
-				pets:SetPoint("BOTTOM"..vert, players, "TOP"..vert, 0, 2*c.groupSpacing)
-			end
-		else
-			anchor:SetSize(c.groupSpacing * 7 + width * 8, c.unitSpacing * 4 + heightBig * 5)
-			local horiz = strmatch(alignment, "TOP") or strmatch(alignment, "BOTTOM") or ""
-			if strmatch(alignment, "RIGHT") then
-				pets:SetPoint(horiz.."RIGHT", players, horiz.."LEFT", -2*c.groupSpacing, 0)
-			else
-				pets:SetPoint(horiz.."LEFT", players, horiz.."RIGHT", 2*c.groupSpacing, 0)
+		-- Reenable update and clear the _changed flags
+		-- If that flag wasn't nil, this causes the header to update
+		for _, header in pairs(headers) do
+			header:SetAttribute('_ignore', nil)
+			if header:GetAttribute('_changed') then
+				header:SetAttribute('_changed', nil)
 			end
 		end
 
-		-- Apply pet visibility setting
-		if c.showPets.raid25 or c.showPets.raid10 or c.showPets.party then
-			RegisterStateDriver(anchor, "pets", format("[@raid26,exists]hide;[@raid11,exists]%s;[@raid6,exists]%s;%s",
-				c.showPets.raid25 and "show" or "hide",
-				c.showPets.raid10 and "show" or "hide",
-				c.showPets.party and "show" or "hide"
-			))
-		else
-			UnregisterStateDriver(anchor, "pets")
-			pets:Hide()
-		end
-
-		-- Apply sizes
-		if width ~= anchor:GetAttribute('unitWidth') or heightBig ~= anchor:GetAttribute('unitHeightBig') or heightSmall ~= anchor:GetAttribute('unitHeightSmall') then
-			anchor:SetAttribute('unitWidth', width)
-			anchor:SetAttribute('unitHeightBig', heightBig)
-			anchor:SetAttribute('unitHeightSmall', heightSmall)
-			anchor:SetAttribute('state-size', GetTime())
-		end
-
 	end
-	
-	-- Setting callbacks
-	anchor:RegisterMessage('OnRaidLayoutModified', Anchor_OnRaidLayoutModified)
-	anchor:RegisterMessage('OnSettingsModified', Anchor_OnRaidLayoutModified)
 
-	local layout = oUF_Adirelle.layoutDB.profile
-	if layout then
-		anchor:TriggerMessage('OnSettingsModified', layout)
+	--------------------------------------------------------------------------------
+	-- Event handling
+	--------------------------------------------------------------------------------
+
+	local delay = 0
+	function anchor:OnUpdate(elapsed)
+		delay = delay + elapsed
+		if delay > 0.5 then
+			delay = 0
+			return self:UpdateLayout('OnUpdate')
+		end
 	end
+
+	function anchor:TriggerUpdate(event)
+		if not self:GetScript('OnUpdate') then
+			self:Debug('TriggerUpdate', event)
+			delay = 0
+			self:SetScript('OnUpdate', self.OnUpdate)
+		end
+	end
+
+	function anchor:PLAYER_REGEN_DISABLED(event)
+		self:Debug('PLAYER_REGEN_DISABLED', event)
+
+		self:UnregisterEvent('PLAYER_REGEN_DISABLED', self.PLAYER_REGEN_DISABLED)
+		self:UnregisterEvent('PLAYER_ENTERING_WORLD', self.TriggerUpdate)
+		self:UnregisterEvent('ZONE_CHANGED_NEW_AREA', self.TriggerUpdate)
+		self:UnregisterEvent('PARTY_MEMBERS_CHANGED', self.TriggerUpdate)
+		self:UnregisterEvent('RAID_ROSTER_UPDATE', self.TriggerUpdate)
+		self:UnregisterMessage('OnSettingsModified', self.TriggerUpdate)
+		self:UnregisterMessage('OnRaidLayoutModified', self.TriggerUpdate)
+		self:UnregisterMessage('OnPlayerRoleChanged', self.TriggerUpdate)
+
+		self:RegisterEvent('PLAYER_REGEN_ENABLED', self.PLAYER_REGEN_ENABLED)
+
+		return self:UpdateLayout(event)
+	end
+
+	function anchor:PLAYER_REGEN_ENABLED(event)
+		self:Debug('PLAYER_REGEN_ENABLED', event)
+
+		self:UnregisterEvent('PLAYER_REGEN_ENABLED', self.PLAYER_REGEN_ENABLED)
+
+		self:RegisterEvent('PLAYER_REGEN_DISABLED', self.PLAYER_REGEN_DISABLED)
+		self:RegisterEvent('PLAYER_ENTERING_WORLD', self.TriggerUpdate)
+		self:RegisterEvent('ZONE_CHANGED_NEW_AREA', self.TriggerUpdate)
+		self:RegisterEvent('PARTY_MEMBERS_CHANGED', self.TriggerUpdate)
+		self:RegisterEvent('RAID_ROSTER_UPDATE', self.TriggerUpdate)
+		self:RegisterMessage('OnSettingsModified', self.TriggerUpdate)
+		self:RegisterMessage('OnRaidLayoutModified', self.TriggerUpdate)
+		self:RegisterMessage('OnPlayerRoleChanged', self.TriggerUpdate)
+
+		return self:UpdateLayout(event)
+	end
+
+	--------------------------------------------------------------------------------
+	-- Go !
+	--------------------------------------------------------------------------------
+	anchor:PLAYER_REGEN_ENABLED('OnLoad')
 
 end)
