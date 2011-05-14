@@ -588,20 +588,36 @@ local function GetOptions()
 								max = 32,
 								step = 1,
 							},
-							showPets = {
-								name = 'Show pets in ...',
-								type = 'multiselect',
+							showTanks = {
+								name = 'Show tank group',
+								desc = 'Enable to show a separate group with tanks.',
+								type = 'toggle',
 								order = 90,
+							},
+							showPets = {
+								name = 'Show pets in...',
+								type = 'multiselect',
+								order = 100,
 								values = {
-									party = "5-man party/raid",
-									raid10 = "10-man raid",
-									raid25 = "25-man raid",
+									party = "5-man groups",
+									raid10 = "10-man groups",
+									raid15 = "10-man groups",
+									raid25 = "25-man groups",
+									raid40 = "40-man groups",
+									arena = "Arenas",
+									battleground = "Battlegrounds",
 								},
 								get = function(info, key) return layoutDB.profile.Raid.showPets[key] end,
 								set = function(info, key, value)
 									layoutDB.profile.Raid.showPets[key] = value
 									SettingsModified("OnRaidLayoutModified")
 								end,
+							},
+							strictSize = {
+								name = 'Strict raid size',
+								desc = 'When enabled, oUF_Adirelle will only show groups according to instance size, e.g. only groups 1 and 2 for a 10-man raid or battleground.',
+								type = 'toggle',
+								order = 110,
 							},
 						},
 					},
