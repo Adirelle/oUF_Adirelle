@@ -18,7 +18,7 @@ local print, next = _G.print, _G.next
 -- Debugging stuff
 local AdiDebug = _G.AdiDebug
 if AdiDebug then
-	oUF_Adirelle.Debug =  AdiDebug:GetSink("oUF_Adirelle")
+	oUF_Adirelle.Debug = AdiDebug:GetSink("oUF_Adirelle")
 	AdiDebug:Embed(oUF, "oUF_Adirelle")
 else
 	oUF_Adirelle.Debug = function() end

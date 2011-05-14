@@ -37,7 +37,7 @@ oUF:Factory(function()
 	--------------------------------------------------------------------------------
 
 	local anchor = CreateFrame("Frame", "oUF_Raid_Anchor", UIParent, "SecureFrameTemplate,SecureHandlerStateTemplate")
-	anchor.Debug = oUF_Adirelle.Debug
+	anchor.Debug = oUF.Debug
 	anchor:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, 230)
 	anchor:SetSize(SPACING * 4 + WIDTH * 5, SPACING * 7 + HEIGHT_SMALL * 8)
 
@@ -46,7 +46,7 @@ oUF:Factory(function()
 	--------------------------------------------------------------------------------
 	-- Header prototype
 	--------------------------------------------------------------------------------
-	local headerProto = { Debug = Debug	}
+	local headerProto = { Debug = oUF.Debug	}
 
 	local function children_iterator(self, index)
 		index = index + 1

@@ -15,7 +15,7 @@ local type, tinsert, pairs, ipairs = _G.type, _G.tinsert, _G.pairs, _G.ipairs
 local CreateFrame, UIParent = _G.CreateFrame, _G.UIParent
 
 local headerProto = {
-	Debug = oUF_Adirelle.Debug
+	Debug = oUF.Debug
 }
 
 function headerProto:AddFrame(frame)
