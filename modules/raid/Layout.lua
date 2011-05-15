@@ -242,16 +242,20 @@ oUF:Factory(function()
 		end
 
 		-- Update pets
+		local pets = headers.pets
 		if showPets then
-			if not headers.pets then
-				headers.pets = heap.pets or CreateHeader("Pets", "SecureGroupPetHeaderTemplate")
-				headers.pets:Show()
+			if not pets then
+				pets = heap.pets or CreateHeader("Pets", "SecureGroupPetHeaderTemplate")
+				headers.pets = pets
+				pets:Show()
 			end
-			headers.pets:SetAttribute('groupFilter', strjoin(',', GroupList(numGroups)))
-		elseif headers.pets then
-			heap.pets = headers.pets
-			headers.pets:Hide()
-			headers.pets = nil
+			pets:SetAttributes(
+				'groupFilter', strjoin(',', GroupList(numGroups)),
+				'maxColumns', numGroups
+			)
+		elseif pets then
+			pets:Hide()
+			heap.pets, headers.pets = pets, nil
 		end
 	end
 
