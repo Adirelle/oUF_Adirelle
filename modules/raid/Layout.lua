@@ -321,8 +321,15 @@ oUF:Factory(function()
 			header:SetAttribute('_ignore', "attributeChanges")
 		end
 
-		-- Get information about the layout
-		local layoutType, numGroups, isPvE = GetLayoutInfo(layout.strictSize)
+		-- Get information to select the layout
+		local layoutType, numGroups, isPvE
+		local playerRole = GetPlayerRole()
+		if playerRole == nil then
+			-- First login, use safe settings in case the player crashed during combat
+			playerRole, layoutType, numGroups, isPvE = 'HEALER', 'raid', 8, true
+		else
+			layoutType, numGroups, isPvE = GetLayoutInfo(layout.strictSize)
+		end
 		
 		-- Should we show the tanks and the pets ?
 		local showTanks = isPvE and layout.showTanks
@@ -364,7 +371,7 @@ oUF:Factory(function()
 		end
 
 		-- Update size
-		local width, height = layout.width, layout[GetPlayerRole() == "HEALER" and "healerHeight" or "height"]
+		local width, height = layout.width, layout[playerRole == "HEALER" and "healerHeight" or "height"]
 		if changed or self.unitWidth ~= width or self.unitHeight ~= height then
 			self.unitWidth, self.unitHeight = width, height
 			self:ConfigureUnitSize(width, height, layout.height)
