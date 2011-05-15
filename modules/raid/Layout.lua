@@ -16,6 +16,7 @@ oUF:Factory(function()
 	local GetRaidRosterInfo = _G.GetRaidRosterInfo
 	local pairs, ipairs, format, strmatch = _G.pairs, _G.ipairs, _G.format, _G.strmatch
 	local max, huge, GetTime = _G.math.max, _G.math.huge, _G.GetTime
+	local tostring, ceil, select, strjoin = _G.tostring, _G.ceil, _G.select, _G.strjoin
 	local CreateFrame, UIParent = _G.CreateFrame, _G.UIParent
 	local SecureHandlerSetFrameRef = _G.SecureHandlerSetFrameRef
 	local RegisterStateDriver, UnregisterStateDriver = _G.RegisterStateDriver, _G.UnregisterStateDriver
@@ -64,11 +65,9 @@ oUF:Factory(function()
 
 	function headerProto:OnAttributeChanged(name, value)
 		if name ~= '_changed' and name ~= '_ignore' then
-			self:Debug('OnAttributeChanged', name, value)
 			self:SetAttribute('_changed', true)
 		end
 		if name == 'columnAnchorPoint' or name == 'point' or name == 'unitsPerColumn' then
-			self:Debug('Clearing children anchors')
 			for _, child in self:IterateChildren() do
 				child:ClearAllPoints()
 			end
@@ -82,7 +81,6 @@ oUF:Factory(function()
 	end
 
 	function headerProto:SetAnchoring(orientation, anchor, spacing)
-		self:Debug('SetAnchoring', orientation, anchor, spacing)
 		if orientation == "horizontal" then
 			self:SetAttributes(
 				"point", strmatch(anchor, "RIGHT") or "LEFT",
@@ -102,7 +100,6 @@ oUF:Factory(function()
 
 	function headerProto:SetUnitSize(width, height)
 		if self:GetAttribute('unitWidth') ~= width or self:GetAttribute('unitHeight') ~= height then
-			self:Debug('SetUnitSize', width, height)
 			self:SetAttributes('unitWidth', width, 'unitHeight', height)
 			for _, child in self:IterateChildren() do
 				child:SetSize(width, height)
