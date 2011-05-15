@@ -415,13 +415,15 @@ oUF:Factory(function()
 		self:Debug('PLAYER_REGEN_DISABLED', event)
 
 		self:UnregisterEvent('PLAYER_REGEN_DISABLED', self.PLAYER_REGEN_DISABLED)
+		
 		self:UnregisterEvent('PLAYER_ENTERING_WORLD', self.TriggerUpdate)
 		self:UnregisterEvent('ZONE_CHANGED_NEW_AREA', self.TriggerUpdate)
 		self:UnregisterEvent('PARTY_MEMBERS_CHANGED', self.TriggerUpdate)
 		self:UnregisterEvent('RAID_ROSTER_UPDATE', self.TriggerUpdate)
-		self:UnregisterMessage('OnSettingsModified', self.TriggerUpdate)
-		self:UnregisterMessage('OnRaidLayoutModified', self.TriggerUpdate)
-		self:UnregisterMessage('OnPlayerRoleChanged', self.TriggerUpdate)
+		
+		self:UnregisterMessage('OnSettingsModified', self.UpdateLayout)
+		self:UnregisterMessage('OnRaidLayoutModified', self.UpdateLayout)
+		self:UnregisterMessage('OnPlayerRoleChanged', self.UpdateLayout)
 
 		self:RegisterEvent('PLAYER_REGEN_ENABLED', self.PLAYER_REGEN_ENABLED)
 
@@ -434,13 +436,15 @@ oUF:Factory(function()
 		self:UnregisterEvent('PLAYER_REGEN_ENABLED', self.PLAYER_REGEN_ENABLED)
 
 		self:RegisterEvent('PLAYER_REGEN_DISABLED', self.PLAYER_REGEN_DISABLED)
+		
 		self:RegisterEvent('PLAYER_ENTERING_WORLD', self.TriggerUpdate)
 		self:RegisterEvent('ZONE_CHANGED_NEW_AREA', self.TriggerUpdate)
 		self:RegisterEvent('PARTY_MEMBERS_CHANGED', self.TriggerUpdate)
 		self:RegisterEvent('RAID_ROSTER_UPDATE', self.TriggerUpdate)
-		self:RegisterMessage('OnSettingsModified', self.TriggerUpdate)
-		self:RegisterMessage('OnRaidLayoutModified', self.TriggerUpdate)
-		self:RegisterMessage('OnPlayerRoleChanged', self.TriggerUpdate)
+		
+		self:RegisterMessage('OnSettingsModified', self.UpdateLayout)
+		self:RegisterMessage('OnRaidLayoutModified', self.UpdateLayout)
+		self:RegisterMessage('OnPlayerRoleChanged', self.UpdateLayout)
 
 		return self:UpdateLayout(event)
 	end
