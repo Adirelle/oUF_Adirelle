@@ -733,6 +733,7 @@ local function GetOptions()
 							themeDB.profile[info.arg][info[#info]] = value
 							SettingsModified('OnThemeModified')
 						end,
+						arg = '*',
 						args = {
 							Health = {
 								name = 'Health',
@@ -745,11 +746,13 @@ local function GetOptions()
 										name = 'Percentage instead of amount',
 										type = 'toggle',
 										order = 20,
+										arg = 'LowHealth',
 									},
 									percent = {
 										name = 'Threshold',
 										type = 'range',
 										order = 30,
+										arg = 'LowHealth',
 										isPercent = true,
 										min = 0.05,
 										max = 0.95,
@@ -761,6 +764,7 @@ local function GetOptions()
 										name = 'Threshold',
 										type = 'range',
 										order = 0,
+										arg = 'LowHealth',
 										min = 1000,
 										max = 200000,
 										step = 100,
@@ -779,12 +783,14 @@ local function GetOptions()
 									_manaDesc = {
 										type = 'description',
 										order = 210,
+										arg = 'Border',
 										name = 'These thresholds are used to display the blue border around units that are considered "out of mana".',
 									},
 									inCombatManaLevel = {
 										name = 'In combat',
 										type = 'range',
 										order = 220,
+										arg = 'Border',
 										isPercent = true,
 										min = 0,
 										max = 1,
@@ -795,6 +801,7 @@ local function GetOptions()
 										name = 'Out of combat in raid instances',
 										type = 'range',
 										order = 230,
+										arg = 'Border',
 										isPercent = true,
 										min = 0,
 										max = 1,
@@ -805,6 +812,7 @@ local function GetOptions()
 										name = 'Out of combat',
 										type = 'range',
 										order = 240,
+										arg = 'Border',
 										isPercent = true,
 										min = 0,
 										max = 1,
@@ -843,6 +851,7 @@ local AceConfigDialog = LibStub("AceConfigDialog-3.0")
 
 function oUF_Adirelle.ToggleConfig(...)
 	if not AceConfigDialog:Close("oUF_Adirelle") then
-		AceConfigDialog:Open("oUF_Adirelle", ...)
+		AceConfigDialog:SelectGroup("oUF_Adirelle", ...)
+		AceConfigDialog:Open("oUF_Adirelle")
 	end
 end

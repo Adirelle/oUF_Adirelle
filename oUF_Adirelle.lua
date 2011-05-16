@@ -14,6 +14,8 @@ _G.oUF_Adirelle = oUF_Adirelle
 
 -- Make most globals local so I can check global leaks using "luac -l | grep GLOBAL"
 local print, next = _G.print, _G.next
+local strmatch, strlower, tonumber = _G.strmatch, _G.strlower, _G.tonumber
+local LoadAddOn, IsAddOnLoaded = _G.LoadAddOn, _G.IsAddOnLoaded
 
 -- Debugging stuff
 local AdiDebug = _G.AdiDebug
@@ -85,11 +87,25 @@ _G.SlashCmdList.OUFADIRELLE = ToggleConfig
 _G.SLASH_OUFALOWHEALTH1 = "/oufa_health"
 _G.SLASH_OUFALOWHEALTH2 = "/oufah"
 _G.SlashCmdList.OUFALOWHEALTH = function(arg)
+	local number, suffix = strmatch(strlower(arg), '(%d+)([%%k]?)')
+	local threshold = tonumber(number)
+	if threshold then
+		local db = oUF_Adirelle.themeDB.profile.LowHealth
+		if suffix == '%' then
+			if threshold >= 5 and threshold <= 95 then
+				db.isPercent, db.percent = true, threshold / 100
+				return oUF_Adirelle.SettingsModified('OnThemeModified')
+			end
+		elseif threshold > 0 then
+			db.isPercent, db.amount = false, threshold * (suffix == 'k' and 1000 or 1)
+			return oUF_Adirelle.SettingsModified('OnThemeModified')
+		end		
+	end
 	if not IsAddOnLoaded("oUF_Adirelle_Config") then
 		LoadAddOn("oUF_Adirelle_Config")
 	end
 	if oUF_Adirelle.ToggleConfig then
-		oUF_Adirelle.ToggleConfig("theme", "warningThresholds", "Health")
+		oUF_Adirelle.ToggleConfig("theme", "warningThresholds")			
 	end
 end
 
