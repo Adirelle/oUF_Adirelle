@@ -30,9 +30,9 @@ local function GetOptions()
 	local LibMovable = oUF_Adirelle.GetLib('LibMovable-1.0')
 
 	local reloadNeeded = false
-	
+
 	local SettingsModified = oUF_Adirelle.SettingsModified
-	
+
 	local function IsLockedDown() return UnitAffectingCombat("player") end
 
 	-- The list of modules
@@ -674,54 +674,6 @@ local function GetOptions()
 							--]]
 						},
 					},
-					Border = {
-						name = '"Low mana" thresholds',
-						type = 'group',
-						order = 10,
-						hidden = IsElementDisabled.Border,
-						get = function(info) return themeDB.profile.Border[info[#info]] end,
-						set = function(info, value)
-							themeDB.profile.Border[info[#info]] = value
-							SettingsModified('OnThemeModified')
-						end,
-						args = {
-							_desc = {
-								type = 'description',
-								order = 1,
-								name = 'These thresholds are used to display the blue border around units that are considered "low in mana".',
-							},
-							inCombatManaLevel = {
-								name = 'In combat',
-								type = 'range',
-								order = 10,
-								isPercent = true,
-								min = 0,
-								max = 1,
-								step = 0.01,
-								bigStep = 0.05,
-							},
-							oocInRaidManaLevel = {
-								name = 'Out of combat in raid instances',
-								type = 'range',
-								order = 20,
-								isPercent = true,
-								min = 0,
-								max = 1,
-								step = 0.01,
-								bigStep = 0.05,							
-							},
-							oocManaLevel = {
-								name = 'Out of combat',
-								type = 'range',
-								order = 30,
-								isPercent = true,
-								min = 0,
-								max = 1,
-								step = 0.01,
-								bigStep = 0.05,						
-							},
-						},
-					},
 					single = {
 						name = 'Basic/arena/boss frames',
 						type = 'group',
@@ -771,6 +723,98 @@ local function GetOptions()
 							},
 						},
 					},
+					warningThresholds = {
+						name = 'Warning thresholds',
+						type = 'group',
+						order = 30,
+						hidden = function(info) return IsElementDisabled[info.arg] and IsElementDisabled[info.arg]() end,
+						get = function(info) return themeDB.profile[info.arg][info[#info]] end,
+						set = function(info, value)
+							themeDB.profile[info.arg][info[#info]] = value
+							SettingsModified('OnThemeModified')
+						end,
+						args = {
+							Health = {
+								name = 'Health',
+								type = 'group',
+								inline = true,
+								order = 10,
+								arg = 'LowHealth',
+								args = {
+									isPercent = {
+										name = 'Percentage instead of amount',
+										type = 'toggle',
+										order = 20,
+									},
+									percent = {
+										name = 'Threshold',
+										type = 'range',
+										order = 30,
+										isPercent = true,
+										min = 0.05,
+										max = 0.95,
+										step = 0.01,
+										bigStep = 0.05,
+										hidden = function() return not themeDB.profile.LowHealth.isPercent end,
+									},
+									amount = {
+										name = 'Threshold',
+										type = 'range',
+										order = 0,
+										min = 1000,
+										max = 200000,
+										step = 100,
+										bigStep = 1000,
+										hidden = function() return themeDB.profile.LowHealth.isPercent end,
+									},
+								},
+							},
+							Mana = {
+								name = 'Mana',
+								type = 'group',
+								inline = true,
+								order = 20,
+								arg = 'Border',
+								args = {
+									_manaDesc = {
+										type = 'description',
+										order = 210,
+										name = 'These thresholds are used to display the blue border around units that are considered "out of mana".',
+									},
+									inCombatManaLevel = {
+										name = 'In combat',
+										type = 'range',
+										order = 220,
+										isPercent = true,
+										min = 0,
+										max = 1,
+										step = 0.01,
+										bigStep = 0.05,
+									},
+									oocInRaidManaLevel = {
+										name = 'Out of combat in raid instances',
+										type = 'range',
+										order = 230,
+										isPercent = true,
+										min = 0,
+										max = 1,
+										step = 0.01,
+										bigStep = 0.05,
+									},
+									oocManaLevel = {
+										name = 'Out of combat',
+										type = 'range',
+										order = 240,
+										isPercent = true,
+										min = 0,
+										max = 1,
+										step = 0.01,
+										bigStep = 0.05,
+									},
+								},
+							},
+						},
+					},
 					colors = {
 						name = 'Colors',
 						type = 'group',
@@ -797,9 +841,8 @@ LibStub("AceConfig-3.0"):RegisterOptionsTable("oUF_Adirelle", GetOptions)
 
 local AceConfigDialog = LibStub("AceConfigDialog-3.0")
 
-function oUF_Adirelle.ToggleConfig()
+function oUF_Adirelle.ToggleConfig(...)
 	if not AceConfigDialog:Close("oUF_Adirelle") then
-		AceConfigDialog:Open("oUF_Adirelle")
+		AceConfigDialog:Open("oUF_Adirelle", ...)
 	end
 end
-

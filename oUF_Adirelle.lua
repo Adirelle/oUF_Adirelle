@@ -82,6 +82,17 @@ _G.SLASH_OUFADIRELLE1 = "/ouf_adirelle"
 _G.SLASH_OUFADIRELLE2 = "/oufa"
 _G.SlashCmdList.OUFADIRELLE = ToggleConfig
 
+_G.SLASH_OUFALOWHEALTH1 = "/oufa_health"
+_G.SLASH_OUFALOWHEALTH2 = "/oufah"
+_G.SlashCmdList.OUFALOWHEALTH = function(arg)
+	if not IsAddOnLoaded("oUF_Adirelle_Config") then
+		LoadAddOn("oUF_Adirelle_Config")
+	end
+	if oUF_Adirelle.ToggleConfig then
+		oUF_Adirelle.ToggleConfig("theme", "warningThresholds", "Health")
+	end
+end
+
 local LDB = LibStub('LibDataBroker-1.1', true)
 if LDB then
 	oUF_Adirelle.launcher = LDB:NewDataObject(parent, {

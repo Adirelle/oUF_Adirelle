@@ -89,6 +89,11 @@ local THEME_DEFAULTS = {
 			colorReaction = false,
 			colorSmooth = false,
 		},
+		LowHealth = {
+			isPercent = true,
+			percent = 0.15,
+			amount = 10000,
+		},
 	}
 }
 

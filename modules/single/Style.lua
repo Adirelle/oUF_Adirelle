@@ -416,11 +416,20 @@ local function OnSingleThemeModified(self, event, layout, theme)
 end
 
 local function OnThemeModified(self, event, layout, theme)
+	-- Update border settings
 	local border = self.Border
 	for k, v in pairs(theme.Border) do
 		border[k] = v
 	end
 	border:ForceUpdate()
+	
+	-- Update low health threshold
+	local lowHealth = self.LowHealth
+	if lowHealth then
+		local prefs = theme.LowHealth
+		lowHealth.threshold = prefs.isPercent and -prefs.percent or prefs.amount
+		lowHealth:ForceUpdate()
+	end
 end
 
 local function OnColorModified(self, event, layout, theme)
