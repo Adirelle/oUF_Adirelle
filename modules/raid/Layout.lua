@@ -234,7 +234,7 @@ oUF:Factory(function()
 		-- Configure filters
 		local offset = 0
 		if showTanks then
-			headers[1]:SetAttribute('groupFilter', 'TANK')
+			headers[1]:SetAttribute('groupFilter', 'MAINTANK')
 			offset = 1
 		end
 		for i = 1, numGroups do
