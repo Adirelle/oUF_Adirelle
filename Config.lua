@@ -601,7 +601,7 @@ local function GetOptions()
 								values = {
 									party = "5-man groups",
 									raid10 = "10-man groups",
-									raid15 = "10-man groups",
+									raid15 = "15-man groups",
 									raid25 = "25-man groups",
 									raid40 = "40-man groups",
 									arena = "Arenas",
