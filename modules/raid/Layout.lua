@@ -14,6 +14,7 @@ oUF:Factory(function()
 	local GetNumRaidMembers = _G.GetNumRaidMembers
 	local GetNumPartyMembers = _G.GetNumPartyMembers
 	local GetRaidRosterInfo = _G.GetRaidRosterInfo
+	local GetMapInfo, IsInActiveWorldPVP = _G.GetMapInfo, _G.IsInActiveWorldPVP
 	local pairs, ipairs, format, strmatch = _G.pairs, _G.ipairs, _G.format, _G.strmatch
 	local max, huge, GetTime = _G.math.max, _G.math.huge, _G.GetTime
 	local tostring, ceil, select, strjoin = _G.tostring, _G.ceil, _G.select, _G.strjoin
@@ -130,8 +131,8 @@ oUF:Factory(function()
 			"showRaid", true,
 			"unitWidth", WIDTH,
 			"unitHeight", HEIGHT,
-			'minWidth', 2,
-			'minHeight', 2
+			'minWidth', 0.1,
+			'minHeight', 0.1
 		)
 		for k, v in pairs(headerProto) do
 			header[k] = v
@@ -148,44 +149,47 @@ oUF:Factory(function()
 	--------------------------------------------------------------------------------
 	
 	local function GetRaidNumGroups(maxPlayers)
-		local numPlayers = GetNumRaidMembers()
-		local numGroups = ceil(numPlayers / 5)
-		if maxPlayers then
-			numGroups = max(numGroups, maxPlayers / 5)
+		if not maxPlayers then
+			maxPlayers = GetNumRaidMembers() or 1
 		end
-		for i = 1, numPlayers do
+		local numGroups = ceil(maxPlayers / 5)
+		local highestGroup = numGroups
+		for i = 1, GetNumRaidMembers() do
 			local _, _, group = GetRaidRosterInfo(i)
-			numGroups = max(numGroups, group)
+			if group > highestGroup then
+				highestGroup = group
+			end
 		end
-		return numGroups
+		return numGroups, highestGroup
 	end
 	
-	-- Returns (type, number of groups, PvE layout flag)
+	local BATTLEGROUND_SIZE = {
+		WarsongGulch = 10,
+		TwinPeaks = 10,
+		ArathiBasin = 15,
+		NetherstormArena = 15,
+		StrandoftheAncients = 15,
+		GilneasBattleground2 = 15,
+		AlteracValley = 40,
+		IsleofConquest = 40,
+		TolBarad = 40,
+		LakeWintergrasp = 40,
+	}
+	
+	-- Returns (type, PvE, number of groups, highest group number)
 	local function GetLayoutInfo(strictSize)
 		local _, instanceType, _, _, maxPlayers = GetInstanceInfo()
 		anchor:Debug('GetLayoutInfo', 'raidSize=', GetNumRaidMembers(), 'partySize=', GetNumPartyMembers(), 'instanceInfo:', GetInstanceInfo())
 		if instanceType == "arena" then
-			return "arena", 1, false
-		elseif instanceType == "pvp" then
-			if strictSize and maxPlayers then
-				return "battleground", maxPlayers / 5, false
-			else
-				return "battleground", GetRaidNumGroups(maxPlayers), false
-			end
-		elseif instanceType == "party" then
-			return "party", 1, true
-		elseif instanceType == "raid" then
-			if strictSize and maxPlayers then
-				return "raid", maxPlayers / 5, true
-			else
-				return "raid", GetRaidNumGroups(maxPlayers), true
-			end
-		elseif GetNumRaidMembers() > 0 then
-			return "raid", GetRaidNumGroups(), true
-		elseif GetNumPartyMembers() > 0 then
-			return "party", 1, true
+			return "arena", false, 1, 1
+		elseif instanceType == "pvp" or IsInActiveWorldPVP() then
+			return "battleground", false, GetRaidNumGroups(BATTLEGROUND_SIZE[GetMapInfo()])
+		elseif instanceType == "raid" or (instanceType == "none" and GetNumRaidMembers() > 0) then
+			return "raid", true, GetRaidNumGroups(maxPlayers)
+		elseif instanceType == "party" or (instanceType == "none" and GetNumPartyMembers() > 0) then
+			return "party", true, 1, 1
 		else
-			return "solo", 1, true
+			return "solo", true, 1, 1
 		end
 	end
 
@@ -322,14 +326,15 @@ oUF:Factory(function()
 		end
 
 		-- Get information to select the layout
-		local layoutType, numGroups, isPvE
+		local layoutType, isPvE, numGroups, highestGroup
 		local playerRole = GetPlayerRole()
 		if playerRole == nil then
 			-- First login, use safe settings in case the player crashed during combat
-			playerRole, layoutType, numGroups, isPvE = 'HEALER', 'raid', 8, true
+			playerRole, layoutType, isPvE, numGroups, highestGroup = 'HEALER', 'raid', true, 8, 8
 		else
-			layoutType, numGroups, isPvE = GetLayoutInfo(layout.strictSize)
+			layoutType, isPvE, numGroups, highestGroup = GetLayoutInfo()
 		end
+		self:Debug('UpdateLayout role:', playerRole, 'type:', layoutType, 'pve:', isPvE, 'numGroups:', numGroups, 'highest:', highestGroup)
 		
 		-- Should we show the tanks and the pets ?
 		local showTanks = isPvE and layout.showTanks
@@ -347,6 +352,11 @@ oUF:Factory(function()
 			else
 				showPets = prefs.raid40
 			end
+		end
+		
+		-- If not strict, show the highestGroup
+		if not layout.strictSize then
+			numGroups = highestGroup
 		end
 
 		local changed = false
