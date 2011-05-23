@@ -149,7 +149,7 @@ oUF:Factory(function()
 	--------------------------------------------------------------------------------
 	
 	local function GetRaidNumGroups(maxPlayers)
-		if not maxPlayers then
+		if not maxPlayers or maxPlayers == 0 then
 			maxPlayers = GetNumRaidMembers() or 1
 		end
 		local numGroups = ceil(maxPlayers / 5)
