@@ -229,7 +229,7 @@ local function LayoutAuxiliaryBars(self)
 	local bars = self.AuxiliaryBars
 	if not bars then return end
 	local anchor, offset = self, 0
-	if self.Buffs and self.Buffs.size == "BOTTOM" then
+	if self.Buffs and self.Buffs.side == "BOTTOM" then
 		offset = - self.Buffs:GetHeight()
 	end
 	for i, bar in ipairs(bars) do
@@ -323,7 +323,7 @@ local function OnAuraLayoutModified(self, event, layout)
 	
 	local auras = layout.Single.Auras
 	local size, spacing, side = auras.size, auras.spacing, auras.sides[self.baseUnit]
-	buffs.size, buffs.spacing, buffs.enlarge, buff.side = size, spacing, auras.enlarge, side
+	buffs.size, buffs.spacing, buffs.enlarge, buffs.side = size, spacing, auras.enlarge, side
 	if debuffs then
 		debuffs.size, debuffs.spacing, debuffs.enlarge, debuffs.side = size, spacing, auras.enlarge, side
 	end
