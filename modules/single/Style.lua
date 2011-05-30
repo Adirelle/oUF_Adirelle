@@ -388,9 +388,6 @@ local function OnSingleLayoutModified(self, event, layout, theme)
 	end
 	if self:CanChangeProtectedState() and (self:GetWidth() ~= width or self:GetHeight() ~= height) then
 		self:SetSize(width, height)
-		if self.Buffs then
-			return OnAuraLayoutModified(self, event, layout)
-		end
 	end
 end
 
