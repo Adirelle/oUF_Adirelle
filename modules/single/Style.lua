@@ -227,11 +227,15 @@ end
 -- Additional auxiliary bars
 local function LayoutAuxiliaryBars(self)
 	local bars = self.AuxiliaryBars
-	local anchor = self
-	for i, bar in ipairs(self.AuxiliaryBars) do
+	if not bars then return end
+	local anchor, offset = self, 0
+	if self.Buffs and self.Buffs.size == "BOTTOM" then
+		offset = - self.Buffs:GetHeight()
+	end
+	for i, bar in ipairs(bars) do
 		if bar:IsShown() then
-			bar:SetPoint("TOP", anchor, "BOTTOM", 0, -FRAME_MARGIN)
-			anchor = bar
+			bar:SetPoint("TOP", anchor, "BOTTOM", 0, -FRAME_MARGIN+offset)
+			anchor, offset = bar, 0
 		end
 	end
 end
@@ -319,9 +323,9 @@ local function OnAuraLayoutModified(self, event, layout)
 	
 	local auras = layout.Single.Auras
 	local size, spacing, side = auras.size, auras.spacing, auras.sides[self.baseUnit]
-	buffs.size, buffs.spacing, buffs.enlarge = size, spacing, auras.enlarge
+	buffs.size, buffs.spacing, buffs.enlarge, buff.side = size, spacing, auras.enlarge, side
 	if debuffs then
-		debuffs.size, debuffs.spacing, debuffs.enlarge = size, spacing, auras.enlarge
+		debuffs.size, debuffs.spacing, debuffs.enlarge, debuffs.side = size, spacing, auras.enlarge, side
 	end
 
 	-- Apply position
@@ -379,6 +383,9 @@ local function OnAuraLayoutModified(self, event, layout)
 	if debuffs then
 		UpdateAuraCount(debuffs, size, spacing)
 	end
+	
+	-- Update auxiliary bars, just in case
+	return LayoutAuxiliaryBars(self)
 end
 
 local function OnSingleLayoutModified(self, event, layout, theme)
