@@ -144,7 +144,9 @@ oUF:RegisterMetaFunction("TriggerMessage", TriggerMessage)
 
 -- The function to embed messaging methods into another table
 function oUF_Adirelle.EmbedMessaging(target)
-	target.Debug = oUF_Adirelle.Debug
+	if not target.Debug then
+		target.Debug = oUF.Debug
+	end
 	target.RegisterMessage = RegisterMessage
 	target.UnregisterMessage = UnregisterMessage
 	target.SendMessage = SendMessage

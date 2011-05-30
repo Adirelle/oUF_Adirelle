@@ -22,8 +22,6 @@ oUF:Factory(function()
 	local SecureHandlerSetFrameRef = _G.SecureHandlerSetFrameRef
 	local RegisterStateDriver, UnregisterStateDriver = _G.RegisterStateDriver, _G.UnregisterStateDriver
 
-	local Debug = oUF_Adirelle.Debug
-
 	-- Fetch some shared variables into local namespace
 	local SCALE = oUF_Adirelle.SCALE
 	local SPACING = oUF_Adirelle.SPACING
