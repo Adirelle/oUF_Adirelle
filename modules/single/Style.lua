@@ -320,7 +320,7 @@ end
 local function OnAuraLayoutModified(self, event, layout)
 	local width, height = self:GetSize()
 	local buffs, debuffs = self.Buffs, self.Debuffs
-	
+
 	local auras = layout.Single.Auras
 	local size, spacing, side = auras.size, auras.spacing, auras.sides[self.baseUnit]
 	buffs.size, buffs.spacing, buffs.enlarge, buffs.side = size, spacing, auras.enlarge, side
@@ -337,14 +337,14 @@ local function OnAuraLayoutModified(self, event, layout)
 		else
 			dx, opposite = 1, 'LEFT'
 		end
-		ApplyAuraPosition(self, buffs, 'BOTTOM'..opposite, 'BOTTOM'..side, dx, -1, dx, 0)				
+		ApplyAuraPosition(self, buffs, 'BOTTOM'..opposite, 'BOTTOM'..side, dx, -1, dx, 0)
 
 		-- Ensure we can display at least 12 normal icons or 5 large ones
 		local auraWidth = size * 12 + spacing * 11
 		if auras.enlarge then
 			auraWidth = mmax(mmin(size * 1.5, height) * 6 + spacing * 5)
 		end
-		
+
 		-- Share the available space with debuffs, if necessary
 		if debuffs then
 			ApplyAuraPosition(self, debuffs, 'TOP'..opposite, 'TOP'..side, dx, 1, dx, 0)
@@ -354,20 +354,20 @@ local function OnAuraLayoutModified(self, event, layout)
 			buffs:SetSize(auraWidth, height)
 		end
 	else
-		-- Top or bottom				
+		-- Top or bottom
 		local dy, opposite
 		if side == 'TOP' then
 			dy, opposite = 1, 'BOTTOM'
 		else
 			dy, opposite = -1, 'TOP'
 		end
-		
+
 		-- Ensure we can display at least two rows of normal icons, or a row of large ones plus a row of normal ones
 		local auraHeight = size * 2 + spacing
 		if auras.enlarge then
 			auraHeight = mmax(auraHeight, mmin(size * 1.5, width) + spacing + size)
 		end
-		
+
 		ApplyAuraPosition(self, buffs, opposite..'LEFT', side..'LEFT', 1, dy, 0, dy)
 		if debuffs then
 			ApplyAuraPosition(self, debuffs, opposite..'RIGHT', side..'RIGHT', -1, dy, 0, dy)
@@ -383,7 +383,7 @@ local function OnAuraLayoutModified(self, event, layout)
 	if debuffs then
 		UpdateAuraCount(debuffs, size, spacing)
 	end
-	
+
 	-- Update auxiliary bars, just in case
 	return LayoutAuxiliaryBars(self)
 end
@@ -408,7 +408,7 @@ local function OnSingleThemeModified(self, event, layout, theme)
 		health.colorSmooth = false
 	end
 	health:ForceUpdate()
-	
+
 	-- Update power coloring flags
 	local power = self.Power
 	if power then
@@ -426,7 +426,7 @@ local function OnThemeModified(self, event, layout, theme)
 		border[k] = v
 	end
 	border:ForceUpdate()
-	
+
 	-- Update low health threshold
 	local lowHealth = self.LowHealth
 	if lowHealth then
@@ -487,7 +487,7 @@ local function InitFrame(settings, self, unit)
 	self:SetBackdrop(backdrop)
 	self:SetBackdropColor(0,0,0,backdrop.bgAlpha)
 	self:SetBackdropBorderColor(0,0,0,0)
-	
+
 	-- Register setting callbacks early
 	self:RegisterMessage('OnSingleLayoutModified', OnSingleLayoutModified)
 	self:RegisterMessage('OnSettingsModified', OnSingleLayoutModified)
@@ -497,7 +497,7 @@ local function InitFrame(settings, self, unit)
 	self:RegisterMessage('OnSettingsModified', OnColorModified)
 	self:RegisterMessage('OnSettingsModified', OnThemeModified)
 	self:RegisterMessage('OnThemeModified', OnThemeModified)
-	
+
 	-- Border
 	local border = CreateFrame("Frame", nil, self)
 	border:SetFrameStrata("BACKGROUND")

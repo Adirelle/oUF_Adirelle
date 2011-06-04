@@ -61,10 +61,10 @@ end
 local function PLAYER_ALIVE(self)
 	self:UnregisterEvent('PLAYER_ALIVE', PLAYER_ALIVE)
 	PLAYER_ALIVE = nil
-	
+
 	self:RegisterEvent('RAID_ROSTER_UPDATE', RAID_ROSTER_UPDATE)
 	self:RegisterEvent('ACTIVE_TALENT_GROUP_CHANGED', UpdatePlayerRole)
-	self:RegisterEvent('PLAYER_REGEN_DISABLED', UpdatePlayerRole)	
+	self:RegisterEvent('PLAYER_REGEN_DISABLED', UpdatePlayerRole)
 	return RAID_ROSTER_UPDATE(self)
 end
 

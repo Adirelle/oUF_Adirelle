@@ -99,13 +99,13 @@ _G.SlashCmdList.OUFALOWHEALTH = function(arg)
 		elseif threshold > 0 then
 			db.isPercent, db.amount = false, threshold * (suffix == 'k' and 1000 or 1)
 			return oUF_Adirelle.SettingsModified('OnThemeModified')
-		end		
+		end
 	end
 	if not IsAddOnLoaded("oUF_Adirelle_Config") then
 		LoadAddOn("oUF_Adirelle_Config")
 	end
 	if oUF_Adirelle.ToggleConfig then
-		oUF_Adirelle.ToggleConfig("theme", "warningThresholds")			
+		oUF_Adirelle.ToggleConfig("theme", "warningThresholds")
 	end
 end
 

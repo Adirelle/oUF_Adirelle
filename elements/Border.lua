@@ -104,7 +104,7 @@ local function Disable(self)
 	local border = self.Border
 	if border then
 		border.hasMana, border.manaThreshold = nil, nil
-		
+
 		self:UnregisterEvent("UNIT_POWER", PowerUpdate)
 		self:UnregisterEvent("UNIT_MAXPOWER", PowerUpdate)
 		self:UnregisterEvent("UNIT_DISPLAYPOWER", TogglePowerUpdates)

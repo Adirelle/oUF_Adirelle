@@ -25,15 +25,15 @@ local function LM10_Disable(frame) return frame:SetEnabledSetting(false) end
 local RegisterMovable = oUF_Adirelle.RegisterMovable
 function oUF_Adirelle.RegisterMovable(frame, key, label, mask)
 	frame:Debug('Registering movable', key, label, mask)
-	
+
 	-- The frame can be disabled
 	oUF_Adirelle.RegisterTogglableFrame(frame, key, label)
-	
-	-- Mix in our methods 
+
+	-- Mix in our methods
 	frame.LM10_IsEnabled = frame.GetEnabledSetting
 	frame.LM10_Enable = LM10_Enable
 	frame.LM10_Disable = LM10_Disable
-	
+
 	-- Now do register this frame as movable
 	RegisterMovable(oUF_Adirelle, frame, GetDatabase, label, mask)
 end

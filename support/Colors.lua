@@ -80,7 +80,7 @@ local function SaveColors()
 	DeepCopy(oUF.colors, profile.colors, false, DEFAULTS)
 end
 
-oUF_Adirelle:RegisterMessage('OnSettingsModified', function(self, event, _, newProfile) 
+oUF_Adirelle:RegisterMessage('OnSettingsModified', function(self, event, _, newProfile)
 	if not DEFAULTS then
 		DEFAULTS = {}
 		DeepCopy(oUF.colors, DEFAULTS)
