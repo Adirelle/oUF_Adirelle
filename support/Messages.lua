@@ -38,22 +38,22 @@ local function RegisterMessage(self, message, callback)
 	-- Argument checks
 	assert(type(message) == "string", "RegisterMessage(self, message, callback): message should be a string, not a "..type(message))
 	assert(type(callback) == "string" or type(callback) == "function", "RegisterMessage(self, message, callback): callback should be a string or a function, not a "..type(callback))
-	
+
 	-- Get a function to handle method callbacks
 	if type(callback) == "string" then
 		assert(type(self) == "table", "RegisterMessage(self, message, callback): cannot register method callback for a "..type(self))
 		callback = methodCallbacks[callback]
 	end
-	
+
 	-- Initialize the callback table for that message
-	if not callbacks[message] then	
+	if not callbacks[message] then
 		callbacks[message] = {}
 	end
-	
+
 	-- Register the callback
 	local existing = callbacks[message][self]
 	if type(existing) == "function" then
-		if existing ~= callback then	
+		if existing ~= callback then
 			callbacks[message][self] = setmetatable({ existing, callback }, callbackListMeta)
 		else
 			return false
@@ -77,13 +77,13 @@ local function UnregisterMessage(self, message, callback)
 	assert(type(callback) == "string" or type(callback) == "function", "UnregisterMessage(self, message, callback): callback should be a string or a function, not a "..type(callback))
 
 	-- Fetch existing callback(s)
-	local existing = callbacks[message] and callbacks[message][self] 
-	
+	local existing = callbacks[message] and callbacks[message][self]
+
 	-- No callback has been registered for this message and this target
 	if not existing then
 		return false
 	end
-	
+
 	-- Get a function to handle method callbacks
 	if type(callback) == "string" then
 		callback = rawget(methodCallbacks, callback)
@@ -92,20 +92,20 @@ local function UnregisterMessage(self, message, callback)
 			return false
 		end
 	end
-			
+
 	-- Remove the callback
 	local found = false
 	if existing == callback then
 		callbacks[message][self] = nil
 		found = true
-		
+
 	elseif type(existing) == "table" then
 		for i = 1, #existing do
 			if existing[i] == callback then
 				found = true
 				tremove(existing, i)
 				if #existing == 0 then
-					callbacks[message][self] = nil					
+					callbacks[message][self] = nil
 				end
 				break
 			end
@@ -116,7 +116,7 @@ local function UnregisterMessage(self, message, callback)
 	if not next(callbacks[message]) then
 		callbacks[message] = nil
 	end
-	
+
 	return found
 end
 

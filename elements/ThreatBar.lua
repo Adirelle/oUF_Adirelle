@@ -21,7 +21,7 @@ local function Update(self, event, unit)
 	if unit and (unit ~= self.unit and unit ~= "player") then
 		return
 	elseif GetRealNumPartyMembers() == 0 and GetRealNumRaidMembers() == 0 and not UnitExists("pet") then
-		return self.ThreatBar:Hide() 
+		return self.ThreatBar:Hide()
 	end
 	local bar = self.ThreatBar
 	local isTanking, status, scaledPercent, rawPercent, threatValue = UnitDetailedThreatSituation("player", self.unit)
