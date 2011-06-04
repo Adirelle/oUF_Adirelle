@@ -8,20 +8,36 @@ local _G, moduleName, private = _G, ...
 local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
--- Make most globals local so I can check global leaks using "luac -l | grep GLOBAL"
-local UnitClass, UnitName = _G.UnitClass, _G.UnitName
-local UnitHealth, UnitHealthMax = _G.UnitHealth, _G.UnitHealthMax
-local UnitIsConnected, UnitIsDeadOrGhost = _G.UnitIsConnected, _G.UnitIsDeadOrGhost
-local UnitPower, UnitPowerMax = _G.UnitPower, _G.UnitPowerMax
+--<GLOBALS
+local _G = _G
+local abs = _G.abs
+local ALTERNATE_POWER_INDEX = _G.ALTERNATE_POWER_INDEX
+local CreateFrame = _G.CreateFrame
+local floor = _G.floor
+local format = _G.format
+local GetTime = _G.GetTime
+local gsub = _G.gsub
+local huge = _G.math.huge
+local pairs = _G.pairs
+local SecureButton_GetUnit = _G.SecureButton_GetUnit
+local select = _G.select
+local strmatch = _G.strmatch
+local strsub = _G.strsub
+local tostring = _G.tostring
 local UnitAlternatePowerInfo = _G.UnitAlternatePowerInfo
 local UnitAlternatePowerTextureInfo = _G.UnitAlternatePowerTextureInfo
-local SecureButton_GetUnit = _G.SecureButton_GetUnit
-local CreateFrame, GetTime = _G.CreateFrame, _G.GetTime
-local gsub, strmatch, format, strsub = _G.gsub, _G.strmatch, _G.format, _G.strsub
-local mmin, mmax, huge, floor, abs = _G.min, _G.max, _G.math.huge, _G.floor, _G.math.abs
-local tostring, unpack, select, pairs = _G.tostring, _G.unpack, _G.select, _G.pairs
+local UnitClass = _G.UnitClass
+local UnitHealth = _G.UnitHealth
+local UnitHealthMax = _G.UnitHealthMax
+local UnitIsConnected = _G.UnitIsConnected
+local UnitIsDeadOrGhost = _G.UnitIsDeadOrGhost
+local UnitName = _G.UnitName
+local UnitPower = _G.UnitPower
+local UnitPowerMax = _G.UnitPowerMax
 local UNKNOWN = _G.UNKNOWN
-local ALTERNATE_POWER_INDEX = _G.ALTERNATE_POWER_INDEX
+local unpack = _G.unpack
+--GLOBALS>
+local mmin, mmax = _G.min, _G.max
 
 -- Import some values from oUF_Adirelle namespace
 local GetFrameUnitState = oUF_Adirelle.GetFrameUnitState
@@ -426,7 +442,7 @@ local function OnRaidLayoutModified(self, event, layout)
 		end
 	end
 end
-	
+
 local function OnThemeModified(self, event, layout, theme)
 	-- Update border settings
 	local border = self.Border
@@ -434,7 +450,7 @@ local function OnThemeModified(self, event, layout, theme)
 		border[k] = v
 	end
 	border:ForceUpdate()
-	
+
 	-- Update low health threshold
 	local lowHealth = self.LowHealth
 	if lowHealth then
@@ -632,7 +648,7 @@ local function InitFrame(self, unit)
 	xrange:SetAllPoints(self)
 	xrange:SetFrameLevel(overlay:GetFrameLevel()+10)
 	xrange.PostUpdate = XRange_PostUpdate
-	
+
 	local tex = xrange:CreateTexture(nil, "OVERLAY")
 	tex:SetAllPoints(self)
 	tex:SetTexture(0.4, 0.4, 0.4)

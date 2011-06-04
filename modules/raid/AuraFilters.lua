@@ -8,20 +8,25 @@ local _G, moduleName, private = _G, ...
 local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
--- Make most globals local so I can check global leaks using "luac -l | grep GLOBAL"
-local GetSpellInfo = _G.GetSpellInfo
-local UnitIsUnit = _G.UnitIsUnit
-local UnitAura = _G.UnitAura
-local UnitIsPlayer = _G.UnitIsPlayer
-local UnitIsPVP = _G.UnitIsPVP
-local UnitCanAssist = _G.UnitCanAssist
+--<GLOBALS
+local _G = _G
 local DebuffTypeColor = _G.DebuffTypeColor
-local GetNumRaidMembers = _G.GetNumRaidMembers
-local UnitClass = _G.UnitClass
+local debugstack = _G.debugstack
+local format = _G.format
+local geterrorhandler = _G.geterrorhandler
+local GetSpellInfo = _G.GetSpellInfo
+local select = _G.select
+local strjoin = _G.strjoin
+local tostring = _G.tostring
+local tostringall = _G.tostringall
+local type = _G.type
+local UnitAura = _G.UnitAura
 local UnitBuff = _G.UnitBuff
+local UnitCanAssist = _G.UnitCanAssist
+local UnitClass = _G.UnitClass
 local UnitDebuff = _G.UnitDebuff
-local select, type, format, strjoin, tostring, tostringall = _G.select, _G.type, _G.format, _G.strjoin, _G.tostring, _G.tostringall
-local debugstack, geterrorhandler = _G.debugstack, _G.geterrorhandler
+local UnitIsUnit = _G.UnitIsUnit
+--GLOBALS>
 
 -- ------------------------------------------------------------------------------
 -- Helper

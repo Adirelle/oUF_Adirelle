@@ -10,11 +10,13 @@ local _G, addonName, private = _G, ...
 local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
--- Make most globals local so I can check global leaks using "luac -l | grep GLOBAL"
-local GetTime = _G.GetTime
+--<GLOBALS
+local _G = _G
 local GetRuneCooldown = _G.GetRuneCooldown
+local GetTime = _G.GetTime
 local RuneFrame = _G.RuneFrame
 local tonumber = _G.tonumber
+--GLOBALS>
 
 local function OnUpdate(rune)
 	local now = GetTime()

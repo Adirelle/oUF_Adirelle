@@ -5,12 +5,17 @@ All rights reserved.
 --]=]
 
 local _G, moduleName, private = _G, ...
+local oUF_Adirelle = _G.oUF_Adirelle
 
 if oUF_Adirelle.SingleStyle then return end
 
--- Make most globals local so I can check global leaks using "luac -l | grep GLOBAL"
-local gsub, print = _G.gsub, _G.print
-local GetScreenWidth, DropDownList1 = _G.GetScreenWidth, _G.DropDownList1
+--<GLOBALS
+local _G = _G
+local DropDownList1 = _G.DropDownList1
+local GetScreenWidth = _G.GetScreenWidth
+local gsub = _G.gsub
+local print = _G.print
+--GLOBALS>
 
 -- Based on Xinhuan unit dropdown hack
 local function AdjustMenu(listFrame, point, relativeTo, relativePoint, xOffset, yOffset)

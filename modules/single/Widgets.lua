@@ -9,11 +9,16 @@ local oUF_Adirelle = _G.oUF_Adirelle
 
 if oUF_Adirelle.SingleStyle then return end
 
--- Make most globals local so I can check global leaks using "luac -l | grep GLOBAL"
-local GameFontWhiteSmall = _G.GameFontWhiteSmall
+--<GLOBALS
+local _G = _G
 local CreateFrame = _G.CreateFrame
+local floor = _G.floor
+local format = _G.format
+local strjoin = _G.strjoin
+local tostring = _G.tostring
 local UnitClassification = _G.UnitClassification
-local format, tostring, floor, strjoin = _G.format, _G.tostring, _G.floor, _G.strjoin
+--GLOBALS>
+local GameFontWhiteSmall = _G.GameFontWhiteSmall
 
 local GAP, TEXT_MARGIN = private.GAP, private.TEXT_MARGIN
 local GetLib = oUF_Adirelle.GetLib

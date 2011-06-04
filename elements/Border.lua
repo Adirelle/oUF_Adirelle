@@ -10,17 +10,20 @@ local _G, addonName, private = _G, ...
 local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
--- Make most globals local so I can check global leaks using "luac -l | grep GLOBAL"
-local UnitExists = _G.UnitExists
-local UnitIsUnit = _G.UnitIsUnit
-local UnitIsDeadOrGhost = _G.UnitIsDeadOrGhost
+--<GLOBALS
+local _G = _G
+local IsInInstance = _G.IsInInstance
+local select = _G.select
+local SPELL_POWER_MANA = _G.SPELL_POWER_MANA
 local UnitAffectingCombat = _G.UnitAffectingCombat
-local UnitPowerType = _G.UnitPowerType
+local UnitExists = _G.UnitExists
+local UnitIsDeadOrGhost = _G.UnitIsDeadOrGhost
+local UnitIsUnit = _G.UnitIsUnit
 local UnitPower = _G.UnitPower
 local UnitPowerMax = _G.UnitPowerMax
-local IsInInstance = _G.IsInInstance
-local SPELL_POWER_MANA = _G.SPELL_POWER_MANA
-local unpack, select = _G.unpack, _G.select
+local UnitPowerType = _G.UnitPowerType
+local unpack = _G.unpack
+--GLOBALS>
 
 local function Update(self, event, unit)
 	if unit and unit ~= self.unit then return end

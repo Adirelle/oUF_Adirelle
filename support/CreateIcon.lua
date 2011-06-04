@@ -8,8 +8,13 @@ local _G, addonName, private = _G, ...
 local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
--- Make most globals local so I can check global leaks using "luac -l | grep GLOBAL"
-local tonumber, type, select, CreateFrame = _G.tonumber, _G.type, _G.select, _G.CreateFrame
+--<GLOBALS
+local _G = _G
+local CreateFrame = _G.CreateFrame
+local select = _G.select
+local tonumber = _G.tonumber
+local type = _G.type
+--GLOBALS>
 
 local function NOOP() end
 

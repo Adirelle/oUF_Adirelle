@@ -8,14 +8,24 @@ local _G, addonName, private = _G, ...
 local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
--- Make most globals local so I can check global leaks using "luac -l | grep GLOBAL"
-local LibStub = _G.LibStub
-local select, pairs, wipe, gsub, unpack = _G.select, _G.pairs, _G.wipe, _G.gsub, _G.unpack
-local type, format, tostring, tonumber = _G.type, _G.format, _G.tostring, _G.tonumber
+--<GLOBALS
+local _G = _G
+local DisableAddOn = _G.DisableAddOn
+local EnableAddOn = _G.EnableAddOn
+local format = _G.format
+local GetAddOnInfo = _G.GetAddOnInfo
+local gsub = _G.gsub
+local IsAddOnLoaded = _G.IsAddOnLoaded
 local next = _G.next
-local GetAddOnInfo, EnableAddOn = _G.GetAddOnInfo, _G.EnableAddOn
-local DisableAddOn, GetAddOnInfo = _G.DisableAddOn, _G.GetAddOnInfo
-local IsAddOnLoaded, UnitAffectingCombat = _G.IsAddOnLoaded, _G.UnitAffectingCombat
+local pairs = _G.pairs
+local select = _G.select
+local tonumber = _G.tonumber
+local tostring = _G.tostring
+local type = _G.type
+local UnitAffectingCombat = _G.UnitAffectingCombat
+local unpack = _G.unpack
+local wipe = _G.wipe
+--GLOBALS>
 
 local AceGUIWidgetLSMlists = _G.AceGUIWidgetLSMlists
 

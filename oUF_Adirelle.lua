@@ -12,10 +12,16 @@ local oUF = assert(private.oUF, "oUF is undefined in "..parent.." namespace")
 local oUF_Adirelle = { oUF = oUF }
 _G.oUF_Adirelle = oUF_Adirelle
 
--- Make most globals local so I can check global leaks using "luac -l | grep GLOBAL"
-local print, next = _G.print, _G.next
-local strmatch, strlower, tonumber = _G.strmatch, _G.strlower, _G.tonumber
-local LoadAddOn, IsAddOnLoaded = _G.LoadAddOn, _G.IsAddOnLoaded
+--<GLOBALS
+local _G = _G
+local IsAddOnLoaded = _G.IsAddOnLoaded
+local LoadAddOn = _G.LoadAddOn
+local next = _G.next
+local print = _G.print
+local strlower = _G.strlower
+local strmatch = _G.strmatch
+local tonumber = _G.tonumber
+--GLOBALS>
 
 -- Debugging stuff
 local AdiDebug = _G.AdiDebug

@@ -9,8 +9,11 @@ local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 oUF:Factory(function()
-	-- Make most globals local so I can check global leaks using "luac -l | grep GLOBAL"
-	local next, select = _G.next, _G.select
+	--<GLOBALS
+	local _G = _G
+	local next = _G.next
+	local select = _G.select
+	--GLOBALS>
 
 	local frames = {}
 

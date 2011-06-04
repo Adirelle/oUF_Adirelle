@@ -9,10 +9,12 @@ local _G, addonName, private = _G, ...
 local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
--- Make most globals local so I can check global leaks using "luac -l | grep GLOBAL"
-local IsLoggedIn = _G.IsLoggedIn
+--<GLOBALS
+local _G = _G
 local CreateFrame = _G.CreateFrame
+local IsLoggedIn = _G.IsLoggedIn
 local next = _G.next
+--GLOBALS>
 
 local function BuildRangeCheck()
 	local CheckInteractDistance = _G.CheckInteractDistance

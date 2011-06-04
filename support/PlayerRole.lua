@@ -8,11 +8,17 @@ local _G, addonName, private = _G, ...
 local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
--- Make most globals local so I can check global leaks using "luac -l | grep GLOBAL"
-local GetPrimaryTalentTree, GetTalentInfo, GetTalentTreeRoles = _G.GetPrimaryTalentTree, _G.GetTalentInfo, _G.GetTalentTreeRoles
-local UnitClass, UnitGroupRolesAssigned, UnitSetRole = _G.UnitClass, _G.UnitGroupRolesAssigned, _G.UnitSetRole
+--<GLOBALS
+local _G = _G
 local GetNumRaidMembers = _G.GetNumRaidMembers
-local select, pairs, pcall, geterrorhandler = _G.select, _G.pairs, _G.pcall, _G.geterrorhandler
+local GetPrimaryTalentTree = _G.GetPrimaryTalentTree
+local GetTalentInfo = _G.GetTalentInfo
+local GetTalentTreeRoles = _G.GetTalentTreeRoles
+local select = _G.select
+local UnitClass = _G.UnitClass
+local UnitGroupRolesAssigned = _G.UnitGroupRolesAssigned
+local UnitSetRole = _G.UnitSetRole
+--GLOBALS>
 
 local Debug = oUF_Adirelle.Debug
 

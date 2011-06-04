@@ -8,8 +8,12 @@ local _G, addonName, private = _G, ...
 local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
--- Make most globals local so I can check global leaks using "luac -l | grep GLOBAL"
-local wipe, pairs, type = _G.wipe, _G.pairs, _G.type
+--<GLOBALS
+local _G = _G
+local pairs = _G.pairs
+local type = _G.type
+local wipe = _G.wipe
+--GLOBALS>
 
 -- Recolor mana
 oUF.colors.power.MANA = { 0.3, 0.5, 1.0 }

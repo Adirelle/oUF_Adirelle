@@ -8,13 +8,22 @@ local _G, addonName, private = _G, ...
 local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
--- Make most globals local so I can check global leaks using "luac -l | grep GLOBAL"
-local GetTime = _G.GetTime
-local CreateFrame, UIParent = _G.CreateFrame, _G.UIParent
+--<GLOBALS
+local _G = _G
+local CreateFrame = _G.CreateFrame
 local geterrorhandler = _G.geterrorhandler
-local next, pairs, tostring, type, min = _G.next, _G.pairs, _G.tostring, _G.type, _G.min
-local UnitIsConnected, UnitIsDeadOrGhost = _G.UnitIsConnected, _G.UnitIsDeadOrGhost
-local UnitName, UNKNOWN = _G.UnitName, _G.UNKNOWN
+local GetTime = _G.GetTime
+local min = _G.min
+local next = _G.next
+local pairs = _G.pairs
+local tostring = _G.tostring
+local type = _G.type
+local UIParent = _G.UIParent
+local UnitIsConnected = _G.UnitIsConnected
+local UnitIsDeadOrGhost = _G.UnitIsDeadOrGhost
+local UnitName = _G.UnitName
+local UNKNOWN = _G.UNKNOWN
+--GLOBALS>
 
 local CreateBlinkingFrame
 do

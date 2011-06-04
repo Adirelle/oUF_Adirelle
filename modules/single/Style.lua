@@ -10,19 +10,35 @@ local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 if oUF_Adirelle.SingleStyle then return end
 
--- Make most globals local so I can check global leaks using "luac -l | grep GLOBAL"
+--<GLOBALS
+local _G = _G
 local CreateFrame = _G.CreateFrame
-local InCombatLockdown, UnitAlternatePowerInfo = _G.InCombatLockdown, _G.UnitAlternatePowerInfo
-local UnitAlternatePowerTextureInfo= _G.UnitAlternatePowerTextureInfo
-local UnitAffectingCombat, UnitAura = _G.UnitAffectingCombat, _G.UnitAura
-local UnitCanAssist, UnitCanAttack = _G.UnitCanAssist, _G.UnitCanAttack
-local UnitClass, UnitIsConnected = _G.UnitClass, _G.UnitIsConnected
-local UnitIsDeadOrGhost, UnitIsUnit = _G.UnitIsDeadOrGhost, _G.UnitIsUnit
-local UnitFrame_OnEnter, UnitFrame_OnLeave = _G.UnitFrame_OnEnter, _G.UnitFrame_OnLeave
-local ipairs, select, setmetatable = _G.ipairs, _G.select, _G.setmetatable
-local gsub, strmatch, tinsert, unpack = _G.gsub, _G.strmatch, _G.tinsert, _G.unpack
-local mmin, mmax, floor, sort, pairs, huge = _G.min, _G.max, _G.floor, _G.table.sort, _G.pairs, _G.math.huge
+local floor = _G.floor
 local GameFontNormal = _G.GameFontNormal
+local gsub = _G.gsub
+local huge = _G.math.huge
+local InCombatLockdown = _G.InCombatLockdown
+local ipairs = _G.ipairs
+local pairs = _G.pairs
+local select = _G.select
+local setmetatable = _G.setmetatable
+local sort = _G.sort
+local strmatch = _G.strmatch
+local tinsert = _G.tinsert
+local UnitAffectingCombat = _G.UnitAffectingCombat
+local UnitAlternatePowerInfo = _G.UnitAlternatePowerInfo
+local UnitAlternatePowerTextureInfo = _G.UnitAlternatePowerTextureInfo
+local UnitAura = _G.UnitAura
+local UnitCanAssist = _G.UnitCanAssist
+local UnitCanAttack = _G.UnitCanAttack
+local UnitClass = _G.UnitClass
+local UnitFrame_OnEnter = _G.UnitFrame_OnEnter
+local UnitFrame_OnLeave = _G.UnitFrame_OnLeave
+local UnitIsConnected = _G.UnitIsConnected
+local UnitIsDeadOrGhost = _G.UnitIsDeadOrGhost
+local unpack = _G.unpack
+--GLOBALS>
+local mmin, mmax = _G.min, _G.max
 
 local GAP, BORDER_WIDTH, TEXT_MARGIN = private.GAP, private.BORDER_WIDTH, private.TEXT_MARGIN
 local FRAME_MARGIN, AURA_SIZE = private.FRAME_MARGIN, private.AURA_SIZE
@@ -91,7 +107,7 @@ local IsEncounterDebuff = oUF_Adirelle.IsEncounterDebuff
 
 local canSteal = select(2, UnitClass("player")) == "MAGE"
 
-local function Buffs_CustomFilter(icons, unit, icon, name, rank, texture, count, dtype, duration, timeLeft, caster, isStealable, shouldConsolidate, spellID, canApplyAura)
+local function Buffs_CustomFilter(icons, unit, icon, name, rank, texture, count, dtype, duration, expires, caster, isStealable, shouldConsolidate, spellID, canApplyAura)
 	icon.expires = (expires ~= 0) and expires or huge
 	if IsEncounterDebuff(spellID) then
 		icon.bigger = true
@@ -108,7 +124,7 @@ local function Buffs_CustomFilter(icons, unit, icon, name, rank, texture, count,
 	return true
 end
 
-local function Debuffs_CustomFilter(icons, unit, icon, name, rank, texture, count, dtype, duration, timeLeft, caster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossDebuff)
+local function Debuffs_CustomFilter(icons, unit, icon, name, rank, texture, count, dtype, duration, expires, caster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossDebuff)
 	icon.expires = (expires ~= 0) and expires or huge
 	if isBossDebuff or IsEncounterDebuff(spellID) or IsMine(caster) then
 		icon.bigger = true

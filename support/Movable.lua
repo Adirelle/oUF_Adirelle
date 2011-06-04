@@ -8,7 +8,8 @@ local _G, addonName, private = _G, ...
 local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
-local pairs, unpack = _G.pairs, _G.unpack
+--<GLOBALS
+--GLOBALS>
 
 -- Embed LibMovable-1.0
 local libmovable = oUF_Adirelle.GetLib('LibMovable-1.0').Embed(oUF_Adirelle)
