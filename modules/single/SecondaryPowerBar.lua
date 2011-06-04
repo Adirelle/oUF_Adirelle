@@ -10,13 +10,21 @@ local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 if oUF_Adirelle.SingleStyle then return end
 
--- Make most globals local so I can check global leaks using "luac -l | grep GLOBAL"
-local abs, unpack = _G.math.abs, _G.unpack
-local GetEclipseDirection = _G.GetEclipseDirection
-local UnitPowerType, UnitPower, UnitPowerMax = _G.UnitPowerType, _G.UnitPower, _G.UnitPowerMax
-local CreateFrame, PowerBarColor, GetRuneType = _G.CreateFrame, _G.PowerBarColor, _G.GetRuneType
-local SPELL_POWER_MANA, SPELL_POWER_ECLIPSE = _G.SPELL_POWER_MANA, _G.SPELL_POWER_ECLIPSE
+--<GLOBALS
+local _G = _G
+local abs = _G.abs
+local CreateFrame = _G.CreateFrame
 local ECLIPSE_MARKER_COORDS = _G.ECLIPSE_MARKER_COORDS
+local GetEclipseDirection = _G.GetEclipseDirection
+local GetRuneType = _G.GetRuneType
+local PowerBarColor = _G.PowerBarColor
+local SPELL_POWER_ECLIPSE = _G.SPELL_POWER_ECLIPSE
+local SPELL_POWER_MANA = _G.SPELL_POWER_MANA
+local UnitPower = _G.UnitPower
+local UnitPowerMax = _G.UnitPowerMax
+local UnitPowerType = _G.UnitPowerType
+local unpack = _G.unpack
+--GLOBALS>
 
 local GAP = private.GAP
 

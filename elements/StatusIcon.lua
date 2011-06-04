@@ -10,10 +10,11 @@ local _G, addonName, private = _G, ...
 local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
--- Make most globals local so I can check global leaks using "luac -l | grep GLOBAL"
+--<GLOBALS
+local _G = _G
 local CreateFrame = _G.CreateFrame
-local SecureButton_GetUnit = _G.SecureButton_GetUnit
-local UnitCanAttack = _G.UnitCanAttack
+local next = _G.next
+local pairs = _G.pairs
 local UnitHasVehicleUI = _G.UnitHasVehicleUI
 local UnitInPhase = _G.UnitInPhase
 local UnitIsCharmed = _G.UnitIsCharmed
@@ -23,9 +24,8 @@ local UnitIsDeadOrGhost = _G.UnitIsDeadOrGhost
 local UnitIsGhost = _G.UnitIsGhost
 local UnitIsPlayer = _G.UnitIsPlayer
 local UnitIsVisible = _G.UnitIsVisible
-local next = _G.next
-local pairs = _G.pairs
 local unpack = _G.unpack
+--GLOBALS>
 
 local function GetFrameUnitState(self, ignoreVisibility)
 	local unit = self.realUnit or self.unit

@@ -9,18 +9,24 @@ local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 oUF:Factory(function()
-	-- Make most globals local so I can check global leaks using "luac -l | grep GLOBAL"
+	--<GLOBALS
+	local _G = _G
+	local ceil = _G.ceil
+	local CreateFrame = _G.CreateFrame
 	local GetInstanceInfo = _G.GetInstanceInfo
-	local GetNumRaidMembers = _G.GetNumRaidMembers
+	local GetMapInfo = _G.GetMapInfo
 	local GetNumPartyMembers = _G.GetNumPartyMembers
+	local GetNumRaidMembers = _G.GetNumRaidMembers
 	local GetRaidRosterInfo = _G.GetRaidRosterInfo
-	local GetMapInfo, IsInActiveWorldPVP = _G.GetMapInfo, _G.IsInActiveWorldPVP
-	local pairs, ipairs, format, strmatch = _G.pairs, _G.ipairs, _G.format, _G.strmatch
-	local max, huge, GetTime = _G.math.max, _G.math.huge, _G.GetTime
-	local tostring, ceil, select, strjoin = _G.tostring, _G.ceil, _G.select, _G.strjoin
-	local CreateFrame, UIParent = _G.CreateFrame, _G.UIParent
-	local SecureHandlerSetFrameRef = _G.SecureHandlerSetFrameRef
-	local RegisterStateDriver, UnregisterStateDriver = _G.RegisterStateDriver, _G.UnregisterStateDriver
+	local hooksecurefunc = _G.hooksecurefunc
+	local IsInActiveWorldPVP = _G.IsInActiveWorldPVP
+	local pairs = _G.pairs
+	local select = _G.select
+	local strjoin = _G.strjoin
+	local strmatch = _G.strmatch
+	local tostring = _G.tostring
+	local UIParent = _G.UIParent
+	--GLOBALS>
 
 	-- Fetch some shared variables into local namespace
 	local SCALE = oUF_Adirelle.SCALE
@@ -145,7 +151,7 @@ oUF:Factory(function()
 	--------------------------------------------------------------------------------
 	-- Layout core functions
 	--------------------------------------------------------------------------------
-	
+
 	local function GetRaidNumGroups(maxPlayers)
 		if not maxPlayers or maxPlayers == 0 then
 			maxPlayers = GetNumRaidMembers() or 1
@@ -160,7 +166,7 @@ oUF:Factory(function()
 		end
 		return numGroups, highestGroup
 	end
-	
+
 	local BATTLEGROUND_SIZE = {
 		WarsongGulch = 10,
 		TwinPeaks = 10,
@@ -173,7 +179,7 @@ oUF:Factory(function()
 		TolBarad = 40,
 		LakeWintergrasp = 40,
 	}
-	
+
 	-- Returns (type, PvE, number of groups, highest group number)
 	local function GetLayoutInfo(strictSize)
 		local _, instanceType, _, _, maxPlayers = GetInstanceInfo()
@@ -209,7 +215,7 @@ oUF:Factory(function()
 	--@end-debug@
 
 	local function GroupList(n) if n > 0 then return tostring(n), GroupList(n-1) end end
-	
+
 	function anchor:ConfigureHeaders(layoutType, numGroups, showTanks, showPets)
 		self:Debug('ConfigureHeaders', layoutType, numGroups, showTanks, showPets)
 
@@ -333,7 +339,7 @@ oUF:Factory(function()
 			layoutType, isPvE, numGroups, highestGroup = GetLayoutInfo()
 		end
 		self:Debug('UpdateLayout role:', playerRole, 'type:', layoutType, 'pve:', isPvE, 'numGroups:', numGroups, 'highest:', highestGroup)
-		
+
 		-- Should we show the tanks and the pets ?
 		local showTanks = isPvE and layout.showTanks
 		local showPets = false
@@ -351,7 +357,7 @@ oUF:Factory(function()
 				showPets = prefs.raid40
 			end
 		end
-		
+
 		-- If not strict, show the highestGroup
 		if not layout.strictSize then
 			numGroups = highestGroup
@@ -423,12 +429,12 @@ oUF:Factory(function()
 		self:Debug('PLAYER_REGEN_DISABLED', event)
 
 		self:UnregisterEvent('PLAYER_REGEN_DISABLED', self.PLAYER_REGEN_DISABLED)
-		
+
 		self:UnregisterEvent('PLAYER_ENTERING_WORLD', self.TriggerUpdate)
 		self:UnregisterEvent('ZONE_CHANGED_NEW_AREA', self.TriggerUpdate)
 		self:UnregisterEvent('PARTY_MEMBERS_CHANGED', self.TriggerUpdate)
 		self:UnregisterEvent('RAID_ROSTER_UPDATE', self.TriggerUpdate)
-		
+
 		self:UnregisterMessage('OnSettingsModified', self.UpdateLayout)
 		self:UnregisterMessage('OnRaidLayoutModified', self.UpdateLayout)
 		self:UnregisterMessage('OnPlayerRoleChanged', self.UpdateLayout)
@@ -444,12 +450,12 @@ oUF:Factory(function()
 		self:UnregisterEvent('PLAYER_REGEN_ENABLED', self.PLAYER_REGEN_ENABLED)
 
 		self:RegisterEvent('PLAYER_REGEN_DISABLED', self.PLAYER_REGEN_DISABLED)
-		
+
 		self:RegisterEvent('PLAYER_ENTERING_WORLD', self.TriggerUpdate)
 		self:RegisterEvent('ZONE_CHANGED_NEW_AREA', self.TriggerUpdate)
 		self:RegisterEvent('PARTY_MEMBERS_CHANGED', self.TriggerUpdate)
 		self:RegisterEvent('RAID_ROSTER_UPDATE', self.TriggerUpdate)
-		
+
 		self:RegisterMessage('OnSettingsModified', self.UpdateLayout)
 		self:RegisterMessage('OnRaidLayoutModified', self.UpdateLayout)
 		self:RegisterMessage('OnPlayerRoleChanged', self.UpdateLayout)

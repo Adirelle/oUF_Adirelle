@@ -10,9 +10,15 @@ local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 if oUF_Adirelle.CreatePseudoHeader then return end
 
--- Make most globals local so I can check global leaks using "luac -l | grep GLOBAL"
-local type, tinsert, pairs, ipairs = _G.type, _G.tinsert, _G.pairs, _G.ipairs
-local CreateFrame, UIParent = _G.CreateFrame, _G.UIParent
+--<GLOBALS
+local _G = _G
+local CreateFrame = _G.CreateFrame
+local ipairs = _G.ipairs
+local pairs = _G.pairs
+local tinsert = _G.tinsert
+local type = _G.type
+local UIParent = _G.UIParent
+--GLOBALS>
 
 local headerProto = {
 	Debug = oUF.Debug

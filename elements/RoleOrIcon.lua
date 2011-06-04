@@ -10,19 +10,21 @@ local _G, addonName, private = _G, ...
 local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
--- Make most globals local so I can check global leaks using "luac -l | grep GLOBAL"
+--<GLOBALS
+local _G = _G
 local GetRaidRosterInfo = _G.GetRaidRosterInfo
 local GetRaidTargetIndex = _G.GetRaidTargetIndex
 local GetRealNumRaidMembers = _G.GetRealNumRaidMembers
 local GetTexCoordsForRoleSmall = _G.GetTexCoordsForRoleSmall
 local GetTexCoordsForRoleSmallCircle = _G.GetTexCoordsForRoleSmallCircle
+local select = _G.select
 local SetRaidTargetIconTexture = _G.SetRaidTargetIconTexture
 local UnitGroupRolesAssigned = _G.UnitGroupRolesAssigned
 local UnitInRaid = _G.UnitInRaid
 local UnitIsPlayer = _G.UnitIsPlayer
 local UnitIsQuestBoss = _G.UnitIsQuestBoss
 local UnitIsUnit = _G.UnitIsUnit
-local pairs, select = _G.pairs, _G.select
+--GLOBALS>
 
 local Debug = oUF_Adirelle.Debug
 local GetPlayerRole = oUF_Adirelle.GetPlayerRole

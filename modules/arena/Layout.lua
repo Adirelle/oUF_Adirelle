@@ -9,9 +9,14 @@ local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 oUF:Factory(function()
+	--<GLOBALS
+	local _G = _G
+	local IsInInstance = _G.IsInInstance
+	local RegisterUnitWatch = _G.RegisterUnitWatch
 	local SecureHandlerWrapScript = _G.SecureHandlerWrapScript
-	local RegisterUnitWatch, UnregisterUnitWatch = _G.RegisterUnitWatch, _G.UnregisterUnitWatch
-	local select, IsInInstance = _G.select, _G.IsInInstance
+	local select = _G.select
+	local UnregisterUnitWatch = _G.UnregisterUnitWatch
+	--GLOBALS>
 
 	local anchor = oUF_Adirelle.CreatePseudoHeader("oUF_Adirelle_Arena", "arena", "Arena enemy frames", 190, 5*(47+40)-15, 'BOTTOMLEFT', _G.UIParent, "BOTTOM", 250, 355)
 

@@ -8,9 +8,13 @@ local _G, addonName, private = _G, ...
 local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
--- Make most globals local so I can check global leaks using "luac -l | grep GLOBAL"
-local type, pairs, ipairs, tinsert = _G.type, _G.pairs, _G.ipairs, _G.tinsert
-local LibStub, rawget = _G.LibStub, _G.rawget
+--<GLOBALS
+local _G = _G
+local ipairs = _G.ipairs
+local pairs = _G.pairs
+local rawget = _G.rawget
+local type = _G.type
+--GLOBALS>
 
 -- ------------------------------------------------------------------------------
 -- Main SV handling

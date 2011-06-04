@@ -9,7 +9,10 @@ local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 oUF_Adirelle.oUF:Factory(function()
+	--<GLOBALS
+	local _G = _G
 	local IsInInstance = _G.IsInInstance
+	--GLOBALS>
 
 	local anchor = oUF_Adirelle.CreatePseudoHeader("oUF_Adirelle_Bosses", "boss", "Boss frames", 190, 47*4+15*3, 'BOTTOMLEFT', _G.UIParent, "BOTTOM", 250, 355)
 

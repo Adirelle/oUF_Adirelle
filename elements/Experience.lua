@@ -8,15 +8,18 @@ local _G, addonName, private = _G, ...
 local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
--- Make most globals local so I can check global leaks using "luac -l | grep GLOBAL"
+--<GLOBALS
+local _G = _G
 local GetXPExhaustion = _G.GetXPExhaustion
 local IsResting = _G.IsResting
 local IsXPUserDisabled = _G.IsXPUserDisabled
+local pairs = _G.pairs
 local UnitLevel = _G.UnitLevel
 local UnitXP = _G.UnitXP
 local UnitXPMax = _G.UnitXPMax
+local unpack = _G.unpack
+--GLOBALS>
 local mmin = _G.min
-local unpack, pairs = _G.unpack, _G.pairs
 
 local colors = {
 	resting = { 0.0, 1.0, 0.37 }, -- green

@@ -10,9 +10,14 @@ local _G, addonName, private = _G, ...
 local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
--- Make most globals local so I can check global leaks using "luac -l | grep GLOBAL"
-local IsPVPTimerRunning, GetPVPTimer, CreateFrame = _G.IsPVPTimerRunning, _G.GetPVPTimer, _G.CreateFrame
-local SecondsToTimeAbbrev, floor = _G.SecondsToTimeAbbrev, _G.floor
+--<GLOBALS
+local _G = _G
+local floor = _G.floor
+local GetPVPTimer = _G.GetPVPTimer
+local gsub = _G.gsub
+local IsPVPTimerRunning = _G.IsPVPTimerRunning
+local SecondsToTimeAbbrev = _G.SecondsToTimeAbbrev
+--GLOBALS>
 
 local function OnElapsed(timer, elapsed)
 	timer.timeLeft = timer.timeLeft - 1000 * elapsed

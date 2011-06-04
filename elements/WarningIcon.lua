@@ -10,17 +10,19 @@ local _G, addonName, private = _G, ...
 local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
--- Make most globals local so I can check global leaks using "luac -l | grep GLOBAL"
+--<GLOBALS
+local _G = _G
 local DebuffTypeColor = _G.DebuffTypeColor
+local gmatch = _G.gmatch
+local huge = _G.math.huge
+local pairs = _G.pairs
+local tonumber = _G.tonumber
 local UnitBuff = _G.UnitBuff
 local UnitCanAssist = _G.UnitCanAssist
 local UnitCanAttack = _G.UnitCanAttack
 local UnitDebuff = _G.UnitDebuff
 local UnitIsVisible = _G.UnitIsVisible
-local gmatch = _G.gmatch
-local huge = _G.math.huge
-local pairs = _G.pairs
-local tonumber = _G.tonumber
+--GLOBALS>
 
 -- ------------------------------------------------------------------------------
 -- Spell data

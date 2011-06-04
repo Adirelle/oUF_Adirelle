@@ -10,11 +10,13 @@ local _G, addonName, private = _G, ...
 local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
--- Make most globals local so I can check global leaks using "luac -l | grep GLOBAL"
+--<GLOBALS
+local _G = _G
 local GetComboPoints = _G.GetComboPoints
-local MAX_COMBO_POINTS = _G.MAX_COMBO_POINTS
+local ipairs = _G.ipairs
+local pairs = _G.pairs
 local UnitHasVehicleUI = _G.UnitHasVehicleUI
-local pairs, ipairs = _G.pairs, _G.ipairs
+--GLOBALS>
 
 local function GetSourceUnit(target)
 	if target == 'focus' or target == 'target' then

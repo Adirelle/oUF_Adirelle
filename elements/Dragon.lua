@@ -10,9 +10,12 @@ local _G, addonName, private = _G, ...
 local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
--- Make most globals local so I can check global leaks using "luac -l | grep GLOBAL"
+--<GLOBALS
+local _G = _G
+local type = _G.type
 local UnitClassification = _G.UnitClassification
-local type, unpack = _G.type, _G.unpack
+local unpack = _G.unpack
+--GLOBALS>
 
 local classifMap = {
 	rare = 'rare',

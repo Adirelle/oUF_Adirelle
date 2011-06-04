@@ -8,9 +8,17 @@ local _G, addonName, private = _G, ...
 local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
--- Make most globals local so I can check global leaks using "luac -l | grep GLOBAL"
-local setmetatable, type, rawget, tremove = _G.setmetatable, _G.type, _G.rawget, _G.tremove
-local next, pairs, CreateFrame = _G.next, _G.pairs, _G.CreateFrame
+--<GLOBALS
+local _G = _G
+local CreateFrame = _G.CreateFrame
+local next = _G.next
+local pairs = _G.pairs
+local rawget = _G.rawget
+local setmetatable = _G.setmetatable
+local tinsert = _G.tinsert
+local tremove = _G.tremove
+local type = _G.type
+--GLOBALS>
 
 -- The big table
 local callbacks = {}
