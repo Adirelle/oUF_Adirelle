@@ -129,6 +129,8 @@ do
 				Flash Freeze: 77699, 92978, 92979, 92980 = 100
 			Chimaeron
 				Break: 82881 = 100
+			Trashs
+				Execution Sentence: 80727 = 100
 		Bastion of Twilight
 			Halfus Wyrmbreaker
 				Malevolent Strikes: 83908, 86158, 86157, 86159 = 100 [>=5]
@@ -236,6 +238,7 @@ do
 			Divine Plea: 54428 = 20
 			Divine Protection: 498 = 30
 			Hand of Sacrifice: 6940 = 50
+			Ardent Defender: 31850 = 50
 			Ancient Guardian (prot): 86657 = 60
 			Hand of Protection: 1022 = 70
 			Divine Shield: 642 = 80
