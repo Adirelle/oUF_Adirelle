@@ -189,7 +189,7 @@ oUF:Factory(function()
 		elseif instanceType == "pvp" or IsInActiveWorldPVP() then
 			return "battleground", false, GetRaidNumGroups(BATTLEGROUND_SIZE[GetMapInfo()])
 		elseif instanceType == "raid" or (instanceType == "none" and GetNumRaidMembers() > 0) then
-			return "raid", true, GetRaidNumGroups(maxPlayers)
+			return "raid", true, GetRaidNumGroups(instanceType == "raid" and maxPlayers)
 		elseif instanceType == "party" or (instanceType == "none" and GetNumPartyMembers() > 0) then
 			return "party", true, 1, 1
 		else
