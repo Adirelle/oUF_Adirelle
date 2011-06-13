@@ -22,7 +22,7 @@ local ipairs = _G.ipairs
 local pairs = _G.pairs
 local select = _G.select
 local setmetatable = _G.setmetatable
-local sort = _G.sort
+local tsort = _G.table.sort
 local strmatch = _G.strmatch
 local tinsert = _G.tinsert
 local UnitAffectingCombat = _G.UnitAffectingCombat
@@ -109,30 +109,44 @@ local canSteal = select(2, UnitClass("player")) == "MAGE"
 
 local function Buffs_CustomFilter(icons, unit, icon, name, rank, texture, count, dtype, duration, expires, caster, isStealable, shouldConsolidate, spellID, canApplyAura)
 	icon.expires = (expires ~= 0) and expires or huge
+	local priority, bigger = 0, false
 	if IsEncounterDebuff(spellID) then
-		icon.bigger = true
-	elseif UnitCanAttack("player", unit) then
-		icon.bigger = (canSteal and isStealable) or LibDispellable:CanDispel(unit, true, dtype, spellID)
-	elseif UnitCanAssist("player", unit) then
-		icon.bigger = IsMine(caster)
-		if UnitAffectingCombat("player") then
-			return duration > 0 and (icon.bigger or canApplyAura or not shouldConsolidate)
-		end
-	else
-		icon.bigger = false
+		priority = 5
 	end
+	if UnitCanAttack("player", unit) then
+		if (canSteal and isStealable) or LibDispellable:CanDispel(unit, true, dtype, spellID) then
+			priority, bigger = 3, true
+		end
+	elseif UnitCanAssist("player", unit) then
+		if IsMine(caster) then
+			priority, bigger = priority + 1, true
+		end
+		if canApplyAura then
+			priority = priority + 1
+		end
+		if shouldConsolidate then
+			priority = priority - 1
+		end
+		if duration == 0 then
+			priority = priority - 1
+		end
+	end
+	icon.priority, icon.bigger = priority, bigger
 	return true
 end
 
 local function Debuffs_CustomFilter(icons, unit, icon, name, rank, texture, count, dtype, duration, expires, caster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossDebuff)
 	icon.expires = (expires ~= 0) and expires or huge
-	if isBossDebuff or IsEncounterDebuff(spellID) or IsMine(caster) then
-		icon.bigger = true
-	elseif UnitCanAssist("player", unit) then
-		icon.bigger = LibDispellable:CanDispel(unit, false, dtype, spellID)
+	if isBossDebuff or IsEncounterDebuff(spellID) then
+		icon.priority = 5
+	elseif UnitCanAssist("player", unit) and LibDispellable:CanDispel(unit, false, dtype, spellID) then
+		icon.priority = 2
+	elseif IsMine(caster) then
+		icon.priority = 1
 	else
-		icon.bigger = false
+		icon.priority = 0
 	end
+	icon.bigger = icon.priority > 0
 	return true
 end
 
@@ -143,13 +157,18 @@ do
 			return true
 		elseif not a.bigger and b.bigger then
 			return false
-		elseif a.expires == b.expires then
-			return a:GetID() < b:GetID()
+		elseif a.priority == b.priority then
+			if a.expires == b.expires then
+				return a:GetID() < b:GetID()
+			else
+				return a.expires < b.expires
+			end
 		else
-			return a.expires < b.expires
+			return a.priority > b.priority
 		end
 	end
 
+	local tmp = {}
 	function Auras_SetPosition(icons, numIcons)
 		if not icons or numIcons == 0 then return end
 		local spacing = icons.spacing or 1
@@ -159,22 +178,26 @@ do
 		local growthx = icons.growthx or 1
 		local growthy = icons.growthy or 1
 
-		-- Sort auras by size, then by expiration time (sooner first)
-		sort(icons, CompareIcons)
+		-- Sort auras
+		local num = #icons
+		for i = 1, mmax(num, #tmp) do
+			tmp[i] = icons[i]
+		end
+		tsort(tmp, CompareIcons)
 
 		-- Icon sizes
 		local bigSize = mmax(8, mmin(size * 3 / 2, width, height))
 		size = mmax(8, mmin(size, width, height))
 
-		local i, num = 1, #icons
+		local i = 1
 		local x, y = 0, 0
 
 		-- Layout large icons
 		if icons.enlarge then
 			local step = bigSize + spacing
 			local maxx = mmax(1, width - bigSize)
-			while i <= num and icons[i].bigger and x <= maxx do
-				local button = icons[i]
+			while i <= num and tmp[i].bigger and x <= maxx do
+				local button = tmp[i]
 				if button:IsShown() then
 					button:SetSize(bigSize, bigSize)
 					button:ClearAllPoints()
@@ -189,7 +212,7 @@ do
 		local baseX, step = x, size + spacing
 		local maxx, maxy = mmax(1, width - size), mmax(1, height - size)
 		while i <= num and x <= maxx and y <= maxy do
-			local button = icons[i]
+			local button = tmp[i]
 			if button:IsShown() then
 				button:SetSize(size, size)
 				button:ClearAllPoints()
@@ -209,7 +232,7 @@ do
 
 		-- Hide remaining icons
 		while i <= num do
-			icons[i]:Hide()
+			tmp[i]:Hide()
 			i = i + 1
 		end
 	end
@@ -801,8 +824,6 @@ local function InitFrame(settings, self, unit)
 	if buffs or debuffs then
 		self:RegisterEvent('UNIT_FACTION', Auras_ForceUpdate)
 		self:RegisterEvent('UNIT_TARGETABLE_CHANGED', Auras_ForceUpdate)
-		self:RegisterEvent('PLAYER_REGEN_ENABLED', Auras_ForceUpdate)
-		self:RegisterEvent('PLAYER_REGEN_DISABLED', Auras_ForceUpdate)
 		self:RegisterMessage('OnSettingsModified', OnAuraLayoutModified)
 		self:RegisterMessage('OnSingleLayoutModified', OnAuraLayoutModified)
 	end
