@@ -128,7 +128,8 @@ do
 				Biting Chill: 77760, 92975, 92976, 92977 = 80
 				Flash Freeze: 77699, 92978, 92979, 92980 = 100
 			Chimaeron
-				Break: 82881 = 100
+				Break: 82881 = 90
+				Low Health: 89084 = 100
 			Trashs
 				Execution Sentence: 80727 = 100
 		Bastion of Twilight
@@ -239,7 +240,7 @@ do
 			Divine Protection: 498 = 30
 			Hand of Sacrifice: 6940 = 50
 			Ardent Defender: 31850 = 50
-			Ancient Guardian (prot): 86657 = 60
+			Ancient Guardian (prot): 86659 = 60
 			Hand of Protection: 1022 = 70
 			Divine Shield: 642 = 80
 		PRIEST:
