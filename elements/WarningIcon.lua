@@ -187,6 +187,11 @@ do
 				Siphon Soul: 43501 = 100
 			Nalorakk
 				Surge: 42402 = 90
+		Firelands:
+			Baleroc:
+				Blaze of Glory: 99252 = 60
+				Torment: 99256, 100232, 100230 = 80
+				Tormented: 99257, 99402, 99404, 99489, 99403 = 100
 		Items/consumables:
 			Concentration Potion: 78993 = 40
 	]=]
