@@ -1,4 +1,4 @@
-## Interface: 40100
+## Interface: 40200
 ## Author: Adirelle
 ## Version: @project-version@
 ## Title: oUF_Adirelle - core
