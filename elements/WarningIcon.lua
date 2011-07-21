@@ -192,6 +192,8 @@ do
 				Blaze of Glory: 99252 = 60
 				Torment: 99256, 100232, 100230 = 80
 				Tormented: 99257, 99402, 99404, 99489, 99403 = 100
+				Vital Spark: 99262 = 80
+				Vital Flame: 99263 = 100
 			Alysrazor:
 				Molten Feather: 98734 = 20
 				Wings of Flame: 98619 = 40
