@@ -192,6 +192,11 @@ do
 				Blaze of Glory: 99252 = 60
 				Torment: 99256, 100232, 100230 = 80
 				Tormented: 99257, 99402, 99404, 99489, 99403 = 100
+			Alysrazor:
+				Molten Feather: 98734 = 20
+				Wings of Flame: 98619 = 40
+				Blazing Power: 99461 = 60
+				Alysra's Razor: 100029 = 80
 		Items/consumables:
 			Concentration Potion: 78993 = 40
 	]=]
