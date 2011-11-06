@@ -122,9 +122,7 @@ if playerClass == "DRUID" then
 		lunar.color = PowerBarColor.ECLIPSE.positive
 		eclipseBar.LunarBar = lunar
 
-		local text = private.SpawnText(lunar, "OVERLAY", "CENTER", "CENTER", 0, 0)
-		local name, size = text:GetFont()
-		text:SetFont(name, size, "OUTLINE")
+		local text = private.SpawnText(self, lunar, "OVERLAY", "CENTER", "CENTER", 0, 0, "number", nil, "OUTLINE")
 		text:SetShadowColor(0, 0, 0, 0)
 		eclipseBar.Text = text
 

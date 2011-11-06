@@ -542,8 +542,7 @@ local function InitFrame(self, unit)
 	name:SetAllPoints(self)
 	name:SetJustifyH("CENTER")
 	name:SetJustifyV("MIDDLE")
-	name:SetFont(_G.GameFontNormal:GetFont(), 11)
-	name:SetTextColor(1, 1, 1, 1)
+	self:RegisterFontString(name, "raid", 11, "")
 	self.Name = name
 
 	-- Big status icon

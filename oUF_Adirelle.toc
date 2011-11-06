@@ -41,8 +41,9 @@ support\SavedVariables.lua
 libs\LibMovable-1.0\LibMovable-1.0.lua
 support\Movable.lua
 
-# Texture helper
+# Texture and font helper
 support\StatusBarTexture.lua
+support\Fonts.lua
 
 # Color helper
 support\Colors.lua

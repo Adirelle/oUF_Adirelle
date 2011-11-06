@@ -66,9 +66,18 @@ local LAYOUT_DEFAULTS = {
 	},
 }
 
+local SharedMedia = oUF_Adirelle.GetLib('LibSharedMedia-3.0')
+
 local THEME_DEFAULTS = {
 	profile = {
 		statusbar = 'BantoBar',
+		fonts = {
+			['**'] = {
+				name = SharedMedia:GetDefault('font'),
+				scale = 1.0,
+				flags = "DEFAULT",
+			}
+		},
 		Border = {
 			inCombatManaLevel = 0.3,
 			oocInRaidManaLevel = 0.9,

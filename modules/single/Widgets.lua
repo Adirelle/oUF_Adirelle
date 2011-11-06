@@ -52,22 +52,6 @@ local function OnStatusBarUpdate(bar)
 	text:Show()
 end
 
-local fontPath, fontSize, fontFlags = GameFontWhiteSmall:GetFont()
-local lsm = GetLib('LibSharedMedia-3.0')
-if lsm then
-	local altFont = lsm:Fetch("font", "ABF", true)
-	if altFont then
-		fontPath, fontSize, fontFlags = altFont, 12, ""
-	end
-end
-
-local function SetFont(fs, size, flags)
-	fs:SetFont(fontPath, size or fontSize, flags or fontFlags)
-	fs:SetTextColor(1, 1, 1, 1)
-	fs:SetShadowColor(0, 0, 0, 1)
-	fs:SetShadowOffset(1, -1)
-end
-
 local function SpawnTexture(object, size, to, xOffset, yOffset)
 	local texture = object:CreateTexture(nil, "OVERLAY")
 	texture:SetWidth(size)
@@ -76,9 +60,9 @@ local function SpawnTexture(object, size, to, xOffset, yOffset)
 	return texture
 end
 
-local function SpawnText(object, layer, from, to, xOffset, yOffset)
-	local text = object:CreateFontString(nil, layer)
-	SetFont(text)
+local function SpawnText(self, object, layer, from, to, xOffset, yOffset, fontKind, fontSize, fontFlags)
+	local text = object:CreateFontString(nil, layer, "GameFontNormal")
+	self:RegisterFontString(text, fontKind or "number", fontSize or 12, fontFlags or "")
 	text:SetWidth(0)
 	text:SetHeight(0)
 	text:SetJustifyV("MIDDLE")
@@ -97,10 +81,10 @@ local function SpawnText(object, layer, from, to, xOffset, yOffset)
 	return text
 end
 
-local function SpawnStatusBar(self, noText, from, anchor, to, xOffset, yOffset)
+local function SpawnStatusBar(self, noText, from, anchor, to, xOffset, yOffset, fontKind, fontSize, fontFlags)
 	local bar = CreateFrame("StatusBar", nil, self)
 	if not noText then
-		local text = SpawnText(bar, "OVERLAY", "TOPRIGHT", "TOPRIGHT", -TEXT_MARGIN, 0)
+		local text = SpawnText(self, bar, "OVERLAY", "TOPRIGHT", "TOPRIGHT", -TEXT_MARGIN, 0, fontKind, fontSize, fontFlags)
 		text:SetPoint("BOTTOMRIGHT", bar, "BOTTOMRIGHT", -TEXT_MARGIN, 0)
 		bar.Text = text
 		bar:SetScript('OnShow', OnStatusBarUpdate)
