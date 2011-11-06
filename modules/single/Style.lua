@@ -568,7 +568,7 @@ local function InitFrame(settings, self, unit)
 		local stack = importantDebuff.Stack
 		stack:ClearAllPoints()
 		stack:SetPoint("BOTTOMRIGHT", importantDebuff, -1, 1)
-		importantDebuff.Stack:SetFont(GameFontNormal:GetFont(), 14, "OUTLINE")
+		self:RegisterFontString(importantDebuff.Stack, "number", 14, "OUTLINE")
 		self.WarningIcon = importantDebuff
 
 		-- Spawn a container frame that spans remaining space
@@ -591,7 +591,7 @@ local function InitFrame(settings, self, unit)
 	self.Health = health
 
 	-- Name
-	local name = SpawnText(health, "OVERLAY", "TOPLEFT", "TOPLEFT", TEXT_MARGIN)
+	local name = SpawnText(self, health, "OVERLAY", "TOPLEFT", "TOPLEFT", TEXT_MARGIN, 0, "text")
 	name:SetPoint("BOTTOMLEFT", health, "BOTTOMLEFT", TEXT_MARGIN)
 	name:SetPoint("RIGHT", health.Text, "LEFT")
 	self:Tag(name, (unit == "player" or unit == "pet" or unit == "boss" or isArenaUnit) and "[name]" or "[name][ <>status<>]")
@@ -646,7 +646,7 @@ local function InitFrame(settings, self, unit)
 
 		-- Unit level and class (or creature family)
 		if unit ~= "player" and unit ~= "pet" then
-			local classif = SpawnText(power, "OVERLAY")
+			local classif = SpawnText(self, power, "OVERLAY", nil, nil, nil, nil, "text")
 			classif:SetPoint("TOPLEFT", self.Health, "BOTTOMLEFT", 0, -GAP)
 			classif:SetPoint("BOTTOM", barContainer)
 			classif:SetPoint("RIGHT", power.Text, "LEFT")
@@ -672,7 +672,7 @@ local function InitFrame(settings, self, unit)
 			icon:SetTexCoord(4/64, 60/64, 4/64, 60/64)
 			castbar.Icon = icon
 
-			local spellText = SpawnText(castbar, "OVERLAY")
+			local spellText = SpawnText(self, castbar, "OVERLAY", nil, nil, nil, nil, "text")
 			spellText:SetPoint('TOPLEFT', castbar, 'TOPLEFT', TEXT_MARGIN, 0)
 			spellText:SetPoint('BOTTOMRIGHT', castbar, 'BOTTOMRIGHT', -TEXT_MARGIN, 0)
 			castbar.Text = spellText
@@ -749,7 +749,7 @@ local function InitFrame(settings, self, unit)
 			if unit == "player" then
 				local timer = CreateFrame("Frame", nil, indicators)
 				timer:SetAllPoints(pvp)
-				timer.text = SpawnText(timer, "OVERLAY")
+				timer.text = SpawnText(self, timer, "OVERLAY", nil, nil, nil, nil, "number")
 				timer.text:SetPoint("CENTER", pvp)
 				self.PvPTimer = timer
 			end
@@ -864,10 +864,10 @@ local function InitFrame(settings, self, unit)
 		restedBar:SetAllPoints(xpFrame)
 		restedBar:EnableMouse(false)
 
-		local levelText = SpawnText(xpBar, "OVERLAY", "TOPLEFT", "TOPLEFT", TEXT_MARGIN, 0)
+		local levelText = SpawnText(self, xpBar, "OVERLAY", "TOPLEFT", "TOPLEFT", TEXT_MARGIN, 0)
 		levelText:SetPoint("BOTTOMLEFT", xpBar, "BOTTOMLEFT", TEXT_MARGIN, 0)
 
-		local xpText = SpawnText(xpBar, "OVERLAY", "TOPRIGHT", "TOPRIGHT", -TEXT_MARGIN, 0)
+		local xpText = SpawnText(self, xpBar, "OVERLAY", "TOPRIGHT", "TOPRIGHT", -TEXT_MARGIN, 0)
 		xpText:SetPoint("BOTTOMRIGHT", xpBar, "BOTTOMRIGHT", -TEXT_MARGIN, 0)
 
 		local smartValue = private.smartValue
@@ -919,7 +919,7 @@ local function InitFrame(settings, self, unit)
 		altPowerBar.textureColor = { 1, 1, 1, 1 }
 		altPowerBar.PostUpdate = AltPowerBar_PostUpdate
 
-		local label = SpawnText(altPowerBar, "OVERLAY", "TOPLEFT", "TOPLEFT", TEXT_MARGIN, 0)
+		local label = SpawnText(self, altPowerBar, "OVERLAY", "TOPLEFT", "TOPLEFT", TEXT_MARGIN, 0)
 		label:SetPoint("RIGHT", altPowerBar.Text, "LEFT", -TEXT_MARGIN, 0)
 		altPowerBar.Label = label
 

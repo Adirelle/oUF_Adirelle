@@ -225,7 +225,52 @@ local function GetOptions()
 		}
 	end
 
-	-- Build the big
+	local SharedMedia = oUF_Adirelle.GetLib('LibSharedMedia-3.0')
+
+	local function BuildFontGroup(kind, label, order)
+		return {
+			name = label,
+			type = 'group',
+			inline = true,
+			order = order,
+			get = function(info) return themeDB.profile.fonts[kind][info[#info]] end,
+			set = function(info, value)
+				themeDB.profile.fonts[kind][info[#info]] = value
+				SettingsModified("OnFontModified")
+			end,
+			args = {
+				name = {
+					name = 'Font',
+					type = 'select',
+					dialogControl = 'LSM30_Font',
+					values = function() return SharedMedia:HashTable("font") end,
+					order = 10,
+				},
+				scale = {
+					name = 'Scale',
+					type = 'range',
+					isPercent = true,
+					min = 0.05,
+					max = 2.0,
+					step = 0.05,
+					order = 20,
+				},
+				flags = {
+					name = 'Outline',
+					type = 'select',
+					values = {
+						[""] = "None",
+						["DEFAULT"] = "Default",
+						["OUTLINE"] = "Thin",
+						["THICKOUTLINE"] = "Thick",
+					},
+					order = 30,
+				},
+			}
+		}
+	end
+
+	-- Build the big table
 	options = {
 		name = 'oUF_Adirelle '..oUF_Adirelle.VERSION,
 		type = 'group',
@@ -650,7 +695,7 @@ local function GetOptions()
 								type = 'select',
 								dialogControl = 'LSM30_Statusbar',
 								order = 10,
-								values = AceGUIWidgetLSMlists.statusbar,
+								values = function() return SharedMedia:HashTable("statusbar") end,
 								get = function()
 									return themeDB.profile.statusbar
 								end,
@@ -659,29 +704,9 @@ local function GetOptions()
 									SettingsModified("OnTextureModified")
 								end,
 							},
-							--[[
-							font = {
-								name = 'Font',
-								type = 'input',
-								order = 10,
-							},
-							size = {
-								name = 'Scale',
-								type = 'range',
-								order = 20,
-								isPercent = true,
-								min = 0.1,
-								max = 1.0,
-								step = 0.05,
-							},
-							outline = {
-								name = 'Outline',
-								type = 'select',
-								order = 30,
-								values = {
-								},
-							},
-							--]]
+							text = BuildFontGroup("text", "Text", 20),
+							number = BuildFontGroup("number", "Number", 30),
+							raid = BuildFontGroup("raid", "Raid frame text", 40),
 						},
 					},
 					single = {
