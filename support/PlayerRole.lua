@@ -46,7 +46,7 @@ end
 -- Event handling
 
 local function RAID_ROSTER_UPDATE(self)
-	local newInRaid = GetNumRaidMembers() > 0
+	local newInRaid = IsInRaid()
 	if newInRaid ~= inRaid then
 		inRaid = newInRaid
 		UpdatePlayerRole()
