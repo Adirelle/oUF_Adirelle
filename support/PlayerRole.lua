@@ -1,6 +1,6 @@
 --[=[
 Adirelle's oUF layout
-(c) 2009-2011 Adirelle (adirelle@tagada-team.net)
+(c) 2009-2012 Adirelle (adirelle@tagada-team.net)
 All rights reserved.
 --]=]
 
@@ -26,20 +26,9 @@ local current
 local inRaid
 
 local function UpdatePlayerRole(event)
-	local primaryTree = GetPrimaryTalentTree()
-	if not primaryTree then return end
-	local role
-	if select(2, UnitClass("player")) == "DRUID" and primaryTree == 2 then
-		-- Feral druid
-		if select(5, GetTalentInfo(2, 20)) > 0 then -- Natural Reaction
-			role = "TANK"
-		else
-			role = "DAMAGER"
-		end
-	else
-		-- All others
-		role = GetTalentTreeRoles(primaryTree)
-	end
+	local spec = GetSpecialization()
+	if not spec then return end
+	local role = GetSpecializationRole(spec)
 	if role and role ~= "NONE" then
 		if role ~= current then
 			Debug("Player role changed from", current, "to", role)
@@ -74,7 +63,7 @@ local function PLAYER_ALIVE(self)
 	return RAID_ROSTER_UPDATE(self)
 end
 
-if GetPrimaryTalentTree() then
+if GetSpecialization() then
 	PLAYER_ALIVE(oUF_Adirelle)
 else
 	oUF_Adirelle:RegisterEvent('PLAYER_ALIVE', PLAYER_ALIVE)
