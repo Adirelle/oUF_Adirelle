@@ -1,6 +1,6 @@
 --[=[
 Adirelle's oUF layout
-(c) 2011 Adirelle (adirelle@tagada-team.net)
+(c) 2011-2012 Adirelle (adirelle@gmail.com)
 All rights reserved.
 
 Elements handled: .PvPTimer
