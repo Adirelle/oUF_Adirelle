@@ -1,6 +1,6 @@
 --[=[
 Adirelle's oUF layout
-(c) 2009-2011 Adirelle (adirelle@tagada-team.net)
+(c) 2009-2012 Adirelle (adirelle@gmail.com)
 All rights reserved.
 
 Elements handled: .StatusIcon

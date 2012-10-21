@@ -1,6 +1,6 @@
 --[=[
 Adirelle's oUF layout
-(c) 2009-2011 Adirelle (adirelle@tagada-team.net)
+(c) 2009-2012 Adirelle (adirelle@gmail.com)
 All rights reserved.
 --]=]
 
@@ -90,7 +90,6 @@ oUF:RegisterMetaFunction('CreateIcon', function(self, parent, size, noCooldown, 
 	if not noCooldown then
 		local cooldown = CreateFrame("Cooldown", nil, icon, "CooldownFrameTemplate")
 		cooldown:SetAllPoints(icon.Texture or icon)
-		cooldown:SetDrawEdge(true)
 		cooldown:SetReverse(true)
 		cooldown.noCooldownFader = true
 		icon.Cooldown = cooldown

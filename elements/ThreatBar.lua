@@ -1,6 +1,6 @@
 --[=[
 Adirelle's oUF layout
-(c) 2009-2011 Adirelle (adirelle@tagada-team.net)
+(c) 2009-2012 Adirelle (adirelle@gmail.com)
 All rights reserved.
 
 Elements handled: .ThreatBar
@@ -12,8 +12,8 @@ local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
 local _G = _G
-local GetRealNumPartyMembers = _G.GetRealNumPartyMembers
-local GetRealNumRaidMembers = _G.GetRealNumRaidMembers
+local LE_PARTY_CATEGORY_HOME = _G.LE_PARTY_CATEGORY_HOME
+local GetNumGroupMembers = _G.GetNumGroupMembers
 local GetThreatStatusColor = _G.GetThreatStatusColor
 local UnitDetailedThreatSituation = _G.UnitDetailedThreatSituation
 local UnitExists = _G.UnitExists
@@ -22,7 +22,7 @@ local UnitExists = _G.UnitExists
 local function Update(self, event, unit)
 	if unit and (unit ~= self.unit and unit ~= "player") then
 		return
-	elseif GetRealNumPartyMembers() == 0 and GetRealNumRaidMembers() == 0 and not UnitExists("pet") then
+	elseif GetNumGroupMembers(LE_PARTY_CATEGORY_HOME) == 0 and not UnitExists("pet") then
 		return self.ThreatBar:Hide()
 	end
 	local bar = self.ThreatBar

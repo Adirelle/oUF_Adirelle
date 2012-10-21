@@ -1,6 +1,6 @@
 --[=[
 Adirelle's oUF layout
-(c) 2009-2011 Adirelle (adirelle@tagada-team.net)
+(c) 2009-2012 Adirelle (adirelle@gmail.com)
 All rights reserved.
 
 Elements handled: .RoleIcon
@@ -14,7 +14,7 @@ local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 local _G = _G
 local GetRaidRosterInfo = _G.GetRaidRosterInfo
 local GetRaidTargetIndex = _G.GetRaidTargetIndex
-local GetRealNumRaidMembers = _G.GetRealNumRaidMembers
+local IsInRaid = _G.IsInRaid
 local GetTexCoordsForRoleSmall = _G.GetTexCoordsForRoleSmall
 local GetTexCoordsForRoleSmallCircle = _G.GetTexCoordsForRoleSmallCircle
 local select = _G.select
@@ -33,7 +33,7 @@ local function GetRole(unit, noDamager, noCircle)
 	if not UnitIsPlayer(unit) then return end
 
 	-- Check assigned raid roles
-	local raidId = GetRealNumRaidMembers() > 0 and UnitInRaid(unit)
+	local raidId = IsInRaid() and UnitInRaid(unit)
 	if raidId then
 		local role = select(10, GetRaidRosterInfo(raidId))
 		--Debug('Role from GetRaidRosterInfo for ', unit, ':', role)

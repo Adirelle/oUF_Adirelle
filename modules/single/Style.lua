@@ -1,6 +1,6 @@
 --[=[
 Adirelle's oUF layout
-(c) 2009-2011 Adirelle (adirelle@tagada-team.net)
+(c) 2009-2012 Adirelle (adirelle@gmail.com)
 All rights reserved.
 --]=]
 
@@ -88,7 +88,6 @@ local function Auras_PostCreateIcon(icons, button)
 	overlay:SetTexCoord(0, 1, 0, 1)
 	cd.noCooldownCount = true
 	cd:SetReverse(true)
-	cd:SetDrawEdge(true)
 end
 
 local function Auras_PostUpdateIcon(icons, unit, icon, index, offset)
