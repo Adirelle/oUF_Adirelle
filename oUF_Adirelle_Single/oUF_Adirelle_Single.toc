@@ -7,3 +7,7 @@
 
 ..\oUF_Adirelle\modules\single\style.xml
 ..\oUF_Adirelle\modules\single\module.xml
+
+#@debug@
+## Version: DEV
+#@end-debug@
