@@ -1,4 +1,4 @@
-## Interface: 40200
+## Interface: 50001
 ## Author: Adirelle
 ## Version: 1.0
 ## Title: oUF_Adirelle - configuration

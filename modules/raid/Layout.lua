@@ -1,6 +1,6 @@
 --[=[
 Adirelle's oUF layout
-(c) 2009-2011 Adirelle (adirelle@tagada-team.net)
+(c) 2009-2012 Adirelle (adirelle@gmail.com)
 All rights reserved.
 --]=]
 
@@ -15,8 +15,7 @@ oUF:Factory(function()
 	local CreateFrame = _G.CreateFrame
 	local GetInstanceInfo = _G.GetInstanceInfo
 	local GetMapInfo = _G.GetMapInfo
-	local GetNumPartyMembers = _G.GetNumPartyMembers
-	local GetNumRaidMembers = _G.GetNumRaidMembers
+	local GetNumGroupMembers = _G.GetNumGroupMembers
 	local GetRaidRosterInfo = _G.GetRaidRosterInfo
 	local hooksecurefunc = _G.hooksecurefunc
 	local IsInActiveWorldPVP = _G.IsInActiveWorldPVP
@@ -154,11 +153,11 @@ oUF:Factory(function()
 
 	local function GetRaidNumGroups(maxPlayers)
 		if not maxPlayers or maxPlayers == 0 then
-			maxPlayers = GetNumRaidMembers() or 1
+			maxPlayers = GetNumGroupMembers() or 1
 		end
 		local numGroups = ceil(maxPlayers / 5)
 		local highestGroup = numGroups
-		for i = 1, GetNumRaidMembers() do
+		for i = 1, GetNumGroupMembers() do
 			local _, _, group = GetRaidRosterInfo(i)
 			if group > highestGroup then
 				highestGroup = group
@@ -183,14 +182,14 @@ oUF:Factory(function()
 	-- Returns (type, PvE, number of groups, highest group number)
 	local function GetLayoutInfo(strictSize)
 		local _, instanceType, _, _, maxPlayers = GetInstanceInfo()
-		anchor:Debug('GetLayoutInfo', 'raidSize=', GetNumRaidMembers(), 'partySize=', GetNumPartyMembers(), 'instanceInfo:', GetInstanceInfo())
+		anchor:Debug('GetLayoutInfo', 'groupSize=', GetNumGroupMembers(), 'instanceInfo:', GetInstanceInfo())
 		if instanceType == "arena" then
 			return "arena", false, 1, 1
 		elseif instanceType == "pvp" or IsInActiveWorldPVP() then
 			return "battleground", false, GetRaidNumGroups(BATTLEGROUND_SIZE[GetMapInfo()])
-		elseif instanceType == "raid" or (instanceType == "none" and GetNumRaidMembers() > 0) then
+		elseif instanceType == "raid" or (instanceType == "none" and GetNumGroupMembers() > 0) then
 			return "raid", true, GetRaidNumGroups(instanceType == "raid" and maxPlayers)
-		elseif instanceType == "party" or (instanceType == "none" and GetNumPartyMembers() > 0) then
+		elseif instanceType == "party" or (instanceType == "none" and GetNumGroupMembers() > 0) then
 			return "party", true, 1, 1
 		else
 			return "solo", true, 1, 1
