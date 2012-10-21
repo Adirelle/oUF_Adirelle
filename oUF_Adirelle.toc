@@ -73,4 +73,6 @@ elements\TotemBar.lua
 elements\WarningIcon.lua
 elements\XRange.lua
 
-
+#@debug@
+## Version: DEV
+#@end-debug@

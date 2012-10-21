@@ -17,3 +17,6 @@
 
 ..\oUF_Adirelle\Config.lua
 
+#@debug@
+## Version: DEV
+#@end-debug@

@@ -6,3 +6,7 @@
 ## RequiredDeps: oUF_Adirelle
 
 ..\oUF_Adirelle\modules\raid\module.xml
+
+#@debug@
+## Version: DEV
+#@end-debug@
