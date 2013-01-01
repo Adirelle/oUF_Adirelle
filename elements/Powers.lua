@@ -44,14 +44,62 @@ local UnitIsConnected = _G.UnitIsConnected
 local unpack = _G.unpack
 --GLOBALS>
 
-local function ShouldShow(unit, powerIndex)
+local RequiredClasses = {
+	MANA           = { DRUID = true, MONK = true },
+	CHI            = { MONK = true },
+	SOUL_SHARDS    = { WARLOCK = true },
+	BURNING_EMBERS = { WARLOCK = true },
+	DEMONIC_FURY   = { WARLOCK = true },
+	SHADOW_ORBS    = { PRIESTS = true },
+	HOLY_POWER     = { PALADIN = true },
+}
+
+local RequiredSpecializations = {
+	MANA           = {
+		-- Druid specs
+		[102] = true, -- Balance
+		[103] = true, -- Feral
+		[104] = true, -- Guardian
+		[105] = true, -- Restoration
+		-- Monk specs
+		[270] = true, -- Mistweaver
+	},
+	SOUL_SHARDS    = { [265] = true }, -- Affliction Warlock
+	BURNING_EMBERS = { [267] = true }, -- Destruction Warlock
+	DEMONIC_FURY   = { [266] = true }, -- Demonology Warlock
+	SHADOW_ORBS    = { [258] = true }, -- Shadow Priest
+}
+
+local function ShouldShow(unit, powerIndex, powerType)
+	local classes, specs = RequiredClasses[powerType], RequiredSpecializations[powerType]
+	if classes then
+		if not UnitIsPlayer(unit) then
+			return false
+		end
+		local _, class = UnitClass(unit)
+		oUF:Debug('Class required for',  powerType, 'on', unit, 'class=', class, 'ok=', classes[class])
+		if not classes[class] then
+			return false
+		end
+	end
+	if specs then
+		if not UnitIsUnit(unit, 'player') then
+			return false
+		end
+		local specIndex = GetSpecialization()
+		local spec = specIndex and GetSpecializationInfo(specIndex) or 0
+		oUF:Debug('Spec required for',  powerType, 'on', unit, 'spec=', spec, 'ok=', specs[spec])
+		if not specs[spec] then
+			return false
+		end
+	end
 	return UnitIsConnected(unit) and UnitPowerType(unit) ~= powerIndex and (UnitPowerMax(unit, powerIndex) or 0) ~= 0
 end
 
 local function Update(self, event)
 	local unit, powerIndex = self.__owner.unit, self.powerIndex
 
-	self:SetShown(ShouldShow(unit, powerIndex))
+	self:SetShown(ShouldShow(unit, powerIndex, self.powerType))
 	if not self:IsVisible() then
 		return
 	end
@@ -80,24 +128,8 @@ local function Update(self, event)
 end
 
 -- Handled powers
-local HandledPowers = {
-	MANA = true,
-	RAGE = true,
-	FOCUS = true,
-	ENERGY = true,
-	--RUNES = true,
-	RUNIC_POWER = true,
-	SOUL_SHARDS = true,
-	--ECLIPSE = true,
-	HOLY_POWER = true,
-	--ALTERNATE_POWER = true,
-	--DARK_FORCE = true,
-	CHI = true,
-	SHADOW_ORBS = true,
-	BURNING_EMBERS = true,
-	DEMONIC_FURY = true,
-}
-for powerType in pairs(HandledPowers) do
+local HandledPowers = {}
+for powerType in pairs(RequiredClasses) do
 	HandledPowers[powerType] = _G['SPELL_POWER_'..powerType]
 end
 
