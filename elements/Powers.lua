@@ -36,10 +36,16 @@ local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
 local _G = _G
+local pairs = _G.pairs
+local UnitPower = _G.UnitPower
+local UnitPowerMax = _G.UnitPowerMax
+local UnitPowerType = _G.UnitPowerType
+local UnitIsConnected = _G.UnitIsConnected
+local unpack = _G.unpack
 --GLOBALS>
 
 local function ShouldShow(unit, powerIndex)
-	return not UnitIsConnected() and UnitPowerType(unit) ~= powerIndex and (UnitPowerMax(unit, powerIndex) or 0) ~= 0
+	return UnitIsConnected(unit) and UnitPowerType(unit) ~= powerIndex and (UnitPowerMax(unit, powerIndex) or 0) ~= 0
 end
 
 local function Update(self, event)
@@ -58,7 +64,7 @@ local function Update(self, event)
 
 	local t, r, g, b = oUF.colors.power[self.powerType]
 	if not t or self.colorSmooth then
-		r, g, b = self.ColorGradient(current, max, unpack(self.smoothGradient or oUF.colors.smooth))
+		r, g, b = oUF.ColorGradient(current, max, unpack(self.smoothGradient or oUF.colors.smooth))
 	else
 		r, g, b = unpack(t, 1, 3)
 	end
@@ -112,7 +118,7 @@ end
 
 local CommonPowerPath = function(self, event, unit, powerType, ...)
 	if unit ~= self.unit then return end
-	local widget = self.powers[powerType]
+	local widget = self.Powers[powerType]
 	if widget then
 		return (widget.Override or Update)(widget, event, unit, powerType, ...)
 	end
