@@ -298,40 +298,18 @@ local function LayoutBars(self)
 	if not width or not height or width == 0 or height == 0 then return end
 	self.Border:SetWidth(width + 2 * BORDER_WIDTH)
 	self.Border:SetHeight(height + 2 * BORDER_WIDTH)
-	local portrait = self.Portrait
-	if portrait then
-		portrait:SetSize(height, height)
+	if self.Portrait then
+		self.Portrait:SetSize(height, height)
 	end
-	local power = self.Power
-	if power then
-		local totalPowerHeight = height * 0.45 - GAP
-		local powerHeight = totalPowerHeight
-		if self.SecondaryPowerBar and self.SecondaryPowerBar:IsShown() then
-			powerHeight = (totalPowerHeight - GAP) / 2
-		end
-		power:SetHeight(powerHeight)
-		height = height - totalPowerHeight - GAP
-	end
-	self.Health:SetHeight(height)
 	if self.AuxiliaryBars then
 		LayoutAuxiliaryBars(self)
 	end
 end
 
-local function Element_Layout(element)
-	return LayoutBars(element.__owner)
-end
-
 local function CastBar_Update(castbar)
-	local self = castbar.__owner
-	if castbar:IsVisible() then
-		local height = castbar:GetHeight()
-		if height then
-			castbar.Icon:SetSize(height, height)
-		end
-		self.Power:Hide()
-	else
-		self.Power:Show()
+	local height = castbar:GetHeight()
+	if height then
+		castbar.Icon:SetSize(height, height)
 	end
 end
 
@@ -548,11 +526,14 @@ local function InitFrame(settings, self, unit)
 	border.noTarget = true
 	self.Border = border
 
-	local barContainer
 	local left, right, dir = "LEFT", "RIGHT", 1
 	if settings.mirroredFrame then
 		left, right, dir = "RIGHT", "LEFT", -1
 	end
+
+	-- Bar container
+	local barContainer = private.SpawnBarLayout(self)
+	self.BarContainer = barContainer
 
 	-- Portrait
 	if not settings.noPortrait then
@@ -571,7 +552,6 @@ local function InitFrame(settings, self, unit)
 		self.WarningIcon = importantDebuff
 
 		-- Spawn a container frame that spans remaining space
-		barContainer = CreateFrame("Frame", nil, self)
 		barContainer:SetPoint("TOP"..left, portrait, "TOP"..right, GAP*dir, 0)
 		barContainer:SetPoint("BOTTOM"..right)
 
@@ -579,15 +559,15 @@ local function InitFrame(settings, self, unit)
 		portrait:SetScript('OnShow', function() barContainer:SetPoint("TOP"..left, portrait, "TOP"..right, GAP*dir, 0) end)
 		portrait:SetScript('OnHide', function() barContainer:SetPoint("TOP"..left, self, "TOP"..left, 0, 0) end)
 	else
-		barContainer = self
+		barContainer:SetAllPoints(self)
 	end
-	self.BarContainer = barContainer
 
 	-- Health bar
-	local health = SpawnStatusBar(self, false, "TOPLEFT", barContainer)
+	local health = SpawnStatusBar(self, false)
 	health:SetPoint("TOPRIGHT", barContainer)
 	health.frequentUpdates = true
 	self.Health = health
+	barContainer:AddWidget(health, 10, 4)
 
 	-- Name
 	local name = SpawnText(self, health, "OVERLAY", "TOPLEFT", "TOPLEFT", TEXT_MARGIN, 0, "text")
@@ -624,21 +604,18 @@ local function InitFrame(settings, self, unit)
 
 	-- Power bar
 	if not settings.noPower then
-		local power = SpawnStatusBar(self, false, "TOPLEFT", health, "BOTTOMLEFT", 0, -GAP)
-		power:SetPoint('RIGHT', barContainer)
+		local power = SpawnStatusBar(self, false)
 		power.frequentUpdates = true
 		power.PostUpdate = Power_PostUpdate
 		self.Power = power
+		barContainer:AddWidget(power, 20, 4)
 
 		if unit == "player" and private.SetupSecondaryPowerBar then
 			-- Add player specific secondary power bar
 			local bar = private.SetupSecondaryPowerBar(self)
 			if bar then
-				bar:SetPoint('TOPLEFT', self.Power, 'BOTTOMLEFT', 0, -GAP)
-				bar:SetPoint('BOTTOMRIGHT', self.BarContainer)
+				barContainer:AddWidget(bar, 30, 2)
 				bar.__owner = self
-				bar:HookScript('OnShow', Element_Layout)
-				bar:HookScript('OnHide', Element_Layout)
 				self.SecondaryPowerBar = bar
 			end
 		end
@@ -662,7 +639,6 @@ local function InitFrame(settings, self, unit)
 			castbar.PostChannelStart = function() castbar:SetStatusBarColor(0.0, 1.0, 0.0) end
 			castbar:SetScript('OnSizeChanged', CastBar_Update)
 			castbar:SetScript('OnShow', CastBar_Update)
-			castbar:SetScript('OnHide', CastBar_Update)
 			self:RegisterStatusBarTexture(castbar)
 			self.Castbar = castbar
 
@@ -676,7 +652,13 @@ local function InitFrame(settings, self, unit)
 			spellText:SetPoint('BOTTOMRIGHT', castbar, 'BOTTOMRIGHT', -TEXT_MARGIN, 0)
 			castbar.Text = spellText
 
+			local bg = castbar:CreateTexture(nil, "BACKGROUND")
+			bg:SetTexture(0,0,0,1)
+			bg:SetPoint('TOPLEFT', icon)
+			bg:SetPoint('BOTTOMRIGHT', castbar)
+
 			castbar:SetPoint("TOPLEFT", icon, "TOPRIGHT", GAP, 0)
+			castbar:SetFrameLevel(power:GetFrameLevel() + 5)
 			CastBar_Update(castbar)
 		end
 	end
