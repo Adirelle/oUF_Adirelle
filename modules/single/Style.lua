@@ -621,24 +621,28 @@ local function InitFrame(settings, self, unit)
 			end
 		end
 		--]]
-		local powers = {
-			MANA = SpawnStatusBar(self),
-			RAGE = SpawnStatusBar(self),
-			FOCUS = SpawnStatusBar(self),
-			ENERGY = SpawnStatusBar(self),
-			RUNIC_POWER = SpawnStatusBar(self),
-			SOUL_SHARDS = SpawnStatusBar(self),
-			HOLY_POWER = SpawnStatusBar(self),
-			CHI = SpawnStatusBar(self),
-			SHADOW_ORBS = SpawnStatusBar(self),
-			BURNING_EMBERS = SpawnStatusBar(self),
-			DEMONIC_FURY = SpawnStatusBar(self),
-		}
-		for powerType, bar in pairs(powers) do
-			barContainer:AddWidget(bar, 30 + _G['SPELL_POWER_'..powerType], 2)
+
+		local powers = {}
+		-- Additional power bars that requires specialization information
+		if unit == 'player' or unit == 'target' or unit == 'focus' or unit == 'vehicle' then
+			powers.MANA = SpawnStatusBar(self)
+			powers.SOUL_SHARDS = SpawnStatusBar(self)
+			powers.BURNING_EMBERS = SpawnStatusBar(self)
+			powers.DEMONIC_FURY = SpawnStatusBar(self)
+			powers.SHADOW_ORBS = SpawnStatusBar(self)
 		end
-		powers.frequentUpdates = true
-		self.Powers = powers
+		-- Additional power bars available only on players
+		if unit == 'player' or unit == 'target' or unit == 'focus' or unit == 'vehicle' or unit == 'arena' then
+			powers.CHI = SpawnStatusBar(self)
+			powers.HOLY_POWER = SpawnStatusBar(self)
+		end
+		if next(powers) then
+			for powerType, bar in pairs(powers) do
+				barContainer:AddWidget(bar, 30 + _G['SPELL_POWER_'..powerType], 2)
+			end
+			powers.frequentUpdates = true
+			self.Powers = powers
+		end
 
 		-- Unit level and class (or creature family)
 		if unit ~= "player" and unit ~= "pet" then
