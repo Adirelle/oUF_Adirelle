@@ -610,6 +610,7 @@ local function InitFrame(settings, self, unit)
 		self.Power = power
 		barContainer:AddWidget(power, 20, 4)
 
+		--[[
 		if unit == "player" and private.SetupSecondaryPowerBar then
 			-- Add player specific secondary power bar
 			local bar = private.SetupSecondaryPowerBar(self)
@@ -619,6 +620,25 @@ local function InitFrame(settings, self, unit)
 				self.SecondaryPowerBar = bar
 			end
 		end
+		--]]
+		local powers = {
+			MANA = SpawnStatusBar(self),
+			RAGE = SpawnStatusBar(self),
+			FOCUS = SpawnStatusBar(self),
+			ENERGY = SpawnStatusBar(self),
+			RUNIC_POWER = SpawnStatusBar(self),
+			SOUL_SHARDS = SpawnStatusBar(self),
+			HOLY_POWER = SpawnStatusBar(self),
+			CHI = SpawnStatusBar(self),
+			SHADOW_ORBS = SpawnStatusBar(self),
+			BURNING_EMBERS = SpawnStatusBar(self),
+			DEMONIC_FURY = SpawnStatusBar(self),
+		}
+		for powerType, bar in pairs(powers) do
+			barContainer:AddWidget(bar, 30 + _G['SPELL_POWER_'..powerType], 2)
+		end
+		powers.frequentUpdates = true
+		self.Powers = powers
 
 		-- Unit level and class (or creature family)
 		if unit ~= "player" and unit ~= "pet" then
