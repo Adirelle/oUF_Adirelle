@@ -62,6 +62,7 @@ elements\Dragon.lua
 elements\Experience.lua
 elements\IncomingHeal.lua
 elements\LowHealth.lua
+elements\Powers.lua
 elements\PvPTimer.lua
 elements\RoleOrIcon.lua
 elements\RuneBar.lua
