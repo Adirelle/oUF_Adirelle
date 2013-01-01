@@ -23,7 +23,7 @@ local GAP = private.GAP
 local wlist = {}
 
 local function SortWidgets(a, b)
-	return a.__layoutOrder < b.__layoutWeight
+	return a.__layoutOrder < b.__layoutOrder
 end
 
 local function UpdateLayout(self)
