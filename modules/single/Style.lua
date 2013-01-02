@@ -610,31 +610,19 @@ local function InitFrame(settings, self, unit)
 		self.Power = power
 		barContainer:AddWidget(power, 20, 4)
 
-		--[[
-		if unit == "player" and private.SetupSecondaryPowerBar then
-			-- Add player specific secondary power bar
-			local bar = private.SetupSecondaryPowerBar(self)
-			if bar then
-				barContainer:AddWidget(bar, 30, 2)
-				bar.__owner = self
-				self.SecondaryPowerBar = bar
-			end
-		end
-		--]]
-
 		local powers = {}
 		-- Additional power bars that requires specialization information
 		if unit == 'player' or unit == 'target' or unit == 'focus' or unit == 'vehicle' then
-			powers.MANA = SpawnStatusBar(self)
-			powers.SOUL_SHARDS = SpawnStatusBar(self)
-			powers.BURNING_EMBERS = SpawnStatusBar(self)
-			powers.DEMONIC_FURY = SpawnStatusBar(self)
-			powers.SHADOW_ORBS = SpawnStatusBar(self)
+			powers.MANA = private.SpawnStatusBar(self)
+			powers.SOUL_SHARDS = private.SpawnDiscreteBar(self, 4, false, [[Interface\Addons\oUF_Adirelle\media\white16x16]])
+			powers.BURNING_EMBERS = private.SpawnHybridBar(self, 4, MAX_POWER_PER_EMBER)
+			powers.DEMONIC_FURY = private.SpawnStatusBar(self)
+			powers.SHADOW_ORBS = private.SpawnDiscreteBar(self, 4, false, [[Interface\Addons\oUF_Adirelle\media\white16x16]])
 		end
 		-- Additional power bars available only on players
 		if unit == 'player' or unit == 'target' or unit == 'focus' or unit == 'vehicle' or unit == 'arena' then
-			powers.CHI = SpawnStatusBar(self)
-			powers.HOLY_POWER = SpawnStatusBar(self)
+			powers.CHI = private.SpawnDiscreteBar(self, 4, false, [[Interface\Addons\oUF_Adirelle\media\white16x16]])
+			powers.HOLY_POWER =private. SpawnDiscreteBar(self, 5, false, [[Interface\Addons\oUF_Adirelle\media\white16x16]])
 		end
 		if next(powers) then
 			for powerType, bar in pairs(powers) do
@@ -642,6 +630,12 @@ local function InitFrame(settings, self, unit)
 			end
 			powers.frequentUpdates = true
 			self.Powers = powers
+		end
+
+		-- Special bars
+		if unit == 'player' and private.SetupSecondaryPowerBar then
+			local bar = private.SetupSecondaryPowerBar(self)
+			barContainer:AddWidget(bar, 50, 2)
 		end
 
 		-- Unit level and class (or creature family)
