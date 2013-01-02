@@ -83,7 +83,7 @@ local function ShouldShow(unit, powerIndex, powerType)
 		end
 	end
 	if specs then
-		if not UnitIsUnit(unit, 'player') then
+		if not UnitIsUnit(unit, 'player') or UnitLevel(unit) < 10 then
 			return false
 		end
 		local specIndex = GetSpecialization()
