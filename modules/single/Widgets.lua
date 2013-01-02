@@ -99,29 +99,85 @@ local function SpawnStatusBar(self, noText, from, anchor, to, xOffset, yOffset, 
 end
 
 local function DiscreteBar_Layout(bar)
-	local width, itemHeight = bar:GetSize()
-	local spacing = (width + GAP) / bar.numItems
-	local itemWidth = spacing - GAP
-	for i = 1, bar.numItems do
-		local item = bar[i]
-		item:SetPoint("TOPLEFT", bar, "TOPLEFT", spacing * (i-1), 0)
-		item:SetSize(itemWidth, itemHeight)
+	if bar.numItems > 0 then
+		local width, itemHeight = bar:GetSize()
+		local spacing = (width + GAP) / bar.numItems
+		local itemWidth = spacing - GAP
+		for i = 1, bar.maxItems do
+			local item = bar[i]
+			if i <= bar.numItems then
+				item:SetPoint("TOPLEFT", bar, "TOPLEFT", spacing * (i-1), 0)
+				item:SetSize(itemWidth, itemHeight)
+				item:Show()
+			else
+				item:Hide()
+			end
+		end
+	else
+		for i = 1, bar.maxItems do
+			bar[i]:Hide()
+		end
 	end
 end
 
-local function SpawnDiscreteBar(self, numItems, createStatusBar)
+local function DiscreteBar_SetMinMaxValues(bar, min, max)
+	if min ~= bar.minValue or max ~= bar.maxValue then
+		bar.minValue, bar.maxValue = min, max
+		bar.numItems = max - min
+		return DiscreteBar_Layout(bar)
+	end
+end
+
+local function DiscreteBar_SetValue(bar, current)
+	if current == bar.value then return end
+	bar.value = current
+	local rel = current - bar.minValue
+	for i = 1, bar.numItems do
+		bar[i]:SetShown(i <= rel)
+	end
+end
+
+local function DiscreteBar_SetStatusBarColor(bar, r, g, b, a)
+	for i = 1, bar.maxItems do
+		local widget = bar[i]
+		if widget:IsObjectType("StatusBar") then
+			widget:SetStatusBarColor(r, g, b, a)
+		elseif widget:IsObjectType("Texture") then
+			widget:SetVertexColor(r, g, b, a)
+		end
+	end
+end
+
+local function SpawnDiscreteBar(self, numItems, createStatusBar, texture)
 	local bar = CreateFrame("Frame", nil, self)
+	self:Debug('Using texture', texture, 'for discrete bar')
+	bar.maxItems = numItems
 	bar.numItems = numItems
+	bar.minValue = 0
+	bar.maxValue = numItems
+	bar.value = 0
 	bar:SetScript('OnShow', DiscreteBar_Layout)
 	bar:SetScript('OnSizeChanged', DiscreteBar_Layout)
+	bar.SetMinMaxValues = DiscreteBar_SetMinMaxValues
+	bar.SetValue = DiscreteBar_SetValue
+	bar.SetStatusBarColor = DiscreteBar_SetStatusBarColor
 	for i = 1, numItems do
 		local item
 		if createStatusBar then
 			item = CreateFrame("StatusBar", nil, bar)
+			if texture then
+				item:SetStatusBarTexture(texture)
+			end
 		else
 			item = bar:CreateTexture(nil, "ARTWORK")
+			if texture then
+				self:Debug('Using texture', texture, 'for discrete bar')
+				item:SetTexture(texture)
+			end
 		end
-		self:RegisterStatusBarTexture(item)
+		if not texture then
+			self:RegisterStatusBarTexture(item)
+		end
 		item.index = i
 		item.__owner = self
 		bar[i] = item
@@ -129,5 +185,34 @@ local function SpawnDiscreteBar(self, numItems, createStatusBar)
 	return bar
 end
 
-private.SpawnTexture, private.SpawnText, private.SpawnStatusBar, private.SpawnDiscreteBar = SpawnTexture, SpawnText, SpawnStatusBar, SpawnDiscreteBar
+local function HybridBar_SetMinMaxValues(bar, min, max)
+	if min ~= bar.minValue or max ~= bar.maxValue then
+		bar.minValue, bar.maxValue = min, max
+		local step = bar.valueStep
+		local num = floor((max - min) / step)
+		bar.numItems = num
+		for i = 1, num do
+			bar[i]:SetMinMaxValues(min + step * (i-1), min + (step * i) - 1)
+		end
+		return DiscreteBar_Layout(bar)
+	end
+end
+
+local function HybridBar_SetValue(bar, current)
+	if current == bar.value then return end
+	bar.value = current
+	for i = 1, bar.currentNum do
+		bar[i]:SetValue(current)
+	end
+end
+
+local function SpawnHybridBar(self, numItems, step)
+	local bar = SpawnDiscreteBar(self, numItems, true)
+	bar.valueStep = step
+	bar.SetMinMaxValues = HybridBar_SetMinMaxValues
+	bar.SetValue = HybridBar_SetValue
+	return bar
+end
+
+private.SpawnTexture, private.SpawnText, private.SpawnStatusBar, private.SpawnDiscreteBar, private.SpawnHybridBar = SpawnTexture, SpawnText, SpawnStatusBar, SpawnDiscreteBar, SpawnHybridBar
 
