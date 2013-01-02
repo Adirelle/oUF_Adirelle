@@ -30,9 +30,8 @@ local GAP = private.GAP
 
 local playerClass = oUF_Adirelle.playerClass
 
-if playerClass == "DRUID" then
-	-- Druid mana bar
-
+if playerClass == 'DRUID' then
+	-- Eclipse Bar
 	local eclipseColors = {
 		lunar = {
 			 sun = { 136/255, 200/255, 224/255 },
@@ -68,42 +67,8 @@ if playerClass == "DRUID" then
 		end
 	end
 
-	local function AltPower_Update(power, unit)
-		power:GetParent().EclipseBar:ForceUpdate()
-		local manaBar = power:GetParent().AltPower.ManaBar
-		if unit == 'player' and UnitPowerType(unit) ~= SPELL_POWER_MANA then
-			local current, max = UnitPower(unit, SPELL_POWER_MANA), UnitPowerMax(unit, SPELL_POWER_MANA)
-			if max and max > 0 then
-				manaBar:SetMinMaxValues(0, max)
-				manaBar:SetValue(current)
-				return manaBar:Show()
-			end
-		end
-		return manaBar:Hide()
-	end
-
 	private.SetupSecondaryPowerBar = function(self)
-		local altPower = CreateFrame("Frame", nil, self)
-		self.AltPower = altPower
-
-		local manaBar = private.SpawnStatusBar(self)
-		manaBar:SetAllPoints(altPower)
-		manaBar:SetStatusBarColor(unpack(self.colors.power.MANA,1,3))
-		manaBar:Hide()
-		altPower.ManaBar = manaBar
-
-		if self.Power.PostUpdate then
-			local orig = self.Power.PostUpdate
-			self.Power.PostUpdate = function(...)
-				AltPower_Update(...)
-				return orig(...)
-			end
-		else
-			self.Power.PostUpdate = AltPower_Update
-		end
-
 		local eclipseBar = CreateFrame("Frame", nil, self)
-		eclipseBar:SetAllPoints(altPower)
 		eclipseBar.PostUnitAura = EclipseText_Update
 		eclipseBar.PostDirectionChange  = EclipseText_Update
 		eclipseBar.PostUpdateVisibility = EclipseText_Update
@@ -133,38 +98,7 @@ if playerClass == "DRUID" then
 		mark:SetBlendMode("ADD")
 		eclipseBar.mark = mark
 
-		local function UpdateAltPower()
-			if manaBar:IsShown() or eclipseBar:IsShown() then
-				altPower:Show()
-			else
-				altPower:Hide()
-			end
-		end
-		manaBar:HookScript('OnShow', UpdateAltPower)
-		manaBar:HookScript('OnHide', UpdateAltPower)
-		eclipseBar:HookScript('OnShow', UpdateAltPower)
-		eclipseBar:HookScript('OnHide', UpdateAltPower)
-
-		return altPower
-	end
-
-elseif playerClass == "WARLOCK" then
-	-- Soul shards
-	private.SetupSecondaryPowerBar = function(self)
-		-- Display them in the mana bar, without changing its size
-		local shards = {}
-		local parent, anchor = self.Indicators, self.Power
-		local scale = 1/1.2
-		local w, h = scale*17, scale*16
-		for index = 1, _G.SHARD_BAR_NUM_SHARDS do
-			local shard = parent:CreateTexture(nil, "OVERLAY")
-			shard:SetTexture([[Interface\PlayerFrame\UI-WarlockShard]])
-			shard:SetSize(w, h)
-			shard:SetTexCoord(0.01562500, 0.28125000, 0.00781250, 0.13281250)
-			shard:SetPoint("CENTER", anchor, "BOTTOM", (index-2)*(w+GAP), -GAP/2)
-			shards[index] = shard
-		end
-		self.SoulShards = shards
+		return eclipseBar
 	end
 
 elseif playerClass == 'DEATHKNIGHT' then
@@ -199,16 +133,5 @@ elseif playerClass == "SHAMAN" then
 		return bar
 	end
 
-elseif playerClass == "PALADIN" then
-	-- Holy power
-	private.SetupSecondaryPowerBar = function(self)
-		local bar = private.SpawnDiscreteBar(self, _G.MAX_HOLY_POWER)
-		local r, g, b = unpack(oUF.colors.power.HOLY_POWER, 1, 3)
-		for i = 1, _G.MAX_HOLY_POWER do
-			bar[i]:SetVertexColor(r, g, b)
-		end
-		self.HolyPower = bar
-		return bar
-	end
 end
 
