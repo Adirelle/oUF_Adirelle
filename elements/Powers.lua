@@ -99,7 +99,9 @@ end
 local function Update(self, event)
 	local unit, powerIndex = self.__owner.unit, self.powerIndex
 
-	self:SetShown(ShouldShow(unit, powerIndex, self.powerType))
+	if event ~= 'UNIT_POWER' and event ~= 'UNIT_POWER_FREQUENT' and event ~= 'UNIT_MAXPOWER' then
+		self:SetShown(ShouldShow(unit, powerIndex, self.powerType))
+	end
 	if not self:IsVisible() then
 		return
 	end
