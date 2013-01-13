@@ -44,6 +44,10 @@ local UnitIsConnected = _G.UnitIsConnected
 local unpack = _G.unpack
 --GLOBALS>
 
+-- Set default colors for burning embers and demonic fury
+if not oUF.colors.power.BURNING_EMBERS then
+	oUF.colors.power.BURNING_EMBERS = { 175/255, 39/255, 5/255, 247/255, 190/255, 41/255 }
+end
 local RequiredClasses = {
 	MANA           = { DRUID = true, MONK = true },
 	CHI            = { MONK = true },

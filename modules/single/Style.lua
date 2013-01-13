@@ -262,6 +262,21 @@ local function AltPowerBar_PostUpdate(bar, min, cur, max)
 	bar:SetStatusBarColor(r, g, b)
 end
 
+local function HighlightBurningEmbers(bar, unit, current, max)
+	if not current then return end
+	local lr, lg, lb, hr, hg, hb = unpack(oUF.colors.power.BURNING_EMBERS)
+	for i = 1, bar.numItems do
+		local r, g, b
+		if current >= 10 then
+			r, g, b = hr, hg, hb
+		else
+			r, g, b = lr, lg, lb
+		end
+		bar[i]:SetStatusBarColor(r, g, b)
+		current = current - 10
+	end
+end
+
 -- Additional auxiliary bars
 local function LayoutAuxiliaryBars(self)
 	local bars = self.AuxiliaryBars
@@ -616,6 +631,7 @@ local function InitFrame(settings, self, unit)
 			powers.MANA = private.SpawnStatusBar(self)
 			powers.SOUL_SHARDS = private.SpawnDiscreteBar(self, 4, false, [[Interface\Addons\oUF_Adirelle\media\white16x16]])
 			powers.BURNING_EMBERS = private.SpawnHybridBar(self, 4, MAX_POWER_PER_EMBER)
+			powers.BURNING_EMBERS.PostUpdate = HighlightBurningEmbers
 			powers.DEMONIC_FURY = private.SpawnStatusBar(self)
 			powers.SHADOW_ORBS = private.SpawnDiscreteBar(self, 4, false, [[Interface\Addons\oUF_Adirelle\media\white16x16]])
 		end
