@@ -192,16 +192,16 @@ local function HybridBar_SetMinMaxValues(bar, min, max)
 		local num = floor((max - min) / step)
 		bar.numItems = num
 		for i = 1, num do
-			bar[i]:SetMinMaxValues(min + step * (i-1), min + (step * i) - 1)
+			bar[i]:SetMinMaxValues(min + step * (i-1), min + (step * i))
 		end
 		return DiscreteBar_Layout(bar)
 	end
 end
 
 local function HybridBar_SetValue(bar, current)
-	if current == bar.value then return end
+	if current == bar.value or not bar.numItems then return end
 	bar.value = current
-	for i = 1, bar.currentNum do
+	for i = 1, bar.numItems do
 		bar[i]:SetValue(current)
 	end
 end
