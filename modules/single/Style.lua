@@ -612,7 +612,7 @@ local function InitFrame(settings, self, unit)
 
 		local powers = {}
 		-- Additional power bars that requires specialization information
-		if unit == 'player' or unit == 'target' or unit == 'focus' or unit == 'vehicle' then
+		if unit == 'player' or unit == 'target' or unit == 'focus' or unit == 'pet' then
 			powers.MANA = private.SpawnStatusBar(self)
 			powers.SOUL_SHARDS = private.SpawnDiscreteBar(self, 4, false, [[Interface\Addons\oUF_Adirelle\media\white16x16]])
 			powers.BURNING_EMBERS = private.SpawnHybridBar(self, 4, MAX_POWER_PER_EMBER)
@@ -620,7 +620,7 @@ local function InitFrame(settings, self, unit)
 			powers.SHADOW_ORBS = private.SpawnDiscreteBar(self, 4, false, [[Interface\Addons\oUF_Adirelle\media\white16x16]])
 		end
 		-- Additional power bars available only on players
-		if unit == 'player' or unit == 'target' or unit == 'focus' or unit == 'vehicle' or unit == 'arena' then
+		if unit == 'player' or unit == 'target' or unit == 'focus' or unit == 'pet' or unit == 'arena' then
 			powers.CHI = private.SpawnDiscreteBar(self, 4, false, [[Interface\Addons\oUF_Adirelle\media\white16x16]])
 			powers.HOLY_POWER =private. SpawnDiscreteBar(self, 5, false, [[Interface\Addons\oUF_Adirelle\media\white16x16]])
 		end
