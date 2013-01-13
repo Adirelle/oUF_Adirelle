@@ -189,6 +189,10 @@ local CommonEnable = function(self, unit)
 
 		self:RegisterEvent('UNIT_DISPLAYPOWER', CommonPath)
 		self:RegisterEvent('UNIT_CONNECTION', CommonPath)
+		if unit == "player" then
+			self:RegisterEvent('UNIT_LEVEL', CommonPath)
+			self:RegisterEvent('PLAYER_SPECIALIZATION_CHANGED', CommonPath)
+		end
 
 		return true
 	end
@@ -209,6 +213,8 @@ local CommonDisable = function(self)
 
 		self:UnregisterEvent('UNIT_DISPLAYPOWER', CommonPath)
 		self:UnregisterEvent('UNIT_CONNECTION', CommonPath)
+		self:UnregisterEvent('UNIT_LEVEL', CommonPath)
+		self:UnregisterEvent('PLAYER_SPECIALIZATION_CHANGED', CommonPath)
 
 		if self.Hide then
 			self:Hide()
