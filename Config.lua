@@ -159,7 +159,17 @@ local function GetOptions()
 			class = BuildColorGroup("Class", oUF.colors.class, _G.LOCALIZED_CLASS_NAMES_MALE),
 			reaction = BuildColorGroup("Reaction", oUF.colors.reaction, "FACTION_STANDING_LABEL%d"),
 			power = BuildColorGroup("Power", oUF.colors.power, {
-				MANA = _G.MANA, RAGE = _G.RAGE, ENERGY = _G.ENERGY, FOCUS = _G.FOCUS, RUNIC_POWER = _G.RUNIC_POWER
+				MANA = _G.MANA,
+				RAGE = _G.RAGE,
+				ENERGY = _G.ENERGY,
+				FOCUS = _G.FOCUS,
+				RUNIC_POWER = _G.RUNIC_POWER,
+				CHI = _G.CHI,
+				SOUL_SHARDS = _G.SOUL_SHARDS,
+				BURNING_EMBERS = _G.BURNING_EMBERS,
+				DEMONIC_FURY = _G.DEMONIC_FURY,
+				SHADOW_ORBS = _G.SHADOW_ORBS,
+				HOLY_POWER = _G.HOLY_POWER
 			}),
 			health = BuildColorArg('Health', oUF.colors.health),
 			disconnected = BuildColorArg('Disconnected player', oUF.colors.disconnected),
