@@ -108,7 +108,7 @@ local function Update(self, event)
 
 	if self.PreUpdate then self:PreUpdate(unit) end
 
-	local current, max = (UnitPower(unit, powerIndex) or 0), (UnitPowerMax(unit, powerIndex) or 0)
+	local current, max = (UnitPower(unit, powerIndex, true) or 0), (UnitPowerMax(unit, powerIndex, true) or 0)
 	self:SetMinMaxValues(0, max)
 	self:SetValue(current)
 
