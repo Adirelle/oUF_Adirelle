@@ -48,6 +48,10 @@ local unpack = _G.unpack
 if not oUF.colors.power.BURNING_EMBERS then
 	oUF.colors.power.BURNING_EMBERS = { 175/255, 39/255, 5/255, 247/255, 190/255, 41/255 }
 end
+if not oUF.colors.power.DEMONIC_FURY then
+	oUF.colors.power.DEMONIC_FURY = { 148/255, 36/255, 214/255 }
+end
+
 local RequiredClasses = {
 	MANA           = { DRUID = true, MONK = true },
 	CHI            = { MONK = true },
