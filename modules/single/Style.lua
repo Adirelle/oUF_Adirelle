@@ -277,6 +277,11 @@ local function HighlightBurningEmbers(bar, unit, current, max)
 	end
 end
 
+local function HighlightHolyPower(bar, unit, current, max)
+	local state = current >= 3 and 1 or 0
+	bar:SetStatusBarColor(oUF.ColorGradient(state, 2, unpack(oUF.colors.power.HOLY_POWER), 1, 1, 1))
+end
+
 -- Additional auxiliary bars
 local function LayoutAuxiliaryBars(self)
 	local bars = self.AuxiliaryBars
@@ -638,7 +643,8 @@ local function InitFrame(settings, self, unit)
 		-- Additional power bars available only on players
 		if unit == 'player' or unit == 'target' or unit == 'focus' or unit == 'pet' or unit == 'arena' then
 			powers.CHI = private.SpawnDiscreteBar(self, 4, false, [[Interface\Addons\oUF_Adirelle\media\white16x16]])
-			powers.HOLY_POWER =private. SpawnDiscreteBar(self, 5, false, [[Interface\Addons\oUF_Adirelle\media\white16x16]])
+			powers.HOLY_POWER = private.SpawnDiscreteBar(self, 5, false, [[Interface\Addons\oUF_Adirelle\media\white16x16]])
+			powers.HOLY_POWER.PostUpdate = HighlightHolyPower
 		end
 		if next(powers) then
 			for powerType, bar in pairs(powers) do
