@@ -103,12 +103,13 @@ local function DiscreteBar_Layout(bar)
 		local width, itemHeight = bar:GetSize()
 		local spacing = (width + GAP) / bar.numItems
 		local itemWidth = spacing - GAP
+		local rel = (bar.value or 0) - (bar.minValue or 0)
 		for i = 1, bar.maxItems do
 			local item = bar[i]
 			if i <= bar.numItems then
 				item:SetPoint("TOPLEFT", bar, "TOPLEFT", spacing * (i-1), 0)
 				item:SetSize(itemWidth, itemHeight)
-				item:Show()
+				item:SetShown(i <= rel)
 			else
 				item:Hide()
 			end
