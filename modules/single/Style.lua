@@ -278,8 +278,9 @@ local function HighlightBurningEmbers(bar, unit, current, max)
 end
 
 local function HighlightHolyPower(bar, unit, current, max)
-	local state = current >= 3 and 1 or 0
-	bar:SetStatusBarColor(oUF.ColorGradient(state, 2, unpack(oUF.colors.power.HOLY_POWER), 1, 1, 1))
+	local state = current >= 3 and 3 or 2
+	local r, g, b = unpack(oUF.colors.power.HOLY_POWER)
+	bar:SetStatusBarColor(oUF.ColorGradient(state, 3, 0, 0, 0, r, g, b))
 end
 
 -- Additional auxiliary bars
