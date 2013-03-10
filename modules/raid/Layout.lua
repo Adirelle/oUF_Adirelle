@@ -431,8 +431,7 @@ oUF:Factory(function()
 
 		self:UnregisterEvent('PLAYER_ENTERING_WORLD', self.TriggerUpdate)
 		self:UnregisterEvent('ZONE_CHANGED_NEW_AREA', self.TriggerUpdate)
-		self:UnregisterEvent('PARTY_MEMBERS_CHANGED', self.TriggerUpdate)
-		self:UnregisterEvent('RAID_ROSTER_UPDATE', self.TriggerUpdate)
+		self:UnregisterEvent('GROUP_ROSTER_UPDATE', self.TriggerUpdate)
 
 		self:UnregisterMessage('OnSettingsModified', self.UpdateLayout)
 		self:UnregisterMessage('OnRaidLayoutModified', self.UpdateLayout)
@@ -452,8 +451,7 @@ oUF:Factory(function()
 
 		self:RegisterEvent('PLAYER_ENTERING_WORLD', self.TriggerUpdate)
 		self:RegisterEvent('ZONE_CHANGED_NEW_AREA', self.TriggerUpdate)
-		self:RegisterEvent('PARTY_MEMBERS_CHANGED', self.TriggerUpdate)
-		self:RegisterEvent('RAID_ROSTER_UPDATE', self.TriggerUpdate)
+		self:RegisterEvent('GROUP_ROSTER_UPDATE', self.TriggerUpdate)
 
 		self:RegisterMessage('OnSettingsModified', self.UpdateLayout)
 		self:RegisterMessage('OnRaidLayoutModified', self.UpdateLayout)
