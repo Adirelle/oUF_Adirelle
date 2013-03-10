@@ -109,9 +109,11 @@ local function Enable(self)
 		icon.__owner, icon.ForceUpdate = self, ForceUpdate
 		self:RegisterMessage('OnPlayerRoleChanged', OnPlayerRoleChanged)
 		self:RegisterEvent("RAID_TARGET_UPDATE", Path)
+		self:RegisterEvent('LFG_ROLE_UPDATE', Path)
 		self:RegisterEvent('GROUP_ROSTER_UPDATE', Path)
 		self:RegisterEvent('PLAYER_ROLES_ASSIGNED', Path)
 		self:RegisterEvent('UNIT_CLASSIFICATION_CHANGED', Path)
+		self:RegisterEvent('PLAYER_SPECIALIZATION_CHANGED', Path)
 		icon:Hide()
 		return true
 	end
@@ -127,6 +129,7 @@ local function Disable(self)
 		self:UnregisterEvent('GROUP_ROSTER_UPDATE', Path)
 		self:UnregisterEvent('PLAYER_ROLES_ASSIGNED', Path)
 		self:UnregisterEvent('UNIT_CLASSIFICATION_CHANGED', Path)
+		self:UnregisterEvent('PLAYER_SPECIALIZATION_CHANGED', Path)
 	end
 end
 
