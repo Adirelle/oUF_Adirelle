@@ -45,7 +45,7 @@ end
 
 -- Event handling
 
-local function RAID_ROSTER_UPDATE(self)
+local function GROUP_ROSTER_UPDATE(self)
 	local newInRaid = IsInRaid()
 	if newInRaid ~= inRaid then
 		inRaid = newInRaid
@@ -57,10 +57,10 @@ local function PLAYER_ALIVE(self)
 	self:UnregisterEvent('PLAYER_ALIVE', PLAYER_ALIVE)
 	PLAYER_ALIVE = nil
 
-	self:RegisterEvent('RAID_ROSTER_UPDATE', RAID_ROSTER_UPDATE)
+	self:RegisterEvent('GROUP_ROSTER_UPDATE', GROUP_ROSTER_UPDATE)
 	self:RegisterEvent('ACTIVE_TALENT_GROUP_CHANGED', UpdatePlayerRole)
 	self:RegisterEvent('PLAYER_REGEN_DISABLED', UpdatePlayerRole)
-	return RAID_ROSTER_UPDATE(self)
+	return GROUP_ROSTER_UPDATE(self)
 end
 
 if GetSpecialization() then
