@@ -258,8 +258,12 @@ local function AltPowerBar_PostUpdate(bar, min, cur, max)
 	if not unit then return end
 	bar.Label:SetText(select(10, UnitAlternatePowerInfo(unit)))
 	local _, powerRed, powerGreen, powerBlue = UnitAlternatePowerTextureInfo(unit, 2)
-	local r, g, b = oUF.ColorGradient((cur-min)/(max-min), powerRed, powerGreen, powerBlue, 1, 0, 0)
-	bar:SetStatusBarColor(r, g, b)
+	if powerRed and powerGreen and powerBlue then
+		local r, g, b = oUF.ColorGradient((cur-min)/(max-min), powerRed, powerGreen, powerBlue, 1, 0, 0)
+		bar:SetStatusBarColor(r, g, b)
+	else
+		bar:SetStatusBarColor(0.75, 0.75, 0.75)
+	end
 end
 
 local function HighlightBurningEmbers(bar, unit, current, max)
