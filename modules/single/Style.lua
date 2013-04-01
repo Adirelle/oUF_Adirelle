@@ -76,6 +76,10 @@ local function Health_PostUpdate(healthBar, unit, current, max)
 	return UpdateHealBar(bar, unit, current, max, bar.incoming)
 end
 
+local function Auras_PreSetPosition(icons, numIcons)
+	return 1, numIcons
+end
+
 local function Auras_PostCreateIcon(icons, button)
 	local cd, count, overlay = button.cd, button.count, button.overlay
 	button.icon:SetTexCoord(5/64, 59/64, 5/64, 59/64)
@@ -831,6 +835,7 @@ local function InitFrame(settings, self, unit)
 		buffs.num = 12
 		buffs:SetSize(AURA_SIZE * 12, AURA_SIZE)
 		buffs.CustomFilter = Buffs_CustomFilter
+		buffs.PreSetPosition = Auras_PreSetPosition
 		buffs.SetPosition = Auras_SetPosition
 		buffs.PostCreateIcon = Auras_PostCreateIcon
 		buffs.PostUpdateIcon = Auras_PostUpdateIcon
@@ -841,6 +846,7 @@ local function InitFrame(settings, self, unit)
 		debuffs.num = 12
 		debuffs:SetSize(AURA_SIZE * 12, AURA_SIZE)
 		debuffs.CustomFilter = Debuffs_CustomFilter
+		debuffs.PreSetPosition = Auras_PreSetPosition
 		debuffs.SetPosition = Auras_SetPosition
 		debuffs.PostCreateIcon = Auras_PostCreateIcon
 		debuffs.PostUpdateIcon = Auras_PostUpdateIcon
