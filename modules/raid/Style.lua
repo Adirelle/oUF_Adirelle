@@ -360,7 +360,7 @@ local function AltPowerBar_SetValue(bar, value)
 			if f > 1 then
 				f = 2 - f
 			end
-			r, g, b = oUF.ColorGradient(f, r, g, b, 1, 0, 0)
+			r, g, b = oUF.ColorGradient(f, 1, r, g, b, 1, 0, 0)
 		end
 		bar:SetStatusBarColor(mmax(r, bar.highlight), mmax(g, bar.highlight), mmax(b, bar.highlight))
 		bar._highlight = bar.highlight

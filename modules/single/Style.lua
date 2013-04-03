@@ -263,7 +263,7 @@ local function AltPowerBar_PostUpdate(bar, min, cur, max)
 	bar.Label:SetText(select(10, UnitAlternatePowerInfo(unit)))
 	local _, powerRed, powerGreen, powerBlue = UnitAlternatePowerTextureInfo(unit, 2)
 	if powerRed and powerGreen and powerBlue then
-		local r, g, b = oUF.ColorGradient((cur-min)/(max-min), powerRed, powerGreen, powerBlue, 1, 0, 0)
+		local r, g, b = oUF.ColorGradient(cur-min, max-min, powerRed, powerGreen, powerBlue, 1, 0, 0)
 		bar:SetStatusBarColor(r, g, b)
 	else
 		bar:SetStatusBarColor(0.75, 0.75, 0.75)
