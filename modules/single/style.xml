@@ -2,7 +2,6 @@
 	<Script file="Constants.lua"/>
 	<Script file="Widgets.lua"/>
 	<Script file="SecondaryPowerBar.lua"/>
-	<Script file="UnitDropdown.lua"/>
 	<Script file="BarLayout.lua"/>
 	<Script file="Style.lua"/>
 </Ui>
