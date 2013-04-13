@@ -525,9 +525,8 @@ local function InitFrame(settings, self, unit)
 
 	if self:CanChangeAttribute() then
 		self:SetAttribute("type", "target")
+		self:SetAttribute("*type2", "togglemenu")
 	end
-
-	private.SetupUnitDropdown(self, unit)
 
 	self:SetBackdrop(backdrop)
 	self:SetBackdropColor(0,0,0,backdrop.bgAlpha)
