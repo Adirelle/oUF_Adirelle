@@ -174,7 +174,6 @@ end
 
 local function SpawnDiscreteBar(self, numItems, createStatusBar, texture)
 	local bar = CreateFrame("Frame", GetSerialName(self, "DiscreteBar"), self)
-	self:Debug('Using texture', texture)
 	bar.maxItems = numItems
 	bar.numItems = numItems
 	bar.minValue = 0
@@ -195,7 +194,6 @@ local function SpawnDiscreteBar(self, numItems, createStatusBar, texture)
 		else
 			item = bar:CreateTexture(GetSerialName(bar, "Texture"), "ARTWORK")
 			if texture then
-				self:Debug('Using texture', texture, 'for discrete bar')
 				item:SetTexture(texture)
 			end
 		end
