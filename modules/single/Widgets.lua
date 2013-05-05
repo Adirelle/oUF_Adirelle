@@ -23,6 +23,29 @@ local GameFontWhiteSmall = _G.GameFontWhiteSmall
 local GAP, TEXT_MARGIN = private.GAP, private.TEXT_MARGIN
 local GetLib = oUF_Adirelle.GetLib
 
+local function CreateName() end
+local function GetSerialName() end
+--@debug@
+-- These are only used in unpackaged version
+do
+	function CreateName(parent, suffix)
+		local name = parent and parent:GetName()
+		return name and (name..suffix)
+	end
+
+	local serials = {}
+	function GetSerialName(parent, suffix)
+		local prefix = CreateName(parent, suffix)
+		if prefix then
+			local serial = (serials[prefix] or 0) + 1
+			serials[prefix] = serial
+			return prefix .. serial
+		end
+	end
+end
+--@end-debug@
+private.CreateName, private.GetSerialName = CreateName, GetSerialName
+
 local function smartValue(value)
 	if value >= 10000000 then
 		return format("%.1fm", value/1000000)
@@ -53,7 +76,7 @@ local function OnStatusBarUpdate(bar)
 end
 
 local function SpawnTexture(object, size, to, xOffset, yOffset)
-	local texture = object:CreateTexture(nil, "OVERLAY")
+	local texture = object:CreateTexture(GetSerialName(object, "Texture"), "OVERLAY")
 	texture:SetWidth(size)
 	texture:SetHeight(size)
 	texture:SetPoint("CENTER", object, to or "CENTER", xOffset or 0, yOffset or 0)
@@ -61,7 +84,7 @@ local function SpawnTexture(object, size, to, xOffset, yOffset)
 end
 
 local function SpawnText(self, object, layer, from, to, xOffset, yOffset, fontKind, fontSize, fontFlags)
-	local text = object:CreateFontString(nil, layer, "GameFontNormal")
+	local text = object:CreateFontString(GetSerialName(object, "Text"), layer, "GameFontNormal")
 	self:RegisterFontString(text, fontKind or "number", fontSize or 12, fontFlags or "")
 	text:SetWidth(0)
 	text:SetHeight(0)
@@ -82,7 +105,7 @@ local function SpawnText(self, object, layer, from, to, xOffset, yOffset, fontKi
 end
 
 local function SpawnStatusBar(self, noText, from, anchor, to, xOffset, yOffset, fontKind, fontSize, fontFlags)
-	local bar = CreateFrame("StatusBar", nil, self)
+	local bar = CreateFrame("StatusBar", GetSerialName(self, "StatusBar"), self)
 	if not noText then
 		local text = SpawnText(self, bar, "OVERLAY", "TOPRIGHT", "TOPRIGHT", -TEXT_MARGIN, 0, fontKind, fontSize, fontFlags)
 		text:SetPoint("BOTTOMRIGHT", bar, "BOTTOMRIGHT", -TEXT_MARGIN, 0)
@@ -150,8 +173,8 @@ local function DiscreteBar_SetStatusBarColor(bar, r, g, b, a)
 end
 
 local function SpawnDiscreteBar(self, numItems, createStatusBar, texture)
-	local bar = CreateFrame("Frame", nil, self)
-	self:Debug('Using texture', texture, 'for discrete bar')
+	local bar = CreateFrame("Frame", GetSerialName(self, "DiscreteBar"), self)
+	self:Debug('Using texture', texture)
 	bar.maxItems = numItems
 	bar.numItems = numItems
 	bar.minValue = 0
@@ -165,12 +188,12 @@ local function SpawnDiscreteBar(self, numItems, createStatusBar, texture)
 	for i = 1, numItems do
 		local item
 		if createStatusBar then
-			item = CreateFrame("StatusBar", nil, bar)
+			item = CreateFrame("StatusBar", GetSerialName(bar, "StatusBar"), bar)
 			if texture then
 				item:SetStatusBarTexture(texture)
 			end
 		else
-			item = bar:CreateTexture(nil, "ARTWORK")
+			item = bar:CreateTexture(GetSerialName(bar, "Texture"), "ARTWORK")
 			if texture then
 				self:Debug('Using texture', texture, 'for discrete bar')
 				item:SetTexture(texture)

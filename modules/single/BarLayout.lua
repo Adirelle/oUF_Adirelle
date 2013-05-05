@@ -69,7 +69,7 @@ local function AddWidget(self, widget, order, weight)
 end
 
 local function SpawnBarLayout(self)
-	local widget = CreateFrame("Frame", nil, self)
+	local widget = CreateFrame("Frame", private.CreateName(self, "BarLayout"), self)
 	widget.Debug = self.Debug
 	widget.widgets = {}
 	widget.AddWidget = AddWidget
