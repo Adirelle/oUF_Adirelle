@@ -48,6 +48,7 @@ local backdrop, glowBorderBackdrop = oUF_Adirelle.backdrop, oUF_Adirelle.glowBor
 local borderBackdrop = { edgeFile = [[Interface\Addons\oUF_Adirelle\media\white16x16]], edgeSize = BORDER_WIDTH }
 
 local SpawnTexture, SpawnText, SpawnStatusBar = private.SpawnTexture, private.SpawnText, private.SpawnStatusBar
+local CreateName = private.CreateName
 
 local function UpdateHealBar(bar, unit, current, max, incoming)
 	if UnitIsDeadOrGhost(unit) or not UnitIsConnected(unit) then
@@ -543,7 +544,7 @@ local function InitFrame(settings, self, unit)
 	self:RegisterMessage('OnThemeModified', OnThemeModified)
 
 	-- Border
-	local border = CreateFrame("Frame", nil, self)
+	local border = CreateFrame("Frame", CreateName(self, "Border"), self)
 	border:SetFrameStrata("BACKGROUND")
 	border:SetPoint("CENTER", self)
 	border:SetBackdrop(borderBackdrop)
@@ -566,7 +567,7 @@ local function InitFrame(settings, self, unit)
 	-- Portrait
 	if not settings.noPortrait then
 		-- Spawn the player model
-		local portrait = CreateFrame("PlayerModel", nil, self)
+		local portrait = CreateFrame("PlayerModel", CreateName(self, "Portrait"), self)
 		portrait:SetPoint(left)
 		self.Portrait = portrait
 
@@ -606,13 +607,13 @@ local function InitFrame(settings, self, unit)
 
 	if unit ~= "boss" then
 		-- Low health indicator
-		local lowHealth = self:CreateTexture(nil, "OVERLAY")
+		local lowHealth = self:CreateTexture(CreateName(self, "LowHealth"), "OVERLAY")
 		lowHealth:SetPoint("TOPLEFT", self, -2, 2)
 		lowHealth:SetPoint("BOTTOMRIGHT", self, 2, -2)
 		self.LowHealth = lowHealth
 
 		-- Incoming heals
-		local incomingHeal = health:CreateTexture(nil, "OVERLAY")
+		local incomingHeal = health:CreateTexture(CreateName(health, "Incoming"), "OVERLAY")
 		incomingHeal:SetBlendMode("ADD")
 		incomingHeal:SetPoint("TOP", health)
 		incomingHeal:SetPoint("BOTTOM", health)
@@ -625,7 +626,7 @@ local function InitFrame(settings, self, unit)
 	end
 
 	-- Used for some overlays
-	local indicators = CreateFrame("Frame", nil, self)
+	local indicators = CreateFrame("Frame", CreateName(self, "Indicators"), self)
 	indicators:SetAllPoints(self)
 	indicators:SetFrameLevel(health:GetFrameLevel()+3)
 	self.Indicators = indicators
@@ -679,7 +680,7 @@ local function InitFrame(settings, self, unit)
 
 		-- Casting Bar
 		if unit ~= 'player' then
-			local castbar = CreateFrame("StatusBar", nil, self)
+			local castbar = CreateFrame("StatusBar", CreateName(self, "CastBar"), self)
 			castbar:Hide()
 			castbar.__owner = self
 			castbar:SetPoint('BOTTOMRIGHT', power)
@@ -690,7 +691,7 @@ local function InitFrame(settings, self, unit)
 			self:RegisterStatusBarTexture(castbar)
 			self.Castbar = castbar
 
-			local icon = castbar:CreateTexture(nil, "ARTWORK")
+			local icon = castbar:CreateTexture(CreateName(castbar, "Icon"), "ARTWORK")
 			icon:SetPoint('TOPLEFT', power)
 			icon:SetTexCoord(4/64, 60/64, 4/64, 60/64)
 			castbar.Icon = icon
@@ -700,7 +701,7 @@ local function InitFrame(settings, self, unit)
 			spellText:SetPoint('BOTTOMRIGHT', castbar, 'BOTTOMRIGHT', -TEXT_MARGIN, 0)
 			castbar.Text = spellText
 
-			local bg = castbar:CreateTexture(nil, "BACKGROUND")
+			local bg = castbar:CreateTexture(CreateName(castbar, "Background"), "BACKGROUND")
 			bg:SetTexture(0,0,0,1)
 			bg:SetPoint('TOPLEFT', icon)
 			bg:SetPoint('BOTTOMRIGHT', castbar)
@@ -745,7 +746,7 @@ local function InitFrame(settings, self, unit)
 	self.RaidIcon:SetPoint("CENTER", barContainer)
 
 	-- Threat glow
-	local threat = CreateFrame("Frame", nil, self)
+	local threat = CreateFrame("Frame", CreateName(self, "ThreatGlow"), self)
 	threat:SetAllPoints(self.Border)
 	threat:SetBackdrop(glowBorderBackdrop)
 	threat:SetBackdropColor(0,0,0,0)
@@ -776,7 +777,7 @@ local function InitFrame(settings, self, unit)
 
 			-- PvP timer
 			if unit == "player" then
-				local timer = CreateFrame("Frame", nil, indicators)
+				local timer = CreateFrame("Frame", CreateName(indicators, "PvPTimer"), indicators)
 				timer:SetAllPoints(pvp)
 				timer.text = SpawnText(self, timer, "OVERLAY", nil, nil, nil, nil, "number")
 				timer.text:SetPoint("CENTER", pvp)
@@ -807,21 +808,21 @@ local function InitFrame(settings, self, unit)
 	-- Auras
 	local buffs, debuffs
 	if unit == "pet" then
-		buffs = CreateFrame("Frame", nil, self)
+		buffs = CreateFrame("Frame", CreateName(self, "Buffs"), self)
 		buffs:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, FRAME_MARGIN)
 		buffs.initialAnchor = "BOTTOMLEFT"
 		buffs.growthx = 1
 		buffs.growthy = -1
 
 	elseif unit == "target" or unit == "focus" or unit == "boss" or unit == "arena" then
-		buffs = CreateFrame("Frame", nil, self)
+		buffs = CreateFrame("Frame", CreateName(self, "Buffs"), self)
 		buffs:SetPoint("BOTTOM"..right, self, "BOTTOM"..left, -FRAME_MARGIN*dir, 0)
 		buffs.showType = true
 		buffs.initialAnchor = "BOTTOM"..right
 		buffs.growthx = (left == "LEFT") and -1 or 1
 		buffs.growthy = 1
 
-		debuffs = CreateFrame("Frame", nil, self)
+		debuffs = CreateFrame("Frame", CreateName(self, "Debuffs"), self)
 		debuffs:SetPoint("TOP"..right, self, "TOP"..left, -FRAME_MARGIN*dir, 0)
 		debuffs.showType = true
 		debuffs.initialAnchor = "TOP"..right
@@ -861,7 +862,7 @@ local function InitFrame(settings, self, unit)
 
 	-- Classification dragon
 	if unit == "target" or unit == "focus" or unit == "boss" then
-		local dragon = indicators:CreateTexture(nil, "ARTWORK")
+		local dragon = indicators:CreateTexture(CreateName(self, "Classification"), "ARTWORK")
 		local DRAGON_HEIGHT = 45*95/80+2
 		dragon:SetWidth(DRAGON_HEIGHT*117/95)
 		dragon:SetHeight(DRAGON_HEIGHT)
@@ -873,7 +874,7 @@ local function InitFrame(settings, self, unit)
 
 	-- Experience Bar for player
 	if unit == "player" then
-		local xpFrame = CreateFrame("Frame", nil, self)
+		local xpFrame = CreateFrame("Frame", CreateName(self, "XP"), self)
 		xpFrame:SetPoint("TOP")
 		xpFrame:SetPoint("RIGHT")
 		xpFrame:SetHeight(12)
@@ -920,7 +921,7 @@ local function InitFrame(settings, self, unit)
 
 	-- Range indicator
 	if unit ~= "player" then
-		local xrange = indicators:CreateTexture(nil, "BACKGROUND")
+		local xrange = indicators:CreateTexture(CreateName(indicators, "Range"), "BACKGROUND")
 		xrange:SetAllPoints(self)
 		xrange:SetTexture(0.4, 0.4, 0.4)
 		xrange:SetBlendMode("MOD")
