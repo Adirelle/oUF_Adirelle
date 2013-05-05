@@ -85,7 +85,7 @@ local function ShouldShow(unit, powerIndex, powerType)
 			return false
 		end
 		local _, class = UnitClass(unit)
-		oUF:Debug('Class required for',  powerType, 'on', unit, 'class=', class, 'ok=', classes[class])
+		--oUF:Debug('Class required for',  powerType, 'on', unit, 'class=', class, 'ok=', classes[class])
 		if not classes[class] then
 			return false
 		end
@@ -96,7 +96,7 @@ local function ShouldShow(unit, powerIndex, powerType)
 		end
 		local specIndex = GetSpecialization()
 		local spec = specIndex and GetSpecializationInfo(specIndex) or 0
-		oUF:Debug('Spec required for',  powerType, 'on', unit, 'spec=', spec, 'ok=', specs[spec])
+		--oUF:Debug('Spec required for',  powerType, 'on', unit, 'spec=', spec, 'ok=', specs[spec])
 		if not specs[spec] then
 			return false
 		end
