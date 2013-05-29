@@ -58,7 +58,7 @@ local RequiredClasses = {
 	SOUL_SHARDS    = { WARLOCK = true },
 	BURNING_EMBERS = { WARLOCK = true },
 	DEMONIC_FURY   = { WARLOCK = true },
-	SHADOW_ORBS    = { PRIESTS = true },
+	SHADOW_ORBS    = { PRIEST = true },
 	HOLY_POWER     = { PALADIN = true },
 }
 
