@@ -32,48 +32,51 @@ local function BuildRangeCheck()
 	local geterrorhandler = _G.geterrorhandler
 	local select = _G.select
 
-	local DEFAULT_INTERACT_RANGE = 4
+	local INTERACT_RANGE = 4
 
-	local function DefaultRangeCheck(unit, interactRange)
-		return UnitInRange(unit) or CheckInteractDistance(unit, interactRange)
+	local function DefaultRangeCheck(unit)
+		local inRange, checked = UnitInRange(unit)
+		if checked then
+			return inRange
+		else
+			return CheckInteractDistance(unit, INTERACT_RANGE)
+		end
 	end
 
-	local function CheckSpell(id, interactRange)
+	local function CheckSpell(id)
 		local spell = GetSpellInfo(id)
 		if not spell then
 			geterrorhandler()("XRange:CheckSpell: unknown spell #"..id)
 			return DefaultRangeCheck
 		end
-		interactRange = interactRange or DEFAULT_INTERACT_RANGE
 		if not GetSpellInfo(spell) then
-			return function(unit) DefaultRangeCheck(unit, interactRange) end
+			return DefaultRangeCheck
 		end
 		return function(unit)
 			local inRange = IsSpellInRange(spell, unit)
 			if inRange ~= nil then
 				return inRange == 1
 			else
-				return DefaultRangeCheck(unit, interactRange)
+				return DefaultRangeCheck(unit)
 			end
 		end
 	end
 
-	local function CheckBothSpells(id1, id2, interactRange)
+	local function CheckBothSpells(id1, id2)
 		local spell1, spell2 = GetSpellInfo(id1), GetSpellInfo(id2)
 		if not spell1 then geterrorhandler()("XRange:CheckSpell: unknown spell1 #"..id1) end
 		if not spell2 then geterrorhandler()("XRange:CheckSpell: unknown spell2 #"..id2) end
-		interactRange = interactRange or DEFAULT_INTERACT_RANGE
 		if not spell1 or not GetSpellInfo(spell1) then
-			return CheckSpell(id2, interactRange)
+			return CheckSpell(id2)
 		elseif not spell2 or not GetSpellInfo(spell2) then
-			return CheckSpell(id1, interactRange)
+			return CheckSpell(id1)
 		end
 		return function(unit)
 			local inRange1, inRange2 = IsSpellInRange(spell1, unit), IsSpellInRange(spell2, unit)
 			if inRange1 == 1 or inRange2 == 1 then
 				return true
 			elseif inRange1 == nil and inRange2 == nil then
-				return DefaultRangeCheck(unit, interactRange)
+				return DefaultRangeCheck(unit)
 			else
 				return false
 			end
