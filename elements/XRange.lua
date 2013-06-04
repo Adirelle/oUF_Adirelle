@@ -118,6 +118,7 @@ local function BuildRangeCheck()
 	elseif playerClass == 'WARLOCK' then
 		hostileCheck = CheckSpell(686) -- Shadow Bolt
 		friendlyCheck = CheckSpell(5697) -- Unending Breath
+		petCheck = CheckSpell(755) -- Health Funnel
 
 	elseif playerClass == 'MAGE' then
 		hostileCheck = CheckSpell(133) --  Fireball
