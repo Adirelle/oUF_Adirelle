@@ -126,6 +126,7 @@ local function BuildRangeCheck()
 
 	elseif playerClass == 'DEATHKNIGHT' then
 		hostileCheck = CheckSpell(49576) -- Death grip
+		rezCheck = CheckSpell(61999) -- Raise Ally
 
 	elseif playerClass == 'ROGUE' then
 		hostileCheck = CheckSpell(26679) -- Deadly Throw
