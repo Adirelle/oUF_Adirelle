@@ -50,8 +50,10 @@ local function BuildRangeCheck()
 			return DefaultRangeCheck
 		end
 		if not GetSpellInfo(spell) then
+			oUF:Debug('spell unknown, using default range check:', spell)
 			return DefaultRangeCheck
 		end
+		oUF:Debug('using', spell, 'for range check')
 		return function(unit)
 			local inRange = IsSpellInRange(spell, unit)
 			if inRange ~= nil then
@@ -67,10 +69,13 @@ local function BuildRangeCheck()
 		if not spell1 then geterrorhandler()("XRange:CheckSpell: unknown spell1 #"..id1) end
 		if not spell2 then geterrorhandler()("XRange:CheckSpell: unknown spell2 #"..id2) end
 		if not spell1 or not GetSpellInfo(spell1) then
+			oUF:Debug('spell unknown: ', spell1, 'using', spell2)
 			return CheckSpell(id2)
 		elseif not spell2 or not GetSpellInfo(spell2) then
+			oUF:Debug('spell unknown: ', spell2, 'using', spell1)
 			return CheckSpell(id1)
 		end
+		oUF:Debug('using both', spell1, 'and', spell2, 'for range check')
 		return function(unit)
 			local inRange1, inRange2 = IsSpellInRange(spell1, unit), IsSpellInRange(spell2, unit)
 			if inRange1 == 1 or inRange2 == 1 then
