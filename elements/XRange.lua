@@ -92,17 +92,17 @@ local function BuildRangeCheck()
 	local playerClass = select(2, UnitClass("player"))
 
 	if playerClass == 'PRIEST' then
-		friendlyCheck = CheckSpell(2050) -- Heal
-		hostileCheck = CheckSpell(8092) -- Mind Blast
+		friendlyCheck = CheckSpell(2061) -- Flash Heal
+		hostileCheck = CheckSpell(589) -- Shadow Word: Pain
 		rezCheck = CheckSpell(2006) -- Resurrection
 
 	elseif playerClass == 'DRUID' then
-		friendlyCheck = CheckSpell(5185) -- Healing Touch
+		friendlyCheck = CheckSpell(774) -- Rejuvenation
 		hostileCheck = CheckSpell(5176) -- Wrath
 		rezCheck = CheckSpell(20484) -- Rebirth
 
 	elseif playerClass == 'PALADIN' then
-		friendlyCheck = CheckSpell(635) -- Holy Light
+		friendlyCheck = CheckSpell(19750) -- Flash of Light
 		hostileCheck = CheckSpell(62124) -- Hand of Reckoning
 		rezCheck = CheckSpell(7328) -- Redemption
 
@@ -111,7 +111,7 @@ local function BuildRangeCheck()
 		petCheck = CheckSpell(136) -- Mend Pet
 
 	elseif playerClass == 'SHAMAN' then
-		friendlyCheck = CheckSpell(331) -- Healing Wave
+		friendlyCheck = CheckSpell(51886) -- Cleanse Spirit
 		hostileCheck = CheckSpell(403) -- Lightning Bolt
 		rezCheck = CheckSpell(2008) -- Ancestral Spirit
 
@@ -129,7 +129,7 @@ local function BuildRangeCheck()
 		rezCheck = CheckSpell(61999) -- Raise Ally
 
 	elseif playerClass == 'ROGUE' then
-		hostileCheck = CheckSpell(26679) -- Deadly Throw
+		hostileCheck = CheckSpell(121733) -- Throw
 
 	elseif playerClass == 'WARRIOR' then
 		hostileCheck = CheckBothSpells(772, 100) -- Rend (melee) or Charge
