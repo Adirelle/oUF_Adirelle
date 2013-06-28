@@ -643,7 +643,7 @@ local function InitFrame(settings, self, unit)
 		-- Additional power bars that requires specialization information
 		if unit == 'player' or unit == 'target' or unit == 'focus' or unit == 'pet' then
 			powers.MANA = private.SpawnStatusBar(self)
-			powers.SOUL_SHARDS = private.SpawnDiscreteBar(self, 4, false, [[Interface\Addons\oUF_Adirelle\media\white16x16]])
+			powers.SOUL_SHARDS = private.SpawnHybridBar(self, 4, 100, [[Interface\Addons\oUF_Adirelle\media\white16x16]])
 			powers.BURNING_EMBERS = private.SpawnHybridBar(self, 4, MAX_POWER_PER_EMBER)
 			powers.BURNING_EMBERS.PostUpdate = HighlightBurningEmbers
 			powers.DEMONIC_FURY = private.SpawnStatusBar(self)
