@@ -50,7 +50,8 @@ local function Update()
 end
 
 -- Global callbacks
-SharedMedia.RegisterCallback(addonName, 'LibSharedMedia_SetGlobal', Update)
+SharedMedia.RegisterCallback(addonName..'Fonts', 'LibSharedMedia_SetGlobal', Update)
+SharedMedia.RegisterCallback(addonName..'Fonts', 'LibSharedMedia_Registered', Update)
 oUF_Adirelle:RegisterMessage('OnFontModified', Update)
 oUF_Adirelle:RegisterMessage('OnSettingsModified', Update)
 

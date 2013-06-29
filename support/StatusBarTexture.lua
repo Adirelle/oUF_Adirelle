@@ -50,7 +50,8 @@ local function Update()
 end
 
 -- Global callbacks
-SharedMedia.RegisterCallback(addonName, 'LibSharedMedia_SetGlobal', Update)
+SharedMedia.RegisterCallback(addonName..'StatusBar', 'LibSharedMedia_SetGlobal', Update)
+SharedMedia.RegisterCallback(addonName..'StatusBar', 'LibSharedMedia_Registered', Update)
 oUF_Adirelle:RegisterMessage('OnTextureModified', Update)
 oUF_Adirelle:RegisterMessage('OnSettingsModified', Update)
 
