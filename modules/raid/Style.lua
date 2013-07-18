@@ -354,7 +354,7 @@ end
 
 local function AltPowerBar_SetValue(bar, value)
 	if bar.alert or value ~= bar:GetValue() or bar.highlight ~= bar._highlight then
-		local r, g, b = bar.red, bar.green, bar.blue
+		local r, g, b = bar.red or 1, bar.green or 1, bar.blue or 1
 		if bar.alert then
 			local f = 2 * (GetTime() % 1)
 			if f > 1 then
