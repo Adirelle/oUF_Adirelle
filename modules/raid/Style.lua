@@ -315,12 +315,6 @@ do
 			self:AddAuraIcon(SpawnSmallIcon(self, "BOTTOMRIGHT", self, "BOTTOMRIGHT", -INSET, INSET), GetAnyAuraFilter(80398, "HELPFUL"))
 		end
 
-	elseif playerClass == 'MAGE' then
-		function CreateClassAuraIcons(self)
-			-- Focus magic
-			self:AddAuraIcon(SpawnSmallIcon(self, "BOTTOMRIGHT", self, "BOTTOMRIGHT", -INSET, INSET), GetAnyAuraFilter(54646, "HELPFUL"))
-		end
-
 	elseif playerClass == 'PRIEST' then
 		function CreateClassAuraIcons(self)
 			-- PW:Shield or Weakened Soul
