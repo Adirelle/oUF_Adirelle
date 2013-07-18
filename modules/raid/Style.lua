@@ -311,14 +311,8 @@ do
 		function CreateClassAuraIcons(self)
 			-- Soulstones
 			self:AddAuraIcon(SpawnSmallIcon(self, "BOTTOMLEFT", self, "BOTTOMLEFT", INSET, INSET), GetAnyAuraFilter(20707, "HELPFUL"))
-			-- Dark intents
-			self:AddAuraIcon(SpawnSmallIcon(self, "BOTTOMRIGHT", self, "BOTTOMRIGHT", -INSET, INSET), GetAnyAuraFilter(80398, "HELPFUL"))
-		end
-
-	elseif playerClass == 'MAGE' then
-		function CreateClassAuraIcons(self)
-			-- Focus magic
-			self:AddAuraIcon(SpawnSmallIcon(self, "BOTTOMRIGHT", self, "BOTTOMRIGHT", -INSET, INSET), GetAnyAuraFilter(54646, "HELPFUL"))
+			-- Dark Intent
+			self:AddAuraIcon(SpawnSmallIcon(self, "BOTTOMRIGHT", self, "BOTTOMRIGHT", -INSET, INSET), GetAnyAuraFilter(109773, "HELPFUL"))
 		end
 
 	elseif playerClass == 'PRIEST' then
@@ -354,7 +348,7 @@ end
 
 local function AltPowerBar_SetValue(bar, value)
 	if bar.alert or value ~= bar:GetValue() or bar.highlight ~= bar._highlight then
-		local r, g, b = bar.red, bar.green, bar.blue
+		local r, g, b = bar.red or 1, bar.green or 1, bar.blue or 1
 		if bar.alert then
 			local f = 2 * (GetTime() % 1)
 			if f > 1 then
