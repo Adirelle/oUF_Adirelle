@@ -311,8 +311,8 @@ do
 		function CreateClassAuraIcons(self)
 			-- Soulstones
 			self:AddAuraIcon(SpawnSmallIcon(self, "BOTTOMLEFT", self, "BOTTOMLEFT", INSET, INSET), GetAnyAuraFilter(20707, "HELPFUL"))
-			-- Dark intents
-			self:AddAuraIcon(SpawnSmallIcon(self, "BOTTOMRIGHT", self, "BOTTOMRIGHT", -INSET, INSET), GetAnyAuraFilter(80398, "HELPFUL"))
+			-- Dark Intent
+			self:AddAuraIcon(SpawnSmallIcon(self, "BOTTOMRIGHT", self, "BOTTOMRIGHT", -INSET, INSET), GetAnyAuraFilter(109773, "HELPFUL"))
 		end
 
 	elseif playerClass == 'PRIEST' then
