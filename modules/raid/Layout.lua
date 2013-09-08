@@ -68,8 +68,8 @@ oUF:Factory(function()
 	end
 
 	function headerProto:OnAttributeChanged(name, value)
-		if name ~= '_changed' and name ~= '_ignore' then
-			self:SetAttribute('_changed', true)
+		if name ~= '_ignore' then
+			self._changed = true
 		end
 		if name == 'columnAnchorPoint' or name == 'point' or name == 'unitsPerColumn' then
 			for _, child in self:IterateChildren() do
@@ -396,8 +396,10 @@ oUF:Factory(function()
 		-- If that flag wasn't nil, this causes the header to update
 		for _, header in pairs(headers) do
 			header:SetAttribute('_ignore', nil)
-			if header:GetAttribute('_changed') then
-				header:SetAttribute('_changed', nil)
+			if header._changed then
+				header._changed = nil
+				-- Change some attributes to trigger a refresh in secure code
+				header:SetAttribute('_changed', not header:GetAttribute('_changed'))
 			end
 		end
 
