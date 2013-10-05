@@ -218,6 +218,10 @@ oUF:Factory(function()
 	function anchor:ConfigureHeaders(layoutType, numGroups, showTanks, showPets)
 		self:Debug('ConfigureHeaders', layoutType, numGroups, showTanks, showPets)
 
+		if showTanks and numGroups < 2 then
+			showTanks = false
+		end
+
 		local numHeaders = numGroups
 		if showTanks then
 			numHeaders = numHeaders + 1
