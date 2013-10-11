@@ -65,6 +65,7 @@ local function GetOptions()
 		target = "oUF_Adirelle_Single",
 		targettarget = "oUF_Adirelle_Single",
 		focus = "oUF_Adirelle_Single",
+		slim_focus = "oUF_Adirelle_Single",
 	}
 
 	-- Create the profile options of the layout
