@@ -9,31 +9,46 @@ local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
+local _G = _G
+local GameTooltip = _G.GameTooltip
+local InCombatLockdown = _G.InCombatLockdown
+local UIParent = _G.UIParent
 --GLOBALS>
 
 local function UpdateTooltip(frame)
+	if not GameTooltip:IsOwned(frame) then return end
 	if GameTooltip:SetUnit(frame.unit) then
 		frame.UpdateTooltip = UpdateTooltip
 	else
 		frame.UpdateTooltip = nil
 	end
 	local r, g, b = GameTooltip_UnitColor(frame.unit)
-	GameTooltipTextLeft1:SetTextColor(r, g, b)
+	_G.GameTooltipTextLeft1:SetTextColor(r, g, b)
 end
 
 function oUF_Adirelle.Unit_OnEnter(frame)
-	--[[
-	local x = self:GetCenter() / self:GetEffectiveScale()
-	local w = UIParent:GetWidth() / UIParent:GetEffectiveScale()
-	GameTooltip:SetOwner(self, (x < w/2) and "ANCHOR_TOPLEFT" or "ANCHOR_TOPRIGHT", 0, 16)
-	--]]
-	oUF:Debug('Unit_OnEnter', frame, frame.unit)
-	GameTooltip_SetDefaultAnchor(GameTooltip, frame)
+	if not oUF_Adirelle.layoutDB.profile.unitTooltip.enabled
+		or (InCombatLockdown() and not oUF_Adirelle.layoutDB.profile.unitTooltip.inCombat) then
+		return
+	end
+	local anchor = oUF_Adirelle.layoutDB.profile.unitTooltip.anchor
+	if anchor == "DEFAULT" then
+		GameTooltip_SetDefaultAnchor(GameTooltip, frame)
+	else
+		local x = frame:GetCenter() / frame:GetEffectiveScale()
+		local w = UIParent:GetWidth() / UIParent:GetEffectiveScale()
+		local side = (x < w/2) and "LEFT" or "RIGHT"
+		GameTooltip:SetOwner(frame, anchor..side)
+	end
 	return UpdateTooltip(frame)
 end
 
 function oUF_Adirelle.Unit_OnLeave(frame)
 	if GameTooltip:IsOwned(frame) then
-		GameTooltip:Hide()
+		if oUF_Adirelle.layoutDB.profile.unitTooltip.fadeOut then
+			GameTooltip:FadeOut()
+		else
+			GameTooltip:Hide()
+		end
 	end
 end
