@@ -241,6 +241,7 @@ do
 			Innervate: 29166 = 20
 			Frenzied Regeneration: 22842 = 30
 			Barkskin: 22812 = 50
+			Might of Ursoc: 106922 = 55
 			Survival Instincts: 61336 = 60
 		HUNTER:
 			Feign Death: 5384 = 20
@@ -265,6 +266,8 @@ do
 			Cloak of Shadows: 31224 = 60
 		WARLOCK:
 			Sacrifice: 7812 = 40
+			Unending Resolve: 104773 = 50
+			Dark Bargain: 110913 = 60
 		WARRIOR:
 			Shield Block: 2565 = 20
 			Enraged Regeneration: 55694 = 30
