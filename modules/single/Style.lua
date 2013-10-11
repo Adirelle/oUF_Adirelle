@@ -504,32 +504,6 @@ local DRAGON_TEXTURES = {
 	elite = { [[Interface\Addons\oUF_Adirelle\media\elite_graphic]], 6/128, 123/128, 17/128, 112/128, },
 }
 
-local function UpdateTooltip(self)
-	if GameTooltip:SetUnit(self.unit) then
-		self.UpdateTooltip = UpdateTooltip
-	else
-		self.UpdateTooltip = nil
-	end
-	local r, g, b = GameTooltip_UnitColor(self.unit)
-	GameTooltipTextLeft1:SetTextColor(r, g, b)
-end
-
-local function MyUnitFrame_OnEnter(self)
-	--[[
-	local x = self:GetCenter() / self:GetEffectiveScale()
-	local w = UIParent:GetWidth() / UIParent:GetEffectiveScale()
-	GameTooltip:SetOwner(self, (x < w/2) and "ANCHOR_TOPLEFT" or "ANCHOR_TOPRIGHT", 0, 16)
-	--]]
-	GameTooltip_SetDefaultAnchor(GameTooltip, self)
-	return UpdateTooltip(self)
-end
-
-local function MyUnitFrame_OnLeave(self)
-	if GameTooltip:IsOwned(self) then
-		GameTooltip:Hide()
-	end
-end
-
 local function InitFrame(settings, self, unit)
 	local unit = gsub(unit or self.unit, "%d+", "")
 	local isArenaUnit = strmatch(unit, "arena")
@@ -543,8 +517,8 @@ local function InitFrame(settings, self, unit)
 
 	self:RegisterForClicks("AnyDown")
 
-	self:SetScript("OnEnter", MyUnitFrame_OnEnter)
-	self:SetScript("OnLeave", MyUnitFrame_OnLeave)
+	self:SetScript("OnEnter", oUF_Adirelle.Unit_OnEnter)
+	self:SetScript("OnLeave", oUF_Adirelle.Unit_OnLeave)
 
 	if self:CanChangeAttribute() then
 		self:SetAttribute("type", "target")
