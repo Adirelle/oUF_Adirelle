@@ -63,6 +63,12 @@ local LAYOUT_DEFAULTS = {
 				},
 			},
 		},
+		unitTooltip = {
+			enabled = true,
+			inCombat = true,
+			anchor = "DEFAULT",
+			fadeOut = true,
+		},
 	},
 	global = {
 		minimapIcon = {},

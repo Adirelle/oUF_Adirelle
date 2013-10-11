@@ -687,6 +687,50 @@ local function GetOptions()
 							},
 						},
 					},
+					unitTooltip = {
+						name = 'Unit tooltip',
+						type = 'group',
+						get = function(info) return layoutDB.profile.unitTooltip[info[#info]] end,
+						set = function(info, value)
+							layoutDB.profile.unitTooltip[info[#info]] = value
+							SettingsModified("OnUnitTooltipModified")
+						end,
+						order = 45,
+						args = {
+							enabled = {
+								name = 'Enabled',
+								desc = 'Uncheck to totally disable unit tooltips.',
+								type = 'toggle',
+								order = 10,
+							},
+							inCombat = {
+								name = 'In Combat',
+								desc = 'Uncheck to disable tooltips in combat.',
+								type = 'toggle',
+								order = 20,
+								disabled = function() return not layoutDB.profile.unitTooltip.enabled end,
+							},
+							anchor = {
+								name = 'Anchoring',
+								desc = 'Select how the unit tooltip should be placed.',
+								type = 'select',
+								values = {
+									DEFAULT = 'At the default position',
+									ANCHOR_TOP = 'Above the unit frame',
+									ANCHOR_BOTTOM = 'Below the unit frame',
+								},
+								order = 30,
+								disabled = function() return not layoutDB.profile.unitTooltip.enabled end,
+							},
+							fadeOut = {
+								name = 'Fade out',
+								desc = 'When enabled, the tooltip fades out when the mouse pointer leaves it. If disabled, the tooltip is immediately hidden.',
+								type = 'toggle',
+								order = 40,
+								disabled = function() return not layoutDB.profile.unitTooltip.enabled end,
+							},
+						},
+					},
 					profiles = layoutDBOptions,
 				},
 			},
