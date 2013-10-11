@@ -54,6 +54,9 @@ support\CreateIcon.lua
 # Player role detection
 support\PlayerRole.lua
 
+# Tooltip handler
+support\UnitTooltip.lua
+
 # Our elements
 elements\AuraIcons.lua
 elements\Border.lua

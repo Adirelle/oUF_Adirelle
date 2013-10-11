@@ -473,8 +473,8 @@ end
 local function InitFrame(self, unit)
 	self:RegisterForClicks("AnyDown")
 
-	self:SetScript("OnEnter", _G.UnitFrame_OnEnter)
-	self:SetScript("OnLeave", _G.UnitFrame_OnLeave)
+	self:SetScript("OnEnter", oUF_Adirelle.Unit_OnEnter)
+	self:SetScript("OnLeave", oUF_Adirelle.Unit_OnLeave)
 
 	self:SetBackdrop(backdrop)
 	self:SetBackdropColor(0, 0, 0, backdrop.bgAlpha)
