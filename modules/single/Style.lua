@@ -883,7 +883,7 @@ local function InitFrame(settings, self, unit)
 	end
 
 	-- Classification dragon
-	if unit == "target" or unit == "focus" or unit == "boss" then
+	if not settings.noPortrait and (unit == "target" or unit == "focus" or unit == "boss") then
 		local dragon = indicators:CreateTexture(CreateName(self, "Classification"), "ARTWORK")
 		local DRAGON_HEIGHT = 45*95/80+2
 		dragon:SetWidth(DRAGON_HEIGHT*117/95)
@@ -1009,7 +1009,8 @@ local single_style_health = setmetatable({
 	["initial-height"] = 20,
 	heightType = 'Small',
 	noPower = true,
-	noPortrait = true
+	noPortrait = true,
+	noDragon = true
 }, {
 	__call = InitFrame,
 	__index = single_style,

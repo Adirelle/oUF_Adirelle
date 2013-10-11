@@ -43,6 +43,13 @@ oUF:Factory(function()
 	for frame, unit in next, frames do
 		oUF_Adirelle.RegisterMovable(frame, unit, unit.." frame")
 	end
+
+	-- Slim focus frame, by special request from Iuchiban-Krasus (EU)
+	oUF:SetActiveStyle("Adirelle_Single_Health")
+	local slim_focus = oUF:Spawn("focus", "oUF_Adirelle_SlimFocus")
+	slim_focus:SetPoint('BOTTOM', targettarget, "TOP", 0, 15)
+	oUF_Adirelle.RegisterMovable(slim_focus, "slim_focus", "Slim focus frame")
+
 	frames = nil
 end)
 
