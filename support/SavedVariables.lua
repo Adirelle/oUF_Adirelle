@@ -25,7 +25,10 @@ local layout, theme
 local LAYOUT_DEFAULTS = {
 	profile = {
 		anchors = { ['*'] = {} },
-		disabled = { ['*'] = false },
+		disabled = {
+			['*'] = false,
+			slim_focus = true
+		},
 		elements = { ['*'] = true },
 		Raid = {
 			width = 80,
