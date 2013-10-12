@@ -93,6 +93,7 @@ local function Auras_PostCreateIcon(icons, button)
 	overlay:SetTexCoord(0, 1, 0, 1)
 	cd.noCooldownCount = true
 	cd:SetReverse(true)
+	button.expires, button.priority, button.bigger = 0, 0, false
 end
 
 local function Auras_PostUpdateIcon(icons, unit, icon, index, offset)
