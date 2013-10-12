@@ -356,10 +356,10 @@ local function ApplyAuraPosition(self, target, initialAnchor, anchorTo, growthx,
 	target:SetPoint(initialAnchor, self, anchorTo, dx * FRAME_MARGIN, dy * FRAME_MARGIN)
 end
 
-local function UpdateAuraCount(target, size, spacing)
+local function UpdateAuraCount(target, size, spacing, maxNumber)
 	local width, height = target:GetSize()
 	local step = mmax(8, mmin(size, width, height)) + spacing
-	target.num = floor((width + spacing) / step) * floor((height + spacing) / step)
+	target.num = min(maxNumber, floor((width + spacing) / step) * floor((height + spacing) / step))
 	target:ForceUpdate()
 end
 
@@ -385,10 +385,12 @@ local function OnAuraLayoutModified(self, event, layout)
 		end
 		ApplyAuraPosition(self, buffs, 'BOTTOM'..opposite, 'BOTTOM'..side, dx, -1, dx, 0)
 
-		-- Ensure we can display at least 12 normal icons or 5 large ones
-		local auraWidth = size * 12 + spacing * 11
+		-- Ensure we can display at least maxNum normal icons or (maxNum/1.5) large ones
+		local maxNum = max(auras.numBuffs, auras.enlarge and auras.numDebuffs or 0)
+		local auraWidth = size * maxNum + spacing * (maxNum - 1)
 		if auras.enlarge then
-			auraWidth = mmax(mmin(size * 1.5, height) * 6 + spacing * 5)
+			local maxLarge = floor(maxNum / 1.5)
+			auraWidth = mmax(mmin(size * 1.5, height) * maxLarge + spacing * (maxLarge-1))
 		end
 
 		-- Share the available space with debuffs, if necessary
@@ -425,9 +427,9 @@ local function OnAuraLayoutModified(self, event, layout)
 	end
 
 	-- Update the number of icons and update them
-	UpdateAuraCount(buffs, size, spacing)
+	UpdateAuraCount(buffs, size, spacing, auras.numBuffs)
 	if debuffs then
-		UpdateAuraCount(debuffs, size, spacing)
+		UpdateAuraCount(debuffs, size, spacing, auras.numDebuffs)
 	end
 
 	-- Update auxiliary bars, just in case
