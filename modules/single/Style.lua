@@ -113,25 +113,39 @@ local canSteal = select(2, UnitClass("player")) == "MAGE"
 
 local function Buffs_CustomFilter(icons, unit, icon, name, rank, texture, count, dtype, duration, expires, caster, isStealable, shouldConsolidate, spellID, canApplyAura)
 	icon.expires = (expires ~= 0) and expires or huge
-	local priority, bigger = 0, false
+	local priority, bigger = 2, false
 	if IsEncounterDebuff(spellID) then
-		priority = 5
-	end
-	if UnitCanAttack("player", unit) then
-		if (canSteal and isStealable) or LibDispellable:CanDispel(unit, true, dtype, spellID) then
-			priority, bigger = 3, true
-		end
-	elseif UnitCanAssist("player", unit) then
-		if IsMine(caster) then
-			priority, bigger = priority + 1, true
-		end
-		if canApplyAura then
-			priority = priority + 1
-		end
-		if shouldConsolidate then
-			priority = priority - 1
+		priority, bigger = 6, true
+	else
+		local inCombat, filter = InCombatLockdown(), oUF_Adirelle.layoutDB.profile.Single.Auras.buffFilter
+		if UnitCanAttack("player", unit) then
+			if (canSteal and isStealable) or LibDispellable:CanDispel(unit, true, dtype, spellID) then
+				priority, bigger = 5, true
+			elseif inCombat and filter.undispellable then
+				return false
+			end
+		elseif UnitCanAssist("player", unit) then
+			if IsMine(caster) then
+				priority, bigger = 4, true
+			elseif inCombat and filter.others then
+				return false
+			end
+			if canApplyAura then
+				priority = priority + 1
+			elseif inCombat and filter.unknown then
+				return false
+			end
+			if shouldConsolidate then
+				if inCombat and filter.consolidated then
+					return false
+				end
+				priority = priority - 1
+			end
 		end
 		if duration == 0 then
+			if inCombat and filter.permanent then
+				return false
+			end
 			priority = priority - 1
 		end
 	end
@@ -141,16 +155,33 @@ end
 
 local function Debuffs_CustomFilter(icons, unit, icon, name, rank, texture, count, dtype, duration, expires, caster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossDebuff)
 	icon.expires = (expires ~= 0) and expires or huge
+	local priority = 0
 	if isBossDebuff or IsEncounterDebuff(spellID) then
-		icon.priority = 5
-	elseif UnitCanAssist("player", unit) and LibDispellable:CanDispel(unit, false, dtype, spellID) then
-		icon.priority = 2
-	elseif IsMine(caster) then
-		icon.priority = 1
+		priority = 5
 	else
-		icon.priority = 0
+		local inCombat, filter = InCombatLockdown(), oUF_Adirelle.layoutDB.profile.Single.Auras.buffFilter
+		if duration == 0 and inCombat and filter.permanent then
+			return false
+		elseif UnitCanAttack("player", unit) then
+			if IsMine(caster) then
+				priority = 2
+			elseif inCombat and filter.others then
+				return false
+			else
+				priority = 1
+			end
+			if not canApplyAura and inCombat and filter.others then
+				return false
+			end
+		elseif UnitCanAssist("player", unit) then
+			if LibDispellable:CanDispel(unit, false, dtype, spellID) then
+				priority = 2
+			elseif inCombat and filter.undispellable then
+				return false
+			end
+		end
 	end
-	icon.bigger = icon.priority > 0
+	icon.priority, icon.bigger = priority, priority > 1
 	return true
 end
 
