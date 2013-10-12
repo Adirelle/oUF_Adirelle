@@ -29,6 +29,10 @@ end
 function oUF_Adirelle.Unit_OnEnter(frame)
 	if not oUF_Adirelle.layoutDB.profile.unitTooltip.enabled
 		or (InCombatLockdown() and not oUF_Adirelle.layoutDB.profile.unitTooltip.inCombat) then
+		-- Forcefully hide TipTop
+		if TipTop and TipTop:IsVisible() then
+			GameTooltip:Hide()
+		end
 		return
 	end
 	local anchor = oUF_Adirelle.layoutDB.profile.unitTooltip.anchor
