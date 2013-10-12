@@ -393,13 +393,18 @@ local function OnAuraLayoutModified(self, event, layout)
 			auraWidth = mmax(mmin(size * 1.5, height) * maxLarge + spacing * (maxLarge-1))
 		end
 
-		-- Share the available space with debuffs, if necessary
-		if debuffs then
+		-- Share the available space
+		if auras.numBuffs > 0 then
+			if debuffs and auras.numDebuffs > 0 then
+				ApplyAuraPosition(self, debuffs, 'TOP'..opposite, 'TOP'..side, dx, 1, dx, 0)
+				buffs:SetSize(auraWidth, height / 2)
+				debuffs:SetSize(auraWidth, height / 2)
+			else
+				buffs:SetSize(auraWidth, height)
+			end
+		elseif debuffs and auras.numDebuffs > 0 then
 			ApplyAuraPosition(self, debuffs, 'TOP'..opposite, 'TOP'..side, dx, 1, dx, 0)
-			buffs:SetSize(auraWidth, height / 2)
-			debuffs:SetSize(auraWidth, height / 2)
-		else
-			buffs:SetSize(auraWidth, height)
+			debuffs:SetSize(auraWidth, height)
 		end
 	else
 		-- Top or bottom
@@ -416,13 +421,18 @@ local function OnAuraLayoutModified(self, event, layout)
 			auraHeight = mmax(auraHeight, mmin(size * 1.5, width) + spacing + size)
 		end
 
-		ApplyAuraPosition(self, buffs, opposite..'LEFT', side..'LEFT', 1, dy, 0, dy)
-		if debuffs then
+		if auras.numBuffs > 0 then
+			ApplyAuraPosition(self, buffs, opposite..'LEFT', side..'LEFT', 1, dy, 0, dy)
+			if debuffs and auras.numDebuffs > 0 then
+				ApplyAuraPosition(self, debuffs, opposite..'RIGHT', side..'RIGHT', -1, dy, 0, dy)
+				buffs:SetSize(width / 2, auraHeight)
+				debuffs:SetSize(width / 2, auraHeight)
+			else
+				buffs:SetSize(width, auraHeight)
+			end
+		elseif debuffs and auras.numDebuffs > 0 then
 			ApplyAuraPosition(self, debuffs, opposite..'RIGHT', side..'RIGHT', -1, dy, 0, dy)
-			buffs:SetSize(width / 2, auraHeight)
-			debuffs:SetSize(width / 2, auraHeight)
-		else
-			buffs:SetSize(width, auraHeight)
+			debuffs:SetSize(width, auraHeight)
 		end
 	end
 
