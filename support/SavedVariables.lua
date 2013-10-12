@@ -58,7 +58,9 @@ local LAYOUT_DEFAULTS = {
 				spacing = 1,
 				enlarge = true,
 				numBuffs = 12,
+				buffFilter = { ['*'] = false },
 				numDebuffs = 12,
+				debuffFilter = { ['*'] = false },
 				sides = {
 					['*'] = 'RIGHT',
 					pet = 'TOP',

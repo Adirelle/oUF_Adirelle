@@ -510,9 +510,20 @@ local function GetOptions()
 								type = 'group',
 								inline = true,
 								order = 40,
-								get = function(info) return layoutDB.profile.Single.Auras[info[#info]] end,
-								set = function(info, value)
-									layoutDB.profile.Single.Auras[info[#info]] = value
+								get = function(info, key)
+									if info.type == 'multiselect' then
+										return layoutDB.profile.Single.Auras[info[#info]][key]
+									else
+										return layoutDB.profile.Single.Auras[info[#info]]
+									end
+								end,
+								set = function(info, ...)
+									if info.type == 'multiselect' then
+										local key, value = ...
+										layoutDB.profile.Single.Auras[info[#info]][key] = value
+									else
+										layoutDB.profile.Single.Auras[info[#info]] = ...
+									end
 									SettingsModified("OnSingleLayoutModified")
 								end,
 								args = {
@@ -539,7 +550,7 @@ local function GetOptions()
 										order = 30,
 									},
 									_ = {
-										name = 'Filtering',
+										name = 'Filters',
 										type = 'header',
 										order = 40,
 									},
@@ -553,6 +564,21 @@ local function GetOptions()
 										bigStep = 4,
 										order = 45,
 									},
+									buffFilter = {
+										name = 'Buffs to ignore',
+										desc = 'Select which buffs should be displayed in combat. Buffs matching any checked category are hidden.',
+										type = 'multiselect',
+										width = 'double',
+										values = {
+											permanent     = 'Permanent buffs',
+											others        = "Others' buffs (on ally)",
+											consolidated  = 'Raid buffs',
+											undispellable = "Buffs I can't dispell/steal (on enemy)",
+											unknown       = "Buffs I dont't known (on ally)",
+										},
+										disabled = function() return oUF_Adirelle.layoutDB.profile.Single.Auras.numBuffs == 0 end,
+										order = 50,
+									},
 									numDebuffs = {
 										name = 'Maximum debuffs',
 										desc = 'Set the maximum number of displayed debuffs; the excess one are hidden.',
@@ -561,7 +587,21 @@ local function GetOptions()
 										max = 40,
 										step = 1,
 										bigStep = 4,
-										order = 50,
+										order = 55,
+									},
+									debuffFilter = {
+										name = 'Debuffs to ignore',
+										desc = 'Select which debuffs should be displayed in combat. Debuffs matching any checked category are hidden.',
+										type = 'multiselect',
+										width = 'double',
+										values = {
+											permanent     = 'Permanent debuffs',
+											others        = "Others' debuffs (on enemy)",
+											undispellable = "Debuffs I can't dispell (on ally)",
+											unknown       = "Debuffs I dont't known (on enemy)",
+										},
+										disabled = function() return oUF_Adirelle.layoutDB.profile.Single.Auras.numDebuffs == 0 end,
+										order = 60,
 									},
 									_sides = {
 										name = 'Aura side',
