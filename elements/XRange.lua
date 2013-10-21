@@ -129,7 +129,7 @@ local function BuildRangeCheck()
 		rezCheck = CheckSpell(61999) -- Raise Ally
 
 	elseif playerClass == 'ROGUE' then
-		hostileCheck = CheckSpell(121733) -- Throw
+		hostileCheck = CheckBothSpells(1752, 121733) -- Sinister Strike or Throw
 
 	elseif playerClass == 'WARRIOR' then
 		hostileCheck = CheckBothSpells(78, 100) -- Heroic Strike (melee) or Charge
