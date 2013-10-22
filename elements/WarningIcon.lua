@@ -30,8 +30,6 @@ local UnitIsVisible = _G.UnitIsVisible
 
 local BUFFS = {}
 local DEBUFFS = {}
-local DEBUFF_THRESHOLDS = {}
-
 -- General crowd Control
 for spellID in gmatch([=[
 		710 Banish
@@ -85,143 +83,6 @@ if drdata then
 	end
 end
 
--- PvE encounter debuffs
-do
-	-- Data gathered from various sources, including BigWigs modules, Wowhead, Wowwiki and mmo-champion
-	-- Most are untested too
-	local DEBUFFS_STR = [=[
-		Blackrock Mountain: Blackrock Caverns
-			Corla, Herald of Twilight
-				Evolution: 75697, 87378 = 100
-			Karsh Steelbender
-				Superheated Quicksilver Armor: 75846, 93567 = 100
-		Grim Batol
-			Forgemaster Throngus
-				Impaling Slam: 75056, 90756 = 100
-				Disorienting Roar: 74976, 90737 = 80
-				Burning Flames: 90764 = 100
-		Lost City of the Tol'vir
-			Trashs
-				Infectious Plague: 82768, 82769 = 100
-			Lockmaw
-				Vicious Poison: 81630, 90004 = 80
-				Scent of Blood: 89998, 81690 = 100
-			Siamat
-				Lightning Charge: 93959, 91871 = 100
-		The Deadmines
-			Helix Gearbreaker
-				Chest Bomb: 88352 = 100
-		Vortex Pinacle
-			Altairus
-				Downwind of Altairus: 88286 = 100
-		Blackwing Descent
-			Magmaw
-				Parasitic Infection: 91913, 94678, 94679 = 100
-			Omnotron Defense System
-				Lightning Conductor: 79888, 91431, 91432, 91433 = 100
-				Poison Soaked Shell: 91501, 79835, 91503 = 70
-				Fixate: 80094 = 90
-				Acquiring Target: 79501, 92035, 92036, 92037 = 80
-				Flamethrower: 79504, 91537, 91536, 91535 = 100
-			Maloriak
-				Consuming Flames: 77786, 92971, 92972, 92973 = 80
-				Biting Chill: 77760, 92975, 92976, 92977 = 80
-				Flash Freeze: 77699, 92978, 92979, 92980 = 100
-			Chimaeron
-				Break: 82881 = 90
-				Low Health: 89084 = 100
-			Trashs
-				Execution Sentence: 80727 = 100
-		Bastion of Twilight
-			Halfus Wyrmbreaker
-				Malevolent Strikes: 83908, 86158, 86157, 86159 = 100 [>=5]
-			Valiona and Theralion
-				Blackout: 86788, 92876, 92877, 92878 = 80
-				Engulfing Magic: 86622, 95639, 95640, 95641 = 100
-			Ascendant Council
-				Heart of Ice (Feludious): 82665, 82667 = 80
-				Burning Blood (Ignacious): 82662, 82660 = 80
-				Waterlogged (Feludious): 82762 = 100
-				Swirling Winds (P2): 83500 = 80
-				Grounded (P2): 83581 = 80
-				Lightning Rod (Arion): 83099 = 100
-				Gravity Crush (Elementium Monstrosity): 92486 = 100
-			Cho'Gall
-				Worship: 91317, 93365, 93366, 93367 = 100
-		Throne of the Four Winds
-			Conclave of Wind
-				Toxic Spores (Anshal's adds) : 86281, 86282 = 90
-				Wind Chill (Nezir): 84645, 93123, 93124, 93125 = 100
-		Baradin Hold
-			Trashs
-				Arcane Amplifier: 89354, 95179 = 100
-			Argaloth
-				Consuming Darkness: 88954, 95173 = 100
-		Zul'Gurub:
-			Jin'do the Godbreaker:
-				Shadows of Hakkar: 97173 = 100
-				Spirit Warrior's Gaze: 97597 = 100
-			High Priestess Kilnara:
-				--
-			Bloodlord Mandokir:
-				Bloodletting: 96776 = 100
-			High Priest Venoxis
-				Whispers of Hethiss: 96466, 96469 = 80
-				Toxic link: 96477, 96478 = 100
-			Zanzil:
-				--
-			Edge Of Madness:
-				Waking Nightmare (Hazza'rah adds): 96757 = 100
-			Trashs:
-				Pursuit (Gurubashi Berserker): 96306 = 100
-		Zul'Aman:
-			Akil'zon:
-				Electrical Storm: 43648 = 80
-				Plucked: 97318 = 100
-			Daakara:
-				Grievous Throw: 97639 = 80
-				Creeping Paralysis: 43095, 43437 = 100
-			Jan'alai:
-				--
-			Hex Lord Malacrass:
-				Siphon Soul: 43501 = 100
-			Nalorakk
-				Surge: 42402 = 90
-		Firelands:
-			Baleroc:
-				Blaze of Glory: 99252 = 60
-				Torment: 99256, 100232, 100230 = 80
-				Tormented: 99257, 99402, 99404, 99489, 99403 = 100
-				Vital Spark: 99262 = 80
-				Vital Flame: 99263 = 100
-			Alysrazor:
-				Molten Feather: 98734 = 20
-				Wings of Flame: 98619 = 40
-				Blazing Power: 99461 = 60
-				Alysra's Razor: 100029 = 80
-		Items/consumables:
-			Concentration Potion: 78993 = 40
-	]=]
-
-	-- Simple debuffs
-	for def, spellIDs, priority in gmatch(DEBUFFS_STR, '((%d[%d%s,]*)%s*=%s*(%d+))') do
-		priority = tonumber(priority)
-		for spellID in gmatch(spellIDs, '(%d+)') do
-			DEBUFFS[tonumber(spellID)] = priority
-		end
-	end
-
-	-- Debuffs with threshold
-	for def, spellIDs, priority, threshold in gmatch(DEBUFFS_STR, '((%d[%d%s,]*)%s*=%s*(%d+)%s*%[%s*>=%s*(%d+)%s*%]%s*)') do
-		priority = tonumber(priority)
-		threshold = tonumber(threshold)
-		for spellID in gmatch(spellIDs, '(%d+)') do
-			spellID = tonumber(spellID)
-			DEBUFFS[spellID] = priority
-			DEBUFF_THRESHOLDS[spellID] = threshold
-		end
-	end
-end
 
 -- To be used to avoid displaying these spells twice
 function oUF_Adirelle.IsEncounterDebuff(spellID)
@@ -297,10 +158,7 @@ local function GetDebuff(unit, index)
 	if isBossDebuff then
 		return name, 50, texture, count, dispelType, duration, expirationTime
 	elseif spellID then
-		local threshold = DEBUFF_THRESHOLDS[spellID]
-		if not threshold or (count or 1) >= threshold then
-			return name, DEBUFFS[spellID], texture, count, dispelType, duration, expirationTime
-		end
+		return name, DEBUFFS[spellID], texture, count, dispelType, duration, expirationTime
 	end
 	return name
 end
