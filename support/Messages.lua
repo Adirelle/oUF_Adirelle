@@ -26,8 +26,8 @@ local callbacks = {}
 -- Used to create a list of callbacks for a given frame
 local callbackListMeta = {
 	__call = function(list, ...)
-		for i = 1, #list do
-			list[i](...)
+		for i, callback in ipairs(list) do
+			callback(...)
 		end
 	end
 }
