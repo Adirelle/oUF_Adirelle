@@ -30,31 +30,6 @@ local UnitIsVisible = _G.UnitIsVisible
 
 local BUFFS = {}
 local DEBUFFS = {}
--- General crowd Control
-for spellID in gmatch([=[
-		710 Banish
-	76780 Bind Elemental
-	33786 Cyclone
-		339 Entangling Roots
-	 5782 Fear
-	 3355 Freezing Trap
-	51514 Hex
-	 2637 Hibernate
-		118 Polymorph
-	61305 Polymorph (Black Cat)
-	28272 Polymorph (Pig)
-	61721 Polymorph (Rabbit)
-	61780 Polymorph (Turkey)
-	28271 Polymorph (Turtle)
-	20066 Repentance
-	 6770 Sap
-	 6358 Seduction
-	 9484 Shackle Undead
-	10326 Turn Evil
-	19386 Wyvern Sting
-]=], "%d+") do
-	DEBUFFS[tonumber(spellID)] = 90
-end
 
 -- PvP debuffs using DRData-1.0
 local drdata = oUF_Adirelle.GetLib('DRData-1.0')
