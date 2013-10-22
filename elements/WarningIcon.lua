@@ -83,6 +83,15 @@ do
 			Deterrence: 19263 = 40
 		MAGE:
 			Ice Block: 45438 = 80
+		MONK
+			Guard: 115295 = 20
+			Mana Tea: 115294 = 20
+			Elusive Brew: 115308 = 40
+			Dampen Harm: 122278 = 50
+			Zen Meditation: 115176 = 50
+			Diffuse Magic: 122783 = 50
+			Fortifying Brew: 115203 = 60
+			Avert Harm: 115213 = 80
 		PALADIN:
 			Divine Plea: 54428 = 20
 			Divine Protection: 498 = 30
