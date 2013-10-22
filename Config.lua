@@ -176,7 +176,7 @@ local function GetOptions()
 			disconnected = BuildColorArg('Disconnected player', oUF.colors.disconnected),
 			tapped = BuildColorArg('Tapped mob', oUF.colors.tapped),
 			outOfRange = BuildColorArg('Out of range', oUF.colors.outOfRange, true),
-			incoming = BuildColorGroup("Incoming heals", oUF.colors.incomingHeal, { self = "Self", others = "Others'" }, true),
+			incoming = BuildColorGroup("Heal prediction", oUF.colors.incomingHeal, { self = "Self", others = "Others'", absorb = "Shields", healAbsorb = "Heal absorption" }, true),
 			lowHealth = BuildColorArg("Low health warning", oUF.colors.lowHealth, true),
 			group = {
 				name = 'Group member status',

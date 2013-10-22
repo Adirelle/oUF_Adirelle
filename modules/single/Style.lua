@@ -50,31 +50,33 @@ local borderBackdrop = { edgeFile = [[Interface\Addons\oUF_Adirelle\media\white1
 local SpawnTexture, SpawnText, SpawnStatusBar = private.SpawnTexture, private.SpawnText, private.SpawnStatusBar
 local CreateName = private.CreateName
 
-local function UpdateHealBar(bar, unit, current, max, incoming)
-	if UnitIsDeadOrGhost(unit) or not UnitIsConnected(unit) then
-		current, incoming  = 0, 0
-	end
-	if bar.incoming ~= incoming or bar.current ~= current or bar.max ~= max then
-		bar.incoming, bar.current, bar.max = incoming, current, max
-		local health = bar:GetParent()
-		if current and max and incoming and incoming > 0 and max > 0 and current < max then
-			local width = health:GetWidth()
-			bar:SetPoint("LEFT", width * current / max, 0)
-			bar:SetWidth(width * mmin(incoming, max-current) / max)
-			bar:Show()
-		else
-			bar:Hide()
-		end
+local function Health_PostUpdate(healthBar, unit, health, maxHealth)
+	local bar = healthBar:GetParent().HealPrediction.healAbsorbBar
+	bar:SetPoint("RIGHT", healthBar, "LEFT", healthBar:GetWidth() * health / maxHealth, 0)
+end
+
+local function HealPrediction_SetMinMaxValues(bar, minValue, maxValue)
+	if bar.minValue ~= minValue or bar.maxValue ~= maxValue then
+		bar.minValue,  bar.maxValue = minValue, maxValue
+		bar:UpdateWidth()
 	end
 end
 
-local function IncomingHeal_PostUpdate(bar, event, unit, incoming)
-	return UpdateHealBar(bar, unit, bar.current, bar.max, incoming or 0)
+local function HealPrediction_SetValue(bar, value)
+	if bar.value ~= value then
+		bar.value = value
+		bar:UpdateWidth()
+	end
 end
 
-local function Health_PostUpdate(healthBar, unit, current, max)
-	local bar = healthBar:GetParent().IncomingHeal
-	return UpdateHealBar(bar, unit, current, max, bar.incoming)
+local function HealPrediction_UpdateWidth(bar)
+	local relValue, range = bar.value - bar.minValue, bar.maxValue - bar.minValue
+	oUF.Debug(bar, 'HealPrediction_UpdateWidth', 'relValue=', relValue, 'range=', range)
+	if relValue > 0 and range > 0 then
+		bar:SetWidth(max(0.1, relValue * bar:GetParent():GetWidth() / range))
+	else
+		bar:SetWidth(0.0001)
+	end
 end
 
 local function Auras_PreSetPosition(icons, numIcons)
@@ -534,8 +536,11 @@ local function OnColorModified(self, event, layout, theme)
 		self.XRange:SetTexture(unpack(oUF.colors.outOfRange, 1, 3))
 		self.XRange:ForceUpdate()
 	end
-	if self.IncomingHeal then
-		self.IncomingHeal:SetTexture(unpack(oUF.colors.incomingHeal.self, 1, 4))
+	if self.HealPrediction then
+		self.HealPrediction.myBar:SetTexture(unpack(oUF.colors.incomingHeal.self, 1, 4))
+		self.HealPrediction.otherBar:SetTexture(unpack(oUF.colors.incomingHeal.others, 1, 4))
+		self.HealPrediction.absorbBar:SetTexture(unpack(oUF.colors.incomingHeal.absorb, 1, 4))
+		self.HealPrediction.healAbsorbBar:SetTexture(unpack(oUF.colors.incomingHeal.healAbsorb, 1, 4))
 	end
 	self.Health:ForceUpdate()
 	if self.Power then
@@ -651,19 +656,39 @@ local function InitFrame(settings, self, unit)
 		lowHealth:SetPoint("TOPLEFT", self, -2, 2)
 		lowHealth:SetPoint("BOTTOMRIGHT", self, 2, -2)
 		self.LowHealth = lowHealth
-
-		-- Incoming heals
-		local incomingHeal = health:CreateTexture(CreateName(health, "Incoming"), "OVERLAY")
-		incomingHeal:SetBlendMode("ADD")
-		incomingHeal:SetPoint("TOP", health)
-		incomingHeal:SetPoint("BOTTOM", health)
-		incomingHeal.PostUpdate = IncomingHeal_PostUpdate
-		incomingHeal.current, incomingHeal.max, incomingHeal.incoming = 0, 0, 0
-		self.IncomingHeal = incomingHeal
-
-		-- PostUpdate is only needed with incoming heals
-		health.PostUpdate = Health_PostUpdate
 	end
+
+	local healPrediction = CreateFrame("Frame", CreateName(self, "HealPrediction"), self)
+
+	local myIncomingHeal = health:CreateTexture(CreateName(health, "MyIncomingHeal"), "OVERLAY")
+	local otherIncomingHeal = health:CreateTexture(CreateName(health, "OtherIncomingHeal"), "OVERLAY")
+	local absorb = health:CreateTexture(CreateName(health, "Absorb"), "OVERLAY")
+	local healAbsorb = health:CreateTexture(CreateName(health, "HealAbsorb"), "OVERLAY")
+
+	for i, bar in ipairs{healAbsorb, myIncomingHeal, otherIncomingHeal, absorb} do
+		bar:SetPoint("TOP", health)
+		bar:SetPoint("BOTTOM", health)
+		bar:SetWidth(0.1)
+		bar.minValue, bar.maxValue, bar.value = 0, 0, 0
+		bar.SetMinMaxValues = HealPrediction_SetMinMaxValues
+		bar.SetValue = HealPrediction_SetValue
+		bar.UpdateWidth = HealPrediction_UpdateWidth
+	end
+
+	healAbsorb:SetPoint("RIGHT", health)
+	myIncomingHeal:SetPoint("LEFT", healAbsorb, "RIGHT")
+	otherIncomingHeal:SetPoint("LEFT", myIncomingHeal, "RIGHT")
+	absorb:SetPoint("LEFT", otherIncomingHeal, "RIGHT")
+
+	healPrediction.myBar = myIncomingHeal
+	healPrediction.otherBar = otherIncomingHeal
+	healPrediction.absorbBar = absorb
+	healPrediction.healAbsorbBar = healAbsorb
+
+	self.HealPrediction = healPrediction
+
+	-- Reanchor the heal prediction bars on health change
+	health.PostUpdate = Health_PostUpdate
 
 	-- Used for some overlays
 	local indicators = CreateFrame("Frame", CreateName(self, "Indicators"), self)
