@@ -63,6 +63,38 @@ function oUF_Adirelle.IsEncounterDebuff(spellID)
 	return spellID and DEBUFFS[spellID]
 end
 
+-- Use BigWigs whenever available
+if BigWigsLoader and BigWigsLoader.RegisterMessage then
+	-- Let the debuffs table default to our new table
+	local BIGWIGS_DEBUFFS = {}
+	setmetatable(DEBUFFS, { __index = function(_, k)
+		return (k and BIGWIGS_DEBUFFS[k] and 90) or nil
+	end})
+
+	-- Listen to BigWigs messages to update the debuff list
+
+	-- Thanks Funkeh for adding this one
+	BigWigsLoader.RegisterMessage(BIGWIGS_DEBUFFS, 'BigWigs_OnBossLog', function(_, bossMod, event, ...)
+		if event ~= 'SPELL_AURA_APPLIED' then return end
+		for i = 1, select('#', ...) do
+			local id = select(i, ...)
+			oUF.Debug('WarningIcon', 'Watching', id, GetSpellLink(id), 'for', bossMod:GetName())
+			BIGWIGS_DEBUFFS[id] = bossMod
+		end
+	end)
+
+	BigWigsLoader.RegisterMessage(BIGWIGS_DEBUFFS, 'BigWigs_OnBossDisable', function(_, bossMod)
+		oUF.Debug('WarningIcon', bossMod:GetName(), 'disabled, cleaning the debuffs list')
+		for id, mod in pairs(BIGWIGS_DEBUFFS) do
+			if mod == bossMod then
+				BIGWIGS_DEBUFFS[id] = nil
+			end
+		end
+	end)
+
+	oUF.Debug('WarningIcon', 'Using BigWigs for encounter debuffs')
+end
+
 -- Class noticeable buffs
 do
 	local BUFFS_STR = [=[
