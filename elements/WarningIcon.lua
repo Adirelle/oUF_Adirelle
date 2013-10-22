@@ -35,29 +35,28 @@ local DEBUFFS = {}
 local drdata = oUF_Adirelle.GetLib('DRData-1.0')
 if drdata then
 	local priorities = {
-		banish = 100,
-		cyclon = 100,
-		mc = 100,
 		ctrlstun = 90,
 		rndstun = 90,
-		cheapshot = 90,
-		charge = 90,
 		fear = 80,
 		horror = 80,
-		sleep = 60,
 		disorient = 60,
-		scatters = 60,
+		shortdisorient = 60,
 		silence = 50,
 		disarm = 50,
 		ctrlroot = 40,
-		rndroot = 40,
-		entrapment = 40,
+		shortroot = 40,
 	}
 	for spellID, cat in pairs(drdata:GetSpells()) do
-		DEBUFFS[spellID] = priorities[cat]
+		DEBUFFS[spellID] = priorities[cat] or 10
 	end
 end
 
+-- Special cases
+DEBUFFS[   605] = 100 -- Dominate Mind
+DEBUFFS[   710] = 100 -- Banish
+DEBUFFS[  1098] = 100 -- Enslave Demon
+DEBUFFS[ 33786] = 100 -- Cyclone
+DEBUFFS[113506] = 100 -- Cyclone (Symbiosis)
 
 -- To be used to avoid displaying these spells twice
 function oUF_Adirelle.IsEncounterDebuff(spellID)
