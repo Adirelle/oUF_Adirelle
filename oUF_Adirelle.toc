@@ -63,7 +63,6 @@ elements\Border.lua
 elements\ComboPoints.lua
 elements\Dragon.lua
 elements\Experience.lua
-elements\IncomingHeal.lua
 elements\LowHealth.lua
 elements\Powers.lua
 elements\PvPTimer.lua
