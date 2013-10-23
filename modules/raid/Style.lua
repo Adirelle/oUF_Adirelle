@@ -76,15 +76,33 @@ local function SmartHPValue(value)
 end
 
 -- Update name
-local function UpdateName(self)
+local function UpdateName(self, event, unit)
+	if not unit then
+		unit = self.unit
+	elseif unit ~= self.unit and unit ~= self.realUnit then
+		return
+	end
 	local healthBar = self.Health
 	local r, g, b = 0.5, 0.5, 0.5
 	if self.nameColor then
 		r, g, b = unpack(self.nameColor)
 	end
-	local text
+	if UnitCanAssist('player', unit) then
+		local health, maxHealth = UnitHealth(unit), UnitHealthMax(unit)
+		local incHeal = UnitGetIncomingHeals(unit) or 0
+		local absorb = UnitGetTotalAbsorbs(unit) or 0
+		local healAbsorb = UnitGetTotalHealAbsorbs(unit) or 0
+		local threshold = maxHealth * 0.1
+		if health - healAbsorb <= threshold then
+			r, g, b = unpack(oUF.colors.healPrediction.healAbsorb)
+		elseif health - healAbsorb + incHeal >= maxHealth + threshold then
+			r, g, b = unpack(oUF.colors.healPrediction.self)
+		elseif health + absorb > maxHealth + threshold then
+			r, g, b = unpack(oUF.colors.healPrediction.absorb)
+		end
+	end
 	self.Name:SetTextColor(r, g, b, 1)
-	self.Name:SetText(text or GetShortUnitName(SecureButton_GetUnit(self) or self.unit))
+	self.Name:SetText(GetShortUnitName(self.unit))
 end
 
 
@@ -148,34 +166,34 @@ local function UpdateColor(self, event, unit)
 end
 
 -- Add a pseudo-element to update the color
-
-local function UNIT_NAME_UPDATE(self, event, unit)
-	if unit == self.unit or unit == self.realUnit then
-		return UpdateColor(self)
-	end
-end
-
-local function UNIT_PET(self, event, unit)
-	if unit == "player" then
-		return UNIT_NAME_UPDATE(self, event, "pet")
-	elseif unit then
-		return UNIT_NAME_UPDATE(self, event, gsub(unit, "(%d*)$", "pet%1"))
-	end
-end
-
-oUF:AddElement('Adirelle_Raid:UpdateColor',
-	UpdateColor,
-	function(self)
-		if self.Health and self.bgColor and self.style == "Adirelle_Raid" then
-			self:RegisterEvent('UNIT_NAME_UPDATE', UNIT_NAME_UPDATE)
-			if self.unit and strmatch(self.unit, 'pet') then
-				self:RegisterEvent('UNIT_PET', UNIT_PET)
-			end
-			return true
+do
+	local function UNIT_PET(self, event, unit)
+		if unit == "player" then
+			return UpdateColor(self, event, "pet")
+		elseif unit then
+			return UpdateColor(self, event, gsub(unit, "(%d*)$", "pet%1"))
 		end
-	end,
-	function() end
-)
+	end
+
+	oUF:AddElement('Adirelle_Raid:UpdateColor',
+		UpdateColor,
+		function(self)
+			if self.Health and self.bgColor and self.style == "Adirelle_Raid" then
+				self:RegisterEvent('UNIT_NAME_UPDATE', UpdateColor)
+				self:RegisterEvent('UNIT_HEAL_PREDICTION', UpdateName)
+				self:RegisterEvent('UNIT_MAXHEALTH', UpdateName)
+				self:RegisterEvent('UNIT_HEALTH', UpdateName)
+				self:RegisterEvent('UNIT_ABSORB_AMOUNT_CHANGED', UpdateName)
+				self:RegisterEvent('UNIT_HEAL_ABSORB_AMOUNT_CHANGED', UpdateName)
+				if self.unit and strmatch(self.unit, 'pet') then
+					self:RegisterEvent('UNIT_PET', UNIT_PET)
+				end
+				return true
+			end
+		end,
+		function() end
+	)
+end
 
 -- Layout internal frames on size change
 local function OnSizeChanged(self, width, height)
