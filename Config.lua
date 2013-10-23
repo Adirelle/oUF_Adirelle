@@ -176,7 +176,7 @@ local function GetOptions()
 			disconnected = BuildColorArg('Disconnected player', oUF.colors.disconnected),
 			tapped = BuildColorArg('Tapped mob', oUF.colors.tapped),
 			outOfRange = BuildColorArg('Out of range', oUF.colors.outOfRange, true),
-			incoming = BuildColorGroup("Heal prediction", oUF.colors.incomingHeal, { self = "Self", others = "Others'", absorb = "Shields", healAbsorb = "Heal absorption" }, true),
+			healPrediction = BuildColorGroup("Heal prediction", oUF.colors.healPrediction, { self = "Self", others = "Others'", absorb = "Shields", healAbsorb = "Heal absorption" }, true),
 			lowHealth = BuildColorArg("Low health warning", oUF.colors.lowHealth, true),
 			group = {
 				name = 'Group member status',
@@ -195,7 +195,7 @@ local function GetOptions()
 		colorArgs.tapped.hidden = function() return IsSingleStyleUnused() or not (themeDB.profile.Health.colorTapping or themeDB.profile.Power.colorTapping) end
 		colorArgs.power.hidden = function() return IsSingleStyleUnused() or not themeDB.profile.Power.colorPower end
 		colorArgs.lowHealth.hidden = IsElementDisabled.LowHealth
-		colorArgs.incoming.hidden = IsElementDisabled.IncomingHeal
+		colorArgs.healPrediction.hidden = IsElementDisabled.HealPrediction
 		colorArgs.outOfRange.hidden = IsElementDisabled.XRange
 
 		-- Class-specific colors
@@ -420,7 +420,7 @@ local function GetOptions()
 								order = 10,
 								values = {
 									Experience = "Experience",
-									IncomingHeal = "Incoming heals",
+									HealPrediction = "Heal prediction",
 									RuneBar = "Runes",
 									ThreatBar = "Threat",
 									TotemBar = "Totems",

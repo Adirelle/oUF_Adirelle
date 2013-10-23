@@ -537,10 +537,10 @@ local function OnColorModified(self, event, layout, theme)
 		self.XRange:ForceUpdate()
 	end
 	if self.HealPrediction then
-		self.HealPrediction.myBar:SetTexture(unpack(oUF.colors.incomingHeal.self, 1, 4))
-		self.HealPrediction.otherBar:SetTexture(unpack(oUF.colors.incomingHeal.others, 1, 4))
-		self.HealPrediction.absorbBar:SetTexture(unpack(oUF.colors.incomingHeal.absorb, 1, 4))
-		self.HealPrediction.healAbsorbBar:SetTexture(unpack(oUF.colors.incomingHeal.healAbsorb, 1, 4))
+		self.HealPrediction.myBar:SetTexture(unpack(oUF.colors.healPrediction.self, 1, 4))
+		self.HealPrediction.otherBar:SetTexture(unpack(oUF.colors.healPrediction.others, 1, 4))
+		self.HealPrediction.absorbBar:SetTexture(unpack(oUF.colors.healPrediction.absorb, 1, 4))
+		self.HealPrediction.healAbsorbBar:SetTexture(unpack(oUF.colors.healPrediction.healAbsorb, 1, 4))
 	end
 	self.Health:ForceUpdate()
 	if self.Power then

@@ -217,7 +217,7 @@ oUF_Adirelle:RegisterEvent('ADDON_LOADED', ADDON_LOADED)
 
 local optionalElements = {
 	"Assistant", "Castbar", "ComboPoints", "Combat", "Dragon", "EclipseBar", "Experience",
-	"HolyPower", "IncomingHeal", "Leader", "LowHealth","MasterLooter",
+	"HolyPower", "HealPrediction", "Leader", "LowHealth","MasterLooter",
 	"PvP", "PvPTimer", "RaidIcon", "ReadyCheck", "Resting", "RoleIcon", "RuneBar",
 	"SmartThreat", "SoulShards", "StatusIcon", "TargetIcon", "ThreatBar",
 	"TotemBar", "WarningIcon", "XRange", "Portrait"
