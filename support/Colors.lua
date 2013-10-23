@@ -38,7 +38,7 @@ end
 
 oUF.colors.healPrediction = {
 	self = { 0, 1, 0, 0.5 },
-	others = { 0, 1, 0, 0.5 },
+	others = { 0, 0.8, 0, 0.5 },
 	absorb = { 1, 1, 0.8, 0.5 },
 	healAbsorb = { 0.5, 0, 0, 0.5 },
 }
