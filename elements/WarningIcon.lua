@@ -68,7 +68,7 @@ if BigWigsLoader and BigWigsLoader.RegisterMessage then
 	-- Let the debuffs table default to our new table
 	local BIGWIGS_DEBUFFS = {}
 	setmetatable(DEBUFFS, { __index = function(_, k)
-		return (k and BIGWIGS_DEBUFFS[k] and 90) or nil
+		return (k and BIGWIGS_DEBUFFS[k] and 45) or nil
 	end})
 
 	-- Listen to BigWigs messages to update the debuff list
@@ -168,14 +168,21 @@ local function GetBuff(unit, index)
 	return name, BUFFS[spellID], texture, count, dispelType, duration, expirationTime
 end
 
-local function GetDebuff(unit, index)
+local LibDispellable = oUF_Adirelle.GetLib('LibDispellable-1.0')
+local function GetDebuff(unit, index, offensive)
 	local name, _, texture, count, dispelType, duration, expirationTime, _, _, _, spellID, _, isBossDebuff = UnitDebuff(unit, index)
-	if isBossDebuff then
-		return name, 50, texture, count, dispelType, duration, expirationTime
-	elseif spellID then
-		return name, DEBUFFS[spellID], texture, count, dispelType, duration, expirationTime
+	local priority
+	if name and spellID then
+		priority = isBossDebuff and 55 or DEBUFFS[spellID]
+		if priority and dispelType and dispelType ~= "none" then
+			if LibDispellable:CanDispel(unit, offensive, dispelType, spellID) then
+				priority = priority + 12
+			else
+				dispelType, priority = nil, priority - 12
+			end
+		end
 	end
-	return name
+	return name, priority, texture, count, dispelType, duration, expirationTime
 end
 
 local function Scan(self, unit, getFunc, offensive)
@@ -185,14 +192,11 @@ local function Scan(self, unit, getFunc, offensive)
 	local newPriority, newTexture, newCount, newDispelType, newDuration, newExpirationTime
 	repeat
 		index = index + 1
-		name, newPriority, newTexture, newCount, newDispelType, newDuration, newExpirationTime = getFunc(unit, index)
-		if name and newPriority and newPriority > priority then
+		name, newPriority, newTexture, newCount, newDispelType, newDuration, newExpirationTime = getFunc(unit, index, offensive)
+		if name and newPriority and newPriority >= priority then
 			priority, texture, count, dispelType, duration, expirationTime = newPriority, newTexture, newCount, newDispelType, newDuration, newExpirationTime
 		end
 	until not name
-	if dispelType and (offensive and not UnitCanAttack("player", unit)) or (not offensive and not UnitCanAssist("player", unit)) then
-		dispelType = nil
-	end
 	return priority, texture, count, dispelType, duration, expirationTime
 end
 
