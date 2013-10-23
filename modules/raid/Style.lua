@@ -62,8 +62,20 @@ oUF_Adirelle.SCALE, oUF_Adirelle.WIDTH, oUF_Adirelle.SPACING, oUF_Adirelle.HEIGH
 -- ------------------------------------------------------------------------------
 
 -- Return the truncated name of unit
+local byte = string.byte
 local function GetShortUnitName(unit)
-	return unit and strsub(tostring(UnitName(unit)),1,10) or UNKNOWN
+	local name = unit and UnitName(unit)
+	if not name then
+		return UNKNOWN
+	elseif strlen(name) > 10 then
+		-- UTF-8 aware slicing
+		for i = 10, 16 do
+			if byte(strsub(name, i)) < 128 then
+				return strsub(name, 0, i)
+			end
+		end
+	end
+	return name
 end
 
 -- Health point formatting
