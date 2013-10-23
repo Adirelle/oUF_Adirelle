@@ -134,9 +134,8 @@ oUF:AddAuraFilter("CureableDebuff", function(unit)
 			local thisAlpha = 0.5
 			if LibDispellable:CanDispel(unit, false, thisDebuffType) then
 				thisAlpha = 1.0
-			end
-			if isBossDebuff or IsEncounterDebuff(spellID) then
-				thisAlpha = thisAlpha - 0.1
+			elseif thisDebuffType == "none" and (isBossDebuff or IsEncounterDebuff(spellID)) then
+				thisAlpha = 0.0
 			end
 
 			if not texture or thisAlpha > alpha or (thisAlpha == alpha and (thisCount > count or (thisCount == count and thisExpirationTime > expirationTime))) then
