@@ -92,13 +92,11 @@ local function UpdateName(self, event, unit)
 		local incHeal = UnitGetIncomingHeals(unit) or 0
 		local absorb = UnitGetTotalAbsorbs(unit) or 0
 		local healAbsorb = UnitGetTotalHealAbsorbs(unit) or 0
-		local threshold = maxHealth * 0.1
-		if health - healAbsorb <= threshold then
+		local threshold = maxHealth * 0.25
+		if healAbsorb > 0 and health - healAbsorb <= threshold then
 			r, g, b = unpack(oUF.colors.healPrediction.healAbsorb)
 		elseif health - healAbsorb + incHeal >= maxHealth + threshold then
 			r, g, b = unpack(oUF.colors.healPrediction.self)
-		elseif health + absorb > maxHealth + threshold then
-			r, g, b = unpack(oUF.colors.healPrediction.absorb)
 		end
 	end
 	self.Name:SetTextColor(r, g, b, 1)
