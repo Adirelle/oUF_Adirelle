@@ -51,8 +51,25 @@ local SpawnTexture, SpawnText, SpawnStatusBar = private.SpawnTexture, private.Sp
 local CreateName = private.CreateName
 
 local function Health_PostUpdate(healthBar, unit, health, maxHealth)
-	local bar = healthBar:GetParent().HealPrediction.healAbsorbBar
-	bar:SetPoint("RIGHT", healthBar, "LEFT", healthBar:GetWidth() * health / maxHealth, 0)
+	local hp = healthBar.__owner.HealPrediction
+	local bar = hp.healAbsorbBar
+	local offset, maxOffset = 0, hp:GetWidth()
+	if maxHealth > 0 and maxOffset > 0 then
+		offset = health * maxOffset / maxHealth
+	end
+	if bar.offset ~= offset then
+		bar.offset = offset
+		bar:SetPoint("RIGHT", hp, "LEFT", offset, 0)
+	end
+end
+
+local function HealPrediction_SizeChanged(hp)
+	hp.myBar:UpdateWidth()
+	hp.otherBar:UpdateWidth()
+	hp.absorbBar:UpdateWidth()
+	hp.healAbsorbBar:UpdateWidth()
+	local unit = hp.__owner.unit
+	hp.__owner.Health:PostUpdate(unit, UnitHealth(unit), UnitHealthMax(unit))
 end
 
 local function HealPrediction_SetMinMaxValues(bar, minValue, maxValue)
@@ -70,13 +87,12 @@ local function HealPrediction_SetValue(bar, value)
 end
 
 local function HealPrediction_UpdateWidth(bar)
-	local relValue, range = bar.value - bar.minValue, bar.maxValue - bar.minValue
-	oUF.Debug(bar, 'HealPrediction_UpdateWidth', 'relValue=', relValue, 'range=', range)
-	if relValue > 0 and range > 0 then
-		bar:SetWidth(max(0.1, relValue * bar:GetParent():GetWidth() / range))
-	else
-		bar:SetWidth(0.0001)
+	local value, maxValue = bar.value - bar.minValue, bar.maxValue - bar.minValue
+	local width, maxWidth = 1e-8, bar:GetParent():GetWidth()
+	if value > 0 and maxValue > 0 and maxWidth > 0 then
+		width = value * maxWidth / maxValue
 	end
+	bar:SetWidth(width)
 end
 
 local function Auras_PreSetPosition(icons, numIcons)
@@ -657,18 +673,18 @@ local function InitFrame(settings, self, unit)
 	self.LowHealth = lowHealth
 
 	-- Heal predictions
-	local healPrediction = CreateFrame("Frame", CreateName(self, "HealPrediction"), self)
+	local healPrediction = CreateFrame("Frame", CreateName(health, "Prediction"), health)
 	healPrediction:SetAllPoints(health)
 
-	local myIncomingHeal = healPrediction:CreateTexture(CreateName(health, "MyIncomingHeal"), "OVERLAY")
-	local otherIncomingHeal = healPrediction:CreateTexture(CreateName(health, "OtherIncomingHeal"), "OVERLAY")
-	local absorb = healPrediction:CreateTexture(CreateName(health, "Absorb"), "OVERLAY")
-	local healAbsorb = healPrediction:CreateTexture(CreateName(health, "HealAbsorb"), "OVERLAY")
+	local myIncomingHeal = healPrediction:CreateTexture(CreateName(healPrediction, "MyHeal"), "OVERLAY")
+	local otherIncomingHeal = healPrediction:CreateTexture(CreateName(healPrediction, "OthersHeal"), "OVERLAY")
+	local absorb = healPrediction:CreateTexture(CreateName(healPrediction, "Absorb"), "OVERLAY")
+	local healAbsorb = healPrediction:CreateTexture(CreateName(healPrediction, "HealAbsorb"), "OVERLAY")
 
 	for i, bar in ipairs{healAbsorb, myIncomingHeal, otherIncomingHeal, absorb} do
-		bar:SetPoint("TOP", health)
-		bar:SetPoint("BOTTOM", health)
 		bar:SetWidth(0.1)
+		bar:SetPoint("TOP", healPrediction)
+		bar:SetPoint("BOTTOM", healPrediction)
 		bar.minValue, bar.maxValue, bar.value = 0, 0, 0
 		bar.SetMinMaxValues = HealPrediction_SetMinMaxValues
 		bar.SetValue = HealPrediction_SetValue
@@ -684,6 +700,8 @@ local function InitFrame(settings, self, unit)
 	healPrediction.otherBar = otherIncomingHeal
 	healPrediction.absorbBar = absorb
 	healPrediction.healAbsorbBar = healAbsorb
+
+	healPrediction:SetScript('OnSizeChanged', HealPrediction_SizeChanged)
 
 	self.HealPrediction = healPrediction
 
