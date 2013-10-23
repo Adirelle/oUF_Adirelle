@@ -118,15 +118,27 @@ end
 local LibDispellable = oUF_Adirelle.GetLib("LibDispellable-1.0")
 local IsEncounterDebuff = oUF_Adirelle.IsEncounterDebuff
 oUF:AddAuraFilter("CureableDebuff", function(unit)
+	if not UnitCanAssist("player", unit) then return end
 	local alpha, count, expirationTime = 0.5, 0, 0
 	local texture, debuffType, duration
 	local index = 0
 	repeat
 		index = index + 1
 		local thisName, _, thisTexture, thisCount, thisDebuffType, thisDuration, thisExpirationTime, caster, _, _, spellID, _, isBossDebuff = UnitDebuff(unit, index)
-		if thisName and not IsEncounterDebuff(spellID) and not isBossDebuff and thisDuration and thisDuration > 0 and (thisDebuffType or not UnitCanAssist(caster or "", unit)) then
-			local thisAlpha = LibDispellable:CanDispel(unit, false, thisDebuffType) and 1 or 0.5
-			if not thisCount then thisCount = 0 end
+		if thisName and thisDuration and thisDuration > 0 then
+
+			if not thisCount then
+				thisCount = 0
+			end
+
+			local thisAlpha = 0.5
+			if LibDispellable:CanDispel(unit, false, thisDebuffType) then
+				thisAlpha = 1.0
+			end
+			if isBossDebuff or IsEncounterDebuff(spellID) then
+				thisAlpha = thisAlpha - 0.1
+			end
+
 			if not texture or thisAlpha > alpha or (thisAlpha == alpha and (thisCount > count or (thisCount == count and thisExpirationTime > expirationTime))) then
 				alpha, texture, count, debuffType, duration, expirationTime = thisAlpha, thisTexture, thisCount, thisDebuffType, thisDuration, thisExpirationTime
 			end
