@@ -656,12 +656,14 @@ local function InitFrame(settings, self, unit)
 	lowHealth:SetPoint("BOTTOMRIGHT", self, 2, -2)
 	self.LowHealth = lowHealth
 
+	-- Heal predictions
 	local healPrediction = CreateFrame("Frame", CreateName(self, "HealPrediction"), self)
+	healPrediction:SetAllPoints(health)
 
-	local myIncomingHeal = health:CreateTexture(CreateName(health, "MyIncomingHeal"), "OVERLAY")
-	local otherIncomingHeal = health:CreateTexture(CreateName(health, "OtherIncomingHeal"), "OVERLAY")
-	local absorb = health:CreateTexture(CreateName(health, "Absorb"), "OVERLAY")
-	local healAbsorb = health:CreateTexture(CreateName(health, "HealAbsorb"), "OVERLAY")
+	local myIncomingHeal = healPrediction:CreateTexture(CreateName(health, "MyIncomingHeal"), "OVERLAY")
+	local otherIncomingHeal = healPrediction:CreateTexture(CreateName(health, "OtherIncomingHeal"), "OVERLAY")
+	local absorb = healPrediction:CreateTexture(CreateName(health, "Absorb"), "OVERLAY")
+	local healAbsorb = healPrediction:CreateTexture(CreateName(health, "HealAbsorb"), "OVERLAY")
 
 	for i, bar in ipairs{healAbsorb, myIncomingHeal, otherIncomingHeal, absorb} do
 		bar:SetPoint("TOP", health)

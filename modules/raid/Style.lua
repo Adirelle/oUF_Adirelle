@@ -462,12 +462,13 @@ local function InitFrame(self, unit)
 
 	-- Heal prediction
 	local healPrediction = CreateFrame("Frame", nil, self)
+	healPrediction:SetAllPoints(hp)
 	healPrediction.maxOverflow = 1.00
 
-	local myIncomingHeal = hp:CreateTexture(nil, "OVERLAY")
-	local otherIncomingHeal = hp:CreateTexture(nil, "OVERLAY")
-	local absorb = hp:CreateTexture(nil, "OVERLAY")
-	local healAbsorb = hp:CreateTexture(nil, "OVERLAY")
+	local myIncomingHeal = healPrediction:CreateTexture(nil, "OVERLAY")
+	local otherIncomingHeal = healPrediction:CreateTexture(nil, "OVERLAY")
+	local absorb = healPrediction:CreateTexture(nil, "OVERLAY")
+	local healAbsorb = healPrediction:CreateTexture(nil, "OVERLAY")
 
 	for i, bar in ipairs{healAbsorb, myIncomingHeal, otherIncomingHeal, absorb} do
 		bar:SetPoint("TOP", hp)
