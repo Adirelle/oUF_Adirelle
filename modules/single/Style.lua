@@ -650,13 +650,11 @@ local function InitFrame(settings, self, unit)
 	self:Tag(name, (unit == "player" or unit == "pet" or unit == "boss" or isArenaUnit) and "[name]" or "[name][ <>status<>]")
 	self.Name = name
 
-	if unit ~= "boss" then
-		-- Low health indicator
-		local lowHealth = self:CreateTexture(CreateName(self, "LowHealth"), "OVERLAY")
-		lowHealth:SetPoint("TOPLEFT", self, -2, 2)
-		lowHealth:SetPoint("BOTTOMRIGHT", self, 2, -2)
-		self.LowHealth = lowHealth
-	end
+	-- Low health indicator
+	local lowHealth = self:CreateTexture(CreateName(self, "LowHealth"), "OVERLAY")
+	lowHealth:SetPoint("TOPLEFT", self, -2, 2)
+	lowHealth:SetPoint("BOTTOMRIGHT", self, 2, -2)
+	self.LowHealth = lowHealth
 
 	local healPrediction = CreateFrame("Frame", CreateName(self, "HealPrediction"), self)
 
