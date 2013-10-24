@@ -30,6 +30,7 @@ local UnitIsVisible = _G.UnitIsVisible
 
 local BUFFS = {}
 local DEBUFFS = {}
+local ENCOUNTER_DEBUFFS = {}
 
 -- PvP debuffs using DRData-1.0
 local drdata = oUF_Adirelle.GetLib('DRData-1.0')
@@ -60,34 +61,28 @@ DEBUFFS[113506] = 100 -- Cyclone (Symbiosis)
 
 -- To be used to avoid displaying these spells twice
 function oUF_Adirelle.IsEncounterDebuff(spellID)
-	return spellID and DEBUFFS[spellID]
+	return spellID and ENCOUNTER_DEBUFFS[spellID]
 end
 
 -- Use BigWigs whenever available
 if BigWigsLoader and BigWigsLoader.RegisterMessage then
-	-- Let the debuffs table default to our new table
-	local BIGWIGS_DEBUFFS = {}
-	setmetatable(DEBUFFS, { __index = function(_, k)
-		return (k and BIGWIGS_DEBUFFS[k] and 45) or nil
-	end})
-
-	-- Listen to BigWigs messages to update the debuff list
+	-- Listen to BigWigs messages to update ENCOUNTER_DEBUFFS
 
 	-- Thanks Funkeh for adding this one
-	BigWigsLoader.RegisterMessage(BIGWIGS_DEBUFFS, 'BigWigs_OnBossLog', function(_, bossMod, event, ...)
+	BigWigsLoader.RegisterMessage(ENCOUNTER_DEBUFFS, 'BigWigs_OnBossLog', function(_, bossMod, event, ...)
 		if event ~= 'SPELL_AURA_APPLIED' and event ~= 'SPELL_AURA_APPLIED_DOSE' then return end
 		for i = 1, select('#', ...) do
 			local id = select(i, ...)
 			oUF.Debug('WarningIcon', 'Watching', id, GetSpellLink(id), 'for', bossMod:GetName())
-			BIGWIGS_DEBUFFS[id] = bossMod
+			ENCOUNTER_DEBUFFS[id] = bossMod
 		end
 	end)
 
-	BigWigsLoader.RegisterMessage(BIGWIGS_DEBUFFS, 'BigWigs_OnBossDisable', function(_, bossMod)
+	BigWigsLoader.RegisterMessage(ENCOUNTER_DEBUFFS, 'BigWigs_OnBossDisable', function(_, bossMod)
 		oUF.Debug('WarningIcon', bossMod:GetName(), 'disabled, cleaning the debuffs list')
-		for id, mod in pairs(BIGWIGS_DEBUFFS) do
+		for id, mod in pairs(ENCOUNTER_DEBUFFS) do
 			if mod == bossMod then
-				BIGWIGS_DEBUFFS[id] = nil
+				ENCOUNTER_DEBUFFS[id] = nil
 			end
 		end
 	end)
@@ -163,26 +158,27 @@ end
 -- Element logic
 -- ------------------------------------------------------------------------------
 
-local function GetBuff(unit, index)
+local function GetBuff(unit, index, offensive)
 	local name, _, texture, count, dispelType, duration, expirationTime, _, _, _, spellID = UnitBuff(unit, index)
-	return name, BUFFS[spellID], texture, count, dispelType, duration, expirationTime
+	local priority = BUFFS[spellID]
+	if priority and LibDispellable:CanDispel(unit, offensive, dispelType) then
+		priority = priority + 5
+	end
+	return name, priority, texture, count, dispelType, duration, expirationTime
 end
 
 local LibDispellable = oUF_Adirelle.GetLib('LibDispellable-1.0')
 local function GetDebuff(unit, index, offensive)
 	local name, _, texture, count, dispelType, duration, expirationTime, _, _, _, spellID, _, isBossDebuff = UnitDebuff(unit, index)
-	local priority
 	if name and spellID then
-		priority = isBossDebuff and 55 or DEBUFFS[spellID]
-		if priority and dispelType and dispelType ~= "none" then
-			if LibDispellable:CanDispel(unit, offensive, dispelType, spellID) then
-				priority = priority + 12
-			else
-				dispelType, priority = nil, priority - 12
-			end
+		local priority = DEBUFFS[spellID]
+		if priority and LibDispellable:CanDispel(unit, offensive, dispelType) then
+			priority = priority + 5
+		elseif (isBossDebuff or ENCOUNTER_DEBUFF[spellID]) and dispelType == "none" then
+			priority = 55
 		end
+		return name, priority, texture, count, dispelType, duration, expirationTime
 	end
-	return name, priority, texture, count, dispelType, duration, expirationTime
 end
 
 local function Scan(self, unit, getFunc, offensive)
