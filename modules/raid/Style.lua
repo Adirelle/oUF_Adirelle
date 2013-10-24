@@ -490,6 +490,7 @@ local function InitFrame(self, unit)
 
 	-- Heal prediction
 	local healPrediction = CreateFrame("Frame", nil, self)
+	healPrediction.frequentUpdates = hp.frequentUpdates
 	healPrediction:SetAllPoints(hp)
 	healPrediction.maxOverflow = 1.00
 

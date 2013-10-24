@@ -673,6 +673,7 @@ local function InitFrame(settings, self, unit)
 	-- Heal predictions
 	local healPrediction = CreateFrame("Frame", CreateName(health, "Prediction"), health)
 	healPrediction:SetAllPoints(health)
+	healPrediction.frequentUpdates = health.frequentUpdates
 
 	local myIncomingHeal = healPrediction:CreateTexture(CreateName(healPrediction, "MyHeal"), "OVERLAY")
 	local otherIncomingHeal = healPrediction:CreateTexture(CreateName(healPrediction, "OthersHeal"), "OVERLAY")
