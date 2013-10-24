@@ -369,7 +369,7 @@ local function AltPowerBar_OnUpdate(bar, elapsed)
 	end
 end
 
-local function AltPowerBar_Update(self, event, unit, powerType)
+local function AltPowerBar_Override(self, event, unit, powerType)
 	if unit and self.unit ~= unit or powerType and powerType ~= 'ALTERNATE' then return end
 	unit = self.unit
 
@@ -397,7 +397,7 @@ local function AltPowerBar_Update(self, event, unit, powerType)
 	end
 end
 
-local function AltPowerBar_Override(bar)
+local function AltPowerBar_Layout(bar)
 	local self = bar.__owner
 	if bar:IsShown() then
 		self.Health:SetPoint("BOTTOMRIGHT", bar, "TOPRIGHT", 0, 0)
