@@ -397,7 +397,7 @@ local function AltPowerBar_Update(self, event, unit, powerType)
 	end
 end
 
-local function AltPowerBar_Layout(bar)
+local function AltPowerBar_Override(bar)
 	local self = bar.__owner
 	if bar:IsShown() then
 		self.Health:SetPoint("BOTTOMRIGHT", bar, "TOPRIGHT", 0, 0)
@@ -627,7 +627,7 @@ local function InitFrame(self, unit)
 	altPowerBar.showOthersAnyway = true
 	altPowerBar._SetValue = altPowerBar.SetValue
 	altPowerBar.SetValue = AltPowerBar_SetValue
-	altPowerBar.Update = AltPowerBar_Update
+	altPowerBar.Override = AltPowerBar_Override
 	altPowerBar:SetScript('OnShow', AltPowerBar_Layout)
 	altPowerBar:SetScript('OnHide', AltPowerBar_Layout)
 	altPowerBar:SetFrameLevel(threat:GetFrameLevel()+1)
