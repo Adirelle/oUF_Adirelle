@@ -15,6 +15,9 @@ local type = _G.type
 local wipe = _G.wipe
 --GLOBALS>
 
+-- Use the HCY color gradient by default
+oUF.useHCYColorGradient = true
+
 -- Recolor mana
 oUF.colors.power.MANA = { 0.3, 0.5, 1.0 }
 
