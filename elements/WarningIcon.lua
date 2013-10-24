@@ -159,19 +159,32 @@ end
 -- ------------------------------------------------------------------------------
 
 local LibDispellable = oUF_Adirelle.GetLib('LibDispellable-1.0')
+
 local function GetBuff(unit, index, offensive)
 	local name, _, texture, count, dispelType, duration, expirationTime, _, _, _, spellID = UnitBuff(unit, index)
-	return name, BUFFS[spellID], texture, count, dispelType, duration, expirationTime
+	local priority = BUFFS[spellID]
+	if LibDispellable:CanDispel(unit, offensive, dispelType) then
+		priority = (priority or 95) + 5
+	end
+	return name, priority, texture, count, dispelType, duration, expirationTime
 end
 
 local function GetDebuff(unit, index, offensive)
-	local name, _, texture, count, dispelType, duration, expirationTime, _, _, _, spellID, _, isBossDebuff = UnitDebuff(unit, index)
+	local name, _, texture, count, dispelType, duration, expirationTime, caster, _, _, spellID, _, isBossDebuff = UnitDebuff(unit, index)
 	if name and spellID then
 		local priority = DEBUFFS[spellID]
-		if priority and LibDispellable:CanDispel(unit, offensive, dispelType) then
-			priority = priority + 5
-		elseif (isBossDebuff or ENCOUNTER_DEBUFFS[spellID]) and dispelType == "none" then
+		if priority then
+			if LibDispellable:CanDispel(unit, offensive, dispelType) then
+				priority = priority + 2
+			elseif not dispelType or dispelType == "none" then
+				priority = priority - 2
+			end
+		elseif isBossDebuff then
+			priority = 65
+		elseif ENCOUNTER_DEBUFFS[spellID] then
 			priority = 55
+		elseif not UnitCanAssist(caster or "", unit) and duration and duration > 0 then
+			priority = 35
 		end
 		return name, priority, texture, count, dispelType, duration, expirationTime
 	end

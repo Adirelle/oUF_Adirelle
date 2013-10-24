@@ -119,36 +119,40 @@ local LibDispellable = oUF_Adirelle.GetLib("LibDispellable-1.0")
 local IsEncounterDebuff = oUF_Adirelle.IsEncounterDebuff
 oUF:AddAuraFilter("CureableDebuff", function(unit)
 	if not UnitCanAssist("player", unit) then return end
-	local alpha, count, expirationTime = 0.5, 0, 0
+	local priority, count, expirationTime = 1, 0, 0
 	local texture, debuffType, duration
 	local index = 0
 	repeat
 		index = index + 1
 		local thisName, _, thisTexture, thisCount, thisDebuffType, thisDuration, thisExpirationTime, caster, _, _, spellID, _, isBossDebuff = UnitDebuff(unit, index)
-		if thisName and thisDuration and thisDuration > 0 and not UnitCanAssist(caster or "", "player") then
+		if thisName and thisDuration and thisDuration > 0 and thisDebuffType and thisDebuffType ~= "none" then
 
 			if not thisCount then
 				thisCount = 0
 			end
 
-			local thisAlpha = 0.5
+			if isBossDebuff then
+				thisPriority = 50
+			elseif IsEncounterDebuff(spellID) then
+				thisPriority = 40
+			else
+				thisPriority = 30
+			end
 			if LibDispellable:CanDispel(unit, false, thisDebuffType) then
-				thisAlpha = 1.0
-			elseif thisDebuffType == "none" and (isBossDebuff or IsEncounterDebuff(spellID)) then
-				thisAlpha = 0.0
+				thisPriority = thisPriority + 50
 			end
 
-			if not texture or thisAlpha > alpha or (thisAlpha == alpha and (thisCount > count or (thisCount == count and thisExpirationTime > expirationTime))) then
-				alpha, texture, count, debuffType, duration, expirationTime = thisAlpha, thisTexture, thisCount, thisDebuffType, thisDuration, thisExpirationTime
+			if not texture or thisPriority > priority or (thisPriority == priority and (thisCount > count or (thisCount == count and thisExpirationTime > expirationTime))) then
+				priority, texture, count, debuffType, duration, expirationTime = thisPriority, thisTexture, thisCount, thisDebuffType, thisDuration, thisExpirationTime
 			end
 		end
 	until not thisName
 	if texture then
 		local color = debuffType and debuffType ~= "none" and DebuffTypeColor[debuffType]
 		if color then
-			return texture, count, expirationTime-duration, duration, color.r, color.g, color.b, alpha
+			return texture, count, expirationTime-duration, duration, color.r, color.g, color.b, 1
 		else
-			return texture, count, expirationTime-duration, duration, nil, nil, nil, alpha
+			return texture, count, expirationTime-duration, duration, nil, nil, nil, 1
 		end
 	end
 end)
