@@ -66,11 +66,10 @@ local function OnStatusBarUpdate(bar)
 		text:SetFormattedText("%d%%", floor(value))
 	elseif max <= 1 then
 		return text:Hide()
+	elseif UnitClassification(bar:GetParent().unit) ~= 'normal' then
+		text:SetFormattedText("%d%% %s", ceil(value/max*100), smartValue(value))
 	else
-		local perValue = ((value < max) and UnitClassification(bar:GetParent().unit) ~= 'normal') and format("%d%% ", floor(value/max*100)) or ""
-		local maxValue = smartValue(max)
-		local curValue = value < max and (smartValue(value).."/") or ""
-		text:SetText(strjoin('', perValue, curValue, maxValue))
+		text:SetText(smartValue(value))
 	end
 	text:Show()
 end
