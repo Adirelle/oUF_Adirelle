@@ -381,6 +381,7 @@ local function LayoutBars(self)
 	if self.Portrait then
 		self.Portrait:SetSize(height, height)
 	end
+	self.WarningIcon:SetSize(height, height)
 	if self.AuxiliaryBars then
 		LayoutAuxiliaryBars(self)
 	end
@@ -621,6 +622,15 @@ local function InitFrame(settings, self, unit)
 	local barContainer = private.SpawnBarLayout(self)
 	self.BarContainer = barContainer
 
+	-- Create an icon displaying important debuffs (either PvP or PvE)
+	local importantDebuff = self:CreateIcon(self)
+	importantDebuff.minPriority = 20
+	local stack = importantDebuff.Stack
+	stack:ClearAllPoints()
+	stack:SetPoint("BOTTOMRIGHT", importantDebuff, -1, 1)
+	self:RegisterFontString(importantDebuff.Stack, "number", 14, "OUTLINE")
+	self.WarningIcon = importantDebuff
+
 	-- Portrait
 	if not settings.noPortrait then
 		-- Spawn the player model
@@ -628,15 +638,9 @@ local function InitFrame(settings, self, unit)
 		portrait:SetPoint(left)
 		self.Portrait = portrait
 
-		-- Create an icon displaying important debuffs (either PvP or PvE) all over the portrait
-		local importantDebuff = self:CreateIcon(portrait)
+		-- Display important (de)buff all over the portrait
+		importantDebuff:SetFrameLevel(portrait:GetFrameLevel()+1)
 		importantDebuff:SetAllPoints(portrait)
-		importantDebuff.minPriority = 20
-		local stack = importantDebuff.Stack
-		stack:ClearAllPoints()
-		stack:SetPoint("BOTTOMRIGHT", importantDebuff, -1, 1)
-		self:RegisterFontString(importantDebuff.Stack, "number", 14, "OUTLINE")
-		self.WarningIcon = importantDebuff
 
 		-- Spawn a container frame that spans remaining space
 		barContainer:SetPoint("TOP"..left, portrait, "TOP"..right, GAP*dir, 0)
@@ -647,6 +651,9 @@ local function InitFrame(settings, self, unit)
 		portrait:SetScript('OnHide', function() barContainer:SetPoint("TOP"..left, self, "TOP"..left, 0, 0) end)
 	else
 		barContainer:SetAllPoints(self)
+
+		-- Display the on the side
+		importantDebuff:SetPoint(left, self, right, GAP*dir, 0)
 	end
 
 	-- Health bar
