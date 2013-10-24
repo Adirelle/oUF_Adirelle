@@ -158,23 +158,19 @@ end
 -- Element logic
 -- ------------------------------------------------------------------------------
 
+local LibDispellable = oUF_Adirelle.GetLib('LibDispellable-1.0')
 local function GetBuff(unit, index, offensive)
 	local name, _, texture, count, dispelType, duration, expirationTime, _, _, _, spellID = UnitBuff(unit, index)
-	local priority = BUFFS[spellID]
-	if priority and LibDispellable:CanDispel(unit, offensive, dispelType) then
-		priority = priority + 5
-	end
-	return name, priority, texture, count, dispelType, duration, expirationTime
+	return name, BUFFS[spellID], texture, count, dispelType, duration, expirationTime
 end
 
-local LibDispellable = oUF_Adirelle.GetLib('LibDispellable-1.0')
 local function GetDebuff(unit, index, offensive)
 	local name, _, texture, count, dispelType, duration, expirationTime, _, _, _, spellID, _, isBossDebuff = UnitDebuff(unit, index)
 	if name and spellID then
 		local priority = DEBUFFS[spellID]
 		if priority and LibDispellable:CanDispel(unit, offensive, dispelType) then
 			priority = priority + 5
-		elseif (isBossDebuff or ENCOUNTER_DEBUFF[spellID]) and dispelType == "none" then
+		elseif (isBossDebuff or ENCOUNTER_DEBUFFS[spellID]) and dispelType == "none" then
 			priority = 55
 		end
 		return name, priority, texture, count, dispelType, duration, expirationTime
