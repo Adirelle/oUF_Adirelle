@@ -50,51 +50,6 @@ local borderBackdrop = { edgeFile = [[Interface\Addons\oUF_Adirelle\media\white1
 local SpawnTexture, SpawnText, SpawnStatusBar = private.SpawnTexture, private.SpawnText, private.SpawnStatusBar
 local CreateName = private.CreateName
 
-local function Health_PostUpdate(healthBar, unit, health, maxHealth)
-	local hp = healthBar.__owner.HealPrediction
-	local bar = hp.healAbsorbBar
-	local offset, maxOffset = 0, hp:GetWidth()
-	if maxHealth > 0 and maxOffset > 0 then
-		offset = health * maxOffset / maxHealth
-	end
-	if bar.offset ~= offset then
-		bar.offset = offset
-		bar:SetPoint("RIGHT", hp, "LEFT", offset, 0)
-	end
-end
-
-local function HealPrediction_SizeChanged(hp)
-	hp.myBar:UpdateWidth()
-	hp.otherBar:UpdateWidth()
-	hp.absorbBar:UpdateWidth()
-	hp.healAbsorbBar:UpdateWidth()
-	local unit = hp.__owner.unit
-	hp.__owner.Health:PostUpdate(unit, UnitHealth(unit), UnitHealthMax(unit))
-end
-
-local function HealPrediction_SetMinMaxValues(bar, minValue, maxValue)
-	if bar.minValue ~= minValue or bar.maxValue ~= maxValue then
-		bar.minValue,  bar.maxValue = minValue, maxValue
-		bar:UpdateWidth()
-	end
-end
-
-local function HealPrediction_SetValue(bar, value)
-	if bar.value ~= value then
-		bar.value = value
-		bar:UpdateWidth()
-	end
-end
-
-local function HealPrediction_UpdateWidth(bar)
-	local value, maxValue = bar.value - bar.minValue, bar.maxValue - bar.minValue
-	local width, maxWidth = 1e-8, bar:GetParent():GetWidth()
-	if value > 0 and maxValue > 0 and maxWidth > 0 then
-		width = value * maxWidth / maxValue
-	end
-	bar:SetWidth(width)
-end
-
 local function Auras_PreSetPosition(icons, numIcons)
 	return 1, numIcons
 end
@@ -551,10 +506,6 @@ local function OnColorModified(self, event, layout, theme)
 		self.XRange:SetTexture(unpack(oUF.colors.outOfRange, 1, 3))
 		self.XRange:ForceUpdate()
 	end
-	self.HealPrediction.myBar:SetTexture(unpack(oUF.colors.healPrediction.self, 1, 4))
-	self.HealPrediction.otherBar:SetTexture(unpack(oUF.colors.healPrediction.others, 1, 4))
-	self.HealPrediction.absorbBar:SetTexture(unpack(oUF.colors.healPrediction.absorb, 1, 4))
-	self.HealPrediction.healAbsorbBar:SetTexture(unpack(oUF.colors.healPrediction.healAbsorb, 1, 4))
 	self.Health:ForceUpdate()
 	if self.Power then
 		self.Power:ForceUpdate()
@@ -676,42 +627,8 @@ local function InitFrame(settings, self, unit)
 	lowHealth:SetPoint("BOTTOMRIGHT", self, 2, -2)
 	self.LowHealth = lowHealth
 
-	-- Heal predictions
-	local healPrediction = CreateFrame("Frame", CreateName(health, "Prediction"), health)
-	healPrediction:SetAllPoints(health)
-	healPrediction.frequentUpdates = health.frequentUpdates
-
-	local myIncomingHeal = healPrediction:CreateTexture(CreateName(healPrediction, "MyHeal"), "OVERLAY")
-	local otherIncomingHeal = healPrediction:CreateTexture(CreateName(healPrediction, "OthersHeal"), "OVERLAY")
-	local absorb = healPrediction:CreateTexture(CreateName(healPrediction, "Absorb"), "OVERLAY")
-	local healAbsorb = healPrediction:CreateTexture(CreateName(healPrediction, "HealAbsorb"), "OVERLAY")
-
-	for i, bar in ipairs{healAbsorb, myIncomingHeal, otherIncomingHeal, absorb} do
-		bar:SetWidth(0.1)
-		bar:SetPoint("TOP", healPrediction)
-		bar:SetPoint("BOTTOM", healPrediction)
-		bar.minValue, bar.maxValue, bar.value = 0, 0, 0
-		bar.SetMinMaxValues = HealPrediction_SetMinMaxValues
-		bar.SetValue = HealPrediction_SetValue
-		bar.UpdateWidth = HealPrediction_UpdateWidth
-	end
-
-	healAbsorb:SetPoint("RIGHT", health)
-	myIncomingHeal:SetPoint("LEFT", healAbsorb, "RIGHT")
-	otherIncomingHeal:SetPoint("LEFT", myIncomingHeal, "RIGHT")
-	absorb:SetPoint("LEFT", otherIncomingHeal, "RIGHT")
-
-	healPrediction.myBar = myIncomingHeal
-	healPrediction.otherBar = otherIncomingHeal
-	healPrediction.absorbBar = absorb
-	healPrediction.healAbsorbBar = healAbsorb
-
-	healPrediction:SetScript('OnSizeChanged', HealPrediction_SizeChanged)
-
-	self.HealPrediction = healPrediction
-
-	-- Reanchor the heal prediction bars on health change
-	health.PostUpdate = Health_PostUpdate
+	-- Heal precitions
+	self:SpawnHealPrediction(1.05)
 
 	-- Used for some overlays
 	local indicators = CreateFrame("Frame", CreateName(self, "Indicators"), self)
