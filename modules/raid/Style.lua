@@ -115,36 +115,6 @@ local function UpdateName(self, event, unit)
 	self.Name:SetText(GetShortUnitName(self.unit))
 end
 
-
-local function Health_PostUpdate(healthBar, unit, health, maxHealth)
-	local bar = healthBar:GetParent().HealPrediction.healAbsorbBar
-	bar:SetPoint("RIGHT", healthBar, "LEFT", healthBar:GetWidth() * health / maxHealth, 0)
-end
-
-local function HealPrediction_SetMinMaxValues(bar, minValue, maxValue)
-	if bar.minValue ~= minValue or bar.maxValue ~= maxValue then
-		bar.minValue,  bar.maxValue = minValue, maxValue
-		bar:UpdateWidth()
-	end
-end
-
-local function HealPrediction_SetValue(bar, value)
-	if bar.value ~= value then
-		bar.value = value
-		bar:UpdateWidth()
-	end
-end
-
-local function HealPrediction_UpdateWidth(bar)
-	local relValue, range = bar.value - bar.minValue, bar.maxValue - bar.minValue
-	oUF.Debug(bar, 'HealPrediction_UpdateWidth', 'relValue=', relValue, 'range=', range)
-	if relValue > 0 and range > 0 then
-		bar:SetWidth(max(0.1, relValue * bar:GetParent():GetWidth() / range))
-	else
-		bar:SetWidth(0.0001)
-	end
-end
-
 -- Update health and name color
 local function UpdateColor(self, event, unit)
 	if unit and (unit ~= self.unit and unit ~= self.realUnit) then return end
@@ -444,10 +414,6 @@ local function OnThemeModified(self, event, layout, theme)
 end
 
 local function OnColorModified(self)
-	self.HealPrediction.myBar:SetTexture(unpack(oUF.colors.healPrediction.self, 1, 4))
-	self.HealPrediction.otherBar:SetTexture(unpack(oUF.colors.healPrediction.others, 1, 4))
-	self.HealPrediction.absorbBar:SetTexture(unpack(oUF.colors.healPrediction.absorb, 1, 4))
-	self.HealPrediction.healAbsorbBar:SetTexture(unpack(oUF.colors.healPrediction.healAbsorb, 1, 4))
 	self.XRange.Texture:SetTexture(unpack(oUF.colors.outOfRange, 1, 3))
 	self.XRange:ForceUpdate()
 	return UpdateColor(self)
@@ -474,7 +440,6 @@ local function InitFrame(self, unit)
 	hp:SetPoint("TOPLEFT")
 	hp:SetPoint("BOTTOMRIGHT")
 	hp.frequentUpdates = true
-	hp.PostUpdate = Health_PostUpdate
 	self.Health = hp
 	self:RegisterStatusBarTexture(hp)
 	hp:SetStatusBarColor(0, 0, 0, 0.75)
@@ -489,37 +454,7 @@ local function InitFrame(self, unit)
 	self:RegisterStatusBarTexture(hpbg)
 
 	-- Heal prediction
-	local healPrediction = CreateFrame("Frame", nil, self)
-	healPrediction.frequentUpdates = hp.frequentUpdates
-	healPrediction:SetAllPoints(hp)
-	healPrediction.maxOverflow = 1.00
-
-	local myIncomingHeal = healPrediction:CreateTexture(nil, "OVERLAY")
-	local otherIncomingHeal = healPrediction:CreateTexture(nil, "OVERLAY")
-	local absorb = healPrediction:CreateTexture(nil, "OVERLAY")
-	local healAbsorb = healPrediction:CreateTexture(nil, "OVERLAY")
-
-	for i, bar in ipairs{healAbsorb, myIncomingHeal, otherIncomingHeal, absorb} do
-		bar:SetPoint("TOP", hp)
-		bar:SetPoint("BOTTOM", hp)
-		bar:SetWidth(0.1)
-		bar.minValue, bar.maxValue, bar.value = 0, 0, 0
-		bar.SetMinMaxValues = HealPrediction_SetMinMaxValues
-		bar.SetValue = HealPrediction_SetValue
-		bar.UpdateWidth = HealPrediction_UpdateWidth
-	end
-
-	healAbsorb:SetPoint("RIGHT", health)
-	myIncomingHeal:SetPoint("LEFT", healAbsorb, "RIGHT")
-	otherIncomingHeal:SetPoint("LEFT", myIncomingHeal, "RIGHT")
-	absorb:SetPoint("LEFT", otherIncomingHeal, "RIGHT")
-
-	healPrediction.myBar = myIncomingHeal
-	healPrediction.otherBar = otherIncomingHeal
-	healPrediction.absorbBar = absorb
-	healPrediction.healAbsorbBar = healAbsorb
-
-	self.HealPrediction = healPrediction
+	self:SpawnHealPrediction(1.00)
 
 	-- Border
 	local border = CreateFrame("Frame", nil, self)

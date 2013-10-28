@@ -57,6 +57,9 @@ support\PlayerRole.lua
 # Tooltip handler
 support\UnitTooltip.lua
 
+# Common code to handle heal prediction overlays
+support\HealPrediction.lua
+
 # Our elements
 elements\AuraIcons.lua
 elements\Border.lua
