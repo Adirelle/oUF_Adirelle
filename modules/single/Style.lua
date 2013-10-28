@@ -81,6 +81,10 @@ local function IsMine(unit)
 	return unit == "player" or unit == "vehicle" or unit == "pet"
 end
 
+local function IsAlly(unit)
+	return caster and UnitCanAssist(caster, "player") and not IsMine(unit)
+end
+
 local IsEncounterDebuff = oUF_Adirelle.IsEncounterDebuff
 
 local canSteal = select(2, UnitClass("player")) == "MAGE"
@@ -92,34 +96,24 @@ local function Buffs_CustomFilter(icons, unit, icon, name, rank, texture, count,
 		priority, bigger = 6, true
 	else
 		local inCombat, filter = InCombatLockdown(), oUF_Adirelle.layoutDB.profile.Single.Auras.buffFilter
-		if UnitCanAttack("player", unit) then
+		if inCombat and (
+			(filter.consolidated and shouldConsolidate) or
+			(filter.permanent and duration == 0) or
+			(filter.allies and IsAlly(caster)) or
+			(filter.unknown and not canApplyAura)
+		) then
+			return false
+		elseif UnitCanAttack("player", unit) then
 			if (canSteal and isStealable) or LibDispellable:CanDispel(unit, true, dtype, spellID) then
 				priority, bigger = 5, true
 			elseif inCombat and filter.undispellable then
 				return false
 			end
 		elseif UnitCanAssist("player", unit) then
-			if IsMine(caster) then
-				priority, bigger = 4, true
-			elseif inCombat and filter.others then
-				return false
-			end
-			if canApplyAura then
-				priority = priority + 1
-			elseif inCombat and filter.unknown then
-				return false
-			end
-			if shouldConsolidate then
-				if inCombat and filter.consolidated then
-					return false
-				end
-				priority = priority - 1
-			end
+			bigger = IsMine(caster)
+			priority = bigger and 5 or canApplyAura and 4 or shouldConsolidate and 1 or 3
 		end
 		if duration == 0 then
-			if inCombat and filter.permanent then
-				return false
-			end
 			priority = priority - 1
 		end
 	end
@@ -134,19 +128,14 @@ local function Debuffs_CustomFilter(icons, unit, icon, name, rank, texture, coun
 		priority = 5
 	else
 		local inCombat, filter = InCombatLockdown(), oUF_Adirelle.layoutDB.profile.Single.Auras.buffFilter
-		if duration == 0 and inCombat and filter.permanent then
+		if inCombat and (
+			(filter.permanent and duration == 0) or 
+			(filter.allies and IsAlly(caster)) or
+			(filter.unknown and not canApplyAura)
+		) then
 			return false
 		elseif UnitCanAttack("player", unit) then
-			if IsMine(caster) then
-				priority = 2
-			elseif inCombat and filter.others then
-				return false
-			else
-				priority = 1
-			end
-			if not canApplyAura and inCombat and filter.others then
-				return false
-			end
+			priority = IsMine(caster) and 3 or canApplyAura and 2 or 1
 		elseif UnitCanAssist("player", unit) then
 			if LibDispellable:CanDispel(unit, false, dtype, spellID) then
 				priority = 2
