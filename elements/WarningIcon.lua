@@ -169,16 +169,18 @@ local function GetBuff(unit, index, offensive)
 	return name, priority, texture, count, dispelType, duration, expirationTime
 end
 
-local function GetDebuff(unit, index, offensive)
+local function GetDebuff(unit, index, offensive, noDispellable)
 	local name, _, texture, count, dispelType, duration, expirationTime, caster, _, _, spellID, _, isBossDebuff = UnitDebuff(unit, index)
 	if name and spellID then
 		local actualDispelType = LibDispellable:GetDispelType(dispelType, spellID)
 		if noDispellable and actualDispelType then
+			return
+		end
 		local priority = DEBUFFS[spellID]
 		if priority then
 			if LibDispellable:CanDispel(unit, offensive, dispelType, spellID) then
 				priority = priority + 2
-			elseif not dispelType or dispelType == "none" then
+			elseif not actualDispelType then
 				priority = priority - 2
 			end
 		elseif isBossDebuff then
@@ -192,23 +194,24 @@ local function GetDebuff(unit, index, offensive)
 	end
 end
 
-local function Scan(self, unit, getFunc, offensive)
+local function UpdateIcon(icon, unit, getFunc, offensive)
 	local index = 0
-	local priority = -huge
+	local priority = icon.minPriority or -huge
+	local noDispellable = icon.noDispellable
 	local name, texture, count, dispelType, duration, expirationTime
 	local newPriority, newTexture, newCount, newDispelType, newDuration, newExpirationTime
 	repeat
 		index = index + 1
-		name, newPriority, newTexture, newCount, newDispelType, newDuration, newExpirationTime = getFunc(unit, index, offensive)
+		name, newPriority, newTexture, newCount, newDispelType, newDuration, newExpirationTime = getFunc(unit, index, offensive, noDispellable)
 		if name and newPriority and newPriority >= priority then
 			priority, texture, count, dispelType, duration, expirationTime = newPriority, newTexture, newCount, newDispelType, newDuration, newExpirationTime
 		end
 	until not name
-	return priority, texture, count, dispelType, duration, expirationTime
+	return icon:SetAura(texture, count, dispelType, duration, expirationTime)
 end
 
-local function SetAuraIcon(icon, priority, texture, count, dispelType, duration, expirationTime)
-	if texture and priority and priority > icon.minPriority then
+local function SetAuraIcon(icon, texture, count, dispelType, duration, expirationTime)
+	if texture then
 		icon:SetTexture(texture)
 		icon:SetCooldown(expirationTime-duration, duration)
 		icon:SetStack(count or 0)
@@ -232,24 +235,15 @@ local function Update(self, event, unit)
 	local debuffIcon, buffIcon, bothIcon = self.WarningIconDebuff, self.WarningIconBuff, self.WarningIcon
 
 	if UnitIsVisible(unit) then
-		local buffPriority, buffTexture, buffCount, buffDispelType, buffDuration, buffExpirationTime = -huge
-		local debuffPriority, debuffTexture, debuffCount, debuffDispelType, debuffDuration, debuffExpirationTime = -huge
-
-		if bothIcon or debuffIcon then
-			debuffPriority, debuffTexture, debuffCount, debuffDispelType, debuffDuration, debuffExpirationTime = Scan(self, unit, GetDebuff, false)
-			if debuffIcon then
-				debuffIcon:SetAura(debuffPriority, debuffTexture, debuffCount, debuffDispelType, debuffDuration, debuffExpirationTime)
-			end
+		if debuffIcon then
+			UpdateIcon(debuffIcon, unit, GetDebuff, false)
 		end
-		if bothIcon or buffIcon then
-			buffPriority, buffTexture, buffCount, buffDispelType, buffDuration, buffExpirationTime = Scan(self, unit, GetBuff, true)
-			if buffIcon then
-				buffIcon:SetAura(buffPriority, buffTexture, buffCount, buffDispelType, buffDuration, buffExpirationTime)
-			end
+		if buffIcon then
+			UpdateIcon(buffIcon, unit, GetBuff, true)
 		end
 		if bothIcon then
-			if not bothIcon:SetAura(debuffPriority, debuffTexture, debuffCount, debuffDispelType, debuffDuration, debuffExpirationTime) then
-				bothIcon:SetAura(buffPriority, buffTexture, buffCount, buffDispelType, buffDuration, buffExpirationTime)
+			if not UpdateIcon(bothIcon, unit, GetDebuff, false) then
+				UpdateIcon(bothIcon, unit, GetBuff, true)
 			end
 		end
 	else

@@ -514,6 +514,7 @@ local function InitFrame(self, unit)
 
 	-- Important debuffs
 	self.WarningIconDebuff = self:CreateIcon(self.Overlay, ICON_SIZE, false, false, false, false, "CENTER", self, "RIGHT", -WIDTH * 0.25, 0)
+	self.WarningIconDebuff.noDispellable = true
 
 	-- Class-specific icons
 	if CreateClassAuraIcons then
