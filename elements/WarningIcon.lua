@@ -172,7 +172,8 @@ end
 local function GetDebuff(unit, index, offensive)
 	local name, _, texture, count, dispelType, duration, expirationTime, caster, _, _, spellID, _, isBossDebuff = UnitDebuff(unit, index)
 	if name and spellID then
-		local actualDispelType = lib:GetDispelType(dispelType, spellID)
+		local actualDispelType = LibDispellable:GetDispelType(dispelType, spellID)
+		if noDispellable and actualDispelType then
 		local priority = DEBUFFS[spellID]
 		if priority then
 			if LibDispellable:CanDispel(unit, offensive, dispelType, spellID) then
