@@ -187,8 +187,6 @@ local function GetDebuff(unit, index, offensive, noDispellable)
 			priority = 65
 		elseif ENCOUNTER_DEBUFFS[spellID] then
 			priority = 55
-		elseif not actualDispelType and not UnitCanAssist(caster or "", unit) and duration and duration > 0 then
-			priority = 10
 		end
 		return name, priority, texture, count, dispelType, duration, expirationTime
 	end
