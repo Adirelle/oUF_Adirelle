@@ -138,7 +138,7 @@ oUF:AddAuraFilter("CureableDebuff", function(unit)
 			else
 				thisPriority = 30
 			end
-			if LibDispellable:CanDispel(unit, false, thisDebuffType) then
+			if LibDispellable:CanDispel(unit, false, thisDebuffType, spellID) then
 				thisPriority = thisPriority + 50
 			end
 
