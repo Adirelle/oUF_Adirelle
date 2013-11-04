@@ -138,13 +138,13 @@ local function Debuffs_CustomFilter(icons, unit, icon, name, rank, texture, coun
 			priority = IsMine(caster) and 3 or canApplyAura and 2 or 1
 		elseif UnitCanAssist("player", unit) then
 			if LibDispellable:CanDispel(unit, false, dtype, spellID) then
-				priority = 2
+				priority = 3
 			elseif inCombat and filter.undispellable then
 				return false
 			end
 		end
 	end
-	icon.priority, icon.bigger = priority, priority > 1
+	icon.priority, icon.bigger = priority, priority >= 3
 	return true
 end
 
