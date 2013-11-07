@@ -787,16 +787,18 @@ local function InitFrame(settings, self, unit)
 	elseif unit == "target" then
 		-- Combo points
 		local DOT_SIZE = 10
-		local cpoints = {}
-		for i = 0, 4 do
-			local cpoint = SpawnTexture(indicators, DOT_SIZE)
+		local cpoints = CreateFrame("Frame", CreateName(indicators, "ComboPoints"), indicators)
+		cpoints:SetPoint("BOTTOM", health, 0, -DOT_SIZE/2)
+		cpoints:SetSize((DOT_SIZE + GAP) * MAX_COMBO_POINTS - GAP, DOT_SIZE);
+		for i =  1, MAX_COMBO_POINTS  do
+			local cpoint = SpawnTexture(cpoints, DOT_SIZE)
 			cpoint:SetTexture([[Interface\AddOns\oUF_Adirelle\media\combo]])
 			cpoint:SetTexCoord(3/16, 13/16, 5/16, 15/16)
-			cpoint:SetPoint("LEFT", health, "BOTTOMLEFT", i*(DOT_SIZE+GAP), 0)
+			cpoint:SetPoint("LEFT", (i-1)*(DOT_SIZE+GAP), 0)
 			cpoint:Hide()
 			tinsert(cpoints, cpoint)
 		end
-		self.ComboPoints = cpoints
+		self.CPoints = cpoints
 	end
 
 	-- Auras
