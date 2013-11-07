@@ -63,7 +63,6 @@ support\HealPrediction.lua
 # Our elements
 elements\AuraIcons.lua
 elements\Border.lua
-elements\ComboPoints.lua
 elements\Dragon.lua
 elements\Experience.lua
 elements\LowHealth.lua
