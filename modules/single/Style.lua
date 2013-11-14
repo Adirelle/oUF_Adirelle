@@ -320,8 +320,8 @@ end
 local function LayoutBars(self)
 	local width, height = self:GetSize()
 	if not width or not height or width == 0 or height == 0 then return end
-	self.Border:SetWidth(width + 2 * BORDER_WIDTH)
-	self.Border:SetHeight(height + 2 * BORDER_WIDTH)
+	local w = BORDER_WIDTH / self:GetEffectiveScale()
+	self.Border:SetSize(width + 2 * w, height + 2 * w)
 	if self.Portrait then
 		self.Portrait:SetSize(height, height)
 	end
