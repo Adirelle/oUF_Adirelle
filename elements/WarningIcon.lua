@@ -160,27 +160,27 @@ end
 
 local LibDispellable = oUF_Adirelle.GetLib('LibDispellable-1.0')
 
-local function GetBuff(unit, index, offensive)
+local function GetBuff(unit, index)
 	local name, _, texture, count, dispelType, duration, expirationTime, _, _, _, spellID = UnitBuff(unit, index)
 	local priority = BUFFS[spellID]
-	if LibDispellable:CanDispel(unit, offensive, dispelType, spellID) then
+	if LibDispellable:CanDispel(unit, true, dispelType, spellID) then
 		priority = (priority or 95) + 5
 	end
 	return name, priority, texture, count, dispelType, duration, expirationTime
 end
 
-local function GetDebuff(unit, index, offensive, noDispellable)
+local function GetDebuff(unit, index, noDispellable)
 	local name, _, texture, count, dispelType, duration, expirationTime, caster, _, _, spellID, _, isBossDebuff = UnitDebuff(unit, index)
 	if name and spellID then
-		local actualDispelType = LibDispellable:GetDispelType(dispelType, spellID)
-		if noDispellable and actualDispelType then
+		local isDispellable = LibDispellable:IsDispellable(dispelType, spellID)
+		if noDispellable and isDispellable then
 			return
 		end
 		local priority = DEBUFFS[spellID]
 		if priority then
-			if LibDispellable:CanDispel(unit, offensive, dispelType, spellID) then
+			if LibDispellable:CanDispel(unit, false, dispelType, spellID) then
 				priority = priority + 2
-			elseif not actualDispelType then
+			elseif isDispellable then
 				priority = priority - 2
 			end
 		elseif isBossDebuff then
@@ -192,15 +192,16 @@ local function GetDebuff(unit, index, offensive, noDispellable)
 	end
 end
 
-local function UpdateIcon(icon, unit, getFunc, offensive)
+local function UpdateIcon(icon, unit, isBuff)
 	local index = 0
 	local priority = icon.minPriority or -huge
 	local noDispellable = icon.noDispellable
 	local name, texture, count, dispelType, duration, expirationTime
 	local newPriority, newTexture, newCount, newDispelType, newDuration, newExpirationTime
+	local getFunc = isBuff and GetBuff or GetDebuff
 	repeat
 		index = index + 1
-		name, newPriority, newTexture, newCount, newDispelType, newDuration, newExpirationTime = getFunc(unit, index, offensive, noDispellable)
+		name, newPriority, newTexture, newCount, newDispelType, newDuration, newExpirationTime = getFunc(unit, index, noDispellable)
 		if name and newPriority and newPriority >= priority then
 			priority, texture, count, dispelType, duration, expirationTime = newPriority, newTexture, newCount, newDispelType, newDuration, newExpirationTime
 		end
@@ -234,14 +235,14 @@ local function Update(self, event, unit)
 
 	if UnitIsVisible(unit) then
 		if debuffIcon then
-			UpdateIcon(debuffIcon, unit, GetDebuff, false)
+			UpdateIcon(debuffIcon, unit, false)
 		end
 		if buffIcon then
-			UpdateIcon(buffIcon, unit, GetBuff, true)
+			UpdateIcon(buffIcon, unit, true)
 		end
 		if bothIcon then
-			if not UpdateIcon(bothIcon, unit, GetDebuff, false) then
-				UpdateIcon(bothIcon, unit, GetBuff, true)
+			if not UpdateIcon(bothIcon, unit, false) then
+				UpdateIcon(bothIcon, unit, true)
 			end
 		end
 	else
