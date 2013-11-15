@@ -148,11 +148,12 @@ oUF:AddAuraFilter("CureableDebuff", function(unit)
 		end
 	until not thisName
 	if texture then
-		local color = debuffType and debuffType ~= "none" and DebuffTypeColor[debuffType]
+		local color = DebuffTypeColor[debuffType]
+		local alpha = priority > 50 and 1 or 0.5
 		if color then
-			return texture, count, expirationTime-duration, duration, color.r, color.g, color.b, 1
+			return texture, count, expirationTime-duration, duration, color.r, color.g, color.b, alpha
 		else
-			return texture, count, expirationTime-duration, duration, nil, nil, nil, 1
+			return texture, count, expirationTime-duration, duration, nil, nil, nil, alpha
 		end
 	end
 end)
