@@ -549,7 +549,7 @@ local function InitFrame(settings, self, unit)
 	border:SetBackdropBorderColor(1, 1, 1, 1)
 	border.SetColor = border.SetBackdropBorderColor
 	border.blackByDefault = true
-	border.noTarget = not not strmatch(unit, "target")
+	border.noTarget = not isArenaUnit and not strmatch(unit, "boss")
 	self.Border = border
 
 	local left, right, dir = "LEFT", "RIGHT", 1
