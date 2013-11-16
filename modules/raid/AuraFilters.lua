@@ -146,7 +146,7 @@ oUF:AddAuraFilter("CureableDebuff", function(unit)
 	end
 	if texture then
 		local color = DebuffTypeColor[debuffType]
-		addon:Debug("CureableDebuff", "debuffType=", debuffType, "priority=", priority)
+		oUF:Debug("CureableDebuff", "debuffType=", debuffType, "priority=", priority)
 		if color then
 			return texture, count, expirationTime-duration, duration, color.r, color.g, color.b, 1
 		else
