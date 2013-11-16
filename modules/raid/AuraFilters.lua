@@ -121,7 +121,7 @@ oUF:AddAuraFilter("CureableDebuff", function(unit)
 	if not UnitCanAssist("player", unit) then return end
 	local priority, count, expirationTime = 1, 0, 0
 	local texture, debuffType, duration
-	for index, canDispel, thisTexture, thisCount, thisDebuffType, thisDuration, thisExpirationTime, caster, _, _, spellID, _, isBossDebuff in LibDispellable:IterateDispellableAuras(unit, false, true) do
+	for index, canDispel, _, _, thisTexture, thisCount, thisDebuffType, thisDuration, thisExpirationTime, caster, _, _, spellID, _, isBossDebuff in LibDispellable:IterateDispellableAuras(unit, false, true) do
 
 		if isBossDebuff then
 			thisPriority = 50
