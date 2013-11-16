@@ -121,31 +121,26 @@ oUF:AddAuraFilter("CureableDebuff", function(unit)
 	if not UnitCanAssist("player", unit) then return end
 	local priority, count, expirationTime = 1, 0, 0
 	local texture, debuffType, duration
-	local index = 0
-	repeat
-		index = index + 1
-		local thisName, _, thisTexture, thisCount, thisDebuffType, thisDuration, thisExpirationTime, caster, _, _, spellID, _, isBossDebuff = UnitDebuff(unit, index)
-		if thisName and LibDispellable:IsDispellable(thisDebuffType, spellID) then
+	for index, canDispel, thisTexture, thisCount, thisDebuffType, thisDuration, thisExpirationTime, caster, _, _, spellID, _, isBossDebuff in LibDispellable:IterateDispellableAuras(unit, false, true) do
 
-			thisCount = thisCount or 0
-			thisDuration = thisDuration or 0
+		thisCount = thisCount or 0
+		thisDuration = thisDuration or 0
 
-			if isBossDebuff then
-				thisPriority = 50
-			elseif IsEncounterDebuff(spellID) then
-				thisPriority = 40
-			else
-				thisPriority = 30
-			end
-			if LibDispellable:CanDispel(unit, false, thisDebuffType, spellID) then
-				thisPriority = thisPriority + 50
-			end
-
-			if not texture or thisPriority > priority or (thisPriority == priority and (thisCount > count or (thisCount == count and thisExpirationTime > expirationTime))) then
-				priority, texture, count, debuffType, duration, expirationTime = thisPriority, thisTexture, thisCount, thisDebuffType, thisDuration, thisExpirationTime
-			end
+		if isBossDebuff then
+			thisPriority = 50
+		elseif IsEncounterDebuff(spellID) then
+			thisPriority = 40
+		else
+			thisPriority = 30
 		end
-	until not thisName
+		if canDispel then
+			thisPriority = thisPriority + 50
+		end
+
+		if not texture or thisPriority > priority or (thisPriority == priority and (thisCount > count or (thisCount == count and thisExpirationTime > expirationTime))) then
+			priority, texture, count, debuffType, duration, expirationTime = thisPriority, thisTexture, thisCount, thisDebuffType, thisDuration, thisExpirationTime
+		end
+	end
 	if texture then
 		local color = DebuffTypeColor[debuffType]
 		local alpha = priority > 50 and 1 or 0.5
