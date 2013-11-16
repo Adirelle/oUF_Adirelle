@@ -123,9 +123,6 @@ oUF:AddAuraFilter("CureableDebuff", function(unit)
 	local texture, debuffType, duration
 	for index, canDispel, thisTexture, thisCount, thisDebuffType, thisDuration, thisExpirationTime, caster, _, _, spellID, _, isBossDebuff in LibDispellable:IterateDispellableAuras(unit, false, true) do
 
-		thisCount = thisCount or 0
-		thisDuration = thisDuration or 0
-
 		if isBossDebuff then
 			thisPriority = 50
 		elseif IsEncounterDebuff(spellID) then
@@ -136,8 +133,14 @@ oUF:AddAuraFilter("CureableDebuff", function(unit)
 		if canDispel then
 			thisPriority = thisPriority + 50
 		end
+		if thisCount and thisCount > 1 then
+			thisPriority = thisPriority + thisCount - 1
+		end
+		if thisDuration and thisDuration ~= 0 then
+			thisPriority = thisPriority + thisDuration / 10
+		end
 
-		if not texture or thisPriority > priority or (thisPriority == priority and (thisCount > count or (thisCount == count and thisExpirationTime > expirationTime))) then
+		if not texture or thisPriority > priority then
 			priority, texture, count, debuffType, duration, expirationTime = thisPriority, thisTexture, thisCount, thisDebuffType, thisDuration, thisExpirationTime
 		end
 	end
