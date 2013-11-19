@@ -114,6 +114,7 @@ do
 			Guard: 115295 = 20
 			Mana Tea: 115294 = 20
 			Elusive Brew: 115308 = 40
+			Life Coccon: 116849 = 50
 			Dampen Harm: 122278 = 50
 			Zen Meditation: 115176 = 50
 			Diffuse Magic: 122783 = 50
