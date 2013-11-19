@@ -136,7 +136,7 @@ do
 			Evasion: 5277 = 40
 			Cloak of Shadows: 31224 = 60
 		WARLOCK:
-			Sacrifice: 7812 = 40
+			Sacrificial Pact: 108416 = 40
 			Unending Resolve: 104773 = 50
 			Dark Bargain: 110913 = 60
 		WARRIOR:
