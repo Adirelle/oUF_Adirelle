@@ -82,7 +82,7 @@ local function IsMine(unit)
 end
 
 local function IsAlly(unit)
-	return caster and UnitCanAssist(caster, "player") and not IsMine(unit)
+	return unit and UnitCanAssist(unit, "player") and not IsMine(unit)
 end
 
 local IsEncounterDebuff = oUF_Adirelle.IsEncounterDebuff
