@@ -298,6 +298,33 @@ do
 			)
 		end
 
+	elseif playerClass == 'MONK' then
+		function CreateClassAuraIcons(self)
+			-- Enveloping Mist
+			self:AddAuraIcon(
+				SpawnSmallIcon(self, "TOPLEFT", self, "TOPLEFT", INSET, -INSET),
+				GetOwnAuraFilter(132120)
+			)
+			-- Renewing mists
+			local prev
+			for i = 1, 3 do
+				local icon = SpawnSmallIcon(self)
+				icon.blinkThreshold = 4
+				if i == 1 then
+					icon:SetPoint("TOPRIGHT", -INSET, -INSET)
+				else
+					icon:SetPoint("TOPRIGHT", prev, "TOPLEFT", -INSET, 0)
+				end
+				prev = icon
+				self:AddAuraIcon(icon, GetOwnStackedAuraFilter(119611, i))
+			end
+			-- Soothing Mist from the Jade Serpent Statue
+			self:AddAuraIcon(
+				SpawnSmallIcon(self, "BOTTOMLEFT", self, "BOTTOMLEFT", INSET, INSET),
+				GetOwnAuraFilter(125950)
+			)
+		end
+
 	end
 end
 

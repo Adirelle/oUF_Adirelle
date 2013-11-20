@@ -114,6 +114,7 @@ do
 			Guard: 115295 = 20
 			Mana Tea: 115294 = 20
 			Elusive Brew: 115308 = 40
+			Life Coccon: 116849 = 50
 			Dampen Harm: 122278 = 50
 			Zen Meditation: 115176 = 50
 			Diffuse Magic: 122783 = 50
@@ -136,7 +137,7 @@ do
 			Evasion: 5277 = 40
 			Cloak of Shadows: 31224 = 60
 		WARLOCK:
-			Sacrifice: 7812 = 40
+			Sacrificial Pact: 108416 = 40
 			Unending Resolve: 104773 = 50
 			Dark Bargain: 110913 = 60
 		WARRIOR:
