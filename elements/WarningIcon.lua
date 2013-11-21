@@ -138,8 +138,9 @@ do
 	end
 end
 local LibPlayerSpells = oUF_Adirelle.GetLib('LibPlayerSpells-1.0')
-for buff, flags in LibPlayerSpells:IterateSpells(nil, "SURVIVAL AURA") do
-	BUFFS[buff] = 50
+for buff, flags in LibPlayerSpells:IterateSpells("SURVIVAL MANA_REGEN", "AURA") do
+	local priority = 40
+	BUFFS[buff] = priority
 end
 
 -- ------------------------------------------------------------------------------
