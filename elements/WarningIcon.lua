@@ -138,8 +138,17 @@ do
 	end
 end
 local LibPlayerSpells = oUF_Adirelle.GetLib('LibPlayerSpells-1.0')
+local SURVIVAL = LibPlayerSpells.constants.SURVIVAL
+local COOLDOWN = LibPlayerSpells.constants.COOLDOWN
+local band = bit.band
 for buff, flags in LibPlayerSpells:IterateSpells("SURVIVAL MANA_REGEN", "AURA") do
 	local priority = 40
+	if band(flags, SURVIVAL) ~= 0 then
+		priority = priority + 20
+	end
+	if band(flags, COOLDOWN) ~= 0 then
+		priority = priority + 10
+	end
 	BUFFS[buff] = priority
 end
 
