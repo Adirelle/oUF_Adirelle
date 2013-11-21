@@ -99,12 +99,6 @@ do
 			Anti-Magic Shell: 48707 = 40
 			Dancing Rune Weapon: 49028 = 50
 			Icebound Fortitude: 48792 = 60
-		DRUID:
-			Innervate: 29166 = 20
-			Frenzied Regeneration: 22842 = 30
-			Barkskin: 22812 = 50
-			Might of Ursoc: 106922 = 55
-			Survival Instincts: 61336 = 60
 		MAGE:
 			Ice Block: 45438 = 80
 		MONK
