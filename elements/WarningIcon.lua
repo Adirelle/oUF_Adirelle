@@ -105,21 +105,10 @@ do
 			Barkskin: 22812 = 50
 			Might of Ursoc: 106922 = 55
 			Survival Instincts: 61336 = 60
-		HUNTER:
-			Feign Death: 5384 = 20
-			Deterrence: 19263 = 40
 		MAGE:
 			Ice Block: 45438 = 80
 		MONK
-			Guard: 115295 = 20
 			Mana Tea: 115294 = 20
-			Elusive Brew: 115308 = 40
-			Life Coccon: 116849 = 50
-			Dampen Harm: 122278 = 50
-			Zen Meditation: 115176 = 50
-			Diffuse Magic: 122783 = 50
-			Fortifying Brew: 115203 = 60
-			Avert Harm: 115213 = 80
 		PALADIN:
 			Divine Plea: 54428 = 20
 			Divine Protection: 498 = 30
@@ -153,6 +142,10 @@ do
 			BUFFS[tonumber(spellID)] = priority
 		end
 	end
+end
+local LibPlayerSpells = oUF_Adirelle.GetLib('LibPlayerSpells-1.0')
+for buff, flags in LibPlayerSpells:IterateSpells(nil, "SURVIVAL AURA") do
+	BUFFS[buff] = 50
 end
 
 -- ------------------------------------------------------------------------------
