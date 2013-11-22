@@ -119,10 +119,6 @@ do
 		ROGUE:
 			Evasion: 5277 = 40
 			Cloak of Shadows: 31224 = 60
-		WARLOCK:
-			Sacrificial Pact: 108416 = 40
-			Unending Resolve: 104773 = 50
-			Dark Bargain: 110913 = 60
 		WARRIOR:
 			Shield Block: 2565 = 20
 			Enraged Regeneration: 55694 = 30
