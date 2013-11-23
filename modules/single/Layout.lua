@@ -33,10 +33,12 @@ oUF:Factory(function()
 	local target, focus = Spawn("Adirelle_Single_Right", "Target", "Focus")
 	local targettarget, pettarget, focusTarget = Spawn("Adirelle_Single_Health", "TargetTarget", "PetTarget", "FocusTarget")
 
-	player:SetPoint('BOTTOMLEFT', _G.UIParent, 200, 180)
+	local offset = 250+max(0, GetScreenWidth()-1280)/5
+
+	player:SetPoint('BOTTOMRIGHT', _G.UIParent, 'BOTTOM', -offset, 180)
 	pet:SetPoint('BOTTOM', player, "TOP", 0, 15)
 	pettarget:SetPoint('BOTTOM', pet, "TOP", 0, 15+22)
-	target:SetPoint('BOTTOMRIGHT', _G.UIParent, -200, 180)
+	target:SetPoint('BOTTOMLEFT', _G.UIParent, 'BOTTOM', offset, 180)
 	targettarget:SetPoint('BOTTOM', target, "TOP", 0, 15)
 	focus:SetPoint('BOTTOM', targettarget, "TOP", 0, 15)
 	focusTarget:SetPoint('BOTTOM', focus, "TOP", 0, 15)

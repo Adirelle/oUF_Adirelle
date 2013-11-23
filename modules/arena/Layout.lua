@@ -18,7 +18,9 @@ oUF:Factory(function()
 	local UnregisterUnitWatch = _G.UnregisterUnitWatch
 	--GLOBALS>
 
-	local anchor = oUF_Adirelle.CreatePseudoHeader("oUF_Adirelle_Arena", "arena", "Arena enemy frames", 190, 5*(47+40)-15, 'RIGHT', _G.UIParent, -200, 100)
+	local offset = 250+max(0, GetScreenWidth()-1280)/5
+
+	local anchor = oUF_Adirelle.CreatePseudoHeader("oUF_Adirelle_Arena", "arena", "Arena enemy frames", 190, 5*(47+40)-15, 'BOTTOMLEFT', _G.UIParent, 'BOTTOM', offset, 385)
 
 	function anchor:ShouldEnable()
 		return select(2, IsInInstance()) == "arena"

@@ -61,23 +61,6 @@ oUF_Adirelle.SCALE, oUF_Adirelle.WIDTH, oUF_Adirelle.SPACING, oUF_Adirelle.HEIGH
 -- Health bar and name updates
 -- ------------------------------------------------------------------------------
 
--- Return the truncated name of unit
-local byte = string.byte
-local function GetShortUnitName(unit)
-	local name = unit and UnitName(unit)
-	if not name then
-		return UNKNOWN
-	elseif strlen(name) > 10 then
-		-- UTF-8 aware slicing
-		for i = 10, 16 do
-			if byte(strsub(name, i)) < 128 then
-				return strsub(name, 0, i)
-			end
-		end
-	end
-	return name
-end
-
 -- Health point formatting
 local function SmartHPValue(value)
 	if abs(value) >= 1000 then
@@ -112,7 +95,7 @@ local function UpdateName(self, event, unit)
 		end
 	end
 	self.Name:SetTextColor(r, g, b, 1)
-	self.Name:SetText(GetShortUnitName(self.unit))
+	self.Name:SetText(unit and UnitName(unit) or UNKNOWN)
 end
 
 -- Update health and name color
@@ -502,7 +485,8 @@ local function InitFrame(self, unit)
 
 	-- Name
 	local name = overlay:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-	name:SetAllPoints(self)
+	name:SetPoint("TOPLEFT", 6, 0)
+	name:SetPoint("BOTTOMRIGHT", -6, 0)
 	name:SetJustifyH("CENTER")
 	name:SetJustifyV("MIDDLE")
 	self:RegisterFontString(name, "raid", 11, "")
