@@ -292,7 +292,6 @@ do
 			local prev
 			for i = 1, 3 do
 				local icon = SpawnSmallIcon(self)
-				icon.blinkThreshold = 4
 				if i == 1 then
 					icon:SetPoint("TOPRIGHT", -INSET, -INSET)
 				else
