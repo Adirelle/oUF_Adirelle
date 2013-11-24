@@ -70,7 +70,7 @@ if BigWigsLoader and BigWigsLoader.RegisterMessage then
 
 	-- Thanks Funkeh for adding this one
 	BigWigsLoader.RegisterMessage(ENCOUNTER_DEBUFFS, 'BigWigs_OnBossLog', function(_, bossMod, event, ...)
-		if event ~= 'SPELL_AURA_APPLIED' and event ~= 'SPELL_AURA_APPLIED_DOSE' then return end
+		if event ~= 'SPELL_AURA_APPLIED' and event ~= 'SPELL_AURA_APPLIED_DOSE' and event ~= "SPELL_CAST_SUCCESS" then return end
 		for i = 1, select('#', ...) do
 			local id = select(i, ...)
 			oUF.Debug('WarningIcon', 'Watching', id, GetSpellLink(id), 'for', bossMod:GetName())
