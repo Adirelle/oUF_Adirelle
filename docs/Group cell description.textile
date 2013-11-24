@@ -50,22 +50,26 @@ h3. Symbols and roles: <code>[A]</code>, <code>[B]</code>
 
 h3. Generic buffs and debuffs: <code>[1]</code>, <code>[2]</code>, <code>[3]</code>
 
-<code>[1]</code> displays important buffs: mainly cooldowns, like defensive ones (Shield Wall, Barkskin, Cloak of Shadows, Feign Death, ...) or mana-regenerating ones (Innervate, Hymn of Hope, ...). This is based on a comprehensive, prioritized list.
+<code>[1]</code> displays important buffs: mainly cooldowns, like defensive ones (Shield Wall, Barkskin, Cloak of Shadows, Feign Death, ...) or mana-regenerating ones (Innervate, Hymn of Hope, ...). The lists of spells is provided by LibPlayerSpells-1.0.
 
-<code>[2]</code> displays generic debuffs. If you can dispell it, it is fully opaque, else it is half-transparent ; this takes your talents into accounts. If several debuffs exist, it favors debuffs you can dispell, debuffs with the highest stack count or longuest debuffs, in that order. Please note this ignores special debuffs (see below). It ignores debuffs with no duration (boss auras), or applied by friendly units (like Weakened Souls).
+<code>[2]</code> displays generic debuffs. If several debuffs exist, it favors debuffs you can dispell, debuffs with the highest stack count or longuest debuffs, in that order. Please note this ignores special debuffs (see below). It ignores debuffs with no duration (boss auras), or applied by friendly units (like Weakened Souls).
 
-<code>[3]</code> displays special debuffs, based on two comprehensive, prioritized lists: PvE encounter debuffs (Lightning Conductor, Blackout, ...) and PvP crowd-control debuffs (Sap, Polymorph, ...).
+<code>[3]</code> displays special debuffs, based on three sources:
+# PvE encounter debuffs according to Blizzard's API.
+# PvE encounter debuffs watched by BigWigs (r11425 or higher).
+# PvP crowd-control debuffs (Sap, Polymorph, ...).
 
 h3. Class-specific buffs: <code>[a]</code>-<code>[e]</code>
 
 These icons display specific buffs depending on *your* class. Most of the time they displays only *your* buffs.
 
 |_. Class|_. <code>[a]</code> top left|_. <code>[b]</code> top|_. <code>[c]</code> top right|_. <code>[d]</code> bottom left|_. <code>[e]</code> bottom right|
-|Druid|Rejuvenation|Regrowth|Lifebloom|Wild Growth|-|
+|Druid|Rejuvenation|Regrowth|Lifebloom|Wild Growth|Symbiosis|
 |Paladin|-|-|Beacon of light|-|-|
 |Shaman|-|-|Riptide|-|Earth Shield|
-|Warlock|-|-|-|Soulstone*|Dark Intent*|
+|Warlock|-|-|-|Soulstone*||
 |Mage|-|-|-|-|Focus Magic*|
+|Monk|Enveloping Mist|-|Renewing mists|Soothing Mist|-|
 |Priest|PW:Shield/Weakened Soul*|-|Renew|Lightwell Renew|Prayer of Mending|
 
  * also display other players' buffs.
