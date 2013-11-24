@@ -39,6 +39,10 @@ externals:
   libs/LibDispellable-1.0: git://git.wowace.com/wow/libdispellable-1-0/mainline.git
   libs/LibPlayerSpells-1.0: git://github.com/Adirelle/LibPlayerSpells-1.0.git
 
+optional-dependencies:
+  - sharedmedia
+  - big-wigs
+
 move-folders:
   oUF_Adirelle/oUF_Adirelle_Raid: oUF_Adirelle_Raid
   oUF_Adirelle/oUF_Adirelle_Single: oUF_Adirelle_Single
