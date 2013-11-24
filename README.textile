@@ -8,7 +8,7 @@ I do not plan to add configuration options. Nevertheless, one can move, resize a
 
 Single unit frames and party/raid unit frame sets could be disabled by disabling corresponding addons. 
 
-Though oUF_Adirelle embeds and uses some libraries, they are all optional and could be safely removed (just delete the "libs" directory). Please note the "/oufa" command yet requires LibMovable-1.0 to work.
+Though oUF_Adirelle embeds and uses some libraries, they are all optional and could be safely removed (just delete the "libs" directory).
 
 h2. Features
 
@@ -31,10 +31,10 @@ h3. Group unit frames
 
 * health bar fills from right to left when unit loses life,
 * display important buffs (like tank cooldowns, feign death, iceblock, ...),
-* display curable debuffs in the center of the frame ; debuffs you can dispell are opaque, debuffs you cannot are half transparent.
-* displat important debuffs (boss debuff or PvP control abilities).
-* display small icons in corners for heal related auras.
-* ready check icon.
+* display curable debuffs in the center of the frame,
+* display important debuffs (boss debuff or PvP control abilities),
+* display small icons in corners for heal-related auras,
+* ready check icon,
 * special status icon:
 ** skull: dead unit,
 ** lightning: disconnected unit,
@@ -68,6 +68,8 @@ The following feature are available using libraries:
 * bar texturing: "LibSharedMedia-3.0":http://wow.curse.com/downloads/wow-addons/details/libsharedmedia-3-0.aspx (provided).
 * frame positionning and "ConfigMode":http://www.wowwiki.com/ConfigMode support: LibMovable-1.0 (provided).
 * PvP crowd control icons: "DRData-1.0":http://wow.curse.com/downloads/wow-addons/details/drdata-1-0.aspx (provided).
+* player survival cooldowns: LibPlayerSpells-1.0 (provided).
+* more complete encounter debuff list: "BigWigs":http://www.curse.com/addons/wow/big-wigs version 11425 or higher; by default oUF_Adirelle shows the same debuffs than the default raid units. With a recent version of BigWigs, it also watches and displays the same debuffs than BigWigs.
 
 h2. Known issues
 
