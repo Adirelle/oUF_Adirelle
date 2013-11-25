@@ -91,48 +91,6 @@ if BigWigsLoader and BigWigsLoader.RegisterMessage then
 end
 
 -- Class noticeable buffs
-do
-	local BUFFS_STR = [=[
-		DEATHKNIGHT:
-			Bone Shield: 49222 = 30
-			Vampiric Blood: 55233 = 30
-			Anti-Magic Shell: 48707 = 40
-			Dancing Rune Weapon: 49028 = 50
-			Icebound Fortitude: 48792 = 60
-		MAGE:
-			Ice Block: 45438 = 80
-		MONK
-			Mana Tea: 115294 = 20
-		PALADIN:
-			Divine Plea: 54428 = 20
-			Divine Protection: 498 = 30
-			Hand of Sacrifice: 6940 = 50
-			Ardent Defender: 31850 = 50
-			Ancient Guardian (prot): 86659 = 60
-			Hand of Protection: 1022 = 70
-			Divine Shield: 642 = 80
-		PRIEST:
-			Hymn of Hope: 64901 = 20
-			Pain Suppression: 33206 = 50
-			Guardian Spirit: 47788 = 50
-			Spirit of Redemption: 20711 = 99
-		ROGUE:
-			Evasion: 5277 = 40
-			Cloak of Shadows: 31224 = 60
-		WARRIOR:
-			Shield Block: 2565 = 20
-			Enraged Regeneration: 55694 = 30
-			Shield Wall: 871 = 50
-			Last Stand: 12975 = 60
-	]=]
-
-	for def, spellIDs, priority in gmatch(BUFFS_STR, '((%d[%d%s,]*)%s*=%s*(%d+))') do
-		priority = tonumber(priority)
-		for spellID in gmatch(spellIDs, '(%d+)') do
-			BUFFS[tonumber(spellID)] = priority
-		end
-	end
-end
 local LibPlayerSpells = oUF_Adirelle.GetLib('LibPlayerSpells-1.0')
 local SURVIVAL = LibPlayerSpells.constants.SURVIVAL
 local COOLDOWN = LibPlayerSpells.constants.COOLDOWN
