@@ -518,7 +518,16 @@ local function InitFrame(self, unit)
 	self.WarningIconBuff = self:CreateIcon(self.Overlay, ICON_SIZE, false, false, false, false, "CENTER", self, "LEFT", WIDTH * 0.25, 0)
 
 	-- Cureable debuffs
-	local debuff = self:CreateIcon(self.Overlay, ICON_SIZE, false, false, false, false, "CENTER")
+	local debuff = self:CreateIcon(self.Overlay, ICON_SIZE, false, false, true, false, "CENTER")
+	local texture = debuff.Texture
+	debuff.SetColor = function(icon, r, g, b, a)
+		r, g, b, a = tonumber(r), tonumber(g), tonumber(b), tonumber(a) or 1
+		if r and g and b then
+			texture:SetVertexColor(r, g, b, a)
+		else
+			texture:SetVertexColor(1, 1, 1, a)
+		end
+	end
 	debuff.big = true
 	self:AddAuraIcon(debuff, "CureableDebuff")
 
