@@ -135,5 +135,12 @@ elseif playerClass == "SHAMAN" then
 		return bar
 	end
 
+elseif playerClass == 'MONK' then
+	-- Stagger bar
+	private.SetupSecondaryPowerBar = function(self)
+		local bar = private.SpawnStatusBar(self)
+		self.Stagger = bar
+		return bar
+	end
 end
 
