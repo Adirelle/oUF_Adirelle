@@ -115,7 +115,7 @@ _G.SlashCmdList.OUFALOWHEALTH = function(arg)
 	end
 end
 
-local LDB = LibStub('LibDataBroker-1.1', true)
+local LDB = oUF_Adirelle.GetLib('LibDataBroker-1.1')
 if LDB then
 	oUF_Adirelle.launcher = LDB:NewDataObject(parent, {
 		type = 'launcher',
