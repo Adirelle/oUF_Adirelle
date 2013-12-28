@@ -515,7 +515,7 @@ local function InitFrame(self, unit)
 	self.iconBlinkThreshold = 3
 
 	-- Important class buffs
-	self.WarningIconBuff = self:CreateIcon(self.Overlay, ICON_SIZE, false, false, false, false, "CENTER", self, "LEFT", WIDTH * 0.25, 0)
+	self.WarningIconBuff = self:CreateIcon(self.Overlay, ICON_SIZE, false, false, true, false, "CENTER", self, "LEFT", WIDTH * 0.25, 0)
 
 	-- Cureable debuffs
 	local debuff = self:CreateIcon(self.Overlay, ICON_SIZE, false, false, true, false, "CENTER")
