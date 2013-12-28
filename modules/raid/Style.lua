@@ -428,6 +428,19 @@ local function OnColorModified(self)
 	return UpdateColor(self)
 end
 
+local function CureableDebuff_SetColor(icon, r, g, b, a)
+	local texture, border = icon.Texture, icon.Border
+	r, g, b, a = tonumber(r), tonumber(g), tonumber(b), tonumber(a) or 1
+	if r and g and b then
+		texture:SetVertexColor(0.5 + 0.5 * r, 0.5 + 0.5 * g, 0.5 + 0.5 * b, a)
+		border:SetVertexColor(r, g, b)
+		border:Show()
+	else
+		texture:SetVertexColor(1, 1, 1, a)
+		border:Hide()
+	end
+end
+
 -- ------------------------------------------------------------------------------
 -- Unit frame initialization
 -- ------------------------------------------------------------------------------
@@ -518,17 +531,9 @@ local function InitFrame(self, unit)
 	self.WarningIconBuff = self:CreateIcon(self.Overlay, ICON_SIZE, false, false, true, false, "CENTER", self, "LEFT", WIDTH * 0.25, 0)
 
 	-- Cureable debuffs
-	local debuff = self:CreateIcon(self.Overlay, ICON_SIZE, false, false, true, false, "CENTER")
-	local texture = debuff.Texture
-	debuff.SetColor = function(icon, r, g, b, a)
-		r, g, b, a = tonumber(r), tonumber(g), tonumber(b), tonumber(a) or 1
-		if r and g and b then
-			texture:SetVertexColor(r, g, b, a)
-		else
-			texture:SetVertexColor(1, 1, 1, a)
-		end
-	end
+	local debuff = self:CreateIcon(self.Overlay, ICON_SIZE, false, false, false, false, "CENTER")
 	debuff.big = true
+	debuff.SetColor = CureableDebuff_SetColor
 	self:AddAuraIcon(debuff, "CureableDebuff")
 
 	-- Important debuffs
