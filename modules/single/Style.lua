@@ -162,8 +162,10 @@ do
 	end
 
 	local tmp = {}
-	function Auras_SetPosition(icons, numIcons)
-		if not icons or numIcons == 0 then return end
+	function Auras_SetPosition(icons)
+		if not icons then return end
+		local num = #icons
+		if num == 0 then return end
 		local spacing = icons.spacing or 1
 		local width, height = icons:GetSize()
 		local size = icons.size
@@ -172,30 +174,34 @@ do
 		local growthy = icons.growthy or 1
 
 		-- Sort auras
-		local num = #icons
 		for i = 1, mmax(num, #tmp) do
 			tmp[i] = icons[i]
 		end
 		tsort(tmp, CompareIcons)
 
+		local shown = 0
+		local visible = icons.maxNum
+		oUF.Debug('Auras_SetPosition', num, 'icons', visible, 'visible', 'maxNum=', icons.maxNum)
+
 		-- Icon sizes
-		local bigSize = mmax(8, mmin(size * 3 / 2, width, height))
+		local enlarge = icons.enlarge
+		local bigSize = enlarge and mmax(8, mmin(size * 3 / 2, width, height)) or 0
 		size = mmax(8, mmin(size, width, height))
 
 		local i = 1
 		local x, y = 0, 0
 
 		-- Layout large icons
-		if icons.enlarge then
+		if enlarge then
 			local step = bigSize + spacing
-			local maxx = mmax(1, width - bigSize)
-			while i <= num and tmp[i].bigger and x <= maxx do
+			while i <= num and shown < visible and tmp[i].bigger do
 				local button = tmp[i]
 				if button:IsShown() then
 					button:SetSize(bigSize, bigSize)
 					button:ClearAllPoints()
 					button:SetPoint(anchor, icons, anchor, growthx * x, 0)
 					x = x + step
+					shown = shown + 1
 				end
 				i = i + 1
 			end
@@ -204,21 +210,18 @@ do
 		-- Layout normal-sized icons
 		local baseX, step = x, size + spacing
 		local maxx, maxy = mmax(1, width - size), mmax(1, height - size)
-		while i <= num and x <= maxx and y <= maxy do
+		while i <= num and shown < visible do
 			local button = tmp[i]
 			if button:IsShown() then
+				while x > maxx do
+					y = y + step
+					x = (y >= bigSize) and 0 or baseX
+				end
 				button:SetSize(size, size)
 				button:ClearAllPoints()
 				button:SetPoint(anchor, icons, anchor, growthx * x, growthy * y)
+				shown = shown + 1
 				x = x + step
-				if x > maxx then
-					y = y + step
-					if y >= bigSize then
-						x = 0
-					else
-						x = baseX
-					end
-				end
 			end
 			i = i + 1
 		end
@@ -345,13 +348,6 @@ local function ApplyAuraPosition(self, target, initialAnchor, anchorTo, growthx,
 	target:SetPoint(initialAnchor, self, anchorTo, dx * FRAME_MARGIN, dy * FRAME_MARGIN)
 end
 
-local function UpdateAuraCount(target, size, spacing, maxNumber)
-	local width, height = target:GetSize()
-	local step = mmax(8, mmin(size, width, height)) + spacing
-	target.num = min(maxNumber, floor((width + spacing) / step) * floor((height + spacing) / step))
-	target:ForceUpdate()
-end
-
 local function OnAuraLayoutModified(self, event, layout)
 	local width, height = self:GetSize()
 	local buffs, debuffs = self.Buffs, self.Debuffs
@@ -374,13 +370,9 @@ local function OnAuraLayoutModified(self, event, layout)
 		end
 		ApplyAuraPosition(self, buffs, 'BOTTOM'..opposite, 'BOTTOM'..side, dx, -1, dx, 0)
 
-		-- Ensure we can display at least maxNum normal icons or (maxNum/1.5) large ones
+		-- Ensure we can display at least maxNum large icons
 		local maxNum = max(auras.numBuffs, auras.enlarge and auras.numDebuffs or 0)
-		local auraWidth = size * maxNum + spacing * (maxNum - 1)
-		if auras.enlarge then
-			local maxLarge = floor(maxNum / 1.5)
-			auraWidth = mmax(mmin(size * 1.5, height) * maxLarge + spacing * (maxLarge-1))
-		end
+		local auraWidth = (size * (auras.enlarge and 1.5 or 1)) * maxNum + spacing * (maxNum - 1)
 
 		-- Share the available space
 		if auras.numBuffs > 0 then
@@ -426,9 +418,11 @@ local function OnAuraLayoutModified(self, event, layout)
 	end
 
 	-- Update the number of icons and update them
-	UpdateAuraCount(buffs, size, spacing, auras.numBuffs)
+	buffs.maxNum = auras.numBuffs
+	buffs:ForceUpdate()
 	if debuffs then
-		UpdateAuraCount(debuffs, size, spacing, auras.numDebuffs)
+		debuffs.maxNum = auras.numDebuffs
+		debuffs:ForceUpdate()
 	end
 
 	-- Update auxiliary bars, just in case
