@@ -57,11 +57,6 @@ end
 local function Auras_PostCreateIcon(icons, button)
 	local cd, count, overlay = button.cd, button.count, button.overlay
 	button.icon:SetTexCoord(5/64, 59/64, 5/64, 59/64)
-	count:SetParent(cd)
-	count:SetAllPoints(button)
-	count:SetJustifyH("RIGHT")
-	count:SetJustifyV("BOTTOM")
-	overlay:SetParent(cd)
 	overlay:SetTexture([[Interface\AddOns\oUF_Adirelle\media\icon_border]])
 	overlay:SetTexCoord(0, 1, 0, 1)
 	cd.noCooldownCount = true
