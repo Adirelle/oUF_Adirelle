@@ -574,7 +574,6 @@ local function GetOptions()
 											allies        = "Allies' buffs",
 											consolidated  = 'Raid buffs',
 											undispellable = "Buffs I cannot dispell/steal (on enemy)",
-											unknown       = "Buffs I cannot apply",
 										},
 										disabled = function() return oUF_Adirelle.layoutDB.profile.Single.Auras.numBuffs == 0 end,
 										order = 50,

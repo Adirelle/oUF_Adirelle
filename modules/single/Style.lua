@@ -94,8 +94,7 @@ local function Buffs_CustomFilter(icons, unit, icon, name, rank, texture, count,
 		if inCombat and (
 			(filter.consolidated and shouldConsolidate) or
 			(filter.permanent and duration == 0) or
-			(filter.allies and IsAlly(caster)) or
-			(filter.unknown and not canApplyAura)
+			(filter.allies and IsAlly(caster))
 		) then
 			return false
 		elseif UnitCanAttack("player", unit) then
