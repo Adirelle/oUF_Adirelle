@@ -305,6 +305,11 @@ do
 				SpawnSmallIcon(self, "BOTTOMLEFT", self, "BOTTOMLEFT", INSET, INSET),
 				GetOwnAuraFilter(125950)
 			)
+			-- Zen Sphere
+			self:AddAuraIcon(
+				SpawnSmallIcon(self, "BOTTOMRIGHT", self, "BOTTOMRIGHT", INSET, INSET),
+				GetOwnAuraFilter(124081)
+			)
 		end
 
 	end
