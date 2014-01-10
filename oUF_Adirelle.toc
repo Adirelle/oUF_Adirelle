@@ -23,8 +23,8 @@ libs\LibDispellable-1.0\LibDispellable-1.0.lua
 libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
 #@no-lib-strip@
 libs\LibDBIcon-1.0\LibDBIcon-1.0.lua
-#@end-no-lib-strip@
 libs\LibPlayerSpells-1.0\lib.xml
+#@end-no-lib-strip@
 
 # Embedded oUF
 oUF\oUF.xml
