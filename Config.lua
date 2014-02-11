@@ -1,6 +1,6 @@
 --[=[
 Adirelle's oUF layout
-(c) 2011-2012 Adirelle (adirelle@gmail.com)
+(c) 2011-2014 Adirelle (adirelle@gmail.com)
 All rights reserved.
 --]=]
 
