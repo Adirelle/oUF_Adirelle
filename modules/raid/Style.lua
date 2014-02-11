@@ -460,6 +460,9 @@ local function InitFrame(self, unit)
 	self:SetBackdropColor(0, 0, 0, backdrop.bgAlpha)
 	self:SetBackdropBorderColor(0, 0, 0, 1)
 
+	-- Let have custom click
+	self.CustomClick = {}
+
 	-- Health bar
 	local hp = CreateFrame("StatusBar", nil, self)
 	hp.Update = Health_Update
