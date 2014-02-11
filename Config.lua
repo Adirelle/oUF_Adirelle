@@ -461,6 +461,7 @@ local function GetOptions()
 									SmartThreat = "Threat glow",
 									XRange = "Range fading",
 									Portrait = "Portrait",
+									CustomClick = "Dispel on right-click (raid units)",
 								},
 							},
 						},
