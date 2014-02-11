@@ -64,6 +64,7 @@ support\HealPrediction.lua
 # Our elements
 elements\AuraIcons.lua
 elements\Border.lua
+elements\CustomClick.lua
 elements\Dragon.lua
 elements\Experience.lua
 elements\LowHealth.lua
