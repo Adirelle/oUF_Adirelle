@@ -220,7 +220,7 @@ local optionalElements = {
 	"HolyPower", "HealPrediction", "Leader", "LowHealth","MasterLooter",
 	"PvP", "PvPTimer", "RaidIcon", "ReadyCheck", "Resting", "RoleIcon", "RuneBar",
 	"SmartThreat", "SoulShards", "StatusIcon", "TargetIcon", "ThreatBar",
-	"TotemBar", "WarningIcon", "XRange", "Portrait"
+	"TotemBar", "WarningIcon", "XRange", "Portrait", "CustomClick"
 }
 oUF_Adirelle.optionalElements = optionalElements
 
