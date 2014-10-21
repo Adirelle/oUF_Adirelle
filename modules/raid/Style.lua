@@ -213,12 +213,6 @@ do
 				SpawnSmallIcon(self, "BOTTOMLEFT", self, "BOTTOMLEFT", INSET, INSET),
 				GetOwnAuraFilter(48438, 0, 1, 0)
 			)
-
-			-- Symbiosis
-			self:AddAuraIcon(
-				SpawnSmallIcon(self, "BOTTOMRIGHT", self, "BOTTOMRIGHT", INSET, INSET),
-				GetOwnAuraFilter(110309, 0, 1, 0)
-			)
 		end
 
 	elseif playerClass == 'PALADIN' then
