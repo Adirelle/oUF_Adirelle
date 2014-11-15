@@ -21,11 +21,11 @@ local UnitThreatSituation = _G.UnitThreatSituation
 
 local Update = function(self, event, unit)
 	if unit ~= self.unit then return end
+	unit = unit or self.unit
 
 	local threat = self.SmartThreat
 	if threat.PreUpdate then threat:PreUpdate(unit) end
 
-	unit = unit or self.unit
 	local status
 	if UnitCanAttack(unit, "player") then
 		if UnitIsPlayer(unit) then
