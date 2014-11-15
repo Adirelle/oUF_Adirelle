@@ -175,137 +175,71 @@ end
 -- Aura icon initialization
 -- ------------------------------------------------------------------------------
 
-local CreateClassAuraIcons
-do
+local function InitializeClassAuraIcons()
 	local playerClass = oUF_Adirelle.playerClass
-	local GetOwnAuraFilter, GetOwnStackedAuraFilter, GetAnyAuraFilter = private.GetOwnAuraFilter, private.GetOwnStackedAuraFilter, private.GetAnyAuraFilter
+	local GetAnyAuraFilter = private.GetAnyAuraFilter
+	local icons = {}
+	local band = _G.bit.band
+	local LPS = oUF_Adirelle.GetLib('LibPlayerSpells-1.0')
+	local requiredFlags = oUF_Adirelle.playerClass.." AURA HELPFUL"
+	local rejectedFlags = "RAIDBUFF INTERRUPT DISPEL BURST SURVIVAL"
+	local INVERT_AURA = LPS.constants.INVERT_AURA
+	local UNIQUE_AURA = LPS.constants.UNIQUE_AURA
 
-	local function SpawnSmallIcon(self, ...) return self:CreateIcon(self.Overlay, SMALL_ICON_SIZE, true, true, true, false, ...)	end
-
-	-- Create the specific icons depending on player class
-	if playerClass == "DRUID" then
-		function CreateClassAuraIcons(self)
-			-- Rejuvenation
-			self:AddAuraIcon(
-				SpawnSmallIcon(self, "TOPLEFT", self, "TOPLEFT", INSET, -INSET),
-				GetOwnAuraFilter(774, 0.6, 0, 1)
-			)
-			-- Regrowth
-			self:AddAuraIcon(
-				SpawnSmallIcon(self, "TOP", self, "TOP", 0, -INSET),
-				GetOwnAuraFilter(8936, 0, 0.6, 0)
-			)
-			-- Lifebloom
-			local prev
-			for i = 1, 3 do
-				local icon = SpawnSmallIcon(self)
-				icon.blinkThreshold = 4
-				if i == 1 then
-					icon:SetPoint("TOPRIGHT", -INSET, -INSET)
-				else
-					icon:SetPoint("TOPRIGHT", prev, "TOPLEFT", -INSET, 0)
-				end
-				prev = icon
-				self:AddAuraIcon(icon, GetOwnStackedAuraFilter(33763, i, 0, 1, 0))
-			end
-			-- Wild Growth
-			self:AddAuraIcon(
-				SpawnSmallIcon(self, "BOTTOMLEFT", self, "BOTTOMLEFT", INSET, INSET),
-				GetOwnAuraFilter(48438, 0, 1, 0)
-			)
+	for spellId, flags in LPS:IterateSpells(nil, requiredFlags, rejectedFlags) do
+		local auraFilter, r, g, b = "HARMFUL"
+		if band(flags, INVERT_AURA) == 0 then
+			auraFilter = "HELPFUL"
+		else
+			r, g, b = 1, 0, 0
 		end
-
-	elseif playerClass == 'PALADIN' then
-		function CreateClassAuraIcons(self)
-			-- Beacon of light
-			self:AddAuraIcon(
-				SpawnSmallIcon(self, "TOPRIGHT", self, "TOPRIGHT", -INSET, -INSET),
-				GetOwnAuraFilter(53563)
-			)
+		if band(flags, UNIQUE_AURA) == 0 then
+			auraFilter = auraFilter .. " PLAYER"
 		end
+		oUF_Adirelle.Debug('Watching buff', spellId, GetSpellInfo(spellId), 'with filter', auraFilter)
+		tinsert(icons, GetAnyAuraFilter(spellId, auraFilter))
+	end
 
-	elseif playerClass == "SHAMAN" then
-		function CreateClassAuraIcons(self)
-			-- Earth Shield
-			local prev
-			for i = 1, 6 do
-				local icon = SpawnSmallIcon(self)
-				if i == 1 then
-					icon:SetPoint("BOTTOMRIGHT", -INSET, -INSET)
-				else
-					icon:SetPoint("BOTTOMRIGHT", prev, "BOTTOMLEFT", -INSET, 0)
-				end
-				prev = icon
-				self:AddAuraIcon(icon, GetOwnStackedAuraFilter(974, i))
-			end
-			-- Riptide
-			self:AddAuraIcon(
-				SpawnSmallIcon(self, "TOPRIGHT", self, "TOPRIGHT", -INSET, -INSET),
-				GetOwnAuraFilter(61295)
-			)
+	oUF_Adirelle.Debug('Watching', #icons, 'buff(s)')
+
+	if #icons > 4 then
+		anchors = {
+			{ "TOPLEFT",      INSET, -INSET },
+			{ "TOP",              0, -INSET },
+			{ "TOPRIGHT",    -INSET, -INSET },
+			{ "RIGHT",       -INSET,      0 },
+			{ "BOTTOMRIGHT", -INSET,  INSET },
+			{ "BOTTOM",           0,  INSET },
+			{ "BOTTOMLEFT",   INSET,  INSET },
+			{ "LEFT",         INSET,      0 },
+		}
+	else
+		anchors = {
+			{ "TOPLEFT",      INSET, -INSET },
+			{ "TOPRIGHT",    -INSET, -INSET },
+			{ "BOTTOMRIGHT", -INSET,  INSET },
+			{ "BOTTOMLEFT",   INSET,  INSET },
+		}
+	end
+
+	return icons, anchors
+end
+
+do
+	local icons, anchor
+
+	local function SpawnSmallIcon(self, ...)
+		return self:CreateIcon(self.Overlay, SMALL_ICON_SIZE, true, true, true, false, ...)
+	end
+
+	function CreateClassAuraIcons(self)
+		if not icons then
+			icons, anchor = InitializeClassAuraIcons()
 		end
-
-	elseif playerClass == 'WARLOCK' then
-		function CreateClassAuraIcons(self)
-			-- Soulstones
-			self:AddAuraIcon(SpawnSmallIcon(self, "BOTTOMLEFT", self, "BOTTOMLEFT", INSET, INSET), GetAnyAuraFilter(20707, "HELPFUL"))
+		for i, filter in ipairs(icons) do
+			local anchor, xOffset, yOffset = unpack(anchors[i])
+			self:AddAuraIcon(SpawnSmallIcon(self, anchor, self, anchor, xOffset, yOffset), filter)
 		end
-
-	elseif playerClass == 'PRIEST' then
-		function CreateClassAuraIcons(self)
-			-- PW:Shield or Weakened Soul
-			self:AddAuraIcon(
-				SpawnSmallIcon(self, "TOPLEFT", self, "TOPLEFT", INSET, -INSET),
-				"PW:Shield"
-			)
-			-- Renew
-			self:AddAuraIcon(
-				SpawnSmallIcon(self, "TOPRIGHT", self, "TOPRIGHT", -INSET, -INSET),
-				GetOwnAuraFilter(139)
-			).blinkThreshold = 4
-			-- Prayer of Mending
-			self:AddAuraIcon(
-				SpawnSmallIcon(self, "BOTTOMRIGHT", self, "BOTTOMRIGHT", -INSET, INSET),
-				GetOwnAuraFilter(33076)
-			)
-			-- Lightwell Renew
-			self:AddAuraIcon(
-				SpawnSmallIcon(self, "BOTTOMLEFT", self, "BOTTOMLEFT", INSET, INSET),
-				GetOwnAuraFilter(7001)
-			)
-		end
-
-	elseif playerClass == 'MONK' then
-		function CreateClassAuraIcons(self)
-			-- Enveloping Mist
-			self:AddAuraIcon(
-				SpawnSmallIcon(self, "TOPLEFT", self, "TOPLEFT", INSET, -INSET),
-				GetOwnAuraFilter(132120)
-			)
-			-- Renewing mists
-			local prev
-			for i = 1, 3 do
-				local icon = SpawnSmallIcon(self)
-				if i == 1 then
-					icon:SetPoint("TOPRIGHT", -INSET, -INSET)
-				else
-					icon:SetPoint("TOPRIGHT", prev, "TOPLEFT", -INSET, 0)
-				end
-				prev = icon
-				self:AddAuraIcon(icon, GetOwnStackedAuraFilter(119611, i))
-			end
-			-- Soothing Mist from the Jade Serpent Statue
-			self:AddAuraIcon(
-				SpawnSmallIcon(self, "BOTTOMLEFT", self, "BOTTOMLEFT", INSET, INSET),
-				GetOwnAuraFilter(125950)
-			)
-			-- Zen Sphere
-			self:AddAuraIcon(
-				SpawnSmallIcon(self, "BOTTOMRIGHT", self, "BOTTOMRIGHT", INSET, INSET),
-				GetOwnAuraFilter(124081)
-			)
-		end
-
 	end
 end
 
@@ -459,7 +393,6 @@ local function InitFrame(self, unit)
 
 	-- Health bar
 	local hp = CreateFrame("StatusBar", nil, self)
-	hp.Update = Health_Update
 	hp.current, hp.max = 0, 0
 	hp:SetPoint("TOPLEFT")
 	hp:SetPoint("BOTTOMRIGHT")
@@ -543,9 +476,7 @@ local function InitFrame(self, unit)
 	self.WarningIconDebuff.noDispellable = true
 
 	-- Class-specific icons
-	if CreateClassAuraIcons then
-		CreateClassAuraIcons(self)
-	end
+	CreateClassAuraIcons(self)
 
 	-- Threat glow
 	local threat = CreateFrame("Frame", nil, self)
