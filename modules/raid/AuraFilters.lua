@@ -68,31 +68,31 @@ end
 function private.GetOwnAuraFilter(spellId, r, g, b)
 	local spellName = GetSpellName("GetOwnAuraFilter", spellId, r, g, b)
 	if not spellName then return "none" end
-	local filter, exists = GetGenericFilter("OwnAura", spellName, r, g, b)
+	local filterName, exists = GetGenericFilter("OwnAura", spellName, r, g, b)
 	if not exists then
-		oUF:AddAuraFilter(filter, function(unit)
+		oUF:AddAuraFilter(filterName, function(unit)
 			local name, _, texture, count, _, duration, expirationTime, caster = UnitAura(unit, spellName, nil, "PLAYER")
 			if name then
 				return texture, count, expirationTime-duration, duration, r, g, b
 			end
 		end)
 	end
-	return filter
+	return filterName
 end
 
 function private.GetAnyAuraFilter(spellId, filter, r, g, b)
 	local spellName = GetSpellName("GetAnyAuraFilter", spellId, filter, r, g, b)
 	if not spellName then return "none" end
-	local filter, exists = GetGenericFilter("AnyAura", spellName, filter, r, g, b)
+	local filterName, exists = GetGenericFilter("AnyAura", spellName, filter, r, g, b)
 	if not exists then
-		oUF:AddAuraFilter(filter, function(unit)
+		oUF:AddAuraFilter(filterName, function(unit)
 			local name, _, texture, count, _, duration, expirationTime, caster = UnitAura(unit, spellName, nil, filter)
 			if name then
 				return texture, count, expirationTime-duration, duration, r, g, b
 			end
 		end)
 	end
-	return filter
+	return filterName
 end
 
 function private.GetOwnStackedAuraFilter(spellId, countThreshold, r, g, b)
