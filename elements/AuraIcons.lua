@@ -161,7 +161,7 @@ oUF:RegisterMetaFunction('AddAuraIcon', function(self, icon, filter)
 	if filter == "none" then return icon end
 	local func = filters[tostring(filter)]
 	if type(func) ~= "function" then
-		geterrorhandler()("unknown aura filter: "..filter)
+		geterrorhandler()("unknown aura filter: "..tostring(filter))
 		icon:Hide()
 		return icon
 	end
