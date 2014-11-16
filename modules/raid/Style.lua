@@ -200,6 +200,8 @@ local function InitializeClassAuraIcons()
 		tinsert(icons, GetAnyAuraFilter(spellId, auraFilter))
 	end
 
+	table.sort(icons)
+
 	oUF_Adirelle.Debug('Watching', #icons, 'buff(s)')
 
 	if #icons > 4 then
