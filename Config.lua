@@ -720,6 +720,11 @@ local function GetOptions()
 								max = 32,
 								step = 1,
 							},
+							showSolo = {
+								name = 'Show when alone',
+								type = 'toggle',
+								order = 85,
+							},
 							showTanks = {
 								name = 'Show tank group',
 								desc = 'Enable to show a separate group with tanks.',
