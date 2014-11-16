@@ -48,6 +48,8 @@ local LAYOUT_DEFAULTS = {
 				raid25 = false,
 				raid40 = false,
 			},
+			classAuraIcons = {
+			},
 		},
 		Single = {
 			width = 190,
