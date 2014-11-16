@@ -281,6 +281,49 @@ local function GetOptions()
 		}
 	end
 
+	local function BuildClassAuraIconGroup(order)
+		local defaults = oUF_Adirelle.ClassAuraIcons.defaultAnchors
+		if not next(defaults) then return end
+
+		local group = {
+			name = "Buff icons",
+			desc = "Where to place your buffs on the raid frames.",
+			order = order,
+			type = 'group',
+			args = {},
+		}
+		local values = {
+			HIDDEN = "Hidden",
+			TOPLEFT = "Top left",
+			TOPRIGHT = "Top right",
+			BOTTOMRIGHT = "Bottom right",
+			BOTTOMLEFT = "Bottom left",
+			TOP = "Top",
+			RIGHT = "Right",
+			BOTTOM = "Bottom",
+			LEFT = "Left"
+		}
+
+		for id, default in pairs(defaults) do
+			local id, default = id, default
+			group.args[tostring(id)] = {
+				name = GetSpellInfo(id),
+				type = 'select',
+				get = function(info)
+					return layoutDB.profile.Raid.classAuraIcons[id] or default
+				end,
+				set = function(info, value)
+					layoutDB.profile.Raid.classAuraIcons[id] = value ~= default and value or nil
+					SettingsModified("OnRaidLayoutModified")
+				end,
+				hidden = function() return not IsPlayerSpell(id) end,
+				values = values,
+			}
+		end
+
+		return group
+	end
+
 	-- Build the big table
 	options = {
 		name = 'oUF_Adirelle '..oUF_Adirelle.VERSION,
@@ -751,6 +794,7 @@ local function GetOptions()
 								type = 'toggle',
 								order = 110,
 							},
+							classAuraIcons = BuildClassAuraIconGroup(120),
 						},
 					},
 					unitTooltip = {

@@ -175,16 +175,22 @@ end
 -- Aura icon initialization
 -- ------------------------------------------------------------------------------
 
-local function InitializeClassAuraIcons()
+do
 	local playerClass = oUF_Adirelle.playerClass
 	local GetAnyAuraFilter = private.GetAnyAuraFilter
-	local icons = {}
+
 	local band = _G.bit.band
 	local LPS = oUF_Adirelle.GetLib('LibPlayerSpells-1.0')
 	local requiredFlags = oUF_Adirelle.playerClass.." AURA HELPFUL"
 	local rejectedFlags = "RAIDBUFF INTERRUPT DISPEL BURST SURVIVAL HARMFUL"
 	local INVERT_AURA = LPS.constants.INVERT_AURA
 	local UNIQUE_AURA = LPS.constants.UNIQUE_AURA
+
+	local anchors = { "TOPLEFT", "TOPRIGHT", "BOTTOMRIGHT", "BOTTOMLEFT", "TOP", "RIGHT", "BOTTOM", "LEFT" }
+
+	local filters = {}
+	local defaultAnchors = {}
+	local count = 0
 
 	for spellId, flags in LPS:IterateSpells(nil, requiredFlags, rejectedFlags) do
 		local auraFilter, r, g, b = "HARMFUL"
@@ -197,50 +203,35 @@ local function InitializeClassAuraIcons()
 			auraFilter = auraFilter .. " PLAYER"
 		end
 		oUF_Adirelle.Debug('Watching buff', spellId, GetSpellInfo(spellId), 'with filter', auraFilter)
-		tinsert(icons, GetAnyAuraFilter(spellId, auraFilter))
+
+		filters[spellId] = GetAnyAuraFilter(spellId, auraFilter)
+		count = count + 1
+		defaultAnchors[spellId] = anchors[count]
 	end
 
-	table.sort(icons)
-
-	oUF_Adirelle.Debug('Watching', #icons, 'buff(s)')
-
-	if #icons > 4 then
-		anchors = {
-			{ "TOPLEFT",      INSET, -INSET },
-			{ "TOP",              0, -INSET },
-			{ "TOPRIGHT",    -INSET, -INSET },
-			{ "RIGHT",       -INSET,      0 },
-			{ "BOTTOMRIGHT", -INSET,  INSET },
-			{ "BOTTOM",           0,  INSET },
-			{ "BOTTOMLEFT",   INSET,  INSET },
-			{ "LEFT",         INSET,      0 },
-		}
-	else
-		anchors = {
-			{ "TOPLEFT",      INSET, -INSET },
-			{ "TOPRIGHT",    -INSET, -INSET },
-			{ "BOTTOMRIGHT", -INSET,  INSET },
-			{ "BOTTOMLEFT",   INSET,  INSET },
-		}
-	end
-
-	return icons, anchors
+	oUF_Adirelle.ClassAuraIcons = {
+		filters = filters,
+		defaultAnchors = defaultAnchors
+	}
 end
 
-do
-	local icons, anchor
-
-	local function SpawnSmallIcon(self, ...)
-		return self:CreateIcon(self.Overlay, SMALL_ICON_SIZE, true, true, true, false, ...)
+local function CreateClassAuraIcons(self)
+	self.ClassAuraIcons = {}
+	for id, filter in pairs(oUF_Adirelle.ClassAuraIcons.filters) do
+		local icon = self:CreateIcon(self.Overlay, SMALL_ICON_SIZE, true, true, true, false)
+		self.ClassAuraIcons[id] = icon
+		self:AddAuraIcon(icon, filter)
 	end
+end
 
-	function CreateClassAuraIcons(self)
-		if not icons then
-			icons, anchor = InitializeClassAuraIcons()
-		end
-		for i, filter in ipairs(icons) do
-			local anchor, xOffset, yOffset = unpack(anchors[i])
-			self:AddAuraIcon(SpawnSmallIcon(self, anchor, self, anchor, xOffset, yOffset), filter)
+local function LayoutClassAuraIcons(self, layout)
+	for id, icon in pairs(self.ClassAuraIcons) do
+		local anchor = layout.Raid.classAuraIcons[id] or oUF_Adirelle.ClassAuraIcons.defaultAnchors[id]
+		icon:ClearAllPoints()
+		if anchor ~= "HIDDEN" then
+			local xOffset = strmatch(anchor, "LEFT") and INSET or strmatch(anchor, "RIGHT") and -INSET or 0
+			local yOffset = strmatch(anchor, "BOTTOM") and INSET or strmatch(anchor, "TOP") and -INSET or 0
+			icon:SetPoint(anchor, xOffset, yOffset)
 		end
 	end
 end
@@ -338,6 +329,8 @@ local function OnRaidLayoutModified(self, event, layout)
 			icon:SetSize(small, small)
 		end
 	end
+
+	LayoutClassAuraIcons(self, layout)
 end
 
 local function OnThemeModified(self, event, layout, theme)
