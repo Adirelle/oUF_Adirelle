@@ -155,30 +155,3 @@ oUF:AddAuraFilter("CureableDebuff", function(unit)
 		end
 	end
 end)
-
--- ------------------------------------------------------------------------------
--- Priests' "Power word: shield" special case
--- ------------------------------------------------------------------------------
-
-if select(2, UnitClass('player')) == "PRIEST" then
-	local PWSHIELD, WEAKENEDSOUL = GetSpellName("PWSHIELD", 17), GetSpellName("WEAKENEDSOUL", 6788)
-	if PWSHIELD and WEAKENEDSOUL then
-		oUF:AddAuraFilter("PW:Shield", function(unit)
-			local texture, _, _, duration, expirationTime = select(3, UnitBuff(unit, PWSHIELD))
-			if not texture then
-				duration, expirationTime = select(6, UnitDebuff(unit, WEAKENEDSOUL))
-				if duration then
-					-- Display a red X in place of the weakened soul icon
-					texture = [[Interface\RaidFrame\ReadyCheck-NotReady]]
-				end
-			end
-			if texture then
-				return texture, 0, expirationTime-duration, duration
-			end
-		end)
-	else
-		oUF:AddAuraFilter("PW:Shield", function() end)
-	end
-end
-
-
