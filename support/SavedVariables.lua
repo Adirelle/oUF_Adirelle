@@ -41,6 +41,7 @@ local LAYOUT_DEFAULTS = {
 			unitSpacing = 2,
 			groupSpacing = 2,
 			strictSize = false,
+			showSolo = false,
 			showTanks = false,
 			showPets = {
 				['*'] = true,

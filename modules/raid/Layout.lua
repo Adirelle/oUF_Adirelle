@@ -126,9 +126,6 @@ oUF:Factory(function()
 			"groupBy", "GROUP",
 			"groupingOrder", "1,2,3,4,5,6,7,8",
 			"unitsPerColumn", 5,
-			--@debug@--
-			"showSolo", (suffix == "Pets" or suffix == 1),
-			--@end-debug@--
 			"showParty", (suffix == "Pets" or suffix == 1),
 			"showPlayer", true,
 			"showRaid", true,
@@ -215,8 +212,8 @@ oUF:Factory(function()
 
 	local function GroupList(n) if n > 0 then return tostring(n), GroupList(n-1) end end
 
-	function anchor:ConfigureHeaders(layoutType, numGroups, showTanks, showPets)
-		self:Debug('ConfigureHeaders', layoutType, numGroups, showTanks, showPets)
+	function anchor:ConfigureHeaders(layoutType, numGroups, showTanks, showPets, showSolo)
+		self:Debug('ConfigureHeaders', layoutType, numGroups, showTanks, showPets, showSolo)
 
 		if showTanks and numGroups < 2 then
 			showTanks = false
@@ -248,6 +245,7 @@ oUF:Factory(function()
 			headers[1]:SetAttribute('groupFilter', 'MAINTANK')
 			offset = 1
 		end
+		headers[1 + offset]:SetAttribute('showSolo', showSolo)
 		for i = 1, numGroups do
 			headers[i + offset]:SetAttribute('groupFilter', tostring(i))
 		end
@@ -262,7 +260,8 @@ oUF:Factory(function()
 			end
 			pets:SetAttributes(
 				'groupFilter', strjoin(',', GroupList(numGroups)),
-				'maxColumns', numGroups
+				'maxColumns', numGroups,
+				'showSolo', showSolo
 			)
 		elseif pets then
 			pets:Hide()
@@ -367,14 +366,15 @@ oUF:Factory(function()
 		end
 
 		local changed = false
+		local showSolo = layout.showSolo
 
 		-- Update filters and visibility
-		if self.layoutType ~= layoutType or self.numGroups ~= numGroups or self.showTanks ~= showTanks or self.showPets ~= showPets then
-			self.layoutType, self.numGroups, self.showTanks, self.showPets = layoutType, numGroups, showTanks, showPets
-			self:ConfigureHeaders(layoutType, numGroups, showTanks, showPets)
+		if self.layoutType ~= layoutType or self.numGroups ~= numGroups or self.showTanks ~= showTanks or self.showPets ~= showPets or self.showSolo ~= showSolo then
+			self.layoutType, self.numGroups, self.showTanks, self.showPets, self.showSolo = layoutType, numGroups, showTanks, showPets, showSolo
+			self:ConfigureHeaders(layoutType, numGroups, showTanks, showPets, showSolo)
 			changed = true
 		else
-			self:Debug('- layout, no change:', layoutType, numGroups, showTanks, showPets)
+			self:Debug('- layout, no change:', layoutType, numGroups, showTanks, showPets, showSolo)
 		end
 
 		-- Reanchor
