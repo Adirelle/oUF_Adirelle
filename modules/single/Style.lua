@@ -632,7 +632,7 @@ local function InitFrame(settings, self, unit)
 		end
 		-- Additional power bars available only on players
 		if unit == 'player' or unit == 'target' or unit == 'focus' or unit == 'pet' or unit == 'arena' then
-			powers.CHI = private.SpawnDiscreteBar(self, 5, false, [[Interface\Addons\oUF_Adirelle\media\white16x16]])
+			powers.CHI = private.SpawnDiscreteBar(self, 6, false, [[Interface\Addons\oUF_Adirelle\media\white16x16]])
 			powers.HOLY_POWER = private.SpawnDiscreteBar(self, 5, false, [[Interface\Addons\oUF_Adirelle\media\white16x16]])
 			powers.HOLY_POWER.PostUpdate = HighlightHolyPower
 		end
