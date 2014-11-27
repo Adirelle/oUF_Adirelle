@@ -94,7 +94,7 @@ if playerClass == 'DRUID' then
 		local mark = lunar:CreateTexture(nil, "OVERLAY")
 		mark:SetSize(20, 20)
 		mark:SetPoint("CENTER")
-		mark:SetTexture([[Interface\PlayerFrame\UI-DruidEclipse]])
+		mark:SetAtlas("DruidEclipse-Arrow");
 		mark:SetBlendMode("ADD")
 		eclipseBar.mark = mark
 
