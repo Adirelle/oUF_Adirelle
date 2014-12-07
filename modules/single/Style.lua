@@ -628,7 +628,7 @@ local function InitFrame(settings, self, unit)
 			powers.BURNING_EMBERS = private.SpawnHybridBar(self, 4, MAX_POWER_PER_EMBER)
 			powers.BURNING_EMBERS.PostUpdate = HighlightBurningEmbers
 			powers.DEMONIC_FURY = private.SpawnStatusBar(self)
-			powers.SHADOW_ORBS = private.SpawnDiscreteBar(self, 4, false, [[Interface\Addons\oUF_Adirelle\media\white16x16]])
+			powers.SHADOW_ORBS = private.SpawnDiscreteBar(self, 5, false, [[Interface\Addons\oUF_Adirelle\media\white16x16]])
 		end
 		-- Additional power bars available only on players
 		if unit == 'player' or unit == 'target' or unit == 'focus' or unit == 'pet' or unit == 'arena' then
