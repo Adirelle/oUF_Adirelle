@@ -22,6 +22,7 @@ local UnitCanAssist = _G.UnitCanAssist
 local UnitCanAttack = _G.UnitCanAttack
 local UnitDebuff = _G.UnitDebuff
 local UnitIsVisible = _G.UnitIsVisible
+local band = bit.band
 --GLOBALS>
 
 -- ------------------------------------------------------------------------------
@@ -32,27 +33,26 @@ local BUFFS = {}
 local DEBUFFS = {}
 local ENCOUNTER_DEBUFFS = {}
 
--- PvP debuffs using DRData-1.0
---[=[
-local drdata = oUF_Adirelle.GetLib('DRData-1.0')
-if drdata then
+local LibPlayerSpells = oUF_Adirelle.GetLib('LibPlayerSpells-1.0')
+
+-- PvP debuffs using LibPlayerSpells-1.0
+do
 	local priorities = {
-		ctrlstun = 90,
-		rndstun = 90,
-		fear = 80,
-		horror = 80,
-		disorient = 60,
-		shortdisorient = 60,
-		silence = 50,
-		disarm = 50,
-		ctrlroot = 40,
-		shortroot = 40,
+		[LibPlayerSpells.constants.STUN]         = 90,
+		[LibPlayerSpells.constants.INCAPACITATE] = 80,
+		[LibPlayerSpells.constants.DISORIENT]    = 60,
+		[LibPlayerSpells.constants.ROOT]         = 40,
 	}
-	for spellID, cat in pairs(drdata:GetSpells()) do
-		DEBUFFS[spellID] = priorities[cat] or 10
+	for debuff, _, _, _, cat in LibPlayerSpells:IterateSpells("", "AURA HARMFUL CROWD_CTRL") do do
+		local prio = 10
+		for flag, value in pairs(priorities) do
+			if value > prio and band(cat, flag) ~= 0 then
+				prio = value
+			end
+		end
+		DEBUFFS[spellID] = prio
 	end
 end
---]=]
 
 -- To be used to avoid displaying these spells twice
 function oUF_Adirelle.IsEncounterDebuff(spellID)
@@ -86,12 +86,10 @@ if BigWigsLoader and BigWigsLoader.RegisterMessage then
 end
 
 -- Class noticeable buffs
-local LibPlayerSpells = oUF_Adirelle.GetLib('LibPlayerSpells-1.0')
 local SURVIVAL = LibPlayerSpells.constants.SURVIVAL
 local COOLDOWN = LibPlayerSpells.constants.COOLDOWN
 local HELPFUL = LibPlayerSpells.constants.HELPFUL
 local classFlag = LibPlayerSpells.constants[select(2, UnitClass('player'))]
-local band = bit.band
 for buff, flags in LibPlayerSpells:IterateSpells("SURVIVAL", "AURA") do
 	local priority = 35
 	if band(flags, SURVIVAL) ~= 0 then
