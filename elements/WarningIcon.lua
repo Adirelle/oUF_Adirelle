@@ -33,6 +33,7 @@ local DEBUFFS = {}
 local ENCOUNTER_DEBUFFS = {}
 
 -- PvP debuffs using DRData-1.0
+--[=[
 local drdata = oUF_Adirelle.GetLib('DRData-1.0')
 if drdata then
 	local priorities = {
@@ -51,13 +52,7 @@ if drdata then
 		DEBUFFS[spellID] = priorities[cat] or 10
 	end
 end
-
--- Special cases
-DEBUFFS[   605] = 100 -- Dominate Mind
-DEBUFFS[   710] = 100 -- Banish
-DEBUFFS[  1098] = 100 -- Enslave Demon
-DEBUFFS[ 33786] = 100 -- Cyclone
-DEBUFFS[113506] = 100 -- Cyclone (Symbiosis)
+--]=]
 
 -- To be used to avoid displaying these spells twice
 function oUF_Adirelle.IsEncounterDebuff(spellID)
@@ -97,7 +92,7 @@ local COOLDOWN = LibPlayerSpells.constants.COOLDOWN
 local HELPFUL = LibPlayerSpells.constants.HELPFUL
 local classFlag = LibPlayerSpells.constants[select(2, UnitClass('player'))]
 local band = bit.band
-for buff, flags in LibPlayerSpells:IterateSpells("SURVIVAL MANA_REGEN", "AURA") do
+for buff, flags in LibPlayerSpells:IterateSpells("SURVIVAL", "AURA") do
 	local priority = 35
 	if band(flags, SURVIVAL) ~= 0 then
 		priority = priority + 30
@@ -254,4 +249,3 @@ local function Disable(self)
 end
 
 oUF:AddElement('WarningIcon', Update, Enable, Disable)
-
