@@ -182,7 +182,7 @@ do
 	local band = _G.bit.band
 	local LPS = oUF_Adirelle.GetLib('LibPlayerSpells-1.0')
 	local requiredFlags = oUF_Adirelle.playerClass.." AURA HELPFUL"
-	local rejectedFlags = "RAIDBUFF INTERRUPT DISPEL BURST SURVIVAL HARMFUL"
+	local rejectedFlags = "INTERRUPT DISPEL BURST SURVIVAL HARMFUL"
 	local INVERT_AURA = LPS.constants.INVERT_AURA
 	local UNIQUE_AURA = LPS.constants.UNIQUE_AURA
 
