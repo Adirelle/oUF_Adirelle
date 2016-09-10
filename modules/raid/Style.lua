@@ -228,7 +228,7 @@ local function LayoutClassAuraIcons(self, layout)
 	for id, icon in pairs(self.ClassAuraIcons) do
 		local anchor = layout.Raid.classAuraIcons[id] or oUF_Adirelle.ClassAuraIcons.defaultAnchors[id]
 		icon:ClearAllPoints()
-		if anchor ~= "HIDDEN" then
+		if anchor and anchor ~= "HIDDEN" then
 			local xOffset = strmatch(anchor, "LEFT") and INSET or strmatch(anchor, "RIGHT") and -INSET or 0
 			local yOffset = strmatch(anchor, "BOTTOM") and INSET or strmatch(anchor, "TOP") and -INSET or 0
 			icon:SetPoint(anchor, xOffset, yOffset)
@@ -557,4 +557,3 @@ end
 oUF:RegisterStyle("Adirelle_Raid", InitFrame)
 
 oUF_Adirelle.RaidStyle = true
-
