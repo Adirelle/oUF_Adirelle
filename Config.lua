@@ -50,6 +50,7 @@ local function GetOptions()
 	if options then return options end
 
 	local LibMovable = oUF_Adirelle.GetLib('LibMovable-1.0')
+	local LibPlayerSpells = oUF_Adirelle.GetLib('LibPlayerSpells-1.0')
 
 	local reloadNeeded = false
 
@@ -318,8 +319,36 @@ local function GetOptions()
 
 		for id, default in pairs(defaults) do
 			local id, default = id, default
+
+			-- Create a tester function for that buff
+			local isUnknown
+			local _, providers = LibPlayerSpells:GetSpellInfo(id)
+			if type(providers) == "table" then
+				isUnknown = function()
+					for _, id in pairs(providers) do
+						if IsSpellKnown(id, false) or IsSpellKnown(id, true) then
+							return false
+						end
+					end
+					return true
+				end
+			elseif type(providers) == "number" then
+				isUnknown = function()
+					return not (IsSpellKnown(providers, false) or IsSpellKnown(providers, true))
+				end
+			else
+				isUnknown = function() return false end
+			end
+
 			group.args[tostring(id)] = {
 				name = GetSpellInfo(id),
+				desc = function()
+					if IsPlayerSpell(id) then
+						return "Select where to display the buff inside each raid frames."
+					else
+						return "You do not know this spell."
+					end
+				end,
 				type = 'select',
 				get = function(info)
 					return layoutDB.profile.Raid.classAuraIcons[id] or default
@@ -328,7 +357,7 @@ local function GetOptions()
 					layoutDB.profile.Raid.classAuraIcons[id] = value ~= default and value or nil
 					SettingsModified("OnRaidLayoutModified")
 				end,
-				hidden = function() return not IsPlayerSpell(id) end,
+				disabled = isUnknown,
 				values = values,
 			}
 		end
