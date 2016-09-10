@@ -1,6 +1,6 @@
  --[=[
 Adirelle's oUF layout
-(c) 2009-2014 Adirelle (adirelle@gmail.com)
+(c) 2009-2016 Adirelle (adirelle@gmail.com)
 All rights reserved.
 
 Elements handled: Powers
