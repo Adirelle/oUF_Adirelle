@@ -4,7 +4,7 @@ This addon has been originally written for personal use and taste. It borrows id
 
 It has been tested and includes specific settings for the following classes: hunter, druid, paladin, warlock, priest, shaman, death knight. It should work fine with other classes as well.
 
-I do not plan to add configuration options. Nevertheless, one can move, resize and even disable the frames using the `/oufa` chat command.
+There are some configuration options. You can open the configuration panel through the `/oufa` chat command.
 
 Single unit frames and party/raid unit frame sets could be disabled by disabling corresponding addons.
 
