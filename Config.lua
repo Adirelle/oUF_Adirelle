@@ -351,7 +351,7 @@ local function GetOptions()
 				end,
 				type = 'select',
 				get = function(info)
-					return layoutDB.profile.Raid.classAuraIcons[id] or default
+					return layoutDB.profile.Raid.classAuraIcons[id] or default or "HIDDEN"
 				end,
 				set = function(info, value)
 					layoutDB.profile.Raid.classAuraIcons[id] = value ~= default and value or nil
