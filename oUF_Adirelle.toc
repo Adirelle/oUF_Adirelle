@@ -61,6 +61,9 @@ support\UnitTooltip.lua
 # Common code to handle heal prediction overlays
 support\HealPrediction.lua
 
+# Dispel helpers
+support\Dispel.lua
+
 # Our elements
 elements\AuraIcons.lua
 elements\Border.lua

@@ -43,7 +43,7 @@ do
 		[LibPlayerSpells.constants.DISORIENT]    = 60,
 		[LibPlayerSpells.constants.ROOT]         = 40,
 	}
-	for debuff, _, _, _, cat in LibPlayerSpells:IterateSpells("", "AURA HARMFUL CROWD_CTRL") do do
+	for debuff, _, _, _, cat in LibPlayerSpells:IterateSpells("", "AURA HARMFUL CROWD_CTRL") do
 		local prio = 10
 		for flag, value in pairs(priorities) do
 			if value > prio and band(cat, flag) ~= 0 then
@@ -111,38 +111,34 @@ end
 -- Element logic
 -- ------------------------------------------------------------------------------
 
-local LibDispellable = oUF_Adirelle.GetLib('LibDispellable-1.0')
-
 local function GetBuff(unit, index)
 	local name, _, texture, count, dispelType, duration, expirationTime, _, _, _, spellID = UnitBuff(unit, index)
 	local priority = BUFFS[spellID]
-	if LibDispellable:CanDispel(unit, true, dispelType, spellID) then
+	if oUF_Adirelle.CanDispel(unit, dispelType) then
 		priority = (priority or 95) + 5
 	end
 	return name, priority, texture, count, dispelType, duration, expirationTime
 end
 
 local function GetDebuff(unit, index, noDispellable)
-	local name, _, texture, count, dispelType, duration, expirationTime, caster, _, _, spellID, _, isBossDebuff = UnitDebuff(unit, index)
-	if name and spellID then
-		local isDispellable = LibDispellable:IsDispellable(dispelType, spellID)
-		if noDispellable and isDispellable then
-			return
-		end
-		local priority = DEBUFFS[spellID]
-		if priority then
-			if LibDispellable:CanDispel(unit, false, dispelType, spellID) then
-				priority = priority + 2
-			elseif isDispellable then
-				priority = priority - 2
-			end
-		elseif isBossDebuff then
-			priority = 65
-		elseif ENCOUNTER_DEBUFFS[spellID] then
-			priority = 55
-		end
-		return name, priority, texture, count, dispelType, duration, expirationTime
+	local name, _, texture, count, dispelType, duration, expirationTime, caster, _, _, _, _, isBossDebuff = UnitDebuff(unit, index)
+	local isDispellable = oUF_Adirelle.IsDispellable(dispelType)
+	if not name or not spellID or (noDispellable and isDispellable) then
+		return
 	end
+	local priority = DEBUFFS[spellID]
+	if priority then
+		if oUF_Adirelle.CanDispel(unit, dispelType) then
+			priority = priority + 2
+		elseif isDispellable then
+			priority = priority - 2
+		end
+	elseif isBossDebuff then
+		priority = 65
+	elseif ENCOUNTER_DEBUFFS[spellID] then
+		priority = 55
+	end
+	return name, priority, texture, count, dispelType, duration, expirationTime
 end
 
 local function UpdateIcon(icon, unit, isBuff)
