@@ -43,22 +43,22 @@ Inside the cell, icons are layed out this way:
 </code>
 </pre>
 
-#### Symbols and roles: `[A]`, <code>[B]</code>
+#### Symbols and roles: `[A]`, `[B]`
 
 `[A]` is the role/symbol icon: it displays either the raid symbol (skull, cross, ...), or the healer/tank role icon, as assigned by the LFD tool or defined by the player or raid leader.
 <code>[B]</code> is the symbol of the unit target. This helps checking the unit is actually targeting the skull or whatever.
 
-#### Generic buffs and debuffs: <code>[1]</code>, <code>[2]</code>, <code>[3]</code>
+#### Generic buffs and debuffs: `[1]`, `[2]`, `[3]`
 
-<code>[1]</code> displays important buffs: mainly cooldowns, like defensive ones (Shield Wall, Barkskin, Cloak of Shadows, Feign Death, ...) or mana-regenerating ones (Innervate, Hymn of Hope, ...). The lists of spells is provided by LibPlayerSpells-1.0.
+`[1]` displays important buffs: mainly cooldowns, like defensive ones (Shield Wall, Barkskin, Cloak of Shadows, Feign Death, ...) or mana-regenerating ones (Innervate, Hymn of Hope, ...). The lists of spells is provided by LibPlayerSpells-1.0.
 
-<code>[2]</code> displays generic debuffs. If several debuffs exist, it favors debuffs you can dispell, debuffs with the highest stack count or longuest debuffs, in that order. Please note this ignores special debuffs (see below). It ignores debuffs with no duration (boss auras), or applied by friendly units (like Weakened Souls).
+`[2]` displays generic debuffs. If several debuffs exist, it favors debuffs you can dispell, debuffs with the highest stack count or longuest debuffs, in that order. Please note this ignores special debuffs (see below). It ignores debuffs with no duration (boss auras), or applied by friendly units (like Weakened Souls).
 
-<code>[3]</code> displays special debuffs, based on three sources:
-# PvE encounter debuffs according to Blizzard's API.
-# PvE encounter debuffs watched by BigWigs (r11425 or higher).
-# PvP crowd-control debuffs (Sap, Polymorph, ...).
+`[3]` displays special debuffs, based on three sources:
+* PvE encounter debuffs according to Blizzard's API.
+* PvE encounter debuffs watched by BigWigs (r11425 or higher).
+* PvP crowd-control debuffs (Sap, Polymorph, ...).
 
-#### Class-specific buffs: <code>[a]</code>-<code>[e]</code>
+#### Class-specific buffs: `[a]`-`[e]`
 
 These icons display specific buffs depending on *your* class. Most of the time they displays only *your* buffs.
