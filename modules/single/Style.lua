@@ -70,8 +70,6 @@ local function Auras_PostUpdateIcon(icons, unit, icon, index, offset)
 	end
 end
 
-local LibDispellable = oUF_Adirelle.GetLib("LibDispellable-1.0")
-
 local function IsMine(unit)
 	return unit == "player" or unit == "vehicle" or unit == "pet"
 end
@@ -98,7 +96,7 @@ local function Buffs_CustomFilter(icons, unit, icon, name, rank, texture, count,
 		) then
 			return false
 		elseif UnitCanAttack("player", unit) then
-			if (canSteal and isStealable) or LibDispellable:CanDispel(unit, true, dtype, spellID) then
+			if (canSteal and isStealable) or oUF_Adirelle:CanDispel(unit, dtype) then
 				priority, bigger = 5, true
 			elseif inCombat and filter.undispellable then
 				return false
@@ -123,7 +121,7 @@ local function Debuffs_CustomFilter(icons, unit, icon, name, rank, texture, coun
 	else
 		local inCombat, filter = InCombatLockdown(), oUF_Adirelle.layoutDB.profile.Single.Auras.buffFilter
 		if inCombat and (
-			(filter.permanent and duration == 0) or 
+			(filter.permanent and duration == 0) or
 			(filter.allies and IsAlly(caster)) or
 			(filter.unknown and not canApplyAura)
 		) then
@@ -131,7 +129,7 @@ local function Debuffs_CustomFilter(icons, unit, icon, name, rank, texture, coun
 		elseif UnitCanAttack("player", unit) then
 			priority = IsMine(caster) and 3 or canApplyAura and 2 or 1
 		elseif UnitCanAssist("player", unit) then
-			if LibDispellable:CanDispel(unit, false, dtype, spellID) then
+			if oUF_Adirelle:CanDispel(dtype, unit) then
 				priority = 3
 			elseif inCombat and filter.undispellable then
 				return false

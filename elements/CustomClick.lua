@@ -14,14 +14,11 @@ local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 local _G = _G
 --GLOBALS>
 
-local LibDispellable = oUF_Adirelle.GetLib('LibDispellable-1.0')
-
 local function Update(self)
 	if not self:CanChangeAttribute() then return end
 
-	local spells = LibDispellable.debuff
-	local spell = spells.Magic or spells.Curse or spells.Poison or spells.Disease
-	self:Debug("CustomClick", spell, spell and GetSpellInfo(spell))
+	local spell = next(oUF_Adirelle.Dispels)
+	self:Debug("CustomClick", spell, spell and (IsSpellKnown(spell, true) or IsSpellKnown(spell, false)))
 
 	self:SetAttribute("*type2", spell and "spell")
 	self:SetAttribute("*spell2", spell)
@@ -33,7 +30,7 @@ end
 
 local function Enable(self)
 	local element = self.CustomClick
-	if element and LibDispellable then
+	if element then
 		element.__owner, element.ForceUpdate = self, ForceUpdate
 		self:RegisterEvent('PLAYER_REGEN_DISABLED', Update, true)
 		self:RegisterEvent('PLAYER_REGEN_ENABLED', Update, true)
