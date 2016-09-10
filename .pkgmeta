@@ -1,7 +1,5 @@
 package-as: oUF_Adirelle
 
-license-output: LICENSE.txt
-
 externals:
   libs/LibStub:
     url: svn://svn.wowace.com/wow/libstub/mainline/trunk

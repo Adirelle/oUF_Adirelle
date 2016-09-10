@@ -1,9 +1,9 @@
 -
-    type: textile
-    input-file: README.textile
+    type: markdown
+    input-file: README.md
     output-page: Main
 
 -
-    type: textile
-    input-files: docs/**/*.textile
+    type: markdown
+    input-files: docs/**/*.md
     output-directory: docs

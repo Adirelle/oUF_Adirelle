@@ -1,33 +1,33 @@
-h1. Group cell description
+## Group cell description
 
 Here is a description of what is displayed in the group cells, as of version 1.7.1.
 
-h2. Health bar
+### Health bar
 
 The health works in reverse logic, compared to single units frame: the full bar is dark when the unit is at full life and it fills from the right when the units looses life. Basically, when your group units are all empty, everything is fine.
 
-h3. Incoming heals
+### Incoming heals
 
 Incoming heals are displayed using colored overlays:
 * when the unit is healed by only one player, the overlay is green,
 * when you are healing the unit along other healers, your heals are colored in green and the others' heals are colored in purple.
 
-h2. Name
+### Name
 
 The name is normally colored using the class color. When the unit is about to receive more than 10% overheal, it turns green. If the unit is about to receive more than 30% overheal, the name will also be replaced by the overheal amount.
 
-h2. Borders
+### Borders
 
 There is two separate borders:
 
-# a outer, thin border: target/mana status. It turns white to indicate your current target and blue to indicate mana-users that are running out of mana.
-# a inner, thick border: the threat status. It always displays the highest threat against all engaged mobs, using the standard threat colors:
-** red: has aggro,
-** orange: has aggro but is about to lose it,
-** yellow: does not have aggro but is about to gain it,
-** hidden: does not have aggro.
+* a outer, thin border: target/mana status. It turns white to indicate your current target and blue to indicate mana-users that are running out of mana.
+* a inner, thick border: the threat status. It always displays the highest threat against all engaged mobs, using the standard threat colors:
+    * red: has aggro,
+    * orange: has aggro but is about to lose it,
+    * yellow: does not have aggro but is about to gain it,
+    * hidden: does not have aggro.
 
-h2. Icons
+### Icons
 
 Inside the cell, icons are layed out this way:
 
@@ -43,12 +43,12 @@ Inside the cell, icons are layed out this way:
 </code>
 </pre>
 
-h3. Symbols and roles: <code>[A]</code>, <code>[B]</code>
+#### Symbols and roles: `[A]`, <code>[B]</code>
 
-<code>[A]</code> is the role/symbol icon: it displays either the raid symbol (skull, cross, ...), or the healer/tank role icon, as assigned by the LFD tool or defined by the player or raid leader.
+`[A]` is the role/symbol icon: it displays either the raid symbol (skull, cross, ...), or the healer/tank role icon, as assigned by the LFD tool or defined by the player or raid leader.
 <code>[B]</code> is the symbol of the unit target. This helps checking the unit is actually targeting the skull or whatever.
 
-h3. Generic buffs and debuffs: <code>[1]</code>, <code>[2]</code>, <code>[3]</code>
+#### Generic buffs and debuffs: <code>[1]</code>, <code>[2]</code>, <code>[3]</code>
 
 <code>[1]</code> displays important buffs: mainly cooldowns, like defensive ones (Shield Wall, Barkskin, Cloak of Shadows, Feign Death, ...) or mana-regenerating ones (Innervate, Hymn of Hope, ...). The lists of spells is provided by LibPlayerSpells-1.0.
 
@@ -59,18 +59,6 @@ h3. Generic buffs and debuffs: <code>[1]</code>, <code>[2]</code>, <code>[3]</co
 # PvE encounter debuffs watched by BigWigs (r11425 or higher).
 # PvP crowd-control debuffs (Sap, Polymorph, ...).
 
-h3. Class-specific buffs: <code>[a]</code>-<code>[e]</code>
+#### Class-specific buffs: <code>[a]</code>-<code>[e]</code>
 
 These icons display specific buffs depending on *your* class. Most of the time they displays only *your* buffs.
-
-|_. Class|_. <code>[a]</code> top left|_. <code>[b]</code> top|_. <code>[c]</code> top right|_. <code>[d]</code> bottom left|_. <code>[e]</code> bottom right|
-|Druid|Rejuvenation|Regrowth|Lifebloom|Wild Growth|Symbiosis|
-|Paladin|-|-|Beacon of light|-|-|
-|Shaman|-|-|Riptide|-|Earth Shield|
-|Warlock|-|-|-|Soulstone*||
-|Mage|-|-|-|-|Focus Magic*|
-|Monk|Enveloping Mist|-|Renewing mists|Soothing Mist|-|
-|Priest|PW:Shield/Weakened Soul*|-|Renew|Lightwell Renew|Prayer of Mending|
-
- * also display other players' buffs.
- 
