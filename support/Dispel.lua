@@ -56,7 +56,7 @@ local TypeToCategory = {
 local DispelCategories = { HELPFUL = 0, HARMFUL = 0, PET = 0, PERSONAL = 0 }
 
 local function UnitCat(unit)
-    if not unit then
+    if type(unit) ~= "string" or unit == "" then
         return nil
     elseif UnitIsUnit(unit, "player") then
         return "PERSONAL"
