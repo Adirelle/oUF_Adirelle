@@ -1,6 +1,6 @@
  --[=[
 Adirelle's oUF layout
-(c) 2014 Adirelle (adirelle@gmail.com)
+(c) 2014-2016 Adirelle (adirelle@gmail.com)
 All rights reserved.
 
 Elements handled: .CustomClick
