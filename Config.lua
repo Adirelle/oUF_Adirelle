@@ -303,7 +303,13 @@ local function GetOptions()
 			desc = "Where to place your buffs on the raid frames.",
 			order = order,
 			type = 'group',
-			args = {},
+			args = {
+				_HELP = {
+					name = "Use the dropdown menu to move the buffs around. Do not put several buffs at the same place.",
+					type = "description",
+					order = 0,
+				}
+			},
 		}
 		local values = {
 			HIDDEN = "Hidden",
@@ -316,6 +322,20 @@ local function GetOptions()
 			BOTTOM = "Bottom",
 			LEFT = "Left"
 		}
+		local orders = {
+			TOPLEFT = 10,
+			TOP = 20,
+			TOPRIGHT = 30,
+			LEFT = 40,
+			RIGHT = 50,
+			BOTTOMLEFT = 60,
+			BOTTOM = 70,
+			BOTTOMRIGHT = 80,
+			HIDDEN = 90
+		}
+		for v, p in pairs(orders) do
+			group.args["_"..v] = { name = values[v], type = "header", order = p-1 }
+		end
 
 		for id, default in pairs(defaults) do
 			local id, default = id, default
@@ -341,23 +361,23 @@ local function GetOptions()
 			end
 
 			group.args[tostring(id)] = {
-				name = GetSpellInfo(id),
+				name = function()
+					local name, _, icon = GetSpellInfo(id)
+					return format("|T%s:0|t %s (#%d)", icon, name, id)
+				end,
+				order = function()
+					local pos = layoutDB.profile.Raid.classAuraIcons[id] or default or "HIDDEN"
+					return orders[pos]
+				end,
 				desc = function()
-					if IsPlayerSpell(id) then
-						return "Select where to display the buff inside each raid frames."
-					else
-						return "You do not know this spell."
-					end
+					return "Use the dropdown menu to move this buff in another area."
 				end,
 				type = 'select',
-				get = function(info)
-					return layoutDB.profile.Raid.classAuraIcons[id] or default or "HIDDEN"
-				end,
 				set = function(info, value)
 					layoutDB.profile.Raid.classAuraIcons[id] = value ~= default and value or nil
 					SettingsModified("OnRaidLayoutModified")
 				end,
-				disabled = isUnknown,
+				hidden = isUnknown,
 				values = values,
 			}
 		end
