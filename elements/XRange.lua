@@ -147,7 +147,7 @@ local function BuildRangeCheck()
 		hostileCheck = CheckBothSpells(78, 100) -- Heroic Strike (melee) or Charge
 
 	elseif playerClass == 'MONK' then
-		friendlyCheck = CheckSpell(115921) -- Legacy of the Emperor
+		friendlyCheck = CheckSpell(116694) -- Effuse
 		hostileCheck = CheckSpell(117952) -- Crackling Jade Lightning
 		rezCheck = CheckSpell(115178) -- Resuscitate
 	end
