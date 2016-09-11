@@ -193,7 +193,7 @@ do
 
 	local band = _G.bit.band
 	local LPS = oUF_Adirelle.GetLib('LibPlayerSpells-1.0')
-	local requiredFlags = oUF_Adirelle.playerClass.." AURA HELPFUL"
+	local requiredFlags = oUF_Adirelle.playerClass.." AURA"
 	local rejectedFlags = "INTERRUPT DISPEL BURST SURVIVAL HARMFUL"
 	local INVERT_AURA = LPS.constants.INVERT_AURA
 	local UNIQUE_AURA = LPS.constants.UNIQUE_AURA
@@ -204,20 +204,58 @@ do
 	local defaultAnchors = {}
 	local count = 0
 
-	for spellId, flags in LPS:IterateSpells(nil, requiredFlags, rejectedFlags) do
-		local auraFilter, r, g, b = "HARMFUL"
-		if band(flags, INVERT_AURA) == 0 then
-			auraFilter = "HELPFUL"
-		else
-			r, g, b = 1, 0, 0
+	local ExpandFlags
+	do
+		local C = LPS.constants
+		local bnot = _G.bit.bnot
+
+		local function expandSimple2(flags, n, ...)
+			if not n then
+				return
+			end
+			local v = C[n]
+			if band(flags, v) ~= 0 then
+				return n, expandSimple2(flags, ...)
+			else
+				return expandSimple2(flags, ...)
+			end
 		end
+
+		local function expandSimple(flags, n, ...)
+			if not n then
+				if band(flags, C.DISPEL) ~= 0 then
+					return expandSimple2(flags, "CURSE", "DISEASE", "MAGIC", "POISON")
+				end
+				if band(flags, C.CROWD_CTRL) ~= 0 then
+					return expandSimple2(flags, "DISORIENT", "INCAPACITATE", "ROOT", "STUN", "TAUNT")
+				end
+				return expandSimple2(flags, "DEATHKNIGHT", "DEMONHUNTER", "DRUID", "HUNTER", "MAGE", "MONK",
+					"PALADIN", "PRIEST", "ROGUE", "SHAMAN", "WARLOCK", "WARRIOR", "RACIAL")
+			end
+			local v = C[n]
+			if band(flags, v) ~= 0 then
+				return n, expandSimple(flags, ...)
+			else
+				return expandSimple(flags, ...)
+			end
+		end
+
+		function ExpandFlags(flags)
+			return expandSimple(flags, "DISPEL", "CROWD_CTRL", "HELPFUL", "HARMFUL", "PERSONAL", "PET", "AURA",
+				"INVERT_AURA", "UNIQUE_AURA", "COOLDOWN", "SURVIVAL", "BURST", "POWER_REGEN", "IMPORTANT", "INTERRUPT",
+				"KNOCKBACK", "SNARE")
+		end
+	end
+
+	for spellId, flags in LPS:IterateSpells("HELPFUL PET", requiredFlags, rejectedFlags) do
+		local auraFilter = band(flags, INVERT_AURA) ~= 0 and "HARMFUL" or "HELPFUL"
 		if band(flags, UNIQUE_AURA) == 0 then
 			auraFilter = auraFilter .. " PLAYER"
 		end
-		oUF_Adirelle.Debug('Watching buff', spellId, GetSpellInfo(spellId), 'with filter', auraFilter)
+		oUF_Adirelle.Debug('Watching buff', spellId, GetSpellInfo(spellId), 'with filter', auraFilter, 'flags: ', ExpandFlags(flags))
 
 		filters[spellId] = GetAnyAuraFilter(spellId, auraFilter)
-		count = count + 1
+		count = (count % #anchors) + 1
 		defaultAnchors[spellId] = anchors[count]
 	end
 
