@@ -312,29 +312,23 @@ local function GetOptions()
 			},
 		}
 		local values = {
-			HIDDEN = "Hidden",
-			TOPLEFT = "Top left",
-			TOPRIGHT = "Top right",
-			BOTTOMRIGHT = "Bottom right",
-			BOTTOMLEFT = "Bottom left",
-			TOP = "Top",
-			RIGHT = "Right",
-			BOTTOM = "Bottom",
-			LEFT = "Left"
+			A_TOPLEFT = "Top left",
+			B_TOP = "Top",
+			C_TOPRIGHT = "Top right",
+			D_LEFT = "Left",
+			E_RIGHT = "Right",
+			F_BOTTOMLEFT = "Bottom left",
+			G_BOTTOM = "Bottom",
+			H_BOTTOMRIGHT = "Bottom right",
+			Z_HIDDEN = "Hidden",
 		}
 		local orders = {
-			TOPLEFT = 10,
-			TOP = 20,
-			TOPRIGHT = 30,
-			LEFT = 40,
-			RIGHT = 50,
-			BOTTOMLEFT = 60,
-			BOTTOM = 70,
-			BOTTOMRIGHT = 80,
-			HIDDEN = 90
+			TOPLEFT = 10, TOP = 20, TOPRIGHT = 30, LEFT = 40, RIGHT = 50,
+			BOTTOMLEFT = 60, BOTTOM = 70, BOTTOMRIGHT = 80, HIDDEN = 90
 		}
-		for v, p in pairs(orders) do
-			group.args["_"..v] = { name = values[v], type = "header", order = p-1 }
+		for x, label in pairs(values) do
+			local value = strsub(x, 3)
+			group.args["_"..value] = { name = label, type = "header", order = orders[value] }
 		end
 
 		for id, default in pairs(defaults) do
@@ -353,7 +347,8 @@ local function GetOptions()
 					return "Use the dropdown menu to move this buff in another area."
 				end,
 				type = 'select',
-				set = function(info, value)
+				set = function(info, x)
+					local value = strsub(x, 3)
 					layoutDB.profile.Raid.classAuraIcons[id] = value ~= default and value or nil
 					SettingsModified("OnRaidLayoutModified")
 				end,
