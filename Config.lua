@@ -340,26 +340,6 @@ local function GetOptions()
 		for id, default in pairs(defaults) do
 			local id, default = id, default
 
-			-- Create a tester function for that buff
-			local isUnknown
-			local _, providers = LibPlayerSpells:GetSpellInfo(id)
-			if type(providers) == "table" then
-				isUnknown = function()
-					for _, id in pairs(providers) do
-						if IsSpellKnown(id, false) or IsSpellKnown(id, true) then
-							return false
-						end
-					end
-					return true
-				end
-			elseif type(providers) == "number" then
-				isUnknown = function()
-					return not (IsSpellKnown(providers, false) or IsSpellKnown(providers, true))
-				end
-			else
-				isUnknown = function() return false end
-			end
-
 			group.args[tostring(id)] = {
 				name = function()
 					local name, _, icon = GetSpellInfo(id)
@@ -377,7 +357,6 @@ local function GetOptions()
 					layoutDB.profile.Raid.classAuraIcons[id] = value ~= default and value or nil
 					SettingsModified("OnRaidLayoutModified")
 				end,
-				hidden = isUnknown,
 				values = values,
 			}
 		end
