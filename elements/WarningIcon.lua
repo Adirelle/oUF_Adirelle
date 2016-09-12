@@ -45,24 +45,18 @@ local BUFFS = {}
 local DEBUFFS = {}
 local ENCOUNTER_DEBUFFS = {}
 
-local LibPlayerSpells = oUF_Adirelle.GetLib('LibPlayerSpells-1.0')
+local LPS = oUF_Adirelle.GetLib('LibPlayerSpells-1.0')
 
--- PvP debuffs using LibPlayerSpells-1.0
+-- PvP debuffs using LPS-1.0
 do
 	local priorities = {
-		[LibPlayerSpells.constants.STUN]         = 90,
-		[LibPlayerSpells.constants.INCAPACITATE] = 80,
-		[LibPlayerSpells.constants.DISORIENT]    = 60,
-		[LibPlayerSpells.constants.ROOT]         = 40,
+		[LPS.constants.STUN]         = 90,
+		[LPS.constants.INCAPACITATE] = 80,
+		[LPS.constants.DISORIENT]    = 60,
+		[LPS.constants.ROOT]         = 40,
 	}
-	for debuff, _, _, _, cat in LibPlayerSpells:IterateSpells("", "AURA HARMFUL CROWD_CTRL") do
-		local prio = 10
-		for flag, value in pairs(priorities) do
-			if value > prio and band(cat, flag) ~= 0 then
-				prio = value
-			end
-		end
-		DEBUFFS[spellID] = prio
+	for spellID, _, _, _, ccType in LPS:IterateSpells(nil, "AURA HARMFUL CROWD_CTRL") do
+		DEBUFFS[spellID] = priorities[ccType] or 10
 	end
 end
 
@@ -98,11 +92,11 @@ if BigWigsLoader and BigWigsLoader.RegisterMessage then
 end
 
 -- Class noticeable buffs
-local SURVIVAL = LibPlayerSpells.constants.SURVIVAL
-local COOLDOWN = LibPlayerSpells.constants.COOLDOWN
-local HELPFUL = LibPlayerSpells.constants.HELPFUL
-local classFlag = LibPlayerSpells.constants[select(2, UnitClass('player'))]
-for buff, flags in LibPlayerSpells:IterateSpells("SURVIVAL", "AURA") do
+local SURVIVAL = LPS.constants.SURVIVAL
+local COOLDOWN = LPS.constants.COOLDOWN
+local HELPFUL = LPS.constants.HELPFUL
+local classFlag = LPS.constants[oUF_Adirelle.playerClass]
+for buff, flags in LPS:IterateSpells("SURVIVAL", "AURA") do
 	local priority = 35
 	if band(flags, SURVIVAL) ~= 0 then
 		priority = priority + 30
@@ -126,7 +120,7 @@ end
 local function GetBuff(unit, index)
 	local name, _, texture, count, dispelType, duration, expirationTime, _, _, _, spellID = UnitBuff(unit, index)
 	local priority = BUFFS[spellID]
-	if oUF_Adirelle.CanDispel(unit, dispelType) then
+	if oUF_Adirelle.CanDispel(unit, true, dispelType) then
 		priority = (priority or 95) + 5
 	end
 	return name, priority, texture, count, dispelType, duration, expirationTime
@@ -140,7 +134,7 @@ local function GetDebuff(unit, index, noDispellable)
 	end
 	local priority = DEBUFFS[spellID]
 	if priority then
-		if oUF_Adirelle.CanDispel(unit, dispelType) then
+		if oUF_Adirelle.CanDispel(unit, false, dispelType) then
 			priority = priority + 2
 		elseif isDispellable then
 			priority = priority - 2
