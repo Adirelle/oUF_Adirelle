@@ -32,108 +32,89 @@ local UnitBuff = _G.UnitBuff
 local UnitDebuff = _G.UnitDebuff
 --GLOBALS>
 
-local LibPlayerSpells = oUF_Adirelle.GetLib('LibPlayerSpells-1.0')
-
-local ALLY = true
-local ENEMY = false
+local LPS = oUF_Adirelle.GetLib('LibPlayerSpells-1.0')
+local C = LPS.constants
 
 local Dispels = {}
 oUF_Adirelle.Dispels = Dispels
 
-for i, target in pairs{"HELPFUL", "HARMFUL", "PERSONAL", "PET"} do
-    for spellID, _, _, _, categories in LibPlayerSpells:IterateSpells("", strjoin(" ", "DISPEL", oUF_Adirelle.playerClass, target)) do
-        Dispels[spellID] = {target, categories}
+local base = bor(C.DISPEL, C[oUF_Adirelle.playerClass])
+for i, target in pairs{C.HELPFUL, C.HARMFUL, C.PERSONAL, C.PET} do
+    for spellID, _, _, _, _, _, dispels in LPS:IterateSpells(nil, bor(base, target)) do
+        Dispels[spellID] = bor(target, dispels)
     end
-end
-
-local TypeToCategory = {
-    Magic   = LibPlayerSpells.constants.MAGIC,
-    Poison  = LibPlayerSpells.constants.POISON,
-    Curse   = LibPlayerSpells.constants.CURSE,
-    Disease = LibPlayerSpells.constants.DISEASE,
-}
-
-local DispelCategories = { HELPFUL = 0, HARMFUL = 0, PET = 0, PERSONAL = 0 }
-
-local function UnitCat(unit)
-    if type(unit) ~= "string" or unit == "" then
-        return nil
-    elseif UnitIsUnit(unit, "player") then
-        return "PERSONAL"
-    elseif UnitIsUnit(unit, "pet") then
-        return "PET"
-    elseif UnitCanAttack(unit, "player") then
-        return "HARMFUL"
-    elseif UnitCanAssist("player", unit) then
-        return "HELPFUL"
-    end
-    return nil
-end
-
-function oUF_Adirelle.IsDispellable(debuffType)
-    return debuffType and TypeToCategory[debuffType] ~= nil
-end
-
-function oUF_Adirelle.CanDispel(unit, debuffType)
-    if not unit or not debuffType then
-        return false
-    end
-    local debuffCat = TypeToCategory[debuffType]
-    if not debuffCat then
-        return false
-    end
-    local unitCat = UnitCat(unit)
-    if not unitCat then
-        return false
-    end
-    return band(debuffCat, DispelCategories[unitCat]) ~= 0
 end
 
 local function noop() return end
 
+if next(Dispels) == nil then
+    -- This class cannot dispel, use short funcs
+    oUF_Adirelle.IsDispellable =  function() return false end
+    oUF_Adirelle.CanDispel = oUF_Adirelle.IsDispellable
+    oUF_Adirelle.IterateDispellableAuras = function() return noop end
+    return
+end
+
+local DispelFlags = { Magic = C.MAGIC, Poison = C.POISON, Curse = C.CURSE, Disease = C.DISEASE }
+local DispelByType = { Magic = 0, Poison = 0, Curse = 0, Disease = 0 }
+
+-- Update the tests according to known spells
+oUF_Adirelle:RegisterEvent('SPELLS_CHANGED', function()
+    for k in pairs(DispelByType) do
+        DispelByType[k] = 0
+    end
+    for spellID, flags in pairs(Dispels) do
+        if IsSpellKnown(spellID, false) or IsSpellKnown(spellID, true) then
+            for t, f in pairs(DispelFlags) do
+                DispelByType[t] = bor(DispelByType[t], flags)
+            end
+        end
+	end
+end)
+
+local function UnitCat(unit)
+    if type(unit) ~= "string" or unit == "" then
+        return 0
+    elseif UnitIsUnit(unit, "player") then
+        return bor(C.PERSONAL, C.HELPFUL), false
+    elseif UnitIsUnit(unit, "pet") then
+        return bor(C.PET, C.HELPFUL), false
+    elseif UnitCanAttack(unit, "player") then
+        return C.HARMFUL, true
+    elseif UnitCanAssist("player", unit) then
+        return C.HELPFUL, false
+    end
+    return 0
+end
+
+function oUF_Adirelle.IsDispellable(debuffType)
+    return not not (debuffType and DispelFlags[debuffType])
+end
+
+function oUF_Adirelle.CanDispel(unit, isBuff, debuffType)
+    local flags = debuffType and DispelByType[debuffType]
+    if not flags then return false end
+    local unitCat, forBuff = UnitCat(unit)
+    return isBuff == forBuff and band(flags, unitCat) ~= 0
+end
+
 function oUF_Adirelle.IterateDispellableAuras(unit, buffs)
     local unitCat = UnitCat(unit)
-    local offensive = unitCat == "HARMFUL"
+    local offensive = (unitCat == C.HARMFUL)
     if offensive ~= buffs then
         -- Cannot dispel enemy debuffs nor ally buffs
         return noop
     end
-    local dispellable = DispelCategories[unitCat]
     local getAura = buffs and UnitBuff or UnitDebuff
     local function iter(_, index)
         repeat
             index = index + 1
-            local name, rank, icon, count, dispelType, duration, expires, caster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossDebuff = getAura(index)
-            if name and dispelType then
-                local canDispel = band(TypeToCategory[dispelType], dispellable) ~= 0
-                return index, name, canDispel, rank, icon, count, dispelType, duration, expires, caster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossDebuff
+            local name, rank, icon, count, debuffType, duration, expires, caster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossDebuff = getAura(index)
+            if name and debuffType and DispelFlags[debuffType] then
+                local canDispel = band(DispelByType[debuffType], unitCat) ~= 0
+                return index, name, canDispel, rank, icon, count, debuffType, duration, expires, caster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossDebuff
             end
         until not name
     end
-    return iter, f, 0
+    return iter, nil, 0
 end
-
-if not next(Dispels) then
-    -- This class has no dispel spells, don't bother updating the categories
-    return
-end
-
--- Update the tests according to known spells
-
-local function SPELLS_CHANGED()
-    for target in pairs(DispelCategories) do
-        DispelCategories[target] = 0
-    end
-    for spellID, data in pairs(Dispels) do
-        if IsSpellKnown(spellID, false) or IsSpellKnown(spellID, true) then
-            local target, cats = unpack(data)
-            DispelCategories[target] = bor(categories[target], cats)
-            if target == "HELPFUL" then
-                DispelCategories["PET"] = bor(categories["PET"], cats)
-                DispelCategories["PERSONAL"] = bor(categories["PERSONAL"], cats)
-            end
-        end
-	end
-end
-
-oUF_Adirelle:RegisterEvent('SPELLS_CHANGED', SPELLS_CHANGED)
