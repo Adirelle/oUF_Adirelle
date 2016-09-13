@@ -401,7 +401,7 @@ local function OnThemeModified(self, event, layout, theme)
 end
 
 local function OnColorModified(self)
-	self.XRange.Texture:SetTexture(unpack(oUF.colors.outOfRange, 1, 3))
+	self.XRange.Texture:SetColorTexture(unpack(oUF.colors.outOfRange, 1, 3))
 	self.XRange:ForceUpdate()
 	return UpdateColor(self)
 end
