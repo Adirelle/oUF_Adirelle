@@ -550,7 +550,7 @@ local function InitFrame(self, unit)
 	-- LowHealth warning
 	local lowHealth = hp:CreateTexture(nil, "OVERLAY")
 	lowHealth:SetAllPoints(border)
-	lowHealth:SetTexture(1, 0, 0, 0.5)
+	lowHealth:SetColorTexture(1, 0, 0, 0.5)
 	self.LowHealth = lowHealth
 
 	-- AltPowerBar
@@ -589,7 +589,7 @@ local function InitFrame(self, unit)
 
 	local tex = xrange:CreateTexture(nil, "OVERLAY")
 	tex:SetAllPoints(self)
-	tex:SetTexture(0.4, 0.4, 0.4)
+	tex:SetColorTexture(0.4, 0.4, 0.4)
 	tex:SetBlendMode("MOD")
 
 	xrange.Texture = tex

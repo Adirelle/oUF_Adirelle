@@ -897,7 +897,7 @@ local function InitFrame(settings, self, unit)
 	if unit ~= "player" then
 		local xrange = indicators:CreateTexture(CreateName(indicators, "Range"), "BACKGROUND")
 		xrange:SetAllPoints(self)
-		xrange:SetTexture(0.4, 0.4, 0.4)
+		xrange:SetColorTexture(0.4, 0.4, 0.4)
 		xrange:SetBlendMode("MOD")
 		xrange.PostUpdate = XRange_PostUpdate
 		self.XRange = xrange
