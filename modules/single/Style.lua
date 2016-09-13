@@ -472,9 +472,9 @@ local function OnThemeModified(self, event, layout, theme)
 end
 
 local function OnColorModified(self, event, layout, theme)
-	self.LowHealth:SetTexture(unpack(oUF.colors.lowHealth, 1, 4))
+	self.LowHealth:SetColorTexture(unpack(oUF.colors.lowHealth, 1, 4))
 	if self.XRange then
-		self.XRange:SetTexture(unpack(oUF.colors.outOfRange, 1, 3))
+		self.XRange:SetColorTexture(unpack(oUF.colors.outOfRange, 1, 3))
 		self.XRange:ForceUpdate()
 	end
 	self.Health:ForceUpdate()
@@ -674,7 +674,7 @@ local function InitFrame(settings, self, unit)
 			castbar.Text = spellText
 
 			local bg = castbar:CreateTexture(CreateName(castbar, "Background"), "BACKGROUND")
-			bg:SetTexture(0,0,0,1)
+			bg:SetColorTexture(0,0,0,1)
 			bg:SetPoint('TOPLEFT', icon)
 			bg:SetPoint('BOTTOMRIGHT', castbar)
 

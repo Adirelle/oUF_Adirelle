@@ -60,10 +60,10 @@ end
 
 local function HealPrediction_UpdateColors(frame)
 	local hp = frame.HealPrediction
-	hp.myBar:SetTexture(unpack(oUF.colors.healPrediction.self, 1, 4))
-	hp.otherBar:SetTexture(unpack(oUF.colors.healPrediction.others, 1, 4))
-	hp.absorbBar:SetTexture(unpack(oUF.colors.healPrediction.absorb, 1, 4))
-	hp.healAbsorbBar:SetTexture(unpack(oUF.colors.healPrediction.healAbsorb, 1, 4))
+	hp.myBar:SetColorTexture(unpack(oUF.colors.healPrediction.self, 1, 4))
+	hp.otherBar:SetColorTexture(unpack(oUF.colors.healPrediction.others, 1, 4))
+	hp.absorbBar:SetColorTexture(unpack(oUF.colors.healPrediction.absorb, 1, 4))
+	hp.healAbsorbBar:SetColorTexture(unpack(oUF.colors.healPrediction.healAbsorb, 1, 4))
 end
 
 oUF:RegisterMetaFunction('SpawnHealPrediction', function(frame, maxOverflow)

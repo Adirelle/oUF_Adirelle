@@ -92,7 +92,7 @@ oUF:RegisterMetaFunction('CreateIcon', function(self, parent, size, noCooldown, 
 		local texture = icon:CreateTexture(nil, "ARTWORK")
 		texture:SetAllPoints(icon)
 		texture:SetTexCoord(4/64, 60/64, 4/64, 60/64)
-		texture:SetTexture(1,1,1,0)
+		texture:SetColorTexture(1,1,1,0)
 		icon.Texture = texture
 		icon.SetTexture = SetTexture
 	else
@@ -140,4 +140,3 @@ oUF:RegisterMetaFunction('CreateIcon', function(self, parent, size, noCooldown, 
 	icon:Hide()
 	return icon
 end)
-
