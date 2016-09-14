@@ -39,7 +39,7 @@ local Dispels = {}
 oUF_Adirelle.Dispels = Dispels
 
 for spellID, flags, _, _, _, _, dispels in LPS:IterateSpells("HELPFUL HARMFUL PERSONAL PET", "DISPEL "..oUF_Adirelle.playerClass) do
-    Dispels[spellID] = {band(flags, C.TARGETING), dispels}
+    Dispels[spellID] = {band(flags, LPS.masks.TARGETING), dispels}
 end
 
 local function noop() end
