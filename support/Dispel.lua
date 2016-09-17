@@ -33,6 +33,7 @@ local UnitDebuff = _G.UnitDebuff
 --GLOBALS>
 
 local LPS = oUF_Adirelle.GetLib('LibPlayerSpells-1.0')
+local LS = oUF_Adirelle.GetLib('LibSpellbook-1.0')
 local C = LPS.constants
 
 local Dispels = {}
@@ -56,12 +57,12 @@ local DispelFlags = { Magic = C.MAGIC, Poison = C.POISON, Curse = C.CURSE, Disea
 local TargetsByType = { Magic = 0, Poison = 0, Curse = 0, Disease = 0 }
 
 -- Update the tests according to known spells
-oUF_Adirelle:RegisterEvent('SPELLS_CHANGED', function()
+LS.RegisterCallback(oUF_Adirelle, 'LibSpellbook_Spells_Changed', function(...)
     for k in pairs(TargetsByType) do
         TargetsByType[k] = 0
     end
     for spellID, data in pairs(Dispels) do
-        if IsSpellKnown(spellID, false) or IsSpellKnown(spellID, true) then
+        if LS:IsKnown(spellID) then
             local targets, dispels = unpack(data)
             for t, f in pairs(DispelFlags) do
                 if band(dispels, f) ~= 0 then
