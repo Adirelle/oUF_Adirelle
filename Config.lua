@@ -331,8 +331,28 @@ local function GetOptions()
 			group.args["_"..value] = { name = label, type = "header", order = orders[value] }
 		end
 
+		local LPS = oUF_Adirelle.GetLib('LibPlayerSpells-1.0')
+		local LS = oUF_Adirelle.GetLib('LibSpellbook-1.0')
+		local function BuildIsKnownFunc(id)
+			local _, providers = LPS:GetSpellInfo(id)
+			if type(providers) == "table" then
+				return function()
+					for i, p in pairs(providers) do
+						if LS:IsKnown(p) then
+							return true
+						end
+					end
+					return false
+				end
+			elseif type(providers) == "number" then
+				return function() return LS:IsKnown(providers) end
+			end
+			return function() return false end
+		end
+
 		for id, default in pairs(defaults) do
 			local id, default = id, default
+			local IsKnown = BuildIsKnownFunc(id)
 
 			group.args[tostring(id)] = {
 				name = function()
@@ -352,6 +372,7 @@ local function GetOptions()
 					layoutDB.profile.Raid.classAuraIcons[id] = value ~= default and value or nil
 					SettingsModified("OnRaidLayoutModified")
 				end,
+				hidden = function() return not IsKnown() end,
 				values = values,
 			}
 		end

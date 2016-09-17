@@ -3,7 +3,7 @@
 ## Version: @project-version@
 ## Title: oUF_Adirelle - core
 ## Notes: Adirelle's unit frames, based on haste's oUF.
-## OptionalDeps: LibSharedMedia-3.0, LibMovable-1.0, LibPlayerSpells-1.0, Ace3, SharedMedia, LibDataBroker-1.1, LibDBIcon-1.0, SharedMedia_MyMedia, !SurfaceControl, !ClassColors, LibDualSpec-1.0, AdiDebug, AdiProfiler, BigWigs
+## OptionalDeps: LibSharedMedia-3.0, LibMovable-1.0, LibPlayerSpells-1.0, Ace3, SharedMedia, LibDataBroker-1.1, LibDBIcon-1.0, SharedMedia_MyMedia, !SurfaceControl, !ClassColors, LibDualSpec-1.0, AdiDebug, AdiProfiler, BigWigs, LibSpellbook-1.0,
 ## SavedVariables: oUF_Adirelle_DB, oUF_Adirelle_Layout, oUF_Adirelle_Theme, LibPlayerSpells-1.0
 ## LoadOnDemand: 1
 
@@ -23,6 +23,7 @@ libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
 libs\LibDBIcon-1.0\LibDBIcon-1.0.lua
 libs\LibPlayerSpells-1.0\lib.xml
 #@end-no-lib-strip@
+libs\LibSpellbook-1.0\LibSpellbook-1.0.lua
 
 # Embedded oUF
 oUF\oUF.xml

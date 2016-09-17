@@ -34,6 +34,7 @@ externals:
   oUF: git://github.com/Adirelle/oUF.git
   libs/LibMovable-1.0: git://git.wowace.com/wow/libmovable-1-0/mainline.git
   libs/LibPlayerSpells-1.0: git://git.wowace.com/wow/libplayerspells-1-0/mainline.git
+  libs/LibSpellbook-1.0: https://github.com/AdiAddons/LibSpellbook-1.0.git
 
 optional-dependencies:
   - sharedmedia
