@@ -49,7 +49,7 @@ if next(Dispels) == nil then
     -- Player cannot dispel: define dummy functions and bail out
     oUF_Adirelle.IsDispellable = noop
     oUF_Adirelle.CanDispel = noop
-    oUF_Adirelle.IterateDispellableAuras = function() return noop end
+    oUF_Adirelle.IterateDispellableDebuffs = function() return noop end
     return
 end
 
@@ -106,7 +106,6 @@ function oUF_Adirelle.CanDispel(unit, isBuff, debuffType)
     return auraType == isBuff and band(targets, targetType) ~= 0
 end
 
-function oUF_Adirelle.IterateDispellableAuras(unit, buffs)
 function oUF_Adirelle.IterateDispellableDebuffs(unit)
     local targetType, auraType = UnitTargetType(unit)
     if auraType ~= DEBUFFS then
