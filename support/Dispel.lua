@@ -77,18 +77,20 @@ local PLAYER = bor(C.PERSONAL, C.HELPFUL)
 local PET = bor(C.PET, C.HELPFUL)
 local FRIEND = C.HELPFUL
 local FOE = C.HARMFUL
+local DEBUFFS = false
+local BUFFS = true
 
 local function UnitTargetType(unit)
     if type(unit) ~= "string" or unit == "" then
         return 0
     elseif UnitIsUnit(unit, "player") then
-        return PLAYER, false
+        return PLAYER, DEBUFFS
     elseif UnitIsUnit(unit, "pet") then
-        return PET, false
+        return PET, DEBUFFS
     elseif UnitCanAttack(unit, "player") then
-        return FOE, true
+        return FOE, BUFFS
     elseif UnitCanAssist("player", unit) then
-        return FRIEND, false
+        return FRIEND, DEBUFFS
     end
     return 0
 end
@@ -105,20 +107,20 @@ function oUF_Adirelle.CanDispel(unit, isBuff, debuffType)
 end
 
 function oUF_Adirelle.IterateDispellableAuras(unit, buffs)
+function oUF_Adirelle.IterateDispellableDebuffs(unit)
     local targetType, auraType = UnitTargetType(unit)
-    if auraType ~= buffs then
+    if auraType ~= DEBUFFS then
         return noop
     end
-    local getAura = buffs and UnitBuff or UnitDebuff
-    local function iter(_, index)
+    local function iter(unit, index)
         repeat
             index = index + 1
-            local name, rank, icon, count, debuffType, duration, expires, caster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossDebuff = getAura(index)
-            if name and debuffType and DispelFlags[debuffType] then
+            local name, _, icon, count, debuffType, duration, expirationTime, unitCaster, _, _, spellId, _, isBossDebuff = UnitDebuff(unit, index)
+            if name and debuffType and TargetsByType[debuffType] then
                 local canDispel = band(TargetsByType[debuffType], targetType) ~= 0
-                return index, name, canDispel, rank, icon, count, debuffType, duration, expires, caster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossDebuff
+                return index, canDispel, icon, count, debuffType, duration, expirationTime, unitCaster, spellId, isBossDebuff
             end
         until not name
     end
-    return iter, nil, 0
+    return iter, unit, 0
 end
