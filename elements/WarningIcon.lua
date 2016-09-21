@@ -127,7 +127,7 @@ local function GetBuff(unit, index)
 end
 
 local function GetDebuff(unit, index, noDispellable)
-	local name, _, texture, count, dispelType, duration, expirationTime, caster, _, _, _, _, isBossDebuff = UnitDebuff(unit, index)
+	local name, _, texture, count, dispelType, duration, expirationTime, caster, _, _, spellID, _, isBossDebuff = UnitDebuff(unit, index)
 	local isDispellable = oUF_Adirelle.IsDispellable(dispelType)
 	if not name or not spellID or (noDispellable and isDispellable) then
 		return

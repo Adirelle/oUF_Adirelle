@@ -141,7 +141,7 @@ local function Debuffs_CustomFilter(icons, unit, icon, name, rank, texture, coun
 		elseif UnitCanAttack("player", unit) then
 			priority = IsMine(caster) and 3 or canApplyAura and 2 or 1
 		elseif UnitCanAssist("player", unit) then
-			if oUF_Adirelle:CanDispel(dtype, false, unit) then
+			if oUF_Adirelle:CanDispel(unit, false, dtype) then
 				priority = 3
 			elseif inCombat and filter.undispellable then
 				return false
