@@ -128,13 +128,13 @@ end
 -- ------------------------------------------------------------------------------
 
 local IsEncounterDebuff = oUF_Adirelle.IsEncounterDebuff
-local IterateDispellableAuras = oUF_Adirelle.IterateDispellableAuras
+local IterateDispellableDebuffs = oUF_Adirelle.IterateDispellableDebuffs
 
 oUF:AddAuraFilter("CureableDebuff", function(unit)
 	if not UnitCanAssist("player", unit) then return end
 	local priority, count, expirationTime = 1, 0, 0
 	local texture, debuffType, duration
-	for index, canDispel, _, _, thisTexture, thisCount, thisDebuffType, thisDuration, thisExpirationTime, caster, _, _, spellID, _, isBossDebuff in IterateDispellableAuras(unit, true) do
+	for index, canDispel, thisTexture, thisCount, thisDebuffType, thisDuration, thisExpirationTime, caster, spellID, isBossDebuff in IterateDispellableDebuffs(unit) do
 		local thisPriority
 		if isBossDebuff then
 			thisPriority = 50
