@@ -103,6 +103,7 @@ oUF:RegisterMetaFunction('CreateIcon', function(self, parent, size, noCooldown, 
 		local cooldown = CreateFrame("Cooldown", nil, icon, "CooldownFrameTemplate")
 		cooldown:SetAllPoints(icon.Texture or icon)
 		cooldown:SetReverse(true)
+		cooldown:SetHideCountdownNumbers(true)
 		cooldown.noCooldownFader = true
 		icon.Cooldown = cooldown
 		icon.SetCooldown = SetCooldown
