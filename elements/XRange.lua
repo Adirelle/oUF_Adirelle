@@ -26,155 +26,198 @@ local _G = _G
 local CreateFrame = _G.CreateFrame
 local IsLoggedIn = _G.IsLoggedIn
 local next = _G.next
+local CheckInteractDistance = _G.CheckInteractDistance
+local GetSpellInfo = _G.GetSpellInfo
+local IsSpellInRange = _G.IsSpellInRange
+local UnitCanAssist = _G.UnitCanAssist
+local UnitCanAttack = _G.UnitCanAttack
+local UnitClass = _G.UnitClass
+local UnitExists = _G.UnitExists
+local UnitInRange = _G.UnitInRange
+local UnitIsConnected = _G.UnitIsConnected
+local UnitIsCorpse = _G.UnitIsCorpse
+local UnitIsUnit = _G.UnitIsUnit
+local UnitIsVisible = _G.UnitIsVisible
+local geterrorhandler = _G.geterrorhandler
+local select = _G.select
 --GLOBALS>
 
-local function BuildRangeCheck()
-	local CheckInteractDistance = _G.CheckInteractDistance
-	local GetSpellInfo = _G.GetSpellInfo
-	local IsSpellInRange = _G.IsSpellInRange
-	local UnitCanAssist = _G.UnitCanAssist
-	local UnitCanAttack = _G.UnitCanAttack
-	local UnitClass = _G.UnitClass
-	local UnitExists = _G.UnitExists
-	local UnitInRange = _G.UnitInRange
-	local UnitIsConnected = _G.UnitIsConnected
-	local UnitIsCorpse = _G.UnitIsCorpse
-	local UnitIsUnit = _G.UnitIsUnit
-	local UnitIsVisible = _G.UnitIsVisible
-	local geterrorhandler = _G.geterrorhandler
-	local select = _G.select
+-- Per class and specialization spells
+local RANGE_SPELLS = {
+	PRIEST = {
+		['*'] = {
+			FRIENDLY = 2061,-- Flash Heal
+			HOSTILE = 589, -- Shadow Word: Pain
+			RESURRECT = 2006, -- Resurrection
+		},
+	},
+	DRUID = {
+		['*'] = {
+			FRIENDLY = 774, -- Rejuvenation
+			HOSTILE = 5176, -- Wrath
+			RESURRECT = 20484, -- Rebirth
+		},
+	},
+	PALADIN = {
+		['*'] = {
+			FRIENDLY = 19750, -- Flash of Light
+			HOSTILE = 62124, -- Hand of Reckoning
+			RESURRECT = 7328, -- Redemption
+		},
+	},
+	HUNTER = {
+		['*'] = {
+			HOSTILE = 75, -- Auto Shot
+			PET = 136, -- Mend Pet
+		},
+		[255] = { -- Survival
+			HOSTILE = {186270, 190925}, -- Raptor Strike or Harpoon
+		}
+	},
+	SHAMAN = {
+		['*'] = {
+			FRIENDLY = 51886, -- Cleanse Spirit
+			HOSTILE = 403, -- Lightning Bolt
+			RESURRECT = 2008, -- Ancestral Spirit
+		},
+	},
+	WARLOCK = {
+		['*'] = {
+			HOSTILE = 686, -- Shadow Bolt
+			FRIENDLY = 5697, -- Unending Breath
+			PET = 755, -- Health Funnel
+		},
+	},
+	MAGE = {
+		['*'] = {
+			HOSTILE = 133, --  Fireball
+			FRIENDLY = 475, -- Remove Curse
+		},
+	},
+	DEATHKNIGHT = {
+		['*'] = {
+			HOSTILE = 49576, -- Death grip
+			RESURRECT = 61999, -- Raise Ally
+		},
+	},
+	DEMONHUNTER = {
+		['*'] = {},
+	},
+	ROGUE = {
+		['*'] = {
+			HOSTILE = {1752, 121733} -- Sinister Strike or Throw
+		},
+	},
+	WARRIOR = {
+		['*'] = {
+			HOSTILE = {78, 100} -- Heroic Strike (melee) or Charge
+		},
+	},
+	MONK = {
+		['*'] = {
+			FRIENDLY = 116694, -- Effuse
+			HOSTILE = 117952, -- Crackling Jade Lightning
+			RESURRECT = 115178, -- Resuscitate
+		},
+	}
+}
 
-	local INTERACT_RANGE = 4
-
-	local function DefaultRangeCheck(unit)
-		local inRange, checked = UnitInRange(unit)
-		if checked then
-			return inRange
-		else
-			return CheckInteractDistance(unit, INTERACT_RANGE)
-		end
+local INTERACT_RANGE = 4
+local function DefaultRangeCheck(unit)
+	local inRange, checked = UnitInRange(unit)
+	if checked then
+		return inRange
+	else
+		return CheckInteractDistance(unit, INTERACT_RANGE)
 	end
-
-	local function CheckSpell(id)
-		local spell = GetSpellInfo(id)
-		if not spell then
-			geterrorhandler()("XRange:CheckSpell: unknown spell #"..id)
-			return DefaultRangeCheck
-		end
-		if not GetSpellInfo(spell) then
-			oUF:Debug('spell unknown, using default range check:', spell)
-			return DefaultRangeCheck
-		end
-		oUF:Debug('using', spell, 'for range check')
-		return function(unit)
-			local inRange = IsSpellInRange(spell, unit)
-			if inRange ~= nil then
-				return inRange == 1
-			else
-				return DefaultRangeCheck(unit)
-			end
-		end
-	end
-
-	local function CheckBothSpells(id1, id2)
-		local spell1, spell2 = GetSpellInfo(id1), GetSpellInfo(id2)
-		if not spell1 then geterrorhandler()("XRange:CheckSpell: unknown spell1 #"..id1) end
-		if not spell2 then geterrorhandler()("XRange:CheckSpell: unknown spell2 #"..id2) end
-		if not spell1 or not GetSpellInfo(spell1) then
-			oUF:Debug('spell unknown: ', spell1, 'using', spell2)
-			return CheckSpell(id2)
-		elseif not spell2 or not GetSpellInfo(spell2) then
-			oUF:Debug('spell unknown: ', spell2, 'using', spell1)
-			return CheckSpell(id1)
-		end
-		oUF:Debug('using both', spell1, 'and', spell2, 'for range check')
-		return function(unit)
-			local inRange1, inRange2 = IsSpellInRange(spell1, unit), IsSpellInRange(spell2, unit)
-			if inRange1 == 1 or inRange2 == 1 then
-				return true
-			elseif inRange1 == nil and inRange2 == nil then
-				return DefaultRangeCheck(unit)
-			else
-				return false
-			end
-		end
-	end
-
-	local friendlyCheck, hostileCheck, petCheck, rezCheck
-	local playerClass = select(2, UnitClass("player"))
-
-	if playerClass == 'PRIEST' then
-		friendlyCheck = CheckSpell(2061) -- Flash Heal
-		hostileCheck = CheckSpell(589) -- Shadow Word: Pain
-		rezCheck = CheckSpell(2006) -- Resurrection
-
-	elseif playerClass == 'DRUID' then
-		friendlyCheck = CheckSpell(774) -- Rejuvenation
-		hostileCheck = CheckSpell(5176) -- Wrath
-		rezCheck = CheckSpell(20484) -- Rebirth
-
-	elseif playerClass == 'PALADIN' then
-		friendlyCheck = CheckSpell(19750) -- Flash of Light
-		hostileCheck = CheckSpell(62124) -- Hand of Reckoning
-		rezCheck = CheckSpell(7328) -- Redemption
-
-	elseif playerClass == 'HUNTER' then
-		hostileCheck = CheckSpell(75) -- Auto Shot
-		petCheck = CheckSpell(136) -- Mend Pet
-
-	elseif playerClass == 'SHAMAN' then
-		friendlyCheck = CheckSpell(51886) -- Cleanse Spirit
-		hostileCheck = CheckSpell(403) -- Lightning Bolt
-		rezCheck = CheckSpell(2008) -- Ancestral Spirit
-
-	elseif playerClass == 'WARLOCK' then
-		hostileCheck = CheckSpell(686) -- Shadow Bolt
-		friendlyCheck = CheckSpell(5697) -- Unending Breath
-		petCheck = CheckSpell(755) -- Health Funnel
-
-	elseif playerClass == 'MAGE' then
-		hostileCheck = CheckSpell(133) --  Fireball
-		friendlyCheck = CheckSpell(475) -- Remove Curse
-
-	elseif playerClass == 'DEATHKNIGHT' then
-		hostileCheck = CheckSpell(49576) -- Death grip
-		rezCheck = CheckSpell(61999) -- Raise Ally
-
-	elseif playerClass == 'ROGUE' then
-		hostileCheck = CheckBothSpells(1752, 121733) -- Sinister Strike or Throw
-
-	elseif playerClass == 'WARRIOR' then
-		hostileCheck = CheckBothSpells(78, 100) -- Heroic Strike (melee) or Charge
-
-	elseif playerClass == 'MONK' then
-		friendlyCheck = CheckSpell(116694) -- Effuse
-		hostileCheck = CheckSpell(117952) -- Crackling Jade Lightning
-		rezCheck = CheckSpell(115178) -- Resuscitate
-	end
-
-	return function(unit)
-		if not UnitExists(unit) then
-			return false
-		elseif UnitIsUnit(unit, 'player') or not UnitIsConnected(unit) then
-			return true
-		elseif not UnitIsVisible(unit) then
-			return false
-		elseif hostileCheck and UnitCanAttack('player', unit) then
-			return hostileCheck(unit)
-		elseif petCheck and UnitIsUnit(unit, 'pet') then
-			return petCheck(unit)
-		elseif rezCheck and UnitIsCorpse(unit) and UnitCanAssist('player', unit) then
-			return rezCheck(unit)
-		elseif friendlyCheck and UnitCanAssist('player', unit) then
-			return friendlyCheck(unit)
-		else
-			return DefaultRangeCheck(unit, DEFAULT_INTERACT_RANGE)
-		end
-	end
-
 end
 
-local IsInRange = function() return true end
+local warned = {}
+local function BuildSingleCheckFunc(spell)
+	if not spell then
+		return
+	end
+	local name = GetSpellInfo(spell)
+	if not name then -- Does not exist anymore (removed)
+		if not warned[spell] then
+			warned[spell] = true
+			geterrorhandler()("XRange:CheckSpell: the spell #"..spell.." has been removed; it cannot be used for range checking.")
+		end
+		return
+	end
+	if not GetSpellInfo(name) then
+		-- player does not known this spell
+		oUF_Adirelle:Debug("XRange:CheckSpell: the spell ''", name, "' is unknown to player; do not use it for range checks.")
+		return
+	end
+	return function(unit)
+		local inRange = IsSpellInRange(name, unit)
+		if inRange ~= nil then
+			return inRange == 1
+		else
+			return DefaultRangeCheck(unit)
+		end
+	end
+end
+
+local function BuildMultiCheckFunc(spell, ...)
+	if not spell then
+		return
+	end
+	local head, tail = BuildSingleCheckFunc(spell), BuildMultiCheckFunc(...)
+	if head and tail then
+		return function(unit) return head(unit) or tail(unit) end
+	end
+	return head or tail
+end
+
+local function BuildCheckFunc(spells)
+	if type(spells) == "table" then
+		return BuildMultiCheckFunc(unpack(spells))
+	end
+	return BuildSingleCheckFunc(spells)
+end
+
+local EMPTY = {}
+local checks = {
+	FRIENDLY = DefaultRangeCheck,
+	HOSTILE = DefaultRangeCheck,
+	FRIENDLY = DefaultRangeCheck,
+	RESURRECT = DefaultRangeCheck
+}
+
+local function UpdateRangeCheck()
+	local specID = GetSpecializationInfo(GetSpecialization())
+	local classSpells = RANGE_SPELLS[oUF_Adirelle.playerClass]['*']
+	local specSpells = RANGE_SPELLS[oUF_Adirelle.playerClass][specID] or EMPTY
+
+	for t in pairs(checks) do
+		local spell = specSpells[t] or classSpells[t]
+		checks[t] = BuildCheckFunc(spell) or DefaultRangeCheck
+	end
+end
+
+local function IsInRange(unit)
+	if not UnitExists(unit) then
+		return false
+	elseif UnitIsUnit(unit, 'player') or not UnitIsConnected(unit) then
+		return true
+	elseif not UnitIsVisible(unit) then
+		return false
+	end
+	local check
+	if UnitCanAttack('player', unit) then
+		check = checks.HOSTILE
+	elseif UnitIsUnit(unit, 'pet') then
+		check = checks.PET
+	elseif UnitIsCorpse(unit) and UnitCanAssist('player', unit) then
+		check = checks.RESURRECT
+	elseif UnitCanAssist('player', unit) then
+		check = checks.FRIENDLY
+	end
+	return (check or DefaultRangeCheck)(unit)
+end
+
 local objects = {}
 local updateFrame
 local timer = 0
@@ -222,7 +265,9 @@ local function OnUpdate(self, elapsed)
 end
 
 local function Initialize()
-	IsInRange = BuildRangeCheck()
+	local LS = oUF_Adirelle.GetLib('LibSpellbook-1.0')
+	LS.RegisterCallback(oUF_Adirelle, 'LibSpellbook_Spells_Changed', UpdateRangeCheck)
+
 	updateFrame:UnregisterEvent('PLAYER_LOGIN')
 	updateFrame:SetScript('OnEvent', nil)
 	updateFrame:SetScript('OnUpdate', OnUpdate)
@@ -257,4 +302,3 @@ local function Disable(self)
 end
 
 oUF:AddElement('XRange', Update, Enable, Disable)
-
