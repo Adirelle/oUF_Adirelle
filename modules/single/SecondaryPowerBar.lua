@@ -36,20 +36,13 @@ local playerClass = oUF_Adirelle.playerClass
 
 if playerClass == 'DEATHKNIGHT' then
 	-- Runes
-	local function UpdateRuneColor(rune)
-		local color = oUF.colors.runes[GetRuneType(rune.index) or false]
-		if color then
-			rune:SetStatusBarColor(unpack(color))
-		end
-	end
-
 	private.SetupSecondaryPowerBar = function(self)
 		local runeBar = private.SpawnDiscreteBar(self, 6, true)
 		self.RuneBar = runeBar
 		runeBar:SetMinMaxValues(0, 6)
 		runeBar:SetValue(6)
 		for i = 1, 6 do
-			runeBar[i].UpdateRuneColor = UpdateRuneColor
+			runeBar[i]:SetStatusBarColor(unpack(oUF.colors.runes))
 		end
 		return runeBar
 	end

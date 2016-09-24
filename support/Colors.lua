@@ -35,12 +35,7 @@ oUF.colors.power.MANA = { 0.3, 0.5, 1.0 }
 
 if oUF_Adirelle.playerClass == "DEATHKNIGHT" then
 	-- Rune colors
-	oUF.colors.runes = {
-		[1] = { 1.0, 0.0, 0.0 },
-		[2] = { 0.0, 0.5, 0.0 },
-		[3] = { 0.0, 1.0, 1.0 },
-		[4] = { 0.8, 0.1, 1.0 },
-	}
+	oUF.colors.runes = { 0.8, 0.1, 1 }
 elseif oUF_Adirelle.playerClass == "SHAMAN" then
 	-- Totem colors
 	oUF.colors.totems = {
@@ -115,4 +110,3 @@ oUF_Adirelle:RegisterMessage('OnSettingsModified', function(self, event, _, newP
 		DeepCopy(profile.colors or DEFAULTS, oUF.colors, true)
 	end
 end)
-
