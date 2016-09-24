@@ -213,7 +213,7 @@ local function GetOptions()
 
 		-- Class-specific colors
 		if oUF_Adirelle.playerClass == "DEATHKNIGHT" then
-			local runes = BuildColorGroup('Runes', oUF.colors.runes, { "Blood", "Unholy", "Frost", "Death" })
+			local runes = BuildColorArg('Runes', oUF.colors.runes)
 			runes.hidden = IsElementDisabled.RuneBar
 			colorArgs.runes = runes
 		elseif oUF_Adirelle.playerClass == "SHAMAN" then
