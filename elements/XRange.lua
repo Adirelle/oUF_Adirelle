@@ -141,7 +141,7 @@ local function BuildSingleCheckFunc(spell)
 	if not name then -- Does not exist anymore (removed)
 		if not warned[spell] then
 			warned[spell] = true
-			geterrorhandler()("XRange:CheckSpell: the spell #"..spell.." has been removed; it cannot be used for range checking.")
+			geterrorhandler()("XRange:CheckSpell: the spell #"..spell.." has been removed; it cannot be used for range checking. See https://github.com/Adirelle/oUF_Adirelle/issues/13.")
 		end
 		return
 	end
