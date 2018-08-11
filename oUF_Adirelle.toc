@@ -1,4 +1,4 @@
-## Interface: 70000
+## Interface: 80000
 ## Author: Adirelle
 ## Version: @project-version@
 ## Title: oUF_Adirelle - core
