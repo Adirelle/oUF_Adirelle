@@ -1,0 +1,19 @@
+sudo: false
+language: minimal
+
+script:
+- git submodule update --init
+
+deploy:
+  provider: script
+  script: bash .release/release.sh -l -p 21613
+  skip_cleanup: true
+  on:
+    repo: Adirelle/oUF_Adirelle
+    all_branches: true
+    condition: "$TRAVIS_BRANCH = master || -n $TRAVIS_TAG"
+
+notifications:
+  email:
+    on_failure: change
+    on_success: change
