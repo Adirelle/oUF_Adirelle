@@ -23,7 +23,7 @@ local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 --<GLOBALS
 local _G = _G
 local abs = _G.abs
-local ALTERNATE_POWER_INDEX = _G.ALTERNATE_POWER_INDEX
+local ALTERNATE_POWER_INDEX = _G.Enum.PowerType.Alternate or 10
 local CreateFrame = _G.CreateFrame
 local floor = _G.floor
 local format = _G.format
@@ -336,6 +336,9 @@ local function AlternativePower_Override(self, event, unit, powerType)
 		bar.range = bar.max - bar.min
 		bar:SetMinMaxValues(bar.min, bar.max)
 		bar:SetValue(bar.min)
+	end
+	if not bar.min or not bar.max then
+		return
 	end
 
 	local cur = mmin(mmax(UnitPower(unit, ALTERNATE_POWER_INDEX), bar.min), bar.max)
