@@ -83,10 +83,10 @@ local function TogglePowerUpdates(self, event, unit)
 	if border.manaThreshold == manaThreshold then return end
 	border.manaThreshold = manaThreshold
 	if manaThreshold then
-		self:RegisterEvent("UNIT_POWER", PowerUpdate)
+		self:RegisterEvent("UNIT_POWER_UPDATE", PowerUpdate)
 		self:RegisterEvent("UNIT_MAXPOWER", PowerUpdate)
 	else
-		self:UnregisterEvent("UNIT_POWER", PowerUpdate)
+		self:UnregisterEvent("UNIT_POWER_UPDATE", PowerUpdate)
 		self:UnregisterEvent("UNIT_MAXPOWER", PowerUpdate)
 	end
 	return Update(self, event)
@@ -120,7 +120,7 @@ local function Disable(self)
 	if border then
 		border.hasMana, border.manaThreshold = nil, nil
 
-		self:UnregisterEvent("UNIT_POWER", PowerUpdate)
+		self:UnregisterEvent("UNIT_POWER_UPDATE", PowerUpdate)
 		self:UnregisterEvent("UNIT_MAXPOWER", PowerUpdate)
 		self:UnregisterEvent("UNIT_DISPLAYPOWER", TogglePowerUpdates)
 		self:UnregisterEvent("UNIT_FLAGS", TogglePowerUpdates)
