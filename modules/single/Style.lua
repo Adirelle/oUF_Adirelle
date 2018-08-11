@@ -261,7 +261,7 @@ local function Power_PostUpdate(power, unit, min, max)
 	end
 end
 
-local function AltPowerBar_PostUpdate(bar, min, cur, max)
+local function AlternativePower_PostUpdate(bar, min, cur, max)
 	local unit = bar.__owner.unit
 	if not unit then return end
 	bar.Label:SetText(select(10, UnitAlternatePowerInfo(unit)))
@@ -916,23 +916,23 @@ local function InitFrame(settings, self, unit)
 	-- Altenate power bar (e.g. sound on Atramedes, or poison on Isorath)
 	if unit == "player" or unit == "target" then
 
-		local altPowerBar = SpawnStatusBar(self)
-		altPowerBar:SetBackdrop(backdrop)
-		altPowerBar:SetBackdropColor(0,0,0,backdrop.bgAlpha)
-		altPowerBar:SetBackdropBorderColor(0,0,0,1)
-		altPowerBar:SetPoint("LEFT")
-		altPowerBar:SetPoint("RIGHT")
-		altPowerBar:SetHeight(12)
-		altPowerBar.showOthersAnyway = true
-		altPowerBar.textureColor = { 1, 1, 1, 1 }
-		altPowerBar.PostUpdate = AltPowerBar_PostUpdate
+		local alternativePower = SpawnStatusBar(self)
+		alternativePower:SetBackdrop(backdrop)
+		alternativePower:SetBackdropColor(0,0,0,backdrop.bgAlpha)
+		alternativePower:SetBackdropBorderColor(0,0,0,1)
+		alternativePower:SetPoint("LEFT")
+		alternativePower:SetPoint("RIGHT")
+		alternativePower:SetHeight(12)
+		alternativePower.showOthersAnyway = true
+		alternativePower.textureColor = { 1, 1, 1, 1 }
+		alternativePower.PostUpdate = AlternativePower_PostUpdate
 
-		local label = SpawnText(self, altPowerBar, "OVERLAY", "TOPLEFT", "TOPLEFT", TEXT_MARGIN, 0)
-		label:SetPoint("RIGHT", altPowerBar.Text, "LEFT", -TEXT_MARGIN, 0)
-		altPowerBar.Label = label
+		local label = SpawnText(self, alternativePower, "OVERLAY", "TOPLEFT", "TOPLEFT", TEXT_MARGIN, 0)
+		label:SetPoint("RIGHT", alternativePower.Text, "LEFT", -TEXT_MARGIN, 0)
+		alternativePower.Label = label
 
-		self.AltPowerBar = altPowerBar
-		AddAuxiliaryBar(self, altPowerBar)
+		self.AlternativePower = alternativePower
+		AddAuxiliaryBar(self, alternativePower)
 	end
 
 	-- Update layout at least once

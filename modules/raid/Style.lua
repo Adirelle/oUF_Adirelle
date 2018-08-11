@@ -290,7 +290,7 @@ end
 -- Alternate Power Bar
 -- ------------------------------------------------------------------------------
 
-local function AltPowerBar_SetValue(bar, value)
+local function AlternativePower_SetValue(bar, value)
 	if bar.alert or value ~= bar:GetValue() or bar.highlight ~= bar._highlight then
 		local r, g, b = bar.red or 1, bar.green or 1, bar.blue or 1
 		if bar.alert then
@@ -306,7 +306,7 @@ local function AltPowerBar_SetValue(bar, value)
 	return bar:_SetValue(value)
 end
 
-local function AltPowerBar_OnUpdate(bar, elapsed)
+local function AlternativePower_OnUpdate(bar, elapsed)
 	local value, target = floor(bar:GetValue()+0.5), bar.target
 	if target > value then
 		value = mmin(value + bar.range * elapsed / 3, target)
@@ -324,11 +324,11 @@ local function AltPowerBar_OnUpdate(bar, elapsed)
 	end
 end
 
-local function AltPowerBar_Override(self, event, unit, powerType)
+local function AlternativePower_Override(self, event, unit, powerType)
 	if unit and self.unit ~= unit or powerType and powerType ~= 'ALTERNATE' then return end
 	unit = self.unit
 
-	local bar, _ = self.AltPowerBar
+	local bar, _ = self.AlternativePower
 	if event == "ForceUpdate" or event == "UNIT_MAXPOWER" then
 		_, bar.min, _, _, bar.smooth = UnitAlternatePowerInfo(unit)
 		bar.max = UnitPowerMax(unit, ALTERNATE_POWER_INDEX)
@@ -348,11 +348,11 @@ local function AltPowerBar_Override(self, event, unit, powerType)
 		bar:SetValue(cur)
 	end
 	if bar.alert or bar.highlight > 0 or abs(bar:GetValue()-bar.target) > 0.01 then
-		bar:SetScript('OnUpdate', AltPowerBar_OnUpdate)
+		bar:SetScript('OnUpdate', AlternativePower_OnUpdate)
 	end
 end
 
-local function AltPowerBar_Layout(bar)
+local function AlternativePower_Layout(bar)
 	local self = bar.__owner
 	if bar:IsShown() then
 		self.Health:SetPoint("BOTTOMRIGHT", bar, "TOPRIGHT", 0, 0)
@@ -553,25 +553,25 @@ local function InitFrame(self, unit)
 	lowHealth:SetColorTexture(1, 0, 0, 0.5)
 	self.LowHealth = lowHealth
 
-	-- AltPowerBar
-	local altPowerBar = CreateFrame("StatusBar", nil, self)
-	altPowerBar:SetBackdrop(backdrop)
-	altPowerBar:SetBackdropColor(0, 0, 0, 1)
-	altPowerBar:SetBackdropBorderColor(0, 0, 0, 0)
-	altPowerBar:SetPoint("BOTTOMLEFT")
-	altPowerBar:SetPoint("BOTTOMRIGHT")
-	altPowerBar:SetHeight(5)
-	altPowerBar:Hide()
-	altPowerBar.showOthersAnyway = true
-	altPowerBar._SetValue = altPowerBar.SetValue
-	altPowerBar.SetValue = AltPowerBar_SetValue
-	altPowerBar.Override = AltPowerBar_Override
-	altPowerBar:SetScript('OnShow', AltPowerBar_Layout)
-	altPowerBar:SetScript('OnHide', AltPowerBar_Layout)
-	altPowerBar:SetFrameLevel(threat:GetFrameLevel()+1)
-	altPowerBar.highlight, altPowerBar.target = 0, huge
-	self:RegisterStatusBarTexture(altPowerBar)
-	self.AltPowerBar = altPowerBar
+	-- AlternativePower
+	local alternativePower = CreateFrame("StatusBar", nil, self)
+	alternativePower:SetBackdrop(backdrop)
+	alternativePower:SetBackdropColor(0, 0, 0, 1)
+	alternativePower:SetBackdropBorderColor(0, 0, 0, 0)
+	alternativePower:SetPoint("BOTTOMLEFT")
+	alternativePower:SetPoint("BOTTOMRIGHT")
+	alternativePower:SetHeight(5)
+	alternativePower:Hide()
+	alternativePower.showOthersAnyway = true
+	alternativePower._SetValue = alternativePower.SetValue
+	alternativePower.SetValue = AlternativePower_SetValue
+	alternativePower.Override = AlternativePower_Override
+	alternativePower:SetScript('OnShow', AlternativePower_Layout)
+	alternativePower:SetScript('OnHide', AlternativePower_Layout)
+	alternativePower:SetFrameLevel(threat:GetFrameLevel()+1)
+	alternativePower.highlight, alternativePower.target = 0, huge
+	self:RegisterStatusBarTexture(alternativePower)
+	self.AlternativePower = alternativePower
 
 	-- Setting callbacks
 	self:RegisterMessage('OnSettingsModified', OnRaidLayoutModified)
