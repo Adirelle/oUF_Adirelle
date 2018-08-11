@@ -97,7 +97,7 @@ local IsEncounterDebuff = oUF_Adirelle.IsEncounterDebuff
 
 local canSteal = select(2, UnitClass("player")) == "MAGE"
 
-local function Buffs_CustomFilter(icons, unit, icon, name, rank, texture, count, dtype, duration, expires, caster, isStealable, shouldConsolidate, spellID, canApplyAura)
+local function Buffs_CustomFilter(icons, unit, icon, name, texture, count, dtype, duration, expires, caster, isStealable, _, spellID, canApplyAura)
 	icon.expires = (expires ~= 0) and expires or huge
 	local priority, bigger = 2, false
 	if IsEncounterDebuff(spellID) then
@@ -105,7 +105,6 @@ local function Buffs_CustomFilter(icons, unit, icon, name, rank, texture, count,
 	else
 		local inCombat, filter = InCombatLockdown(), oUF_Adirelle.layoutDB.profile.Single.Auras.buffFilter
 		if inCombat and (
-			(filter.consolidated and shouldConsolidate) or
 			(filter.permanent and duration == 0) or
 			(filter.allies and IsAlly(caster))
 		) then
@@ -118,7 +117,7 @@ local function Buffs_CustomFilter(icons, unit, icon, name, rank, texture, count,
 			end
 		elseif UnitCanAssist("player", unit) then
 			bigger = IsMine(caster)
-			priority = bigger and 5 or canApplyAura and 4 or shouldConsolidate and 1 or 3
+			priority = bigger and 5 or canApplyAura and 4 or 3
 		end
 		if duration == 0 then
 			priority = priority - 1
@@ -128,7 +127,7 @@ local function Buffs_CustomFilter(icons, unit, icon, name, rank, texture, count,
 	return true
 end
 
-local function Debuffs_CustomFilter(icons, unit, icon, name, rank, texture, count, dtype, duration, expires, caster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossDebuff)
+local function Debuffs_CustomFilter(icons, unit, icon, name, texture, count, dtype, duration, expires, caster, isStealable, _, spellID, canApplyAura, isBossDebuff)
 	icon.expires = (expires ~= 0) and expires or huge
 	local priority = 0
 	if isBossDebuff or IsEncounterDebuff(spellID) then
