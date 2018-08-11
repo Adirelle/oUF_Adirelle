@@ -29,14 +29,14 @@ externals:
     url: svn://svn.wowace.com/wow/ace-gui-3-0-shared-media-widgets/mainline/trunk/AceGUI-3.0-SharedMediaWidgets
     tag: latest
   Libs/LibArtifactData-1.0:
-    url: git://git.wowace.com/wow/libartifactdata-1-0/mainline.git
+    url: https://github.com/Rainrider/LibArtifactData-1.0.git
     tag: latest
   libs/BugGrabber: svn://svn.wowace.com/wow/bug-grabber/mainline/trunk
-  libs/LibDataBroker-1.1: http://github.com/tekkub/libdatabroker-1-1.git
+  libs/LibDataBroker-1.1: https://github.com/tekkub/libdatabroker-1-1.git
   libs/LibDBIcon-1.0: svn://svn.wowace.com/wow/libdbicon-1-0/mainline/trunk/LibDBIcon-1.0
   oUF: git://github.com/Adirelle/oUF.git
-  libs/LibMovable-1.0: git://git.wowace.com/wow/libmovable-1-0/mainline.git
-  libs/LibPlayerSpells-1.0: git://git.wowace.com/wow/libplayerspells-1-0/mainline.git
+  libs/LibMovable-1.0: https://github.com/Adirelle/LibMovable-1.0.git
+  libs/LibPlayerSpells-1.0: https://github.com/AdiAddons/LibPlayerSpells-1.0.git
   libs/LibSpellbook-1.0: https://github.com/AdiAddons/LibSpellbook-1.0.git
 
 optional-dependencies:
