@@ -57,7 +57,7 @@ end
 
 local function Enable(self)
 	if self.ThreatBar then
-		self:RegisterEvent("PARTY_MEMBERS_CHANGED", Update)
+		self:RegisterEvent("GROUP_ROSTER_UPDATE", Update)
 		self:RegisterEvent("UNIT_PET", Update)
 		self:RegisterEvent("UNIT_THREAT_LIST_UPDATE", Update)
 		self:RegisterEvent("UNIT_THREAT_SITUATION_UPDATE", Update)
@@ -68,7 +68,7 @@ end
 
 local function Disable(self)
 	if self.ThreatBar then
-		self:UnregisterEvent("PARTY_MEMBERS_CHANGED", Update)
+		self:UnregisterEvent("GROUP_ROSTER_UPDATE", Update)
 		self:UnregisterEvent("UNIT_PET", Update)
 		self:UnregisterEvent("UNIT_THREAT_LIST_UPDATE", Update)
 		self:UnregisterEvent("UNIT_THREAT_SITUATION_UPDATE", Update)

@@ -19,7 +19,7 @@ Elements handled: Powers
 
 Options
 
-	.frequentUpdates - Set to true to listen to UNIT_POWER_FREQUENT instead of UNIT_POWER
+	.frequentUpdates - Set to true to listen to UNIT_POWER_FREQUENT instead of UNIT_POWER_UPDATE
 
 Sub-widgets
 
@@ -119,7 +119,7 @@ end
 local function Update(self, event)
 	local unit, powerIndex = self.__owner.unit, self.powerIndex
 
-	if event ~= 'UNIT_POWER' and event ~= 'UNIT_POWER_FREQUENT' and event ~= 'UNIT_MAXPOWER' then
+	if event ~= 'UNIT_POWER_UPDATE' and event ~= 'UNIT_POWER_FREQUENT' and event ~= 'UNIT_MAXPOWER' then
 		self:SetShown(ShouldShow(unit, powerIndex, self.powerType))
 	end
 	if not self:IsVisible() then
@@ -205,7 +205,7 @@ local CommonEnable = function(self, unit)
 		if self.frequentUpdates and (unit == 'player' or unit == 'pet') then
 			self:RegisterEvent('UNIT_POWER_FREQUENT', CommonPowerPath)
 		else
-			self:RegisterEvent('UNIT_POWER', CommonPowerPath)
+			self:RegisterEvent('UNIT_POWER_UPDATE', CommonPowerPath)
 		end
 		self:RegisterEvent('UNIT_MAXPOWER', CommonPowerPath)
 
@@ -230,7 +230,7 @@ local CommonDisable = function(self)
 		end
 
 		self:UnregisterEvent('UNIT_POWER_FREQUENT', CommonPowerPath)
-		self:UnregisterEvent('UNIT_POWER', CommonPowerPath)
+		self:UnregisterEvent('UNIT_POWER_UPDATE', CommonPowerPath)
 		self:UnregisterEvent('UNIT_MAXPOWER', CommonPowerPath)
 
 		self:UnregisterEvent('UNIT_DISPLAYPOWER', CommonPath)
