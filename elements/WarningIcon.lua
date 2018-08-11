@@ -118,7 +118,7 @@ end
 -- ------------------------------------------------------------------------------
 
 local function GetBuff(unit, index)
-	local name, _, texture, count, dispelType, duration, expirationTime, _, _, _, spellID = UnitBuff(unit, index)
+	local name, texture, count, dispelType, duration, expirationTime, _, _, _, spellID = UnitBuff(unit, index)
 	local priority = BUFFS[spellID]
 	if oUF_Adirelle.CanDispel(unit, true, dispelType) then
 		priority = (priority or 95) + 5
@@ -127,7 +127,7 @@ local function GetBuff(unit, index)
 end
 
 local function GetDebuff(unit, index, noDispellable)
-	local name, _, texture, count, dispelType, duration, expirationTime, caster, _, _, spellID, _, isBossDebuff = UnitDebuff(unit, index)
+	local name, texture, count, dispelType, duration, expirationTime, caster, _, _, spellID, _, isBossDebuff = UnitDebuff(unit, index)
 	local isDispellable = oUF_Adirelle.IsDispellable(dispelType)
 	if not name or not spellID or (noDispellable and isDispellable) then
 		return

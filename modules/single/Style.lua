@@ -80,7 +80,7 @@ local function Auras_PostCreateIcon(icons, button)
 end
 
 local function Auras_PostUpdateIcon(icons, unit, icon, index, offset)
-	if not select(5, UnitAura(unit, index, icon.filter)) then
+	if not select(4, UnitAura(unit, index, icon.filter)) then
 		icon.overlay:Hide()
 	end
 end
