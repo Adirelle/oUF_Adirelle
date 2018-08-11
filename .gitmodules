@@ -1,6 +1,6 @@
 [submodule "oUF"]
 	path = oUF
-	url = https://github.com/Adirelle/oUF
+	url = ../oUF
 [submodule ".release"]
 	path = .release
 	url = https://github.com/BigWigsMods/packager
