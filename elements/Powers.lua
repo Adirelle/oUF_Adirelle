@@ -54,6 +54,7 @@ local UnitPowerMax = _G.UnitPowerMax
 local UnitPowerType = _G.UnitPowerType
 local UnitIsConnected = _G.UnitIsConnected
 local unpack = _G.unpack
+local PowerMap = oUF_Adirelle.Enum.PowerMap
 --GLOBALS>
 
 -- Set default colors for burning embers and demonic fury
@@ -152,7 +153,7 @@ end
 -- Handled powers
 local HandledPowers = {}
 for powerType in pairs(RequiredClasses) do
-	HandledPowers[powerType] = _G['SPELL_POWER_'..powerType]
+	HandledPowers[powerType] = PowerMap[powerType]
 end
 
 local CommonPath = function(self, event, unit, ...)

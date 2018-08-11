@@ -38,6 +38,9 @@ support\Messages.lua
 # Handling of saved variable
 support\SavedVariables.lua
 
+# Value enumerations
+support\Enums.lua
+
 # LibMovable integration
 libs\LibMovable-1.0\LibMovable-1.0.lua
 support\Movable.lua
