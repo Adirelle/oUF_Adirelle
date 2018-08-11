@@ -2,7 +2,7 @@ sudo: false
 language: minimal
 
 script:
-- git submodule update --init
+- "true"
 
 deploy:
   provider: script
