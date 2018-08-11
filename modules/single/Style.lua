@@ -62,6 +62,8 @@ local borderBackdrop = { edgeFile = [[Interface\Addons\oUF_Adirelle\media\white1
 local SpawnTexture, SpawnText, SpawnStatusBar = private.SpawnTexture, private.SpawnText, private.SpawnStatusBar
 local CreateName = private.CreateName
 
+local PowerMap = oUF_Adirelle.Enum.PowerMap
+
 local function Auras_PreSetPosition(icons, numIcons)
 	return 1, numIcons
 end
@@ -630,7 +632,7 @@ local function InitFrame(settings, self, unit)
 		end
 		if next(powers) then
 			for powerType, bar in pairs(powers) do
-				barContainer:AddWidget(bar, 30 + _G['SPELL_POWER_'..powerType], 2)
+				barContainer:AddWidget(bar, 30 + PowerMap[powerType], 2)
 			end
 			powers.frequentUpdates = true
 			self.Powers = powers
