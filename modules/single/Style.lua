@@ -762,7 +762,7 @@ local function InitFrame(settings, self, unit)
 
 	if unit == "player" then
 		-- Player resting status
-		self.Resting = SpawnTexture(indicators, 16, "BOTTOMLEFT")
+		self.RestingIndicator = SpawnTexture(indicators, 16, "BOTTOMLEFT")
 
 	elseif unit == "target" then
 		-- Combo points
