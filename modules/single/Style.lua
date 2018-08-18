@@ -261,9 +261,8 @@ local function Power_PostUpdate(power, unit, min, max)
 	end
 end
 
-local function AlternativePower_PostUpdate(bar, min, cur, max)
-	local unit = bar.__owner.unit
-	if not unit or not min or not cur or not max then return end
+local function AlternativePower_PostUpdate(bar, unit, cur, min, max)
+	if unit ~= bar.__owner.unit then return end
 	bar.Label:SetText(select(10, UnitAlternatePowerInfo(unit)))
 	local _, powerRed, powerGreen, powerBlue = UnitAlternatePowerTextureInfo(unit, 2)
 	if powerRed and powerGreen and powerBlue then
