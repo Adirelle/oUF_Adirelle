@@ -5,7 +5,7 @@
 ## Notes: Grid-like party and raid display
 ## RequiredDeps: oUF_Adirelle
 
-..\oUF_Adirelle\modules\raid\module.xml
+..\oUF_Adirelle\src\modules\raid\module.xml
 
 #@debug@
 ## Version: DEV

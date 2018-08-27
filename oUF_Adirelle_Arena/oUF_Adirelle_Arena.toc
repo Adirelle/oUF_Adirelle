@@ -5,8 +5,8 @@
 ## Notes: Unit frames for arena enemies.
 ## RequiredDeps: oUF_Adirelle
 
-..\oUF_Adirelle\modules\single\style.xml
-..\oUF_Adirelle\modules\arena\module.xml
+..\oUF_Adirelle\src\modules\single\style.xml
+..\oUF_Adirelle\src\modules\arena\module.xml
 
 #@debug@
 ## Version: DEV
