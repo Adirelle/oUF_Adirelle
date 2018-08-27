@@ -44,11 +44,11 @@ optional-dependencies:
   - big-wigs
 
 move-folders:
-  oUF_Adirelle/oUF_Adirelle_Raid: oUF_Adirelle_Raid
-  oUF_Adirelle/oUF_Adirelle_Single: oUF_Adirelle_Single
-  oUF_Adirelle/oUF_Adirelle_Boss: oUF_Adirelle_Boss
-  oUF_Adirelle/oUF_Adirelle_Arena: oUF_Adirelle_Arena
-  oUF_Adirelle/oUF_Adirelle_Config: oUF_Adirelle_Config
+  oUF_Adirelle/tocs/oUF_Adirelle_Raid: oUF_Adirelle_Raid
+  oUF_Adirelle/tocs/oUF_Adirelle_Single: oUF_Adirelle_Single
+  oUF_Adirelle/tocs/oUF_Adirelle_Boss: oUF_Adirelle_Boss
+  oUF_Adirelle/tocs/oUF_Adirelle_Arena: oUF_Adirelle_Arena
+  oUF_Adirelle/tocs/oUF_Adirelle_Config: oUF_Adirelle_Config
 
 ignore:
   - media/*.png
