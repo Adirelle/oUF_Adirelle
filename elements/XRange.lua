@@ -115,7 +115,7 @@ local RANGE_SPELLS = {
 	},
 	MONK = {
 		['*'] = {
-			FRIENDLY = 116694, -- Effuse
+			FRIENDLY = 116670, -- Vivify
 			HOSTILE = 117952, -- Crackling Jade Lightning
 			RESURRECT = 115178, -- Resuscitate
 		},
