@@ -30,61 +30,61 @@ libs\LibSpellbook-1.0\LibSpellbook-1.0.lua
 oUF\oUF.xml
 
 # Setup namespace
-oUF_Adirelle.lua
+src\oUF_Adirelle.lua
 
 # Internal messaging system
-support\Messages.lua
+src\support\Messages.lua
 
 # Handling of saved variable
-support\SavedVariables.lua
+src\support\SavedVariables.lua
 
 # Value enumerations
-support\Enums.lua
+src\support\Enums.lua
 
 # LibMovable integration
 libs\LibMovable-1.0\LibMovable-1.0.lua
-support\Movable.lua
+src\support\Movable.lua
 
 # Texture and font helper
-support\StatusBarTexture.lua
-support\Fonts.lua
+src\support\StatusBarTexture.lua
+src\support\Fonts.lua
 
 # Color helper
-support\Colors.lua
+src\support\Colors.lua
 
 # Icon helper
-support\CreateIcon.lua
+src\support\CreateIcon.lua
 
 # Player role detection
-support\PlayerRole.lua
+src\support\PlayerRole.lua
 
 # Tooltip handler
-support\UnitTooltip.lua
+src\support\UnitTooltip.lua
 
 # Common code to handle heal prediction overlays
-support\HealthPrediction.lua
+src\support\HealthPrediction.lua
 
 # Dispel helpers
-support\Dispel.lua
+src\support\Dispel.lua
 
 # Our elements
-elements\AuraIcons.lua
-elements\Border.lua
-elements\CustomClick.lua
-elements\Dragon.lua
-elements\Experience.lua
-elements\LowHealth.lua
-elements\Powers.lua
-elements\PvPTimer.lua
-elements\RoleOrIcon.lua
-elements\RuneBar.lua
-elements\SmartThreat.lua
-elements\StatusIcon.lua
-elements\TargetIcon.lua
-elements\ThreatBar.lua
-elements\TotemBar.lua
-elements\WarningIcon.lua
-elements\XRange.lua
+src\elements\AuraIcons.lua
+src\elements\Border.lua
+src\elements\CustomClick.lua
+src\elements\Dragon.lua
+src\elements\Experience.lua
+src\elements\LowHealth.lua
+src\elements\Powers.lua
+src\elements\PvPTimer.lua
+src\elements\RoleOrIcon.lua
+src\elements\RuneBar.lua
+src\elements\SmartThreat.lua
+src\elements\StatusIcon.lua
+src\elements\TargetIcon.lua
+src\elements\ThreatBar.lua
+src\elements\TotemBar.lua
+src\elements\WarningIcon.lua
+src\elements\XRange.lua
 
 #@debug@
 ## Version: DEV

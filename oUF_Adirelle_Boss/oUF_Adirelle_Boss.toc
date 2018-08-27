@@ -5,8 +5,8 @@
 ## Notes: Unit frames for bosses.
 ## RequiredDeps: oUF_Adirelle
 
-..\oUF_Adirelle\modules\single\style.xml
-..\oUF_Adirelle\modules\boss\module.xml
+..\oUF_Adirelle\src\modules\single\style.xml
+..\oUF_Adirelle\src\modules\boss\module.xml
 
 #@debug@
 ## Version: DEV

@@ -15,7 +15,7 @@
 ..\oUF_Adirelle\libs\AceGUI-3.0-SharedMediaWidgets\widget.xml
 #@end-no-lib-strip@
 
-..\oUF_Adirelle\Config.lua
+..\oUF_Adirelle\src\Config.lua
 
 #@debug@
 ## Version: DEV
