@@ -62,7 +62,7 @@ support\PlayerRole.lua
 support\UnitTooltip.lua
 
 # Common code to handle heal prediction overlays
-support\HealPrediction.lua
+support\HealthPrediction.lua
 
 # Dispel helpers
 support\Dispel.lua
