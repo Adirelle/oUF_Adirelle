@@ -46,7 +46,7 @@ elseif oUF_Adirelle.playerClass == "SHAMAN" then
 	}
 end
 
-oUF.colors.healPrediction = {
+oUF.colors.healthPrediction = {
 	self = { 0, 1, 0, 0.5 },
 	others = { 0, 0.6, 0, 0.5 },
 	absorb = { 1, 1, 0.8, 0.5 },
