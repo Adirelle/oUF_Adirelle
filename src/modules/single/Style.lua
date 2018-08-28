@@ -933,6 +933,9 @@ local function InitFrame(settings, self, unit)
 		AddAuxiliaryBar(self, alternativePower)
 	end
 
+	-- Power prediction
+	self.PowerPrediction = self:SpawnPowerPrediction()
+
 	-- Update layout at least once
 	self:HookScript('OnSizeChanged', LayoutBars)
 	LayoutBars(self)
