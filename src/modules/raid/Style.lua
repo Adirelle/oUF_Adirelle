@@ -177,7 +177,7 @@ local function OnSizeChanged(self, width, height)
 	if not width or not height then return end
 	local w = BORDER_WIDTH / self:GetEffectiveScale()
 	self.Border:SetSize(width + 2 * w, height + 2 * w)
-	self.ReadyCheck:SetSize(height, height)
+	self.ReadyCheckIndicator:SetSize(height, height)
 	self.StatusIcon:SetSize(height*2, height)
 	self.WarningIconBuff:SetPoint("CENTER", self, "LEFT", width / 4, 0)
 	self.WarningIconDebuff:SetPoint("CENTER", self, "RIGHT", -width / 4, 0)
