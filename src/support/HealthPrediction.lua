@@ -44,7 +44,6 @@ end
 local function UpdateWidth(bar)
 	local value, maxValue = bar.value - bar.minValue, bar.maxValue - bar.minValue
 	local width, maxWidth = ALMOST_ZERO, bar:GetParent():GetWidth()
-	oUF.Debug(bar, "UpdateWidth", value, maxValue)
 	if value > 0 and maxValue > 0 and maxWidth > 0 then
 		width = value * maxWidth / maxValue
 	end
