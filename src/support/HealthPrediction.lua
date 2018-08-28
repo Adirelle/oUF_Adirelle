@@ -27,35 +27,49 @@ local unpack = _G.unpack
 
 local ALMOST_ZERO = 1e-8
 
-local function HealthPrediction_OnSizeChanged(health)
-	local hp = health.__owner.HealthPrediction
-	hp.myBar:UpdateWidth()
-	hp.otherBar:UpdateWidth()
-	hp.absorbBar:UpdateWidth()
-	hp.healAbsorbBar:UpdateWidth()
-end
-
-local function HealthPrediction_SetMinMaxValues(bar, minValue, maxValue)
+local function SetMinMaxValues(bar, minValue, maxValue)
 	if bar.minValue ~= minValue or bar.maxValue ~= maxValue then
-		bar.minValue,  bar.maxValue = minValue, maxValue
+		bar.minValue, bar.maxValue = minValue, maxValue
 		bar:UpdateWidth()
 	end
 end
 
-local function HealthPrediction_SetValue(bar, value)
+local function SetValue(bar, value)
 	if bar.value ~= value then
 		bar.value = value
 		bar:UpdateWidth()
 	end
 end
 
-local function HealthPrediction_UpdateWidth(bar)
+local function UpdateWidth(bar)
 	local value, maxValue = bar.value - bar.minValue, bar.maxValue - bar.minValue
 	local width, maxWidth = ALMOST_ZERO, bar:GetParent():GetWidth()
+	oUF.Debug(bar, "UpdateWidth", value, maxValue)
 	if value > 0 and maxValue > 0 and maxWidth > 0 then
 		width = value * maxWidth / maxValue
 	end
 	bar:SetWidth(width)
+end
+
+local function SpawnPredictionBar(parent)
+	local bar = parent:CreateTexture(nil, "OVERLAY")
+	bar:SetWidth(ALMOST_ZERO)
+	bar:SetPoint("TOP", parent)
+	bar:SetPoint("BOTTOM", parent)
+	bar.minValue, bar.maxValue, bar.value = 0, 0, 0
+	bar.SetMinMaxValues = SetMinMaxValues
+	bar.SetValue = SetValue
+	bar.UpdateWidth = UpdateWidth
+
+	return bar
+end
+
+local function HealthPrediction_OnSizeChanged(health)
+	local hp = health.__owner.HealthPrediction
+	hp.myBar:UpdateWidth()
+	hp.otherBar:UpdateWidth()
+	hp.absorbBar:UpdateWidth()
+	hp.healAbsorbBar:UpdateWidth()
 end
 
 local function HealthPrediction_UpdateColors(frame)
@@ -67,23 +81,13 @@ local function HealthPrediction_UpdateColors(frame)
 	hp.healAbsorbBar:SetColorTexture(unpack(colors.healAbsorb, 1, 4))
 end
 
-oUF:RegisterMetaFunction('SpawnHealthPrediction', function(frame, maxOverflow)
-	local health = frame.Health
+oUF:RegisterMetaFunction('SpawnHealthPrediction', function(self, maxOverflow)
+	local health = self.Health
 
-	local myIncomingHeal = health:CreateTexture(nil, "OVERLAY")
-	local otherIncomingHeal = health:CreateTexture(nil, "OVERLAY")
-	local absorb = health:CreateTexture(nil, "OVERLAY")
-	local healAbsorb = health:CreateTexture(nil, "OVERLAY")
-
-	for i, bar in ipairs{healAbsorb, myIncomingHeal, otherIncomingHeal, absorb} do
-		bar:SetWidth(ALMOST_ZERO)
-		bar:SetPoint("TOP", health)
-		bar:SetPoint("BOTTOM", health)
-		bar.minValue, bar.maxValue, bar.value = 0, 0, 0
-		bar.SetMinMaxValues = HealthPrediction_SetMinMaxValues
-		bar.SetValue = HealthPrediction_SetValue
-		bar.UpdateWidth = HealthPrediction_UpdateWidth
-	end
+	local myIncomingHeal = SpawnPredictionBar(health)
+	local otherIncomingHeal =SpawnPredictionBar(health)
+	local absorb = SpawnPredictionBar(health)
+	local healAbsorb = SpawnPredictionBar(health)
 
 	healAbsorb:SetPoint("RIGHT", health:GetStatusBarTexture())
 	myIncomingHeal:SetPoint("LEFT", healAbsorb, "RIGHT")
@@ -92,7 +96,7 @@ oUF:RegisterMetaFunction('SpawnHealthPrediction', function(frame, maxOverflow)
 
 	health:HookScript('OnSizeChanged', HealthPrediction_OnSizeChanged)
 
-	frame.HealthPrediction = {
+	self.HealthPrediction = {
 		frequentUpdates = health.frequentUpdates,
 		maxOverflow = maxOverflow,
 		myBar = myIncomingHeal,
@@ -100,9 +104,49 @@ oUF:RegisterMetaFunction('SpawnHealthPrediction', function(frame, maxOverflow)
 		absorbBar = absorb,
 		healAbsorbBar = healAbsorb
 	}
-	HealthPrediction_UpdateColors(frame)
+	HealthPrediction_UpdateColors(self)
 
-	frame:RegisterMessage('OnColorModified', HealthPrediction_UpdateColors)
+	self:RegisterMessage('OnColorModified', HealthPrediction_UpdateColors)
 
-	return frame.HealthPrediction
+	return self.HealthPrediction
+end)
+
+
+local function PowerPrediction_OnSizeChanged(power)
+	local pp = power.__owner.PowerPrediction
+	if pp.mainBar then
+		pp.mainBar:UpdateWidth()
+	end
+	if pp.altBar then
+		pp.altBar:UpdateWidth()
+	end
+end
+
+oUF:RegisterMetaFunction('SpawnPowerPrediction', function(self)
+	local mainBar, altBar
+
+	local power = self.Power
+	if power then
+		mainBar = SpawnPredictionBar(power)
+		mainBar:SetPoint("RIGHT", power:GetStatusBarTexture())
+		mainBar:SetColorTexture(1, 1, 1, 0.3)
+	end
+
+	local altPower = self.AdditionalPower
+	if altPower then
+		altBar = SpawnPredictionBar(altPower)
+		altBar:SetPoint("RIGHT", altPower:GetStatusBarTexture())
+		altBar:SetColorTexture(1, 1, 1, 0.3)
+	end
+
+	if mainBar or altBar then
+		self.PowerPrediction = {
+			mainBar = mainBar,
+			altBar = altBar,
+		}
+
+		power:HookScript('OnSizeChanged', PowerPrediction_OnSizeChanged)
+	end
+
+	return self.PowerPrediction
 end)
