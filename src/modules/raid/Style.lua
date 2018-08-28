@@ -459,7 +459,7 @@ local function InitFrame(self, unit)
 	self:RegisterStatusBarTexture(hpbg)
 
 	-- Heal prediction
-	self:SpawnHealPrediction(1.00)
+	self:SpawnHealthPrediction(1.00)
 
 	-- Border
 	local border = CreateFrame("Frame", nil, self)

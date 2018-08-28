@@ -600,7 +600,7 @@ local function InitFrame(settings, self, unit)
 	self.LowHealth = lowHealth
 
 	-- Heal precitions
-	self:SpawnHealPrediction(1.05)
+	self:SpawnHealthPrediction(1.05)
 
 	-- Used for some overlays
 	local indicators = CreateFrame("Frame", CreateName(self, "Indicators"), self)
