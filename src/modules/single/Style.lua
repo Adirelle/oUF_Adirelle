@@ -715,8 +715,8 @@ local function InitFrame(settings, self, unit)
 	end
 
 	-- Raid target icon
-	self.RaidIcon = SpawnTexture(indicators, 16)
-	self.RaidIcon:SetPoint("CENTER", barContainer)
+	self.RaidTargetIndicator = SpawnTexture(indicators, 16)
+	self.RaidTargetIndicator:SetPoint("CENTER", barContainer)
 
 	-- Threat glow
 	local threat = CreateFrame("Frame", CreateName(self, "ThreatGlow"), self)
@@ -730,23 +730,22 @@ local function InitFrame(settings, self, unit)
 
 	if unit ~= "boss" and not isArenaUnit then
 		-- Various indicators
-		self.Leader = SpawnTexture(indicators, 16, "TOP"..left)
-		self.Assistant = SpawnTexture(indicators, 16, "TOP"..left)
-		self.MasterLooter = SpawnTexture(indicators, 16, "TOP"..left, 16*dir)
-		self.Combat = SpawnTexture(indicators, 16, "BOTTOM"..left)
+		self.LeaderIndicator = SpawnTexture(indicators, 16, "TOP"..left)
+		self.AssistantIndicator = SpawnTexture(indicators, 16, "TOP"..left)
+		self.CombatIndicator = SpawnTexture(indicators, 16, "BOTTOM"..left)
 
 		-- Indicators around the portrait, if there is one
 		if self.Portrait then
 			-- Group role icons
-			self.RoleIcon = SpawnTexture(indicators, 16)
-			self.RoleIcon:SetPoint("CENTER", self.Portrait, "TOP"..right)
-			self.RoleIcon.noRaidTarget = true
+			self.GroupRoleIndicator = SpawnTexture(indicators, 16)
+			self.GroupRoleIndicator:SetPoint("CENTER", self.Portrait, "TOP"..right)
+			self.GroupRoleIndicator.noRaidTarget = true
 
 			-- PvP flag
 			local pvp = SpawnTexture(indicators, 16)
 			pvp:SetTexCoord(0, 0.6, 0, 0.6)
 			pvp:SetPoint("CENTER", self.Portrait, "BOTTOM"..right)
-			self.PvP = pvp
+			self.PvPIndicator = pvp
 
 			-- PvP timer
 			if unit == "player" then

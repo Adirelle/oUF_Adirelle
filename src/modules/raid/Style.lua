@@ -505,7 +505,7 @@ local function InitFrame(self, unit)
 	rc.icon = rc:CreateTexture(rc:GetName().."Texture")
 	rc.icon:SetAllPoints(rc)
 	rc.SetTexture = function(_, ...) return rc.icon:SetTexture(...) end
-	self.ReadyCheck = rc
+	self.ReadyCheckIndicator = rc
 
 	-- Have icons blinking 3 seconds before fading out
 	self.iconBlinkThreshold = 3
