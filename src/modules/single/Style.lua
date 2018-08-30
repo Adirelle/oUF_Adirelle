@@ -737,9 +737,9 @@ local function InitFrame(settings, self, unit)
 		-- Indicators around the portrait, if there is one
 		if self.Portrait then
 			-- Group role icons
-			self.GroupRoleIndicator = SpawnTexture(indicators, 16)
-			self.GroupRoleIndicator:SetPoint("CENTER", self.Portrait, "TOP"..right)
-			self.GroupRoleIndicator.noRaidTarget = true
+			self.RoleIcon = SpawnTexture(indicators, 16)
+			self.RoleIcon:SetPoint("CENTER", self.Portrait, "TOP"..right)
+			self.RoleIcon.noRaidTarget = true
 
 			-- PvP flag
 			local pvp = SpawnTexture(indicators, 16)
