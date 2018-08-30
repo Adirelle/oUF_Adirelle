@@ -297,8 +297,8 @@ local function GetOptions()
 	end
 
 	local function BuildClassAuraIconGroup(order)
-		local defaults = oUF_Adirelle.ClassAuraIcons.defaultAnchors
-		if not next(defaults) then return end
+		local defaults = oUF_Adirelle.ClassAuraIcons and oUF_Adirelle.ClassAuraIcons.defaultAnchors
+		if not defaults or not next(defaults) then return end
 
 		local group = {
 			name = "Buff icons",
