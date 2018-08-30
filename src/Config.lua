@@ -28,6 +28,7 @@ local format = _G.format
 local GetAddOnInfo = _G.GetAddOnInfo
 local gsub = _G.gsub
 local IsAddOnLoaded = _G.IsAddOnLoaded
+local GetAddOnEnableState = _G.GetAddOnEnableState
 local next = _G.next
 local pairs = _G.pairs
 local select = _G.select
@@ -52,6 +53,7 @@ local function GetOptions()
 	local LibMovable = oUF_Adirelle.GetLib('LibMovable-1.0')
 	local LibPlayerSpells = oUF_Adirelle.GetLib('LibPlayerSpells-1.0')
 
+	local playerName = UnitName("player")
 	local reloadNeeded = false
 
 	local SettingsModified = oUF_Adirelle.SettingsModified
@@ -98,7 +100,7 @@ local function GetOptions()
 	local togglableFrameList = {}
 	local togglableFrames = oUF_Adirelle.togglableFrames
 
-	local function IsAddOnEnabled(name) return name and select(4, GetAddOnInfo(name)) end
+	local function IsAddOnEnabled(name) return name and GetAddOnEnableState(playerName, name) > 0 end
 
 	-- Test if a frame is disabled
 	local IsFrameDisabled = {}
@@ -406,7 +408,7 @@ local function GetOptions()
 						width = "double",
 						values = moduleList,
 						get = function(info, addon)
-							return select(4, GetAddOnInfo(addon))
+							return IsAddOnEnabled(addon)
 						end,
 						set = function(info, addon, value)
 							if value then
@@ -416,7 +418,7 @@ local function GetOptions()
 							end
 							reloadNeeded = false
 							for name in pairs(moduleList) do
-								local enabled, loaded = select(4, GetAddOnInfo(name)), IsAddOnLoaded(name)
+								local enabled, loaded =  IsAddOnEnabled(addon), IsAddOnLoaded(name)
 								if (enabled and not loaded) or (not enabled and loaded) then
 									reloadNeeded = true
 									break
