@@ -33,7 +33,7 @@ local LS = oUF_Adirelle.GetLib('LibSpellbook-1.0')
 local HELPFUL = LPS.constants.HELPFUL
 
 local function Update(self)
-	if not self:CanChangeAttribute() then return end
+	if self.CanChangeAttribute and not self:CanChangeAttribute() then return end
 
 	local flags = self.CustomClick.flags
 	local selected
