@@ -35,10 +35,11 @@ local HELPFUL = LPS.constants.HELPFUL
 local function Update(self)
 	if not self:CanChangeAttribute() then return end
 
+	local flags = self.CustomClick.flags
 	local selected
 	for spellID, data in pairs(Dispels) do
 		if LS:IsKnown(spellID) then
-			if band(data[1], element.flags) ~= 0 then
+			if band(data[1], flags) ~= 0 then
 				selected = spellID
 				break
 			end
