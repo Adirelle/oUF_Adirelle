@@ -24,16 +24,29 @@ local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
 local _G = _G
+local band = _G.bit.band
 --GLOBALS>
+
+local Dispels = oUF_Adirelle.Dispels
+local LPS = oUF_Adirelle.GetLib('LibPlayerSpells-1.0')
+local LS = oUF_Adirelle.GetLib('LibSpellbook-1.0')
+local HELPFUL = LPS.constants.HELPFUL
 
 local function Update(self)
 	if not self:CanChangeAttribute() then return end
 
-	local spell = next(oUF_Adirelle.Dispels)
-	self:Debug("CustomClick", spell, spell and (IsSpellKnown(spell, true) or IsSpellKnown(spell, false)))
+	local selected
+	for spellID, data in pairs(Dispels) do
+		if LS:IsKnown(spellID) then
+			if band(data[1], element.flags) ~= 0 then
+				selected = spellID
+				break
+			end
+        end
+	end
 
-	self:SetAttribute("*type2", spell and "spell")
-	self:SetAttribute("*spell2", spell)
+	self:SetAttribute("*type2", selected and "spell")
+	self:SetAttribute("*spell2", selected)
 end
 
 local function ForceUpdate(element)
@@ -44,9 +57,12 @@ local function Enable(self)
 	local element = self.CustomClick
 	if element then
 		element.__owner, element.ForceUpdate = self, ForceUpdate
+		if not element.flags then
+			element.flags = HELPFUL
+		end
 		self:RegisterEvent('PLAYER_REGEN_DISABLED', Update, true)
 		self:RegisterEvent('PLAYER_REGEN_ENABLED', Update, true)
-		self:RegisterEvent('SPELLS_CHANGED', Update, true)
+		LS.RegisterCallback(self, 'LibSpellbook_Spells_Changed', Update)
 		return true
 	end
 end
@@ -59,7 +75,7 @@ local function Disable(self)
 		end
 		self:UnregisterEvent('PLAYER_REGEN_DISABLED', Update)
 		self:UnregisterEvent('PLAYER_REGEN_ENABLED', Update)
-		self:UnregisterEvent('SPELLS_CHANGED', Update)
+		LS.UnregisterCallback(self, 'LibSpellbook_Spells_Changed', Update)
 	end
 end
 
