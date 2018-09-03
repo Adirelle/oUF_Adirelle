@@ -25,29 +25,44 @@ local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 --<GLOBALS
 local _G = _G
 local band = _G.bit.band
+local bor = _G.bit.bor
 --GLOBALS>
 
 local Dispels = oUF_Adirelle.Dispels
 local LPS = oUF_Adirelle.GetLib('LibPlayerSpells-1.0')
 local LS = oUF_Adirelle.GetLib('LibSpellbook-1.0')
-local HELPFUL = LPS.constants.HELPFUL
+local C = LPS.constants
+local HARMFUL = C.HARMFUL
+
+local function SetAction(self, targetType, spellID)
+	local prefix = "*" .. targetType
+	local suffix = self.CustomClick.button
+	self:Debug("CustomClick", prefix, suffix, spellID and GetSpellInfo(spellID) or "-")
+	self:SetAttribute(prefix .. "type" .. suffix, spellID and "spell")
+	self:SetAttribute(prefix .. "spell" .. suffix, spellID)
+end
 
 local function Update(self)
-	if self.CanChangeAttribute and not self:CanChangeAttribute() then return end
+	if not self:CanChangeAttribute() then return end
 
 	local flags = self.CustomClick.flags
-	local selected
+	local helpful, harmful
 	for spellID, data in pairs(Dispels) do
 		if LS:IsKnown(spellID) then
-			if band(data[1], flags) ~= 0 then
-				selected = spellID
+			if not helpful and band(data[1], flags) ~= 0 then
+				helpful = spellID
+			end
+			if not harmful and band(data[1], HARMFUL) ~= 0 then
+				harmful = spellID
+			end
+			if helpful and harmful then
 				break
 			end
         end
 	end
 
-	self:SetAttribute("*type2", selected and "spell")
-	self:SetAttribute("*spell2", selected)
+	SetAction(self, "help", helpful)
+	SetAction(self, "harm", harmful)
 end
 
 local function ForceUpdate(element)
@@ -56,27 +71,40 @@ end
 
 local function Enable(self)
 	local element = self.CustomClick
-	if element then
-		element.__owner, element.ForceUpdate = self, ForceUpdate
-		if not element.flags then
-			element.flags = HELPFUL
+	if element and next(Dispels) then
+
+		if not element.button then
+			element.button = "2"
 		end
+
+		if not element.flags then
+			local unit = self.unit
+			if unit == "pet" then
+				element.flags = bor(C.HELPFUL, C.PET)
+			elseif unit == "player" then
+				element.flags = bor(C.HELPFUL, C.PERSONAL)
+			else
+				element.flags = C.HELPFUL
+			end
+		end
+
+		element.__owner, element.ForceUpdate = self, ForceUpdate
 		self:RegisterEvent('PLAYER_REGEN_DISABLED', Update, true)
 		self:RegisterEvent('PLAYER_REGEN_ENABLED', Update, true)
-		LS.RegisterCallback(self, 'LibSpellbook_Spells_Changed', Update)
+		LS.RegisterCallback(self, 'LibSpellbook_Spells_Changed', Update, self)
 		return true
 	end
 end
 
 local function Disable(self)
-	if self.CustomClick then
+	if self.CustomClick and next(Dispels) then
 		if self:CanChangeAttribute() then
-			self:SetAttribute("*type2", nil)
-			self:SetAttribute("*spell2", nil)
+			SetAction(self, "help", nil)
+			SetAction(self, "harm", nil)
 		end
 		self:UnregisterEvent('PLAYER_REGEN_DISABLED', Update)
 		self:UnregisterEvent('PLAYER_REGEN_ENABLED', Update)
-		LS.UnregisterCallback(self, 'LibSpellbook_Spells_Changed', Update)
+		LS.UnregisterCallback(self, 'LibSpellbook_Spells_Changed')
 	end
 end
 

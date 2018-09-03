@@ -510,6 +510,9 @@ local function InitFrame(settings, self, unit)
 		self:SetAttribute("*type2", "togglemenu")
 	end
 
+	-- Let it have dispel click on mouse button 3
+	self.CustomClick = { button = "3" }
+
 	self:SetBackdrop(backdrop)
 	self:SetBackdropColor(0,0,0,backdrop.bgAlpha)
 	self:SetBackdropBorderColor(0,0,0,0)
