@@ -565,7 +565,6 @@ local function InitFrame(self, unit)
 	alternativePower:SetPoint("BOTTOMRIGHT")
 	alternativePower:SetHeight(5)
 	alternativePower:Hide()
-	alternativePower.showOthersAnyway = true
 	alternativePower._SetValue = alternativePower.SetValue
 	alternativePower.SetValue = AlternativePower_SetValue
 	alternativePower.Override = AlternativePower_Override

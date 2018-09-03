@@ -924,7 +924,6 @@ local function InitFrame(settings, self, unit)
 		alternativePower:SetPoint("LEFT")
 		alternativePower:SetPoint("RIGHT")
 		alternativePower:SetHeight(12)
-		alternativePower.showOthersAnyway = true
 		alternativePower.textureColor = { 1, 1, 1, 1 }
 		alternativePower.PostUpdate = AlternativePower_PostUpdate
 
