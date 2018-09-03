@@ -436,7 +436,7 @@ local function InitFrame(self, unit)
 	self:SetBackdropColor(0, 0, 0, backdrop.bgAlpha)
 	self:SetBackdropBorderColor(0, 0, 0, 1)
 
-	-- Let have custom click
+	-- Let it have dispel click on mouse button 2
 	self.CustomClick = {}
 
 	-- Health bar
