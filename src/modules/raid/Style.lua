@@ -24,6 +24,7 @@ local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 local _G = _G
 local abs = _G.abs
 local ALTERNATE_POWER_INDEX = _G.Enum.PowerType.Alternate or 10
+local ALT_POWER_TEX_FILL = _G.ALT_POWER_TEX_FILL or 2
 local CreateFrame = _G.CreateFrame
 local floor = _G.floor
 local format = _G.format
@@ -290,68 +291,14 @@ end
 -- Alternate Power Bar
 -- ------------------------------------------------------------------------------
 
-local function AlternativePower_SetValue(bar, value)
-	if bar.alert or value ~= bar:GetValue() or bar.highlight ~= bar._highlight then
-		local r, g, b = bar.red or 1, bar.green or 1, bar.blue or 1
-		if bar.alert then
-			local f = 2 * (GetTime() % 1)
-			if f > 1 then
-				f = 2 - f
-			end
-			r, g, b = oUF.ColorGradient(f, 1, r, g, b, 1, 0, 0)
-		end
-		bar:SetStatusBarColor(mmax(r, bar.highlight), mmax(g, bar.highlight), mmax(b, bar.highlight))
-		bar._highlight = bar.highlight
-	end
-	return bar:_SetValue(value)
-end
-
-local function AlternativePower_OnUpdate(bar, elapsed)
-	local value, target = floor(bar:GetValue()+0.5), bar.target
-	if target > value then
-		value = mmin(value + bar.range * elapsed / 3, target)
+local function AlternativePower_PostUpdate(bar, unit, cur, min, max)
+	if unit ~= bar.__owner.unit then return end
+	local _, powerRed, powerGreen, powerBlue = UnitAlternatePowerTextureInfo(unit, ALT_POWER_TEX_FILL)
+	if powerRed and powerGreen and powerBlue then
+		local r, g, b = oUF.ColorGradient(cur-min, max-min, powerRed, powerGreen, powerBlue, 1, 0, 0)
+		bar:SetStatusBarColor(r, g, b)
 	else
-		if bar.highlight > 0 then
-			bar.highlight = mmax(bar.highlight - elapsed / 0.3, 0)
-		end
-		if target < value then
-			value = mmax(value - bar.range * elapsed / 3, target)
-		end
-	end
-	bar:SetValue(value)
-	if not bar.alert and value == target and bar.highlight == 0 then
-		bar:SetScript('OnUpdate', nil)
-	end
-end
-
-local function AlternativePower_Override(self, event, unit, powerType)
-	if unit and self.unit ~= unit or powerType and powerType ~= 'ALTERNATE' then return end
-	unit = self.unit
-
-	local bar, _ = self.AlternativePower
-	if event == "ForceUpdate" or event == "UNIT_MAXPOWER" then
-		_, bar.min, _, _, bar.smooth = UnitAlternatePowerInfo(unit)
-		bar.max = UnitPowerMax(unit, ALTERNATE_POWER_INDEX)
-		bar.red, bar.green, bar.blue = select(2, UnitAlternatePowerTextureInfo(unit, 2))
-		bar.range = bar.max - bar.min
-		bar:SetMinMaxValues(bar.min, bar.max)
-		bar:SetValue(bar.min)
-	end
-	if not bar.min or not bar.max then
-		return
-	end
-
-	local cur = mmin(mmax(UnitPower(unit, ALTERNATE_POWER_INDEX), bar.min), bar.max)
-	if cur > bar.target then
-		bar.highlight = 1
-	end
-	bar.target = cur
-	bar.alert = (cur-bar.min)/bar.range > 0.8
-	if not bar.smooth then
-		bar:SetValue(cur)
-	end
-	if bar.alert or bar.highlight > 0 or abs(bar:GetValue()-bar.target) > 0.01 then
-		bar:SetScript('OnUpdate', AlternativePower_OnUpdate)
+		bar:SetStatusBarColor(0.75, 0.75, 0.75)
 	end
 end
 
@@ -359,7 +306,6 @@ local function AlternativePower_Layout(bar)
 	local self = bar.__owner
 	if bar:IsShown() then
 		self.Health:SetPoint("BOTTOMRIGHT", bar, "TOPRIGHT", 0, 0)
-		bar.highlight, bar.target = 0, 0
 	else
 		self.Health:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", 0, 0)
 	end
@@ -565,13 +511,10 @@ local function InitFrame(self, unit)
 	alternativePower:SetPoint("BOTTOMRIGHT")
 	alternativePower:SetHeight(5)
 	alternativePower:Hide()
-	alternativePower._SetValue = alternativePower.SetValue
-	alternativePower.SetValue = AlternativePower_SetValue
-	alternativePower.Override = AlternativePower_Override
+	alternativePower.PostUpdate = AlternativePower_PostUpdate
 	alternativePower:SetScript('OnShow', AlternativePower_Layout)
 	alternativePower:SetScript('OnHide', AlternativePower_Layout)
 	alternativePower:SetFrameLevel(threat:GetFrameLevel()+1)
-	alternativePower.highlight, alternativePower.target = 0, huge
 	self:RegisterStatusBarTexture(alternativePower)
 	self.AlternativePower = alternativePower
 
