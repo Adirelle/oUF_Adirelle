@@ -35,11 +35,10 @@ local C = LPS.constants
 local HARMFUL = C.HARMFUL
 
 local function SetAction(self, targetType, spellID)
-	local prefix = "*" .. targetType
-	local suffix = self.CustomClick.button
-	self:Debug("CustomClick", prefix, suffix, spellID and GetSpellInfo(spellID) or "-")
-	self:SetAttribute(prefix .. "type" .. suffix, spellID and "spell")
-	self:SetAttribute(prefix .. "spell" .. suffix, spellID)
+	self:Debug("CustomClick", targetType, spellID and GetSpellInfo(spellID) or "-")
+	self:SetAttribute("*" .. targetType .. "button" .. self.CustomClick.button, spellID and targetType)
+	self:SetAttribute("type-" .. targetType, spellID and "spell")
+	self:SetAttribute("spell-" .. targetType, spellID)
 end
 
 local function Update(self)
