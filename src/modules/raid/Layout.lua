@@ -175,27 +175,16 @@ oUF:Factory(function()
 		return numGroups, highestGroup
 	end
 
-	local BATTLEGROUND_SIZE = {
-		WarsongGulch = 10,
-		TwinPeaks = 10,
-		ArathiBasin = 15,
-		NetherstormArena = 15,
-		StrandoftheAncients = 15,
-		GilneasBattleground2 = 15,
-		AlteracValley = 40,
-		IsleofConquest = 40,
-		TolBarad = 40,
-		LakeWintergrasp = 40,
-	}
-
 	-- Returns (type, PvE, number of groups, highest group number)
 	local function GetLayoutInfo(strictSize)
 		local _, instanceType, _, _, maxPlayers = GetInstanceInfo()
 		anchor:Debug('GetLayoutInfo', 'groupSize=', GetNumGroupMembers(), 'instanceInfo:', GetInstanceInfo())
 		if instanceType == "arena" then
 			return "arena", false, 1, 1
-		elseif instanceType == "pvp" or IsInActiveWorldPVP() then
-			return "battleground", false, GetRaidNumGroups(BATTLEGROUND_SIZE[GetMapInfo()])
+		elseif instanceType == "scenario" and GetNumGroupMembers() > 0 then
+			return "raid", false, GetRaidNumGroups(maxPlayers)
+		elseif instanceType == "pvp" or instanceType == "scenario" or IsInActiveWorldPVP() then
+			return "battleground", false, GetRaidNumGroups(maxPlayers)
 		elseif instanceType == "raid" or (instanceType == "none" and GetNumGroupMembers() > 0) then
 			return "raid", true, GetRaidNumGroups(instanceType == "raid" and maxPlayers)
 		elseif instanceType == "party" or (instanceType == "none" and GetNumGroupMembers() > 0) then
