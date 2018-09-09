@@ -183,7 +183,7 @@ oUF:Factory(function()
 			return "arena", false, 1, 1
 		elseif instanceType == "scenario" and GetNumGroupMembers() > 0 then
 			return "raid", false, GetRaidNumGroups(maxPlayers)
-		elseif instanceType == "pvp" or instanceType == "scenario" or IsInActiveWorldPVP() then
+		elseif instanceType == "pvp" or IsInActiveWorldPVP() then
 			return "battleground", false, GetRaidNumGroups(maxPlayers)
 		elseif instanceType == "raid" or (instanceType == "none" and GetNumGroupMembers() > 0) then
 			return "raid", true, GetRaidNumGroups(instanceType == "raid" and maxPlayers)
