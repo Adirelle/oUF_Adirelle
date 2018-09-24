@@ -114,7 +114,7 @@ function oUF_Adirelle.IterateDispellableDebuffs(unit)
     local function iter(unit, index)
         repeat
             index = index + 1
-            local name, _, icon, count, debuffType, duration, expirationTime, unitCaster, _, _, spellId, _, isBossDebuff = UnitDebuff(unit, index)
+			local name, icon, count, debuffType, duration, expirationTime, unitCaster, _, _, spellId, _, isBossDebuff = UnitDebuff(unit, index)
             if name and debuffType and TargetsByType[debuffType] then
                 local canDispel = band(TargetsByType[debuffType], targetType) ~= 0
                 return index, canDispel, icon, count, debuffType, duration, expirationTime, unitCaster, spellId, isBossDebuff
