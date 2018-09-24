@@ -74,21 +74,17 @@ if BigWigsLoader and BigWigsLoader.RegisterMessage then
 		if event ~= 'SPELL_AURA_APPLIED' and event ~= 'SPELL_AURA_APPLIED_DOSE' and event ~= "SPELL_CAST_SUCCESS" then return end
 		for i = 1, select('#', ...) do
 			local id = select(i, ...)
-			oUF.Debug('WarningIcon', 'Watching', id, GetSpellLink(id), 'for', bossMod:GetName())
 			ENCOUNTER_DEBUFFS[id] = bossMod
 		end
 	end)
 
 	BigWigsLoader.RegisterMessage(ENCOUNTER_DEBUFFS, 'BigWigs_OnBossDisable', function(_, bossMod)
-		oUF.Debug('WarningIcon', bossMod:GetName(), 'disabled, cleaning the debuffs list')
 		for id, mod in pairs(ENCOUNTER_DEBUFFS) do
 			if mod == bossMod then
 				ENCOUNTER_DEBUFFS[id] = nil
 			end
 		end
 	end)
-
-	oUF.Debug('WarningIcon', 'Using BigWigs for encounter debuffs')
 end
 
 -- Class noticeable buffs
