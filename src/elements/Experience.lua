@@ -94,13 +94,13 @@ local function Enable(self, unit)
 		end
 	end
 
-	self:RegisterEvent('PLAYER_LOGIN', Path)
-	self:RegisterEvent('UPDATE_EXHAUSTION', Path)
-	self:RegisterEvent('DISABLE_XP_GAIN', Path)
-	self:RegisterEvent('ENABLE_XP_GAIN', Path)
-	self:RegisterEvent('PLAYER_XP_UPDATE', Path)
-	self:RegisterEvent('PLAYER_UPDATE_RESTING', Path)
-	self:RegisterEvent('PLAYER_LEVEL_UP', Path)
+	self:RegisterEvent('PLAYER_LOGIN', Path, true)
+	self:RegisterEvent('UPDATE_EXHAUSTION', Path, true)
+	self:RegisterEvent('DISABLE_XP_GAIN', Path, true)
+	self:RegisterEvent('ENABLE_XP_GAIN', Path, true)
+	self:RegisterEvent('PLAYER_XP_UPDATE', Path, true)
+	self:RegisterEvent('PLAYER_UPDATE_RESTING', Path, true)
+	self:RegisterEvent('PLAYER_LEVEL_UP', Path, true)
 	return true
 end
 

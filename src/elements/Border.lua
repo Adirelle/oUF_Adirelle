@@ -109,7 +109,7 @@ local function Enable(self)
 		border.__owner, border.ForceUpdate = self, Element_ForceUpdate
 		self:RegisterEvent("UNIT_DISPLAYPOWER", TogglePowerUpdates)
 		self:RegisterEvent("UNIT_FLAGS", TogglePowerUpdates)
-		self:RegisterEvent("PLAYER_TARGET_CHANGED", Update)
+		self:RegisterEvent("PLAYER_TARGET_CHANGED", Update, true)
 		self.Border:Hide()
 		return true
 	end
