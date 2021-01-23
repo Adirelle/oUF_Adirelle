@@ -7,7 +7,7 @@
 ## SavedVariables: oUF_Adirelle_DB, oUF_Adirelle_Layout, oUF_Adirelle_Theme
 ## LoadOnDemand: 1
 
-## X-DiminishingReturns-Callback: oUF_Adirelle:RegisterDiminishingReturns()
+## X-Curse-Project-ID: 21613
 
 # Libraries
 #@no-lib-strip@
