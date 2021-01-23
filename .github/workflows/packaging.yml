@@ -1,0 +1,30 @@
+name: Packaging
+
+on:
+  - push
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: Setup packager arguments
+        id: packager-args
+        if: github.base_ref || (github.ref != 'refs/heads/master' && !startsWith(github.ref, 'refs/tags/')
+        run: echo '::set-output name=args::-d'
+      - name: Package and deploy
+        uses: BigWigsMods/packager@cf62788
+        with:
+          args: ${{ steps.packager-args.outputs.args }}
+        env:
+          CF_API_KEY: ${{ secrets.CF_API_KEY }}
+          GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload packages to github
+        uses: actions/upload-artifact@v2
+        with:
+          name: packages
+          path: .release/AdiButtonAuras*.zip
