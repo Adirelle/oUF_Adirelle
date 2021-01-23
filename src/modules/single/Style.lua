@@ -595,7 +595,7 @@ local function InitFrame(settings, self, unit)
 	local name = SpawnText(self, health, "OVERLAY", "TOPLEFT", "TOPLEFT", TEXT_MARGIN, 0, "text")
 	name:SetPoint("BOTTOMLEFT", health, "BOTTOMLEFT", TEXT_MARGIN)
 	name:SetPoint("RIGHT", health.Text, "LEFT")
-	self:Tag(name, (unit == "player" or unit == "pet" or unit == "boss" or isArenaUnit) and "[name]" or "[name][ <>status<>]")
+	self:Tag(name, (unit == "player" or unit == "pet" or unit == "boss" or isArenaUnit) and "[name]" or "[name][ $>status<$]")
 	self.Name = name
 
 	-- Low health indicator
@@ -653,7 +653,7 @@ local function InitFrame(settings, self, unit)
 			classif:SetPoint("TOPLEFT", self.Health, "BOTTOMLEFT", 0, -GAP)
 			classif:SetPoint("BOTTOM", barContainer)
 			classif:SetPoint("RIGHT", power.Text, "LEFT")
-			self:Tag(classif, "[smartlevel][ >smartclass<]")
+			self:Tag(classif, "[smartlevel][ $>smartclass<$]")
 		end
 
 		-- Casting Bar
