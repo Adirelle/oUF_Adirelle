@@ -378,9 +378,11 @@ local function InitFrame(self, unit)
 	self:SetScript("OnEnter", oUF_Adirelle.Unit_OnEnter)
 	self:SetScript("OnLeave", oUF_Adirelle.Unit_OnLeave)
 
-	self:SetBackdrop(backdrop)
-	self:SetBackdropColor(0, 0, 0, backdrop.bgAlpha)
-	self:SetBackdropBorderColor(0, 0, 0, 1)
+	local backdropFrame = CreateFrame("Frame", nil, self, "BackdropTemplate")
+	backdropFrame:SetAllPoints()
+	backdropFrame:SetBackdrop(backdrop)
+	backdropFrame:SetBackdropColor(0, 0, 0, backdrop.bgAlpha)
+	backdropFrame:SetBackdropBorderColor(0, 0, 0, 1)
 
 	-- Let it have dispel click on mouse button 2
 	self.CustomClick = {}
@@ -408,7 +410,7 @@ local function InitFrame(self, unit)
 	self:SpawnHealthPrediction(1.00)
 
 	-- Border
-	local border = CreateFrame("Frame", nil, self)
+	local border = CreateFrame("Frame", nil, self, "BackdropTemplate")
 	border:SetFrameStrata("BACKGROUND")
 	border:SetPoint("CENTER")
 	border:SetBackdrop(borderBackdrop)
@@ -473,7 +475,7 @@ local function InitFrame(self, unit)
 	CreateClassAuraIcons(self)
 
 	-- Threat glow
-	local threat = CreateFrame("Frame", nil, self)
+	local threat = CreateFrame("Frame", nil, self, "BackdropTemplate")
 	threat:SetAllPoints(self)
 	threat:SetBackdrop(glowBorderBackdrop)
 	threat:SetBackdropColor(0,0,0,0)
@@ -503,7 +505,7 @@ local function InitFrame(self, unit)
 	self.LowHealth = lowHealth
 
 	-- AlternativePower
-	local alternativePower = CreateFrame("StatusBar", nil, self)
+	local alternativePower = CreateFrame("StatusBar", nil, self, "BackdropTemplate")
 	alternativePower:SetBackdrop(backdrop)
 	alternativePower:SetBackdropColor(0, 0, 0, 1)
 	alternativePower:SetBackdropBorderColor(0, 0, 0, 0)

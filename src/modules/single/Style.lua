@@ -514,9 +514,11 @@ local function InitFrame(settings, self, unit)
 	-- Let it have dispel click on mouse button 3
 	self.CustomClick = { button = "3" }
 
-	self:SetBackdrop(backdrop)
-	self:SetBackdropColor(0,0,0,backdrop.bgAlpha)
-	self:SetBackdropBorderColor(0,0,0,0)
+	local backdropFrame = CreateFrame("Frame", nil, self, "BackdropTemplate")
+	backdropFrame:SetAllPoints()
+	backdropFrame:SetBackdrop(backdrop)
+	backdropFrame:SetBackdropColor(0,0,0,backdrop.bgAlpha)
+	backdropFrame:SetBackdropBorderColor(0,0,0,0)
 
 	-- Register setting callbacks early
 	self:RegisterMessage('OnSingleLayoutModified', OnSingleLayoutModified)
@@ -529,7 +531,7 @@ local function InitFrame(settings, self, unit)
 	self:RegisterMessage('OnThemeModified', OnThemeModified)
 
 	-- Border
-	local border = CreateFrame("Frame", CreateName(self, "Border"), self)
+	local border = CreateFrame("Frame", CreateName(self, "Border"), self, "BackdropTemplate")
 	border:SetFrameStrata("BACKGROUND")
 	border:SetPoint("CENTER", self)
 	border:SetBackdrop(borderBackdrop)
@@ -723,7 +725,7 @@ local function InitFrame(settings, self, unit)
 	self.RaidTargetIndicator:SetPoint("CENTER", barContainer)
 
 	-- Threat glow
-	local threat = CreateFrame("Frame", CreateName(self, "ThreatGlow"), self)
+	local threat = CreateFrame("Frame", CreateName(self, "ThreatGlow"), self, "BackdropTemplate")
 	threat:SetAllPoints(self.Border)
 	threat:SetBackdrop(glowBorderBackdrop)
 	threat:SetBackdropColor(0,0,0,0)
@@ -852,7 +854,7 @@ local function InitFrame(settings, self, unit)
 
 	-- Experience Bar for player
 	if unit == "player" then
-		local xpFrame = CreateFrame("Frame", CreateName(self, "XP"), self)
+		local xpFrame = CreateFrame("Frame", CreateName(self, "XP"), self, "BackdropTemplate")
 		xpFrame:SetPoint("TOP")
 		xpFrame:SetPoint("RIGHT")
 		xpFrame:SetHeight(12)

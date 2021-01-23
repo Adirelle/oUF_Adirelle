@@ -116,7 +116,7 @@ local function SpawnText(self, object, layer, from, to, xOffset, yOffset, fontKi
 end
 
 local function SpawnStatusBar(self, noText, from, anchor, to, xOffset, yOffset, fontKind, fontSize, fontFlags)
-	local bar = CreateFrame("StatusBar", GetSerialName(self, "StatusBar"), self)
+	local bar = CreateFrame("StatusBar", GetSerialName(self, "StatusBar"), self, "BackdropTemplate")
 	if not noText then
 		local text = SpawnText(self, bar, "OVERLAY", "TOPRIGHT", "TOPRIGHT", -TEXT_MARGIN, 0, fontKind, fontSize, fontFlags)
 		text:SetPoint("BOTTOMRIGHT", bar, "BOTTOMRIGHT", -TEXT_MARGIN, 0)
