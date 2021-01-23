@@ -1,6 +1,3 @@
 [submodule "oUF"]
 	path = oUF
 	url = ../oUF
-[submodule ".release"]
-	path = .release
-	url = https://github.com/BigWigsMods/packager
