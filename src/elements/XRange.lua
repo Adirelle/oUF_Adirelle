@@ -273,9 +273,17 @@ local function Initialize()
 	updateFrame:SetScript('OnUpdate', OnUpdate)
 end
 
+local function NOOP() end
+
+
+
 local function Enable(self)
 	local xrange = self.XRange
-	if xrange and self.unit ~= 'player' then
+	if xrange then
+		if self.unit == 'player' then
+			xrange.ForceUpdate = NOOP
+			return
+		end
 		if not updateFrame then
 			updateFrame = CreateFrame("Frame")
 			-- Postpone initialization so all spells are available
