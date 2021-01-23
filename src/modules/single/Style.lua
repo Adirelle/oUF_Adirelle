@@ -39,8 +39,6 @@ local tsort = _G.table.sort
 local strmatch = _G.strmatch
 local tinsert = _G.tinsert
 local UnitAffectingCombat = _G.UnitAffectingCombat
-local UnitAlternatePowerInfo = _G.UnitAlternatePowerInfo
-local UnitAlternatePowerTextureInfo = _G.UnitAlternatePowerTextureInfo
 local UnitAura = _G.UnitAura
 local UnitCanAssist = _G.UnitCanAssist
 local UnitCanAttack = _G.UnitCanAttack
@@ -263,9 +261,10 @@ local function Power_PostUpdate(power, unit, min, max)
 end
 
 local function AlternativePower_PostUpdate(bar, unit, cur, min, max)
-	if unit ~= bar.__owner.unit then return end
+	if unit ~= bar.__owner.unit or not cur or not min then return end
 	bar.Label:SetText(bar.powerName)
-	local _, powerRed, powerGreen, powerBlue = UnitAlternatePowerTextureInfo(unit, ALT_POWER_TEX_FILL)
+	local barUD
+	local _, powerRed, powerGreen, powerBlue = GetUnitPowerBarTextureInfo(unit, ALT_POWER_TEX_FILL + 1)
 	if powerRed and powerGreen and powerBlue then
 		local r, g, b = oUF.ColorGradient(cur-min, max-min, powerRed, powerGreen, powerBlue, 1, 0, 0)
 		bar:SetStatusBarColor(r, g, b)

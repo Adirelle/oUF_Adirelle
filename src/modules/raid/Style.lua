@@ -23,12 +23,13 @@ local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 --<GLOBALS
 local _G = _G
 local abs = _G.abs
-local ALTERNATE_POWER_INDEX = _G.Enum.PowerType.Alternate or 10
 local ALT_POWER_TEX_FILL = _G.ALT_POWER_TEX_FILL or 2
+local ALTERNATE_POWER_INDEX = _G.Enum.PowerType.Alternate or 10
 local CreateFrame = _G.CreateFrame
 local floor = _G.floor
 local format = _G.format
 local GetTime = _G.GetTime
+local GetUnitPowerBarTextureInfo = _G.GetUnitPowerBarTextureInfo
 local gsub = _G.gsub
 local huge = _G.math.huge
 local pairs = _G.pairs
@@ -37,8 +38,6 @@ local select = _G.select
 local strmatch = _G.strmatch
 local strsub = _G.strsub
 local tostring = _G.tostring
-local UnitAlternatePowerInfo = _G.UnitAlternatePowerInfo
-local UnitAlternatePowerTextureInfo = _G.UnitAlternatePowerTextureInfo
 local UnitClass = _G.UnitClass
 local UnitHealth = _G.UnitHealth
 local UnitHealthMax = _G.UnitHealthMax
@@ -292,8 +291,8 @@ end
 -- ------------------------------------------------------------------------------
 
 local function AlternativePower_PostUpdate(bar, unit, cur, min, max)
-	if unit ~= bar.__owner.unit then return end
-	local _, powerRed, powerGreen, powerBlue = UnitAlternatePowerTextureInfo(unit, ALT_POWER_TEX_FILL)
+	if unit ~= bar.__owner.unit or not cur or not min then return end
+	local _, powerRed, powerGreen, powerBlue = GetUnitPowerBarTextureInfo(unit, ALT_POWER_TEX_FILL + 1)
 	if powerRed and powerGreen and powerBlue then
 		local r, g, b = oUF.ColorGradient(cur-min, max-min, powerRed, powerGreen, powerBlue, 1, 0, 0)
 		bar:SetStatusBarColor(r, g, b)
