@@ -28,7 +28,6 @@ local CreateFrame = _G.CreateFrame
 local next = _G.next
 local pairs = _G.pairs
 local UnitHasVehicleUI = _G.UnitHasVehicleUI
-local UnitInPhase = _G.UnitInPhase
 local UnitIsCharmed = _G.UnitIsCharmed
 local UnitIsConnected = _G.UnitIsConnected
 local UnitIsDead = _G.UnitIsDead
@@ -36,6 +35,7 @@ local UnitIsDeadOrGhost = _G.UnitIsDeadOrGhost
 local UnitIsGhost = _G.UnitIsGhost
 local UnitIsPlayer = _G.UnitIsPlayer
 local UnitIsVisible = _G.UnitIsVisible
+local UnitPhaseReason = _G.UnitPhaseReason
 local unpack = _G.unpack
 --GLOBALS>
 
@@ -48,7 +48,7 @@ local function GetFrameUnitState(self, ignoreVisibility)
 			return "DEAD"
 		elseif not ignoreVisibility and not UnitIsVisible(unit) then
 			return "OUTOFSCOPE"
-		elseif not ignoreVisibility and not UnitInPhase(unit) then
+		elseif not ignoreVisibility and UnitPhaseReason(unit) then
 			return "OUTOFPHASE"
 		elseif UnitIsGhost(unit) then
 			return "DEAD"
