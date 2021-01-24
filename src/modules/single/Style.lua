@@ -514,6 +514,7 @@ local function InitFrame(settings, self, unit)
 	self.CustomClick = { button = "3" }
 
 	local backdropFrame = CreateFrame("Frame", nil, self, "BackdropTemplate")
+	backdropFrame:SetFrameLevel(self:GetFrameLevel()-1)
 	backdropFrame:SetAllPoints()
 	backdropFrame:SetBackdrop(backdrop)
 	backdropFrame:SetBackdropColor(0,0,0,backdrop.bgAlpha)

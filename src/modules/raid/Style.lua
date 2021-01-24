@@ -378,6 +378,7 @@ local function InitFrame(self, unit)
 	self:SetScript("OnLeave", oUF_Adirelle.Unit_OnLeave)
 
 	local backdropFrame = CreateFrame("Frame", nil, self, "BackdropTemplate")
+	backdropFrame:SetFrameLevel(self:GetFrameLevel()-1)
 	backdropFrame:SetAllPoints()
 	backdropFrame:SetBackdrop(backdrop)
 	backdropFrame:SetBackdropColor(0, 0, 0, backdrop.bgAlpha)
