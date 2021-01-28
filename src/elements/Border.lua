@@ -48,8 +48,11 @@ local function Update(self, event, unit)
 	if unit and UnitExists(unit) then
 		if not border.noTarget and UnitIsUnit('target', unit) then
 			r, g, b = 1, 1, 1
-		elseif not UnitIsDeadOrGhost(unit) and border.manaThreshold and UnitPower(unit, SPELL_POWER_MANA) / UnitPowerMax(unit, SPELL_POWER_MANA) <= border.manaThreshold then
-			r, g, b = unpack(oUF.colors.power.MANA)
+		elseif not UnitIsDeadOrGhost(unit) and border.manaThreshold then
+			local manaCur, manaMax = UnitPower(unit, SPELL_POWER_MANA), UnitPowerMax(unit, SPELL_POWER_MANA)
+			if manaMax > 0 and manaCur / manaMax < border.manaThreshold then
+				r, g, b = unpack(oUF.colors.power.MANA)
+			end
 		end
 	end
 	if b then
