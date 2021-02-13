@@ -1017,6 +1017,28 @@ local function GetOptions()
 							},
 						},
 					},
+					raid = {
+						name = 'Party/raid frames',
+						type = 'group',
+						order = 25,
+						hidden = IsRaidStyleUnused,
+						args = {
+							Health = {
+								name = 'Health bar',
+								desc = 'Configure the display of health bars.',
+								type = 'multiselect',
+								get = function(info, key) return themeDB.profile.raid.Health[key] end,
+								set = function(info, key, value)
+									themeDB.profile.raid.Health[key] = value
+									SettingsModified('OnThemeModified')
+								end,
+								values = {
+									colorClass  ='Class color',
+									invertedBar = 'Inverted bar',
+								},
+							},
+						},
+					},
 					warningThresholds = {
 						name = 'Warning thresholds',
 						type = 'group',

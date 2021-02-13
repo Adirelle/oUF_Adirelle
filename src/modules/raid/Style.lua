@@ -115,15 +115,17 @@ local function UpdateColor(self, event, unit)
 	if unit and (unit ~= self.unit and unit ~= self.realUnit) then return end
 	local refUnit = (self.realUnit or self.unit):gsub('pet', '')
 	if refUnit == '' then refUnit = 'player' end -- 'pet'
-	local class = UnitName(refUnit) ~= UNKNOWN and select(2, UnitClass(refUnit))
+	local class = self.colorClass and UnitName(refUnit) ~= UNKNOWN and select(2, UnitClass(refUnit))
 	local state = GetFrameUnitState(self, true) or class or ""
-	if state ~= self.__stateColor then
+	if state ~= self.__stateColor or not event then
 		self.__stateColor = state
-		local r, g, b = 0.5, 0.5, 0.5
+		local r, g, b, nR, nG, nB = 0.5, 0.5, 0.5, 1, 1, 1
 		if class then
 			r, g, b = unpack(oUF.colors.class[class])
+			nR, nG, nB = r, g, b
+		else
+			r, g, b = unpack(oUF.colors.health)
 		end
-		local nR, nG, nB = r, g, b
 		if state == "DEAD" or state == "DISCONNECTED" then
 			r, g, b = unpack(oUF.colors.disconnected)
 		elseif state == "CHARMED" then
@@ -134,7 +136,13 @@ local function UpdateColor(self, event, unit)
 			nR, nG, nB = unpack(oUF.colors.vehicle.name)
 		end
 		self.bgColor[1], self.bgColor[2], self.bgColor[3] = r, g, b
-		self.Health.bg:SetVertexColor(r, g, b, 1)
+		if self.invertedBar then
+			self.Health.bg:SetVertexColor(r, g, b, 1)
+			self.Health:SetStatusBarColor(0, 0, 0, 0.75)
+		else
+			self.Health.bg:SetVertexColor(0, 0, 0, 1)
+			self.Health:SetStatusBarColor(r, g, b, 0.75)
+		end
 		self.nameColor[1], self.nameColor[2], self.nameColor[3] = nR, nG, nB
 	end
 	return UpdateName(self)
@@ -339,6 +347,11 @@ local function OnThemeModified(self, event, layout, theme)
 	end
 	border:ForceUpdate()
 
+	-- Update health bar settings
+	self.colorClass = theme.raid.Health.colorClass
+	self.invertedBar = theme.raid.Health.invertedBar
+	UpdateColor(self)
+
 	-- Update low health threshold
 	local lowHealth = self.LowHealth
 	if lowHealth then
@@ -388,23 +401,23 @@ local function InitFrame(self, unit)
 	self.CustomClick = {}
 
 	-- Health bar
-	local hp = CreateFrame("StatusBar", nil, self)
-	hp.current, hp.max = 0, 0
-	hp:SetPoint("TOPLEFT")
-	hp:SetPoint("BOTTOMRIGHT")
-	hp.frequentUpdates = true
-	self.Health = hp
-	self:RegisterStatusBarTexture(hp)
-	hp:SetStatusBarColor(0, 0, 0, 0.75)
-
 	self.bgColor = { 1, 1, 1 }
 	self.nameColor = { 1, 1, 1 }
+
+	local hp = CreateFrame("StatusBar", nil, self)
+	hp:SetPoint("TOPLEFT")
+	hp:SetPoint("BOTTOMRIGHT")
+	hp.current, hp.max = 0, 0
+	self.Health = hp
+	self:RegisterStatusBarTexture(hp)
 
 	local hpbg = hp:CreateTexture(nil, "BACKGROUND", nil, -1)
 	hpbg:SetAllPoints(hp)
 	hpbg:SetAlpha(1)
 	hp.bg = hpbg
 	self:RegisterStatusBarTexture(hpbg)
+
+	--UpdateHealthLayout(self)
 
 	-- Heal prediction
 	self:SpawnHealthPrediction(1.00)

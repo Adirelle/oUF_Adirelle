@@ -137,6 +137,12 @@ local THEME_DEFAULTS = {
 			percent = 0.15,
 			amount = 10000,
 		},
+		raid = {
+			Health = {
+				colorClass = true,
+				invertedBar = true
+			}
+		}
 	}
 }
 
