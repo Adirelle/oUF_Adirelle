@@ -118,6 +118,8 @@ local THEME_DEFAULTS = {
 			colorClassNPC = false,
 			colorClassPet = false,
 			colorReaction = false,
+			colorThreat = false,
+			colorSelection = false,
 			colorSmooth = true,
 		},
 		Power = {
