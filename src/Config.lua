@@ -209,6 +209,12 @@ local function GetOptions()
 				[12] = "Self",
 				[13] = "Friendly (Battleground)",
 			}),
+			threat = BuildColorGroup("Threat status", oUF.colors.threat, {
+				[0] = "Low on threat",
+				[1] = "Risk of taking aggro",
+				[2] = "Risk of loosing aggro",
+				[3] = "Tanking",
+			}),
 			group = {
 				name = 'Group member status',
 				type = 'group',
@@ -224,6 +230,7 @@ local function GetOptions()
 		-- Set up the conditions to show some color options
 		colorArgs.reaction.hidden = function() return IsSingleStyleUnused() or not (themeDB.profile.Health.colorReaction or themeDB.profile.Power.colorReaction) end
 		colorArgs.selection.hidden = function() return IsSingleStyleUnused() or not themeDB.profile.Health.colorSelection end
+		colorArgs.threat.hidden = function() return IsSingleStyleUnused() or not themeDB.profile.Health.colorThreat end
 		colorArgs.tapped.hidden = function() return IsSingleStyleUnused() or not (themeDB.profile.Health.colorTapping or themeDB.profile.Power.colorTapping) end
 		colorArgs.power.hidden = function() return IsSingleStyleUnused() or not themeDB.profile.Power.colorPower end
 		colorArgs.lowHealth.hidden = IsElementDisabled.LowHealth
@@ -983,6 +990,7 @@ local function GetOptions()
 									colorClassPet = 'Class (Pet)',
 									colorReaction = 'Reaction',
 									colorSelection = 'Selection',
+									colorThreat = 'Threat status',
 									colorSmooth = 'Smooth',
 								},
 							},
