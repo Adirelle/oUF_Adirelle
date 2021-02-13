@@ -193,6 +193,22 @@ local function GetOptions()
 			outOfRange = BuildColorArg('Out of range', oUF.colors.outOfRange, true),
 			healthPrediction = BuildColorGroup("Health prediction", oUF.colors.healthPrediction, { self = "Self", others = "Others'", absorb = "Shields", healAbsorb = "Heal absorption" }, true),
 			lowHealth = BuildColorArg("Low health warning", oUF.colors.lowHealth, true),
+			selection = BuildColorGroup("Selection", oUF.colors.selection, {
+				[0] = "Hostile",
+				[1] = "Unfriendly",
+				[2] = "Neutral",
+				[3] = "Friendly",
+				[4] = "Player",
+				[5] = "Player",
+				[6] = "Party",
+				[7] = "Party (War Mode On)",
+				[8] = "Friend",
+				[9] = "Dead",
+				[10] = "Commentator Team 1",
+				[11] = "Commentator Team 2",
+				[12] = "Self",
+				[13] = "Friendly (Battleground)",
+			}),
 			group = {
 				name = 'Group member status',
 				type = 'group',
@@ -207,6 +223,7 @@ local function GetOptions()
 
 		-- Set up the conditions to show some color options
 		colorArgs.reaction.hidden = function() return IsSingleStyleUnused() or not (themeDB.profile.Health.colorReaction or themeDB.profile.Power.colorReaction) end
+		colorArgs.selection.hidden = function() return IsSingleStyleUnused() or not themeDB.profile.Health.colorSelection end
 		colorArgs.tapped.hidden = function() return IsSingleStyleUnused() or not (themeDB.profile.Health.colorTapping or themeDB.profile.Power.colorTapping) end
 		colorArgs.power.hidden = function() return IsSingleStyleUnused() or not themeDB.profile.Power.colorPower end
 		colorArgs.lowHealth.hidden = IsElementDisabled.LowHealth
@@ -965,6 +982,7 @@ local function GetOptions()
 									colorClassNPC = 'Class (NPC)',
 									colorClassPet = 'Class (Pet)',
 									colorReaction = 'Reaction',
+									colorSelection = 'Selection',
 									colorSmooth = 'Smooth',
 								},
 							},

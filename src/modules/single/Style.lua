@@ -589,6 +589,7 @@ local function InitFrame(settings, self, unit)
 	local health = SpawnStatusBar(self, false)
 	health:SetPoint("TOPRIGHT", barContainer)
 	health.frequentUpdates = true
+	health.considerSelectionInCombatHostile = true
 	self.Health = health
 	barContainer:AddWidget(health, 10, 4)
 
@@ -605,7 +606,7 @@ local function InitFrame(settings, self, unit)
 	lowHealth:SetPoint("BOTTOMRIGHT", self, 2, -2)
 	self.LowHealth = lowHealth
 
-	-- Heal precitions
+	-- Heal predictions
 	self:SpawnHealthPrediction(1.05)
 
 	-- Used for some overlays
