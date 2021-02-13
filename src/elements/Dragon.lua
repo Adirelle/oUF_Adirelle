@@ -37,6 +37,19 @@ local classifMap = {
 	boss = 'elite',
 }
 
+-- Easter egg
+if GetCurrentRegion() == 3 then
+	local hooked_UnitClassification = UnitClassification
+	local UnitGUID = _G.UnitGUID
+	local UnitIsUnit = _G.UnitIsUnit
+	function UnitClassification(unit)
+		if not UnitIsUnit(unit, "player") and UnitGUID(unit) == "Player-1335-098DCDB7" then
+			return "worldboss"
+		end
+		return hooked_UnitClassification(unit)
+	end
+end
+
 local function Update(self, event, unit)
 	if unit and unit ~= self.unit then return end
 	local dragon = self.Dragon
