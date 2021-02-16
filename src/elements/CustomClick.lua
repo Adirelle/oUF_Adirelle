@@ -45,23 +45,23 @@ local function Update(self)
 	if not self:CanChangeAttribute() then return end
 
 	local flags = self.CustomClick.flags
-	local helpful, harmful
+	local helpfulSpell, harmfulSpell
 	for spellID, data in pairs(Dispels) do
-		if LS:IsKnown(spellID) then
-			if not helpful and band(data[1], flags) ~= 0 then
-				helpful = spellID
+		if spellID ~= 32375 and LS:IsKnown(spellID) then -- ignore Mass Dispel
+			if not helpfulSpell and band(data[1], flags) ~= 0 then
+				helpfulSpell = spellID
 			end
-			if not harmful and band(data[1], HARMFUL) ~= 0 then
-				harmful = spellID
+			if not harmfulSpell and band(data[1], HARMFUL) ~= 0 then
+				harmfulSpell = spellID
 			end
-			if helpful and harmful then
+			if helpfulSpell and harmfulSpell then
 				break
 			end
         end
 	end
 
-	SetAction(self, "help", helpful)
-	SetAction(self, "harm", harmful)
+	SetAction(self, "help", helpfulSpell)
+	SetAction(self, "harm", harmfulSpell)
 end
 
 local function ForceUpdate(element)
