@@ -35,10 +35,20 @@ local C = LPS.constants
 local HARMFUL = C.HARMFUL
 
 local function SetAction(self, targetType, spellID)
-	self:Debug("CustomClick", targetType, spellID and GetSpellInfo(spellID) or "-")
-	self:SetAttribute("*" .. targetType .. "button" .. self.CustomClick.button, spellID and targetType)
-	self:SetAttribute("type-" .. targetType, spellID and "spell")
-	self:SetAttribute("spell-" .. targetType, spellID)
+	local remap = "*" .. targetType .. "button" .. self.CustomClick.button
+	local action = "custom" .. targetType .. self.CustomClick.button
+	if not spellID then
+		self:Debug("CustomClick", "clear", remap, "=>", action)
+		self:SetAttribute(remap, nil)
+		self:SetAttribute("type-" .. action, nil)
+		self:SetAttribute("spell-" .. action, nil)
+		return
+	end
+	local spell = GetSpellInfo(spellID)
+	self:Debug("CustomClick", "set", remap, "=>", action, ":", spell)
+	self:SetAttribute(remap, action)
+	self:SetAttribute("type-" .. action, "spell")
+	self:SetAttribute("spell-" .. action, spell)
 end
 
 local function Update(self)
