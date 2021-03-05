@@ -752,7 +752,7 @@ local function InitFrame(settings, self, unit)
 	threat:SetFrameLevel(self:GetFrameLevel()+2)
 	self.SmartThreat = threat
 
-	if unit ~= "boss" and not isArenaUnit then
+	if unit ~= "boss" and unit ~= "nameplate" and not isArenaUnit then
 		-- Various indicators
 		self.LeaderIndicator = SpawnTexture(indicators, 16, "TOP"..left)
 		self.AssistantIndicator = SpawnTexture(indicators, 16, "TOP"..left)
@@ -812,7 +812,7 @@ local function InitFrame(settings, self, unit)
 		buffs.growthx = 1
 		buffs.growthy = -1
 
-	elseif (unit == "target" or unit == "focus" or unit == "boss" or unit == "arena") and settings.heightType ~= 'Small'then
+	elseif (unit == "target" or unit == "focus" or unit == "boss" or unit == "arena") and settings.heightType ~= 'Small' then
 		buffs = CreateFrame("Frame", CreateName(self, "Buffs"), self)
 		buffs:SetPoint("BOTTOM"..right, self, "BOTTOM"..left, -FRAME_MARGIN*dir, 0)
 		buffs.showType = true
