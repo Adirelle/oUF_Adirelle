@@ -489,6 +489,39 @@ local DRAGON_TEXTURES = {
 	elite = { [[Interface\Addons\oUF_Adirelle\media\elite_graphic]], 6/128, 123/128, 17/128, 112/128, },
 }
 
+local function CreateCastBar(self, anchor)
+	local castbar = CreateFrame("StatusBar", CreateName(self, "CastBar"), self)
+	castbar:Hide()
+	castbar.__owner = self
+	castbar:SetPoint('BOTTOMRIGHT', anchor)
+	castbar.PostCastStart = function() castbar:SetStatusBarColor(1.0, 0.7, 0.0) end
+	castbar.PostChannelStart = function() castbar:SetStatusBarColor(0.0, 1.0, 0.0) end
+	castbar:SetScript('OnSizeChanged', CastBar_Update)
+	castbar:SetScript('OnShow', CastBar_Update)
+	self:RegisterStatusBarTexture(castbar)
+	self.Castbar = castbar
+
+	local icon = castbar:CreateTexture(CreateName(castbar, "Icon"), "ARTWORK")
+	icon:SetPoint('TOPLEFT', anchor)
+	icon:SetTexCoord(4/64, 60/64, 4/64, 60/64)
+	castbar.Icon = icon
+
+	local spellText = SpawnText(self, castbar, "OVERLAY", nil, nil, nil, nil, "text")
+	spellText:SetPoint('TOPLEFT', castbar, 'TOPLEFT', TEXT_MARGIN, 0)
+	spellText:SetPoint('BOTTOMRIGHT', castbar, 'BOTTOMRIGHT', -TEXT_MARGIN, 0)
+	castbar.Text = spellText
+
+	local bg = castbar:CreateTexture(CreateName(castbar, "Background"), "BACKGROUND")
+	bg:SetColorTexture(0,0,0,1)
+	bg:SetPoint('TOPLEFT', icon)
+	bg:SetPoint('BOTTOMRIGHT', castbar)
+
+	castbar:SetPoint("TOPLEFT", icon, "TOPRIGHT", GAP, 0)
+	CastBar_Update(castbar)
+
+	return castbar
+end
+
 local function InitFrame(settings, self, unit)
 	local unit = gsub(unit or self.unit, "%d+", "")
 	local isArenaUnit = strmatch(unit, "arena")
@@ -665,36 +698,15 @@ local function InitFrame(settings, self, unit)
 
 		-- Casting Bar
 		if unit ~= 'player' then
-			local castbar = CreateFrame("StatusBar", CreateName(self, "CastBar"), self)
-			castbar:Hide()
-			castbar.__owner = self
-			castbar:SetPoint('BOTTOMRIGHT', power)
-			castbar.PostCastStart = function() castbar:SetStatusBarColor(1.0, 0.7, 0.0) end
-			castbar.PostChannelStart = function() castbar:SetStatusBarColor(0.0, 1.0, 0.0) end
-			castbar:SetScript('OnSizeChanged', CastBar_Update)
-			castbar:SetScript('OnShow', CastBar_Update)
-			self:RegisterStatusBarTexture(castbar)
-			self.Castbar = castbar
-
-			local icon = castbar:CreateTexture(CreateName(castbar, "Icon"), "ARTWORK")
-			icon:SetPoint('TOPLEFT', power)
-			icon:SetTexCoord(4/64, 60/64, 4/64, 60/64)
-			castbar.Icon = icon
-
-			local spellText = SpawnText(self, castbar, "OVERLAY", nil, nil, nil, nil, "text")
-			spellText:SetPoint('TOPLEFT', castbar, 'TOPLEFT', TEXT_MARGIN, 0)
-			spellText:SetPoint('BOTTOMRIGHT', castbar, 'BOTTOMRIGHT', -TEXT_MARGIN, 0)
-			castbar.Text = spellText
-
-			local bg = castbar:CreateTexture(CreateName(castbar, "Background"), "BACKGROUND")
-			bg:SetColorTexture(0,0,0,1)
-			bg:SetPoint('TOPLEFT', icon)
-			bg:SetPoint('BOTTOMRIGHT', castbar)
-
-			castbar:SetPoint("TOPLEFT", icon, "TOPRIGHT", GAP, 0)
+			local castbar = CreateCastBar(self, power)
 			castbar:SetFrameLevel(power:GetFrameLevel() + 5)
-			CastBar_Update(castbar)
 		end
+
+	elseif unit == "nameplate" then
+		local container = CreateFrame("Frame", CreateName(self, "CastBarContainer"), self)
+		container:SetSize(settings['initial-width'], settings['initial-height']);
+		container:SetPoint("TOP", self, "BOTTOM", 0, -GAP)
+		CreateCastBar(self, container)
 	end
 
 	-- Threat Bar
