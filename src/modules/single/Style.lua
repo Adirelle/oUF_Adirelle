@@ -500,18 +500,23 @@ local function InitFrame(settings, self, unit)
 		self.heightFactor = 40/47
 	end
 
-	self:RegisterForClicks("AnyDown")
+	if self.isNamePlate then
+		self:SetPoint("CENTER", 0, 0)
+		self:SetScale(0.75)
+	else
+		self:RegisterForClicks("AnyDown")
 
-	self:SetScript("OnEnter", oUF_Adirelle.Unit_OnEnter)
-	self:SetScript("OnLeave", oUF_Adirelle.Unit_OnLeave)
+		self:SetScript("OnEnter", oUF_Adirelle.Unit_OnEnter)
+		self:SetScript("OnLeave", oUF_Adirelle.Unit_OnLeave)
 
-	if self:CanChangeAttribute() then
-		self:SetAttribute("type", "target")
-		self:SetAttribute("*type2", "togglemenu")
+		if self:CanChangeAttribute() then
+			self:SetAttribute("type", "target")
+			self:SetAttribute("*type2", "togglemenu")
+		end
+
+		-- Cast dispell on mouse button 3 (middle)
+		self.CustomClick = { button = "3" }
 	end
-
-	-- Let it have dispel click on mouse button 3
-	self.CustomClick = { button = "3" }
 
 	local backdropFrame = CreateFrame("Frame", nil, self, "BackdropTemplate")
 	backdropFrame:SetFrameLevel(self:GetFrameLevel()-1)

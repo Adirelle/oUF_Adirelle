@@ -66,6 +66,7 @@ local function GetOptions()
 		oUF_Adirelle_Single = 'Player, pet, target and focus frames',
 		oUF_Adirelle_Boss = 'Boss frames',
 		oUF_Adirelle_Arena = 'Arena enemy frames',
+		oUF_Adirelle_Nameplates = 'Nameplates',
 	}
 
 	-- Map "base" units to their respective modules
@@ -81,6 +82,7 @@ local function GetOptions()
 		targettarget = "oUF_Adirelle_Single",
 		focus = "oUF_Adirelle_Single",
 		slim_focus = "oUF_Adirelle_Single",
+		nameplate = "oUF_Adirelle_Nameplates",
 	}
 
 	-- Create the profile options of the layout

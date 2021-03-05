@@ -1,0 +1,13 @@
+## Interface: 90002
+## Author: Adirelle
+## Version: 1.0
+## Title: oUF_Adirelle - nameplates
+## Notes: Nameplates.
+## RequiredDeps: oUF_Adirelle
+
+..\oUF_Adirelle\src\modules\single\style.xml
+..\oUF_Adirelle\src\modules\nameplates\module.xml
+
+#@debug@
+## Version: DEV
+#@end-debug@
