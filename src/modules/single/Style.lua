@@ -494,13 +494,27 @@ local DRAGON_TEXTURES = {
 	elite = { [[Interface\Addons\oUF_Adirelle\media\elite_graphic]], 6/128, 123/128, 17/128, 112/128, },
 }
 
+local function CastBar_SetColor(castbar)
+	local r, g, b = 0.7, 0, 0
+	if castbar.notInterruptible then
+		r, g, b = 0.7, 0.7, 0.7
+	elseif castbar.channeling then
+		r, g, b = 0.0, 0.7, 1.0
+	elseif castbar.casting then
+		r, g, b = 1.0, 0.7, 0.0
+	end
+	return castbar:SetStatusBarColor(r, g, b)
+end
+
 local function CreateCastBar(self, anchor)
 	local castbar = CreateFrame("StatusBar", CreateName(self, "CastBar"), self)
 	castbar:Hide()
 	castbar.__owner = self
 	castbar:SetPoint('BOTTOMRIGHT', anchor)
-	castbar.PostCastStart = function() castbar:SetStatusBarColor(1.0, 0.7, 0.0) end
-	castbar.PostChannelStart = function() castbar:SetStatusBarColor(0.0, 1.0, 0.0) end
+	castbar.timeToHold = 0.3
+	castbar.PostCastStart = CastBar_SetColor
+	castbar.CastInterruptible = CastBar_SetColor
+	castbar.PostCastFail = CastBar_SetColor
 	castbar:SetScript('OnSizeChanged', CastBar_Update)
 	castbar:SetScript('OnShow', CastBar_Update)
 	self:RegisterStatusBarTexture(castbar)

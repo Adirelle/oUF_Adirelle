@@ -41,11 +41,25 @@ local borderBackdrop = {
 	edgeSize = BORDER_WIDTH
 }
 
-local function InitFrame(self, unit)
-	local width, height = 100, 16
+local function SetCastBarColor(castbar)
+	local r, g, b = 0.7, 0, 0
+	if castbar.notInterruptible then
+		r, g, b = 0.7, 0.7, 0.7
+	elseif castbar.channeling then
+		r, g, b = 0.0, 0.7, 1.0
+	elseif castbar.casting then
+		r, g, b = 1.0, 0.7, 0.0
+	end
+	return castbar:SetStatusBarColor(r, g, b)
+end
 
-	self:SetSize(width, height)
-	self:SetPoint("BOTTOM", 0, 0)
+local function InitFrame(self, unit)
+	local WIDTH, HEIGHT = 120, 16
+	local CASTBAR_SIZE = 12
+	local SYMBOL_SIZE = 20
+
+	self:SetSize(WIDTH, HEIGHT)
+	self:SetPoint("BOTTOM")
 
 	local backdropFrame = CreateFrame("Frame", nil, self, "BackdropTemplate")
 	backdropFrame:SetFrameLevel(self:GetFrameLevel()-1)
@@ -68,7 +82,7 @@ local function InitFrame(self, unit)
 	self.Border = border
 
 	-- Create an icon displaying important debuffs
-	local importantDebuff = self:CreateIcon(self, height * 1.3)
+	local importantDebuff = self:CreateIcon(self, HEIGHT * 1.3)
 	importantDebuff.minPriority = 20
 	importantDebuff:SetPoint("RIGHT", self, "LEFT", -GAP, 0)
 	self.WarningIcon = importantDebuff
@@ -100,18 +114,22 @@ local function InitFrame(self, unit)
 	local castbar = CreateFrame("StatusBar", CreateName(self, "CastBar"), self)
 	castbar:Hide()
 	castbar.__owner = self
-	castbar:SetHeight(height)
-	castbar:SetPoint('TOPRIGHT', self, 'BOTTOMRIGHT', 0, -GAP)
-	castbar.PostCastStart = function() castbar:SetStatusBarColor(1.0, 0.7, 0.0) end
-	castbar.PostChannelStart = function() castbar:SetStatusBarColor(0.0, 1.0, 0.0) end
+	castbar:SetHeight(CASTBAR_SIZE)
+	castbar:SetPoint('TOPRIGHT', self, 'BOTTOMRIGHT', -GAP, -GAP)
+	castbar.hideTradeSkills = true
+	castbar.timeToHold = 0.3
+	castbar.PostCastStart = SetCastBarColor
+	castbar.CastInterruptible = SetCastBarColor
+	castbar.PostCastFail = SetCastBarColor
 	self:RegisterStatusBarTexture(castbar)
 	self.Castbar = castbar
 
 	local icon = castbar:CreateTexture(CreateName(castbar, "Icon"), "ARTWORK")
-	icon:SetSize(height, height)
-	icon:SetPoint('TOPLEFT', self, 'BOTTOMLEFT', 0, -GAP)
+	icon:SetSize(CASTBAR_SIZE, CASTBAR_SIZE)
+	icon:SetPoint('TOPLEFT', self, 'BOTTOMLEFT', GAP, -GAP)
 	icon:SetTexCoord(4/64, 60/64, 4/64, 60/64)
 	castbar.Icon = icon
+	castbar:SetPoint("LEFT", icon, "RIGHT")
 
 	local spellText = SpawnText(self, castbar, "OVERLAY", nil, nil, nil, nil, "text")
 	spellText:SetPoint('TOPLEFT', castbar, 'TOPLEFT', TEXT_MARGIN, 0)
@@ -123,11 +141,9 @@ local function InitFrame(self, unit)
 	bg:SetPoint('TOPLEFT', icon)
 	bg:SetPoint('BOTTOMRIGHT', castbar)
 
-	castbar:SetPoint("TOPLEFT", icon, "TOPRIGHT", GAP, 0)
-
 	-- Raid target icon
 	local raidTargetIcon = self:CreateTexture(GetSerialName(self, "RaidTarget"), "OVERLAY")
-	raidTargetIcon:SetSize(height * 1.2, height * 1.2)
+	raidTargetIcon:SetSize(SYMBOL_SIZE, SYMBOL_SIZE)
 	raidTargetIcon:SetPoint("LEFT", self, "RIGHT", GAP, 0)
 	self.RaidTargetIndicator = raidTargetIcon
 
