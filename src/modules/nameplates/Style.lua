@@ -68,7 +68,7 @@ local function InitFrame(self, unit)
 	self.Border = border
 
 	-- Create an icon displaying important debuffs
-	local importantDebuff = self:CreateIcon(self)
+	local importantDebuff = self:CreateIcon(self, height * 1.3)
 	importantDebuff.minPriority = 20
 	importantDebuff:SetPoint("RIGHT", self, "LEFT", -GAP, 0)
 	self.WarningIcon = importantDebuff
