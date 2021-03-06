@@ -46,8 +46,10 @@ local function Update(self, event, unit)
 		r, g, b = 0, 0, 0
 	end
 	if unit and UnitExists(unit) then
-		if not border.noTarget and UnitIsUnit('target', unit) then
+		if self.unit ~= "target" and not border.noTarget and UnitIsUnit('target', unit) then
 			r, g, b = 1, 1, 1
+		elseif self.unit ~= "focus" and not border.noFocus and UnitIsUnit('focus', unit) then
+			r, g, b = 1, 0.8, 0
 		elseif not UnitIsDeadOrGhost(unit) and border.manaThreshold then
 			local manaCur, manaMax = UnitPower(unit, SPELL_POWER_MANA), UnitPowerMax(unit, SPELL_POWER_MANA)
 			if manaMax > 0 and manaCur / manaMax < border.manaThreshold then
@@ -112,7 +114,12 @@ local function Enable(self)
 		border.__owner, border.ForceUpdate = self, Element_ForceUpdate
 		self:RegisterEvent("UNIT_DISPLAYPOWER", TogglePowerUpdates)
 		self:RegisterEvent("UNIT_FLAGS", TogglePowerUpdates)
-		self:RegisterEvent("PLAYER_TARGET_CHANGED", Update, true)
+		if not border.noTarget then
+			self:RegisterEvent("PLAYER_TARGET_CHANGED", ForceUpdate, true)
+		end
+		if not border.noFocus then
+			self:RegisterEvent("PLAYER_FOCUS_CHANGED", ForceUpdate, true)
+		end
 		self.Border:Hide()
 		return true
 	end
@@ -127,7 +134,8 @@ local function Disable(self)
 		self:UnregisterEvent("UNIT_MAXPOWER", PowerUpdate)
 		self:UnregisterEvent("UNIT_DISPLAYPOWER", TogglePowerUpdates)
 		self:UnregisterEvent("UNIT_FLAGS", TogglePowerUpdates)
-		self:UnregisterEvent("PLAYER_TARGET_CHANGED", Update)
+		self:UnregisterEvent("PLAYER_TARGET_CHANGED", ForceUpdate)
+		self:UnregisterEvent("PLAYER_FOCUS_CHANGED", ForceUpdate)
 		border:Hide()
 	end
 end
