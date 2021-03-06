@@ -105,10 +105,19 @@ local function InitFrame(self, unit)
 
 	-- Name
 	local name = SpawnText(self, health, nil, nil, nil, nil, nil, "text")
-	name:SetAllPoints()
+	name:SetPoint("TOPLEFT", TEXT_MARGIN, 0)
+	name:SetPoint("BOTTOMRIGHT", -TEXT_MARGIN, 0)
 	name:SetJustifyH("CENTER")
 	self:Tag(name, "[name]")
 	self.Name = name
+
+	-- Elite/rare classification
+	local dragon = health:CreateTexture(CreateName(self, "Dragon"), "OVERLAY")
+	dragon:SetSize(SYMBOL_SIZE / 2, SYMBOL_SIZE / 2)
+	dragon:SetPoint("LEFT", self, "TOPLEFT")
+	dragon.rare = [[Interface\Addons\oUF_Adirelle\media\rare_icon]]
+	dragon.elite = [[Interface\Addons\oUF_Adirelle\media\elite_icon]]
+	self.Dragon = dragon
 
 	-- Casting bar
 	local castbar = CreateFrame("StatusBar", CreateName(self, "CastBar"), self)
