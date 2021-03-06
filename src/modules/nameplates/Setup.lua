@@ -70,7 +70,7 @@ local settings = {
 	nameplateMaxScaleDistance  = 10,  -- The distance from the camera that nameplates will reach their maximum scale.
 	nameplateMaxScale          = 1.0, -- The max scale of nameplates.
 
-	nameplateMinAlphaDistance  = 1,  -- The distance from the max distance that nameplates will reach their minimum alpha.
+	nameplateMinAlphaDistance  = 0,   -- The distance from the max distance that nameplates will reach their minimum alpha.
 	nameplateMinAlpha          = 0.3, -- The minimum alpha of nameplates.
 
 	nameplateMinScaleDistance  = 10,  -- The distance from the max distance that nameplates will reach their minimum scale.
@@ -79,9 +79,9 @@ local settings = {
 	nameplateMaxDistance       = 60,  -- The max distance to show nameplates.
 
 	-- nameplateMotion            = 0,     -- Defines the movement/collision model for nameplates
-	nameplateMotionSpeed       = 0.025, -- Controls the rate at which nameplate animates into their target locations [0.0-1.0]
+	nameplateMotionSpeed       = 0.03, -- Controls the rate at which nameplate animates into their target locations [0.0-1.0]
+	nameplateOverlapV          = 0.7,   -- Percentage amount for vertical overlap of nameplates
 	nameplateOverlapH          = 0.8,   -- Percentage amount for horizontal overlap of nameplates
-	nameplateOverlapV          = 1.1,   -- Percentage amount for vertical overlap of nameplates
 
 	nameplateOtherAtBase       = 0, -- Position other nameplates at the base, rather than overhead
 
