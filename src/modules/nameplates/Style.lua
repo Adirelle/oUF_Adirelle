@@ -25,25 +25,27 @@ local CreateFrame = _G.CreateFrame
 --GLOBALS>
 local mmin, mmax = _G.min, _G.max
 
-local AURA_SIZE = oUF_Adirelle.AURA_SIZE
 local backdrop = oUF_Adirelle.backdrop
-local BORDER_WIDTH = oUF_Adirelle.BORDER_WIDTH
-local borderBackdrop = oUF_Adirelle.borderBackdrop
 local CreateName = oUF_Adirelle.CreateName
-local FRAME_MARGIN = oUF_Adirelle.FRAME_MARGIN
 local GAP = oUF_Adirelle.GAP
+local GetSerialName = oUF_Adirelle.GetSerialName
 local glowBorderBackdrop = oUF_Adirelle.glowBorderBackdrop
 local SpawnStatusBar = oUF_Adirelle.SpawnStatusBar
 local SpawnText = oUF_Adirelle.SpawnText
 local SpawnTexture = oUF_Adirelle.SpawnTexture
 local TEXT_MARGIN = oUF_Adirelle.TEXT_MARGIN
 
+local BORDER_WIDTH = 1
+local borderBackdrop = {
+	edgeFile = [[Interface\Addons\oUF_Adirelle\media\white16x16]],
+	edgeSize = BORDER_WIDTH
+}
+
 local function InitFrame(self, unit)
-	local width, height = 160, 16
+	local width, height = 100, 16
 
 	self:SetSize(width, height)
-	self:SetPoint("CENTER", 0, 0)
-	self:SetScale(0.75)
+	self:SetPoint("BOTTOM", 0, 0)
 
 	local backdropFrame = CreateFrame("Frame", nil, self, "BackdropTemplate")
 	backdropFrame:SetFrameLevel(self:GetFrameLevel()-1)
@@ -54,6 +56,8 @@ local function InitFrame(self, unit)
 
 	-- Border
 	local border = CreateFrame("Frame", CreateName(self, "Border"), self, "BackdropTemplate")
+	border:SetPoint("TOPLEFT", -BORDER_WIDTH, BORDER_WIDTH)
+	border:SetPoint("BOTTOMRIGHT", BORDER_WIDTH, -BORDER_WIDTH)
 	border:SetFrameStrata("BACKGROUND")
 	border:SetPoint("CENTER", self)
 	border:SetBackdrop(borderBackdrop)
@@ -75,7 +79,7 @@ local function InitFrame(self, unit)
 	self:RegisterFontString(importantDebuff.Stack, "number", 14, "OUTLINE")
 
 	-- Health bar
-	local health = SpawnStatusBar(self, false)
+	local health = SpawnStatusBar(self, true)
 	health:SetAllPoints()
 	health.frequentUpdates = true
 	health.colorTapping = true
@@ -86,14 +90,11 @@ local function InitFrame(self, unit)
 	self.Health = health
 
 	-- Name
-	local name = SpawnText(self, health, "OVERLAY", "TOPLEFT", "TOPLEFT", TEXT_MARGIN, 0, "text")
-	name:SetPoint("BOTTOMLEFT", health, "BOTTOMLEFT", TEXT_MARGIN)
-	name:SetPoint("RIGHT", health.Text, "LEFT")
+	local name = SpawnText(self, health, nil, nil, nil, nil, nil, "text")
+	name:SetAllPoints()
+	name:SetJustifyH("CENTER")
 	self:Tag(name, "[name]")
 	self.Name = name
-
-	-- Heal predictions
-	self:SpawnHealthPrediction(1.05)
 
 	-- Casting bar
 	local castbar = CreateFrame("StatusBar", CreateName(self, "CastBar"), self)
@@ -125,17 +126,18 @@ local function InitFrame(self, unit)
 	castbar:SetPoint("TOPLEFT", icon, "TOPRIGHT", GAP, 0)
 
 	-- Raid target icon
-	self.RaidTargetIndicator = SpawnTexture(self, 16)
-	self.RaidTargetIndicator:SetPoint("RIGHT", self, -GAP, 0)
+	local raidTargetIcon = self:CreateTexture(GetSerialName(self, "RaidTarget"), "OVERLAY")
+	raidTargetIcon:SetSize(height * 1.2, height * 1.2)
+	raidTargetIcon:SetPoint("LEFT", self, "RIGHT", GAP, 0)
+	self.RaidTargetIndicator = raidTargetIcon
 
 	-- Threat glow
 	local threat = CreateFrame("Frame", CreateName(self, "ThreatGlow"), self, "BackdropTemplate")
-	threat:SetAllPoints(self.Border)
+	threat:SetPoint("TOPLEFT", border, -2, 2)
+	threat:SetPoint("BOTTOMRIGHT", border, 2, -2)
 	threat:SetBackdrop(glowBorderBackdrop)
 	threat:SetBackdropColor(0,0,0,0)
 	threat.SetVertexColor = threat.SetBackdropBorderColor
-	threat:SetAlpha(glowBorderBackdrop.alpha)
-	threat:SetFrameLevel(self:GetFrameLevel()+2)
 	self.SmartThreat = threat
 
 	-- -- Classification dragon
