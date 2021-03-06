@@ -62,21 +62,20 @@ local settings = {
 	-- NamePlateVerticalScale     = 1.0, -- Applied to vertical size of all nameplates.
 
 	nameplateSelfAlpha         = 0.75, -- The alpha of the self nameplate.
+	nameplateNotSelectedAlpha  = 0.8,  -- The alpha of the non-selected nameplate when there is a target.
 	nameplateSelectedAlpha     = 1.0,  -- The alpha of the selected nameplate.
 
 	nameplateMaxAlphaDistance  = 40,  -- The distance from the camera that nameplates will reach their maximum alpha.
 	nameplateMaxAlpha          = 1.0, -- The max alpha of nameplates.
 
-	nameplateMaxScaleDistance  = 10,  -- The distance from the camera that nameplates will reach their maximum scale.
-	nameplateMaxScale          = 1.0, -- The max scale of nameplates.
+	nameplateMaxScaleDistance  = 40,  -- The distance from the camera that nameplates will reach their maximum scale.
+	nameplateMaxScale          = 1.0,  -- The max scale of nameplates.
 
-	nameplateMinAlphaDistance  = 0,   -- The distance from the max distance that nameplates will reach their minimum alpha.
-	nameplateMinAlpha          = 0.3, -- The minimum alpha of nameplates.
+	nameplateMinAlphaDistance  = 1,   -- The distance from the max distance that nameplates will reach their minimum alpha.
+	nameplateMinAlpha          = 0.5, -- The minimum alpha of nameplates.
 
-	nameplateMinScaleDistance  = 10,  -- The distance from the max distance that nameplates will reach their minimum scale.
-	nameplateMinScale          = 0.8, -- The minimum scale of nameplates.
-
-	nameplateMaxDistance       = 60,  -- The max distance to show nameplates.
+	nameplateMinScaleDistance  = 1,  -- The distance from the max distance that nameplates will reach their minimum scale.
+	nameplateMinScale          = 0.5, -- The minimum scale of nameplates.
 
 	-- nameplateMotion            = 0,     -- Defines the movement/collision model for nameplates
 	nameplateMotionSpeed       = 0.03, -- Controls the rate at which nameplate animates into their target locations [0.0-1.0]
@@ -95,6 +94,7 @@ local settings = {
 	-- nameplateResourceOnTarget      = 0,   -- Nameplate class resource overlay mode. 0=self, 1=target
 	nameplateClassResourceTopInset = .03, -- The inset from the top (in screen percent) that nameplates are clamped to when class resources are being displayed on them.
 
+	clampTargetNameplateToScreen = 1, -- Clamps the target's nameplate to the edges of the screen, even if the target is off-screen.
 	nameplateTargetRadialPosition    = 1,  -- When target is off screen, position its nameplate radially around sides and bottom. 1: Target Only. 2: All In Combat
 	nameplateTargetBehindMaxDistance = 15, -- The max distance to show the target nameplate when the target is behind the camera.
 }
