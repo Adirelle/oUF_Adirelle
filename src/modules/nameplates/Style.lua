@@ -157,25 +157,13 @@ local function InitFrame(self, unit)
 	self.RaidTargetIndicator = raidTargetIcon
 
 	-- Threat glow
-	local threat = CreateFrame("Frame", CreateName(self, "ThreatGlow"), self, "BackdropTemplate")
-	threat:SetPoint("TOPLEFT", border, -2, 2)
-	threat:SetPoint("BOTTOMRIGHT", border, 2, -2)
-	threat:SetBackdrop(glowBorderBackdrop)
-	threat:SetBackdropColor(0,0,0,0)
-	threat.SetVertexColor = threat.SetBackdropBorderColor
+	local threat = self:CreateTexture(GetSerialName(self, "ThreatGlow"), "BACKGROUND")
+	threat:SetPoint("TOPLEFT", border, -32, 16)
+	threat:SetPoint("BOTTOMRIGHT", border, 32, -16)
+	threat:SetTexture([[Interface\Addons\oUF_Adirelle\media\threat_overlay]])
+	threat:SetTexCoord(85/512, (512-85)/512, 0, 1)
+	threat:SetVertexColor(1.0, 0.0, 0.0, 0.7)
 	self.SmartThreat = threat
-
-	-- -- Classification dragon
-	-- if not settings.noPortrait and (unit == "target" or unit == "focus" or unit == "boss") then
-	-- 	local dragon = indicators:CreateTexture(CreateName(self, "Classification"), "ARTWORK")
-	-- 	local DRAGON_HEIGHT = 45*95/80+2
-	-- 	dragon:SetWidth(DRAGON_HEIGHT*117/95)
-	-- 	dragon:SetHeight(DRAGON_HEIGHT)
-	-- 	dragon:SetPoint('TOPLEFT', self, 'TOPLEFT', -44*DRAGON_HEIGHT/95-1, 15*DRAGON_HEIGHT/95+1)
-	-- 	dragon.elite = DRAGON_TEXTURES.elite
-	-- 	dragon.rare = DRAGON_TEXTURES.rare
-	-- 	self.Dragon = dragon
-	-- end
 end
 
 oUF:RegisterStyle("Adirelle_Nameplate", InitFrame)
