@@ -82,7 +82,7 @@ end
 oUF:RegisterMetaFunction('CreateIcon', function(self, parent, size, noCooldown, noStack, noBorder, noTexture, ...)
 	assert(parent and type(parent[0]) == "userdata", "CreateIcon: parent should be a Frame")
 	assert(type(size) == "nil" or type(size) == "number", "CreateIcon: size should be a number")
-	local	icon = CreateFrame("Frame", nil, parent)
+	local icon = CreateFrame("Frame", nil, parent)
 	if size then
 		icon:SetSize(size, size)
 	end
