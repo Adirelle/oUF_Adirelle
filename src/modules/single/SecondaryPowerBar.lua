@@ -23,14 +23,13 @@ local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 if oUF_Adirelle.SingleStyle then return end
 
 --<GLOBALS
-local _G = _G
 local abs = _G.abs
 local CreateFrame = _G.CreateFrame
 local GetRuneType = _G.GetRuneType
 local unpack = _G.unpack
 --GLOBALS>
 
-local GAP = private.GAP
+local GAP = oUF_Adirelle.GAP
 
 local playerClass = oUF_Adirelle.playerClass
 

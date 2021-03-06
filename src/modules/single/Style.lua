@@ -16,14 +16,13 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --]=]
 
-local _G, moduleName, private = _G, ...
+local _G, _, private = _G, ...
 local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 if oUF_Adirelle.SingleStyle then return end
 
 --<GLOBALS
-local _G = _G
 local ALT_POWER_TEX_FILL = _G.ALT_POWER_TEX_FILL or 2
 local CreateFrame = _G.CreateFrame
 local floor = _G.floor
@@ -51,17 +50,23 @@ local unpack = _G.unpack
 --GLOBALS>
 local mmin, mmax = _G.min, _G.max
 
-local GAP, BORDER_WIDTH, TEXT_MARGIN = private.GAP, private.BORDER_WIDTH, private.TEXT_MARGIN
-local FRAME_MARGIN, AURA_SIZE = private.FRAME_MARGIN, private.AURA_SIZE
-
-local backdrop, glowBorderBackdrop = oUF_Adirelle.backdrop, oUF_Adirelle.glowBorderBackdrop
+local AURA_SIZE = oUF_Adirelle.AURA_SIZE
+local backdrop = oUF_Adirelle.backdrop
+local BORDER_WIDTH = oUF_Adirelle.BORDER_WIDTH
+local CreateName = oUF_Adirelle.CreateName
+local FRAME_MARGIN = oUF_Adirelle.FRAME_MARGIN
+local GAP = oUF_Adirelle.GAP
+local glowBorderBackdrop = oUF_Adirelle.glowBorderBackdrop
+local PowerMap = oUF_Adirelle.Enum.PowerMap
+local SpawnDiscreteBar = oUF_Adirelle.SpawnDiscreteBar
+local SpawnHybridBar = oUF_Adirelle.SpawnHybridBar
+local SpawnStatusBar = oUF_Adirelle.SpawnStatusBar
+local SpawnStatusBar = oUF_Adirelle.SpawnStatusBar
+local SpawnText = oUF_Adirelle.SpawnText
+local SpawnTexture = oUF_Adirelle.SpawnTexture
+local TEXT_MARGIN = oUF_Adirelle.TEXT_MARGIN
 
 local borderBackdrop = { edgeFile = [[Interface\Addons\oUF_Adirelle\media\white16x16]], edgeSize = BORDER_WIDTH }
-
-local SpawnTexture, SpawnText, SpawnStatusBar = private.SpawnTexture, private.SpawnText, private.SpawnStatusBar
-local CreateName = private.CreateName
-
-local PowerMap = oUF_Adirelle.Enum.PowerMap
 
 local function Auras_PreSetPosition(icons, numIcons)
 	return 1, numIcons
@@ -664,13 +669,13 @@ local function InitFrame(settings, self, unit)
 		local powers = {}
 		-- Additional power bars that requires specialization information
 		if unit == 'player' or unit == 'target' or unit == 'focus' or unit == 'pet' then
-			powers.MANA = private.SpawnStatusBar(self)
-			powers.SOUL_SHARDS = private.SpawnHybridBar(self, 4, 100, [[Interface\Addons\oUF_Adirelle\media\white16x16]])
+			powers.MANA = SpawnStatusBar(self)
+			powers.SOUL_SHARDS = SpawnHybridBar(self, 4, 100, [[Interface\Addons\oUF_Adirelle\media\white16x16]])
 		end
 		-- Additional power bars available only on players
 		if unit == 'player' or unit == 'target' or unit == 'focus' or unit == 'pet' or unit == 'arena' then
-			powers.CHI = private.SpawnDiscreteBar(self, 6, false, [[Interface\Addons\oUF_Adirelle\media\white16x16]])
-			powers.HOLY_POWER = private.SpawnDiscreteBar(self, 5, false, [[Interface\Addons\oUF_Adirelle\media\white16x16]])
+			powers.CHI = SpawnDiscreteBar(self, 6, false, [[Interface\Addons\oUF_Adirelle\media\white16x16]])
+			powers.HOLY_POWER = SpawnDiscreteBar(self, 5, false, [[Interface\Addons\oUF_Adirelle\media\white16x16]])
 			powers.HOLY_POWER.PostUpdate = HighlightHolyPower
 		end
 		if next(powers) then
@@ -900,7 +905,7 @@ local function InitFrame(settings, self, unit)
 		local xpText = SpawnText(self, xpBar, "OVERLAY", "TOPRIGHT", "TOPRIGHT", -TEXT_MARGIN, 0)
 		xpText:SetPoint("BOTTOMRIGHT", xpBar, "BOTTOMRIGHT", -TEXT_MARGIN, 0)
 
-		local smartValue = private.smartValue
+		local smartValue = oUF_Adirelle.smartValue
 		xpBar.UpdateText = function(self, bar, current, max, rested, level)
 			levelText:SetFormattedText(level)
 			if rested and rested > 0 then

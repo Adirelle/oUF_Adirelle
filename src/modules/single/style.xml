@@ -1,6 +1,4 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/">
-	<Script file="Constants.lua"/>
-	<Script file="Widgets.lua"/>
 	<Script file="SecondaryPowerBar.lua"/>
 	<Script file="BarLayout.lua"/>
 	<Script file="Style.lua"/>

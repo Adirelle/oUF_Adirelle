@@ -40,10 +40,10 @@ oUF:Factory(function()
 	--GLOBALS>
 
 	-- Fetch some shared variables into local namespace
-	local SCALE = oUF_Adirelle.SCALE
-	local SPACING = oUF_Adirelle.SPACING
-	local WIDTH = oUF_Adirelle.WIDTH
-	local HEIGHT = oUF_Adirelle.HEIGHT
+	local SCALE = private.SCALE
+	local SPACING = private.SPACING
+	local WIDTH = private.WIDTH
+	local HEIGHT = private.HEIGHT
 	local GetPlayerRole = oUF_Adirelle.GetPlayerRole
 
 	local HEIGHT_FULL = HEIGHT

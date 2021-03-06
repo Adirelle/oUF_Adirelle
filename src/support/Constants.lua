@@ -16,12 +16,16 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --]=]
 
-local _, private = ...
+local oUF_Adirelle = _G.oUF_Adirelle
 
-if oUF_Adirelle.SingleStyle then return end
+oUF_Adirelle.GAP = 2
+oUF_Adirelle.BORDER_WIDTH = 2
+oUF_Adirelle.TEXT_MARGIN = 2
+oUF_Adirelle.AURA_SIZE = 22
 
-private.GAP = 2
-private.BORDER_WIDTH = 2
-private.TEXT_MARGIN = 2
-private.FRAME_MARGIN = private.BORDER_WIDTH + private.GAP
-private.AURA_SIZE = 22
+oUF_Adirelle.FRAME_MARGIN = oUF_Adirelle.BORDER_WIDTH + oUF_Adirelle.GAP
+
+oUF_Adirelle.borderBackdrop = {
+	edgeFile = [[Interface\Addons\oUF_Adirelle\media\white16x16]],
+	edgeSize = BORDER_WIDTH
+}

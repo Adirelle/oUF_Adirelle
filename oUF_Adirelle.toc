@@ -31,6 +31,9 @@ oUF\oUF.xml
 # Setup namespace
 src\oUF_Adirelle.lua
 
+# Layout constants
+src\support\Constants.lua
+
 # Internal messaging system
 src\support\Messages.lua
 
@@ -43,6 +46,9 @@ src\support\Enums.lua
 # LibMovable integration
 libs\LibMovable-1.0\LibMovable-1.0.lua
 src\support\Movable.lua
+
+# Widget helpers
+src\support\Widgets.lua
 
 # Texture and font helper
 src\support\Media.lua

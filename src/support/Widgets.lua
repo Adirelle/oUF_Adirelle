@@ -16,10 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --]=]
 
-local _G, moduleName, private = _G, ...
 local oUF_Adirelle = _G.oUF_Adirelle
-
-if oUF_Adirelle.SingleStyle then return end
 
 --<GLOBALS
 local _G = _G
@@ -32,7 +29,7 @@ local UnitClassification = _G.UnitClassification
 --GLOBALS>
 local GameFontWhiteSmall = _G.GameFontWhiteSmall
 
-local GAP, TEXT_MARGIN = private.GAP, private.TEXT_MARGIN
+local GAP, TEXT_MARGIN = oUF_Adirelle.GAP, oUF_Adirelle.TEXT_MARGIN
 local GetLib = oUF_Adirelle.GetLib
 
 local function CreateName() end
@@ -56,7 +53,8 @@ do
 	end
 end
 --@end-debug@
-private.CreateName, private.GetSerialName = CreateName, GetSerialName
+oUF_Adirelle.CreateName = CreateName
+oUF_Adirelle.GetSerialName = GetSerialName
 
 local function smartValue(value)
 	if value >= 10000000 then
@@ -67,7 +65,7 @@ local function smartValue(value)
 		return tostring(value)
 	end
 end
-private.smartValue = smartValue
+oUF_Adirelle.smartValue = smartValue
 
 local function OnStatusBarUpdate(bar)
 	if not bar:IsShown() then return end
@@ -247,5 +245,8 @@ local function SpawnHybridBar(self, numItems, step)
 	return bar
 end
 
-private.SpawnTexture, private.SpawnText, private.SpawnStatusBar, private.SpawnDiscreteBar, private.SpawnHybridBar = SpawnTexture, SpawnText, SpawnStatusBar, SpawnDiscreteBar, SpawnHybridBar
-
+oUF_Adirelle.SpawnTexture = SpawnTexture
+oUF_Adirelle.SpawnText = SpawnText
+oUF_Adirelle.SpawnStatusBar = SpawnStatusBar
+oUF_Adirelle.SpawnDiscreteBar = SpawnDiscreteBar
+oUF_Adirelle.SpawnHybridBar = SpawnHybridBar

@@ -53,7 +53,8 @@ local mmin, mmax = _G.min, _G.max
 
 -- Import some values from oUF_Adirelle namespace
 local GetFrameUnitState = oUF_Adirelle.GetFrameUnitState
-local backdrop, glowBorderBackdrop = oUF_Adirelle.backdrop, oUF_Adirelle.glowBorderBackdrop
+local backdrop = oUF_Adirelle.backdrop
+local glowBorderBackdrop = oUF_Adirelle.glowBorderBackdrop
 
 -- Constants
 local SCALE = 1.0
@@ -64,10 +65,19 @@ local BORDER_WIDTH = 1
 local ICON_SIZE = 14
 local INSET = 1
 local SMALL_ICON_SIZE = 8
-local borderBackdrop = { edgeFile = [[Interface\Addons\oUF_Adirelle\media\white16x16]], edgeSize = BORDER_WIDTH }
+
+local borderBackdrop = {
+	edgeFile = [[Interface\Addons\oUF_Adirelle\media\white16x16]],
+	edgeSize = BORDER_WIDTH
+}
 
 -- Export some constants
-oUF_Adirelle.SCALE, oUF_Adirelle.WIDTH, oUF_Adirelle.SPACING, oUF_Adirelle.HEIGHT, oUF_Adirelle.BORDER_WIDTH, oUF_Adirelle.ICON_SIZE = SCALE, WIDTH, SPACING, HEIGHT, BORDER_WIDTH, ICON_SIZE
+private.SCALE = SCALE
+private.WIDTH = WIDTH
+private.SPACING = SPACING
+private.HEIGHT = HEIGHT
+private.BORDER_WIDTH = BORDER_WIDTH
+private.ICON_SIZE = ICON_SIZE
 
 -- ------------------------------------------------------------------------------
 -- Health bar and name updates
