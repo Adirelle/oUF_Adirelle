@@ -5,7 +5,6 @@
 ## Notes: Nameplates.
 ## RequiredDeps: oUF_Adirelle
 
-..\oUF_Adirelle\src\modules\single\style.xml
 ..\oUF_Adirelle\src\modules\nameplates\module.xml
 
 #@debug@
