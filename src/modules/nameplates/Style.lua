@@ -126,10 +126,10 @@ local function InitFrame(self, unit)
 	castbar:SetHeight(CASTBAR_SIZE)
 	castbar:SetPoint('TOPRIGHT', self, 'BOTTOMRIGHT', -GAP, -GAP)
 	castbar.hideTradeSkills = true
-	castbar.timeToHold = 0.3
 	castbar.PostCastStart = SetCastBarColor
 	castbar.CastInterruptible = SetCastBarColor
 	castbar.PostCastFail = SetCastBarColor
+	castbar.timeToHold = 0.5
 	self:RegisterStatusBarTexture(castbar)
 	self.Castbar = castbar
 
