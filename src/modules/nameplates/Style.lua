@@ -81,17 +81,6 @@ local function InitFrame(self, unit)
 	border.blackByDefault = true
 	self.Border = border
 
-	-- Create an icon displaying important debuffs
-	local importantDebuff = self:CreateIcon(self, HEIGHT * 1.3)
-	importantDebuff.minPriority = 20
-	importantDebuff:SetPoint("RIGHT", self, "LEFT", -GAP, 0)
-	self.WarningIcon = importantDebuff
-
-	local stack = importantDebuff.Stack
-	stack:ClearAllPoints()
-	stack:SetPoint("BOTTOMRIGHT", importantDebuff, -1, 1)
-	self:RegisterFontString(importantDebuff.Stack, "number", 14, "OUTLINE")
-
 	-- Health bar
 	local health = SpawnStatusBar(self, true)
 	health:SetAllPoints()
@@ -110,6 +99,12 @@ local function InitFrame(self, unit)
 	name:SetJustifyH("CENTER")
 	self:Tag(name, "[name]")
 	self.Name = name
+
+	-- Create an icon displaying important debuffs
+	local importantDebuff = self:CreateIcon(health, HEIGHT * 1.4)
+	importantDebuff.minPriority = 50
+	importantDebuff:SetPoint("CENTER", self)
+	self.WarningIcon = importantDebuff
 
 	-- Elite/rare classification
 	local dragon = health:CreateTexture(CreateName(self, "Dragon"), "OVERLAY")
