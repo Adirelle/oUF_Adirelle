@@ -53,6 +53,10 @@ local function SetCastBarColor(castbar)
 	return castbar:SetStatusBarColor(r, g, b)
 end
 
+local function XRange_PostUpdate(xrange, event, unit, inRange)
+	xrange.__owner:SetAlpha(inRange and 1 or oUF.colors.outOfRange[4])
+end
+
 local function InitFrame(self, unit)
 	local WIDTH, HEIGHT = 120, 16
 	local CASTBAR_SIZE = 12
@@ -92,8 +96,13 @@ local function InitFrame(self, unit)
 	health.considerSelectionInCombatHostile = true
 	self.Health = health
 
+	-- Indicator overlays
+	local overlay = CreateFrame("Frame", nil, self)
+	overlay:SetAllPoints(self)
+	overlay:SetFrameLevel(border:GetFrameLevel()+3)
+
 	-- Name
-	local name = SpawnText(self, health, nil, nil, nil, nil, nil, "text")
+	local name = SpawnText(self, overlay, nil, nil, nil, nil, nil, "text")
 	name:SetPoint("TOPLEFT", TEXT_MARGIN, 0)
 	name:SetPoint("BOTTOMRIGHT", -TEXT_MARGIN, 0)
 	name:SetJustifyH("CENTER")
@@ -101,13 +110,13 @@ local function InitFrame(self, unit)
 	self.Name = name
 
 	-- Create an icon displaying important debuffs
-	local importantDebuff = self:CreateIcon(health, HEIGHT * 1.4)
+	local importantDebuff = self:CreateIcon(overlay, HEIGHT * 1.4)
 	importantDebuff.minPriority = 50
 	importantDebuff:SetPoint("CENTER", self)
 	self.WarningIcon = importantDebuff
 
 	-- Elite/rare classification
-	local dragon = health:CreateTexture(CreateName(self, "Dragon"), "OVERLAY")
+	local dragon = overlay:CreateTexture(CreateName(self, "Dragon"), "OVERLAY")
 	dragon:SetSize(SYMBOL_SIZE / 2, SYMBOL_SIZE / 2)
 	dragon:SetPoint("LEFT", self, "TOPLEFT")
 	dragon.rare = [[Interface\Addons\oUF_Adirelle\media\rare_icon]]
@@ -146,19 +155,33 @@ local function InitFrame(self, unit)
 	bg:SetPoint('BOTTOMRIGHT', castbar)
 
 	-- Raid target icon
-	local raidTargetIcon = self:CreateTexture(GetSerialName(self, "RaidTarget"), "OVERLAY")
+	local raidTargetIcon = overlay:CreateTexture(GetSerialName(self, "RaidTarget"), "OVERLAY")
 	raidTargetIcon:SetSize(SYMBOL_SIZE, SYMBOL_SIZE)
 	raidTargetIcon:SetPoint("LEFT", self, "RIGHT", GAP, 0)
 	self.RaidTargetIndicator = raidTargetIcon
 
 	-- Threat glow
-	local threat = self:CreateTexture(GetSerialName(self, "ThreatGlow"), "BACKGROUND")
+	local threat = overlay:CreateTexture(GetSerialName(self, "ThreatGlow"), "BACKGROUND")
 	threat:SetPoint("TOPLEFT", border, -32, 16)
 	threat:SetPoint("BOTTOMRIGHT", border, 32, -16)
 	threat:SetTexture([[Interface\Addons\oUF_Adirelle\media\threat_overlay]])
 	threat:SetTexCoord(85/512, (512-85)/512, 0, 1)
 	threat:SetVertexColor(1.0, 0.0, 0.0, 0.7)
 	self.SmartThreat = threat
+
+	-- Range fading
+	local xrange = CreateFrame("Frame", nil, overlay)
+	xrange:SetAllPoints(self)
+	xrange:SetFrameLevel(overlay:GetFrameLevel()+10)
+	xrange.PostUpdate = XRange_PostUpdate
+
+	local tex = xrange:CreateTexture(nil, "OVERLAY")
+	tex:SetAllPoints(self)
+	tex:SetColorTexture(0.4, 0.4, 0.4)
+	tex:SetBlendMode("MOD")
+
+	xrange.Texture = tex
+	self.XRange = xrange
 end
 
 oUF:RegisterStyle("Adirelle_Nameplate", InitFrame)

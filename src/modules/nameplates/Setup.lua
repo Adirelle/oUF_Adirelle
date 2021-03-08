@@ -68,14 +68,16 @@ local settings = {
 	nameplateMaxAlphaDistance  = 40,  -- The distance from the camera that nameplates will reach their maximum alpha.
 	nameplateMaxAlpha          = 1.0, -- The max alpha of nameplates.
 
-	nameplateMaxScaleDistance  = 40,  -- The distance from the camera that nameplates will reach their maximum scale.
-	nameplateMaxScale          = 1.0,  -- The max scale of nameplates.
+	nameplateMaxScaleDistance  = 10,  -- The distance from the camera that nameplates will reach their maximum scale.
+	nameplateMaxScale          = 1.0, -- The max scale of nameplates.
 
-	nameplateMinAlphaDistance  = 1,   -- The distance from the max distance that nameplates will reach their minimum alpha.
+	nameplateMinAlphaDistance  = 0,  -- The distance from the max distance that nameplates will reach their minimum alpha.
 	nameplateMinAlpha          = 0.5, -- The minimum alpha of nameplates.
 
-	nameplateMinScaleDistance  = 1,  -- The distance from the max distance that nameplates will reach their minimum scale.
-	nameplateMinScale          = 0.5, -- The minimum scale of nameplates.
+	nameplateMinScaleDistance  = 0,  -- The distance from the max distance that nameplates will reach their minimum scale.
+	nameplateMinScale          = 0.8, -- The minimum scale of nameplates.
+
+	nameplateMaxDistance       = 60,
 
 	-- nameplateMotion            = 0,     -- Defines the movement/collision model for nameplates
 	nameplateMotionSpeed       = 0.03, -- Controls the rate at which nameplate animates into their target locations [0.0-1.0]
