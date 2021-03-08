@@ -561,23 +561,18 @@ local function InitFrame(settings, self, initUnit)
 		self.heightFactor = 40 / 47
 	end
 
-	if self.isNamePlate then
-		self:SetPoint("CENTER", 0, 0)
-		self:SetScale(0.75)
-	else
-		self:RegisterForClicks("AnyDown")
+	self:RegisterForClicks("AnyDown")
 
-		self:SetScript("OnEnter", oUF_Adirelle.Unit_OnEnter)
-		self:SetScript("OnLeave", oUF_Adirelle.Unit_OnLeave)
+	self:SetScript("OnEnter", oUF_Adirelle.Unit_OnEnter)
+	self:SetScript("OnLeave", oUF_Adirelle.Unit_OnLeave)
 
-		if self:CanChangeAttribute() then
-			self:SetAttribute("type", "target")
-			self:SetAttribute("*type2", "togglemenu")
-		end
-
-		-- Cast dispell on mouse button 3 (middle)
-		self.CustomClick = { button = "3" }
+	if self:CanChangeAttribute() then
+		self:SetAttribute("type", "target")
+		self:SetAttribute("*type2", "togglemenu")
 	end
+
+	-- Cast dispell on mouse button 3 (middle)
+	self.CustomClick = { button = "3" }
 
 	local backdropFrame = CreateFrame("Frame", nil, self, "BackdropTemplate")
 	backdropFrame:SetFrameLevel(self:GetFrameLevel() - 1)
@@ -737,11 +732,6 @@ local function InitFrame(settings, self, initUnit)
 			castbar:SetFrameLevel(power:GetFrameLevel() + 5)
 		end
 
-	elseif unit == "nameplate" then
-		local container = CreateFrame("Frame", CreateName(self, "CastBarContainer"), self)
-		container:SetSize(settings["initial-width"], settings["initial-height"])
-		container:SetPoint("TOP", self, "BOTTOM", 0, -GAP)
-		CreateCastBar(self, container)
 	end
 
 	-- Threat Bar
@@ -789,7 +779,7 @@ local function InitFrame(settings, self, initUnit)
 	threat:SetFrameLevel(self:GetFrameLevel() + 2)
 	self.SmartThreat = threat
 
-	if unit ~= "boss" and unit ~= "nameplate" and not isArenaUnit then
+	if unit ~= "boss" and not isArenaUnit then
 		-- Various indicators
 		self.LeaderIndicator = SpawnTexture(indicators, 16, "TOP" .. left)
 		self.AssistantIndicator = SpawnTexture(indicators, 16, "TOP" .. left)
