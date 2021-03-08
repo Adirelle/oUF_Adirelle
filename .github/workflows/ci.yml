@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  - push
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: Lint sources
+        uses: nebularg/actions-luacheck@v1
+        with:
+          files: src/
+      - name: Download stylua
+        uses: Legion2/download-release-action@v2.1.0
+        with:
+          repository: johnnymorganz/stylua
+          tag: 'v0.5.0'
+          file: stylua-0.5.0-linux.zip
+          path: downloads
+      - name: Check code style
+        run: |
+          unzip downloads/stylua-0.5.0-linux.zip
+          ./stylua --check src
