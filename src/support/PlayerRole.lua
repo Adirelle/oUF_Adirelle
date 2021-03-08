@@ -16,21 +16,14 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --]=]
 
-local _G, addonName, private = _G, ...
-local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
-local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
-
---<GLOBALS
 local _G = _G
-local GetNumRaidMembers = _G.GetNumRaidMembers
-local GetPrimaryTalentTree = _G.GetPrimaryTalentTree
-local GetTalentInfo = _G.GetTalentInfo
-local GetTalentTreeRoles = _G.GetTalentTreeRoles
-local select = _G.select
-local UnitClass = _G.UnitClass
+local oUF_Adirelle = _G.oUF_Adirelle
+
 local UnitGroupRolesAssigned = _G.UnitGroupRolesAssigned
 local UnitSetRole = _G.UnitSetRole
---GLOBALS>
+local GetSpecialization = _G.GetSpecialization
+local GetSpecializationRole = _G.GetSpecializationRole
+local IsInRaid = _G.IsInRaid
 
 local Debug = oUF_Adirelle.Debug
 
@@ -59,7 +52,7 @@ end
 
 -- Event handling
 
-local function GROUP_ROSTER_UPDATE(self)
+local function GROUP_ROSTER_UPDATE()
 	local newInRaid = IsInRaid()
 	if newInRaid ~= inRaid then
 		inRaid = newInRaid

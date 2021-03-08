@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --]=]
 
-local _G, addonName, private = _G, ...
+local _G = _G
 local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
@@ -25,7 +25,6 @@ if oUF_Adirelle.CreatePseudoHeader then
 end
 
 --<GLOBALS
-local _G = _G
 local CreateFrame = _G.CreateFrame
 local ipairs = _G.ipairs
 local pairs = _G.pairs
@@ -52,7 +51,7 @@ function headerProto:Enable()
 		return
 	end
 	self:Show()
-	for i, frame in ipairs(self.frames) do
+	for _, frame in ipairs(self.frames) do
 		frame:Enable()
 	end
 	self:Debug("Enabled")
@@ -65,14 +64,14 @@ function headerProto:Disable()
 		self:RegisterEvent("PLAYER_REGEN_ENABLED")
 		return
 	end
-	for i, frame in ipairs(self.frames) do
+	for _, frame in ipairs(self.frames) do
 		frame:Disable()
 	end
 	self:Hide()
 	self:Debug("Disabled")
 end
 
-function headerProto:OnEvent(event, ...)
+function headerProto:OnEvent(event)
 	if event == "PLAYER_REGEN_ENABLED" then
 		self:UnregisterEvent("PLAYER_REGEN_ENABLED")
 	end
@@ -90,8 +89,8 @@ function oUF_Adirelle.CreatePseudoHeader(name, key, label, width, height, from, 
 	header:SetPoint(from, anchor, to, offsetX, offsetY)
 
 	header.frames = {}
-	for name, func in pairs(headerProto) do
-		header[name] = func
+	for subName, func in pairs(headerProto) do
+		header[subName] = func
 	end
 
 	header:SetScript("OnEvent", header.OnEvent)

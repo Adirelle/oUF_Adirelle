@@ -18,12 +18,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 Elements handled: .RuneBar
 --]=]
 
-local _G, addonName, private = _G, ...
+local _G = _G
 local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
-local _G = _G
 local GetRuneCooldown = _G.GetRuneCooldown
 local GetTime = _G.GetTime
 local RuneFrame = _G.RuneFrame
@@ -38,7 +37,7 @@ local function OnUpdate(rune)
 	end
 end
 
-local function RuneUpdate(self, event, index)
+local function RuneUpdate(self, _, index)
 	local rune = self.RuneBar[index]
 	if not rune then
 		return
@@ -57,15 +56,15 @@ local function RuneUpdate(self, event, index)
 	end
 end
 
-local function Update(self, event, index, ...)
+local function Update(self, event, index)
 	if not tonumber(index) then
 		if self.unit ~= "player" then
 			return self.RuneBar:Hide()
 		else
 			self.RuneBar:Show()
 		end
-		for index = 1, 6 do
-			RuneUpdate(self, event, index)
+		for i = 1, 6 do
+			RuneUpdate(self, event, i)
 		end
 	else
 		RuneUpdate(self, event, index)

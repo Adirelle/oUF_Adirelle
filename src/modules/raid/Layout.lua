@@ -16,17 +16,15 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --]=]
 
-local _G, moduleName, private = _G, ...
+local _G, _, private = _G, ...
 local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 oUF:Factory(function()
 	--<GLOBALS
-	local _G = _G
 	local ceil = _G.ceil
 	local CreateFrame = _G.CreateFrame
 	local GetInstanceInfo = _G.GetInstanceInfo
-	local GetMapInfo = _G.GetMapInfo
 	local GetNumGroupMembers = _G.GetNumGroupMembers
 	local GetRaidRosterInfo = _G.GetRaidRosterInfo
 	local hooksecurefunc = _G.hooksecurefunc
@@ -40,13 +38,11 @@ oUF:Factory(function()
 	--GLOBALS>
 
 	-- Fetch some shared variables into local namespace
-	local SCALE = private.SCALE
 	local SPACING = private.SPACING
 	local WIDTH = private.WIDTH
 	local HEIGHT = private.HEIGHT
 	local GetPlayerRole = oUF_Adirelle.GetPlayerRole
 
-	local HEIGHT_FULL = HEIGHT
 	local HEIGHT_SMALL = 20
 
 	--------------------------------------------------------------------------------
@@ -79,7 +75,7 @@ oUF:Factory(function()
 		return children_iterator, self, 0
 	end
 
-	function headerProto:OnAttributeChanged(name, value)
+	function headerProto:OnAttributeChanged(name)
 		if name ~= "_ignore" then
 			self._changed = true
 		end
@@ -96,28 +92,28 @@ oUF:Factory(function()
 		end
 	end
 
-	function headerProto:SetAnchoring(orientation, anchor, spacing)
+	function headerProto:SetAnchoring(orientation, anchorPoint, spacing)
 		if orientation == "horizontal" then
 			self:SetAttributes(
 				"point",
-				strmatch(anchor, "RIGHT") or "LEFT",
+				strmatch(anchorPoint, "RIGHT") or "LEFT",
 				"columnAnchorPoint",
-				strmatch(anchor, "TOP") or "BOTTOM",
+				strmatch(anchorPoint, "TOP") or "BOTTOM",
 				"xOffset",
-				strmatch(anchor, "RIGHT") and -spacing or spacing,
+				strmatch(anchorPoint, "RIGHT") and -spacing or spacing,
 				"yOffset",
 				0
 			)
 		else
 			self:SetAttributes(
 				"point",
-				strmatch(anchor, "TOP") or "BOTTOM",
+				strmatch(anchorPoint, "TOP") or "BOTTOM",
 				"columnAnchorPoint",
-				strmatch(anchor, "RIGHT") or "LEFT",
+				strmatch(anchorPoint, "RIGHT") or "LEFT",
 				"xOffset",
 				0,
 				"yOffset",
-				strmatch(anchor, "TOP") and -spacing or spacing
+				strmatch(anchorPoint, "TOP") and -spacing or spacing
 			)
 		end
 	end
@@ -200,7 +196,7 @@ oUF:Factory(function()
 	end
 
 	-- Returns (type, PvE, number of groups, highest group number)
-	local function GetLayoutInfo(strictSize)
+	local function GetLayoutInfo()
 		local _, instanceType, _, _, maxPlayers = GetInstanceInfo()
 		anchor:Debug("GetLayoutInfo", "groupSize=", GetNumGroupMembers(), "instanceInfo:", GetInstanceInfo())
 		if instanceType == "arena" then
@@ -224,7 +220,7 @@ oUF:Factory(function()
 	--@debug@
 	do
 		local function spy(self, ...)
-			for k, v in pairs(headers) do
+			for _, v in pairs(headers) do
 				if v == self then
 					return self:Debug("SecureGroup*Header_Update", ...)
 				end
@@ -419,7 +415,8 @@ oUF:Factory(function()
 			or self.showPets ~= showPets
 			or self.showSolo ~= showSolo
 		then
-			self.layoutType, self.numGroups, self.showTanks, self.showPets, self.showSolo = layoutType, numGroups, showTanks, showPets, showSolo
+			self.layoutType, self.numGroups, self.showTanks = layoutType, numGroups, showTanks
+			self.showPets, self.showSolo = showPets, showSolo
 			self:ConfigureHeaders(layoutType, numGroups, showTanks, showPets, showSolo)
 			changed = true
 		else
@@ -427,7 +424,8 @@ oUF:Factory(function()
 		end
 
 		-- Reanchor
-		local alignment, orientation, unitSpacing, groupSpacing = layout.alignment, layout.orientation, layout.unitSpacing, layout.groupSpacing
+		local alignment, orientation = layout.alignment, layout.orientation
+		local unitSpacing, groupSpacing = layout.unitSpacing, layout.groupSpacing
 		if
 			changed
 			or self.alignment ~= alignment
@@ -435,7 +433,8 @@ oUF:Factory(function()
 			or self.unitSpacing ~= unitSpacing
 			or self.groupSpacing ~= groupSpacing
 		then
-			self.alignment, self.orientation, self.unitSpacing, self.groupSpacing = alignment, orientation, unitSpacing, groupSpacing
+			self.alignment, self.orientation = alignment, orientation
+			self.unitSpacing, self.groupSpacing = unitSpacing, groupSpacing
 			self:ConfigureAnchors(alignment, orientation, unitSpacing, groupSpacing)
 			changed = true
 		else

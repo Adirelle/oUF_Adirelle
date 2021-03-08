@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --]=]
 
-local _G, addonName, private = _G, ...
+local _G, addonName = _G, ...
 local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
@@ -277,11 +277,11 @@ local optionalElements = {
 }
 oUF_Adirelle.optionalElements = optionalElements
 
-local function UpdateElements(self, event, layout)
+local function UpdateElements(self, event, newLayout)
 	-- Enable/disable the elements
 	local changed = false
 	for _, name in ipairs(optionalElements) do
-		if layout.elements[name] then
+		if newLayout.elements[name] then
 			if not self:IsElementEnabled(name) then
 				self:EnableElement(name)
 				changed = true

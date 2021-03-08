@@ -16,10 +16,11 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 --]=]
 
-local _G, moduleName, private = _G, ...
+local _G = _G
 local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
+-- luacheck: push no max comment line length
 local settings = {
 	-- Commented out CVars can be configured in Blizzard nameplate panel.
 
@@ -100,6 +101,7 @@ local settings = {
 	nameplateTargetRadialPosition = 1, -- When target is off screen, position its nameplate radially around sides and bottom. 1: Target Only. 2: All In Combat
 	nameplateTargetBehindMaxDistance = 15, -- The max distance to show the target nameplate when the target is behind the camera.
 }
+-- luacheck: pop
 
 oUF:Factory(function()
 	oUF:SetActiveStyle("Adirelle_Nameplate")

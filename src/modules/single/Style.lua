@@ -27,26 +27,23 @@ end
 --<GLOBALS
 local ALT_POWER_TEX_FILL = _G.ALT_POWER_TEX_FILL or 2
 local CreateFrame = _G.CreateFrame
-local floor = _G.floor
-local GameFontNormal = _G.GameFontNormal
+local GetUnitPowerBarTextureInfo = _G.GetUnitPowerBarTextureInfo
 local gsub = _G.gsub
 local huge = _G.math.huge
 local InCombatLockdown = _G.InCombatLockdown
 local ipairs = _G.ipairs
+local max = _G.max
+local MAX_COMBO_POINTS = _G.MAX_COMBO_POINTS
 local pairs = _G.pairs
 local select = _G.select
 local setmetatable = _G.setmetatable
-local tsort = _G.table.sort
 local strmatch = _G.strmatch
 local tinsert = _G.tinsert
-local UnitAffectingCombat = _G.UnitAffectingCombat
+local tsort = _G.table.sort
 local UnitAura = _G.UnitAura
 local UnitCanAssist = _G.UnitCanAssist
 local UnitCanAttack = _G.UnitCanAttack
 local UnitClass = _G.UnitClass
-local UnitFrame_OnEnter = _G.UnitFrame_OnEnter
-local UnitFrame_OnLeave = _G.UnitFrame_OnLeave
-local UnitIsConnected = _G.UnitIsConnected
 local UnitIsDeadOrGhost = _G.UnitIsDeadOrGhost
 local unpack = _G.unpack
 --GLOBALS>
@@ -63,19 +60,18 @@ local PowerMap = oUF_Adirelle.Enum.PowerMap
 local SpawnDiscreteBar = oUF_Adirelle.SpawnDiscreteBar
 local SpawnHybridBar = oUF_Adirelle.SpawnHybridBar
 local SpawnStatusBar = oUF_Adirelle.SpawnStatusBar
-local SpawnStatusBar = oUF_Adirelle.SpawnStatusBar
 local SpawnText = oUF_Adirelle.SpawnText
 local SpawnTexture = oUF_Adirelle.SpawnTexture
 local TEXT_MARGIN = oUF_Adirelle.TEXT_MARGIN
 
 local borderBackdrop = { edgeFile = [[Interface\Addons\oUF_Adirelle\media\white16x16]], edgeSize = BORDER_WIDTH }
 
-local function Auras_PreSetPosition(icons, numIcons)
+local function Auras_PreSetPosition(_, numIcons)
 	return 1, numIcons
 end
 
-local function Auras_PostCreateIcon(icons, button)
-	local cd, count, overlay = button.cd, button.count, button.overlay
+local function Auras_PostCreateIcon(_, button)
+	local cd, _, overlay = button.cd, button.count, button.overlay
 	button.icon:SetTexCoord(5 / 64, 59 / 64, 5 / 64, 59 / 64)
 	overlay:SetTexture([[Interface\AddOns\oUF_Adirelle\media\icon_border]])
 	overlay:SetTexCoord(0, 1, 0, 1)
@@ -85,7 +81,7 @@ local function Auras_PostCreateIcon(icons, button)
 	button.expires, button.priority, button.bigger = 0, 0, false
 end
 
-local function Auras_PostUpdateIcon(icons, unit, icon, index, offset)
+local function Auras_PostUpdateIcon(_, unit, icon, index)
 	if not select(4, UnitAura(unit, index, icon.filter)) then
 		icon.overlay:Hide()
 	end
@@ -103,7 +99,7 @@ local IsEncounterDebuff = oUF_Adirelle.IsEncounterDebuff
 
 local canSteal = select(2, UnitClass("player")) == "MAGE"
 
-local function Buffs_CustomFilter(icons, unit, icon, name, texture, count, dtype, duration, expires, caster, isStealable, _, spellID, canApplyAura)
+local function Buffs_CustomFilter(_, unit, icon, _, _, _, dtype, duration, expires, caster, isStealable, _, spellID, canApplyAura) -- luacheck: no max line length
 	icon.expires = (expires ~= 0) and expires or huge
 	local priority, bigger = 2, false
 	if IsEncounterDebuff(spellID) then
@@ -130,7 +126,7 @@ local function Buffs_CustomFilter(icons, unit, icon, name, texture, count, dtype
 	return true
 end
 
-local function Debuffs_CustomFilter(icons, unit, icon, name, texture, count, dtype, duration, expires, caster, isStealable, _, spellID, canApplyAura, isBossDebuff)
+local function Debuffs_CustomFilter(_, unit, icon, _, _, _, dtype, duration, expires, caster, _, _, spellID, canApplyAura, isBossDebuff) -- luacheck: no max line length
 	icon.expires = (expires ~= 0) and expires or huge
 	local priority = 0
 	if isBossDebuff or IsEncounterDebuff(spellID) then
@@ -230,7 +226,7 @@ do
 
 		-- Layout normal-sized icons
 		local baseX, step = x, size + spacing
-		local maxx, maxy = mmax(1, width - size), mmax(1, height - size)
+		local maxx = mmax(1, width - size)
 		while i <= num and shown < visible do
 			local button = tmp[i]
 			if button:IsShown() then
@@ -255,7 +251,7 @@ do
 	end
 end
 
-local function Auras_ForceUpdate(self, event, unit)
+local function Auras_ForceUpdate(self, _, unit)
 	if unit and unit ~= self.unit then
 		return
 	end
@@ -267,28 +263,27 @@ local function Auras_ForceUpdate(self, event, unit)
 	end
 end
 
-local function Power_PostUpdate(power, unit, min, max)
+local function Power_PostUpdate(power, unit)
 	if power.disconnected or UnitIsDeadOrGhost(unit) then
 		power:SetValue(0)
 	end
 end
 
-local function AlternativePower_PostUpdate(bar, unit, cur, min, max)
+local function AlternativePower_PostUpdate(bar, unit, cur, min, maxValue)
 	if unit ~= bar.__owner.unit or not cur or not min then
 		return
 	end
 	bar.Label:SetText(bar.powerName)
-	local barUD
 	local _, powerRed, powerGreen, powerBlue = GetUnitPowerBarTextureInfo(unit, ALT_POWER_TEX_FILL + 1)
 	if powerRed and powerGreen and powerBlue then
-		local r, g, b = oUF.ColorGradient(cur - min, max - min, powerRed, powerGreen, powerBlue, 1, 0, 0)
+		local r, g, b = oUF.ColorGradient(cur - min, maxValue - min, powerRed, powerGreen, powerBlue, 1, 0, 0)
 		bar:SetStatusBarColor(r, g, b)
 	else
 		bar:SetStatusBarColor(0.75, 0.75, 0.75)
 	end
 end
 
-local function HighlightHolyPower(bar, unit, current, max)
+local function HighlightHolyPower(bar, _, current)
 	local state = current >= 3 and 3 or 2
 	local r, g, b = unpack(oUF.colors.power.HOLY_POWER)
 	bar:SetStatusBarColor(oUF.ColorGradient(state, 3, 0, 0, 0, r, g, b))
@@ -304,7 +299,7 @@ local function LayoutAuxiliaryBars(self)
 	if self.Buffs and self.Buffs.side == "BOTTOM" then
 		offset = -self.Buffs:GetHeight()
 	end
-	for i, bar in ipairs(bars) do
+	for _, bar in ipairs(bars) do
 		if bar:IsShown() then
 			bar:SetPoint("TOP", anchor, "BOTTOM", 0, -FRAME_MARGIN + offset)
 			anchor, offset = bar, 0
@@ -349,7 +344,7 @@ local function CastBar_Update(castbar)
 	end
 end
 
-local function XRange_PostUpdate(xrange, event, unit, inRange)
+local function XRange_PostUpdate(xrange, _, _, inRange)
 	xrange.__owner:SetAlpha(inRange and 1 or oUF.colors.outOfRange[4])
 end
 
@@ -362,7 +357,7 @@ local function ApplyAuraPosition(self, target, initialAnchor, anchorTo, growthx,
 	target:SetPoint(initialAnchor, self, anchorTo, dx * FRAME_MARGIN, dy * FRAME_MARGIN)
 end
 
-local function OnAuraLayoutModified(self, event, layout)
+local function OnAuraLayoutModified(self, _, layout)
 	local width, height = self:GetSize()
 	local buffs, debuffs = self.Buffs, self.Debuffs
 
@@ -443,7 +438,7 @@ local function OnAuraLayoutModified(self, event, layout)
 	return LayoutAuxiliaryBars(self)
 end
 
-local function OnSingleLayoutModified(self, event, layout, theme)
+local function OnSingleLayoutModified(self, _, layout)
 	local width, height = layout.Single.width, layout.Single["height" .. self.heightType]
 	if self.heightFactor then
 		height = height * self.heightFactor
@@ -453,7 +448,7 @@ local function OnSingleLayoutModified(self, event, layout, theme)
 	end
 end
 
-local function OnSingleThemeModified(self, event, layout, theme)
+local function OnSingleThemeModified(self, _, _, theme)
 	-- Update health coloring flags
 	local health = self.Health
 	for k, v in pairs(theme.Health) do
@@ -474,7 +469,7 @@ local function OnSingleThemeModified(self, event, layout, theme)
 	end
 end
 
-local function OnThemeModified(self, event, layout, theme)
+local function OnThemeModified(self, _, _, theme)
 	-- Update border settings
 	local border = self.Border
 	for k, v in pairs(theme.Border) do
@@ -491,7 +486,7 @@ local function OnThemeModified(self, event, layout, theme)
 	end
 end
 
-local function OnColorModified(self, event, layout, theme)
+local function OnColorModified(self)
 	self.LowHealth:SetColorTexture(unpack(oUF.colors.lowHealth, 1, 4))
 	if self.XRange then
 		self.XRange:SetColorTexture(unpack(oUF.colors.outOfRange, 1, 3))
@@ -555,8 +550,8 @@ local function CreateCastBar(self, anchor)
 	return castbar
 end
 
-local function InitFrame(settings, self, unit)
-	local unit = gsub(unit or self.unit, "%d+", "")
+local function InitFrame(settings, self, initUnit)
+	local unit = gsub(initUnit or self.unit, "%d+", "")
 	local isArenaUnit = strmatch(unit, "arena")
 	self.baseUnit, self.isArenaUnit = unit, isArenaUnit
 	self.heightType = settings.heightType
@@ -759,23 +754,23 @@ local function InitFrame(settings, self, unit)
 		threatBar:SetWidth(190 * 0.5)
 		threatBar:SetHeight(14)
 		threatBar:SetMinMaxValues(0, 100)
-		threatBar.PostUpdate = function(self, event, unit, bar, isTanking, status, scaledPercent, rawPercent, threatValue)
-				if not bar.Text then
-					return
-				end
-				if threatValue then
-					local value, unit = threatValue / 100, ""
-					if value > 1000000 then
-						value, unit = value / 1000000, "m"
-					elseif value > 1000 then
-						value, unit = value / 1000, "k"
-					end
-					bar.Text:SetFormattedText("%d%% (%.1f%s)", scaledPercent, value, unit)
-					bar.Text:Show()
-				else
-					bar.Text:Hide()
-				end
+		threatBar.PostUpdate = function(_, _, _, bar, _, _, scaledPercent, _, threatValue)
+			if not bar.Text then
+				return
 			end
+			if threatValue then
+				local value, valueUnit = threatValue / 100, ""
+				if value > 1000000 then
+					value, valueUnit = value / 1000000, "m"
+				elseif value > 1000 then
+					value, valueUnit = value / 1000, "k"
+				end
+				bar.Text:SetFormattedText("%d%% (%.1f%s)", scaledPercent, value, valueUnit)
+				bar.Text:Show()
+			else
+				bar.Text:Hide()
+			end
+		end
 		self.ThreatBar = threatBar
 		AddAuxiliaryBar(self, threatBar)
 	end
@@ -952,12 +947,12 @@ local function InitFrame(settings, self, unit)
 		xpText:SetPoint("BOTTOMRIGHT", xpBar, "BOTTOMRIGHT", -TEXT_MARGIN, 0)
 
 		local smartValue = oUF_Adirelle.smartValue
-		xpBar.UpdateText = function(self, bar, current, max, rested, level)
+		xpBar.UpdateText = function(_, _, current, maxValue, rested, level)
 			levelText:SetFormattedText(level)
 			if rested and rested > 0 then
-				xpText:SetFormattedText("%s(+%s)/%s", smartValue(current), smartValue(rested), smartValue(max))
+				xpText:SetFormattedText("%s(+%s)/%s", smartValue(current), smartValue(rested), smartValue(maxValue))
 			else
-				xpText:SetFormattedText("%s/%s", smartValue(current), smartValue(max))
+				xpText:SetFormattedText("%s/%s", smartValue(current), smartValue(maxValue))
 			end
 		end
 
@@ -982,8 +977,8 @@ local function InitFrame(settings, self, unit)
 	if unit == "boss" then
 		self:RegisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT", self.UpdateAllElements)
 	end
-	self:RegisterEvent("UNIT_TARGETABLE_CHANGED", function(_, event, unit)
-		if unit == self.unit then
+	self:RegisterEvent("UNIT_TARGETABLE_CHANGED", function(_, event, eventUnit)
+		if eventUnit == self.unit then
 			return self:UpdateAllElements(event)
 		end
 	end)

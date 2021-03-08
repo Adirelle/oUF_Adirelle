@@ -16,25 +16,23 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --]=]
 
+local _G = _G
 local oUF_Adirelle = _G.oUF_Adirelle
 
 --<GLOBALS
-local _G = _G
 local CreateFrame = _G.CreateFrame
 local floor = _G.floor
+local ceil = _G.ceil
 local format = _G.format
-local strjoin = _G.strjoin
 local tostring = _G.tostring
 local UnitClassification = _G.UnitClassification
 --GLOBALS>
-local GameFontWhiteSmall = _G.GameFontWhiteSmall
 
 local GAP, TEXT_MARGIN = oUF_Adirelle.GAP, oUF_Adirelle.TEXT_MARGIN
-local GetLib = oUF_Adirelle.GetLib
 
-local function CreateName()
+local function CreateName() -- luacheck: ignore
 end
-local function GetSerialName()
+local function GetSerialName() -- luacheck: ignore
 end
 --@debug@
 -- These are only used in unpackaged version
@@ -77,7 +75,7 @@ local function OnStatusBarUpdate(bar)
 	if not text then
 		return
 	end
-	local value, min, max = bar:GetValue(), bar:GetMinMaxValues()
+	local value, _, max = bar:GetValue(), bar:GetMinMaxValues()
 	if max == 100 then
 		text:SetFormattedText("%d%%", floor(value))
 	elseif max <= 1 then

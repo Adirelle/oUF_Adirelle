@@ -16,12 +16,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --]=]
 
-local _G, addonName, private = _G, ...
+local _G = _G
 local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
---<GLOBALS
-local _G = _G
 local CreateFrame = _G.CreateFrame
 local geterrorhandler = _G.geterrorhandler
 local GetTime = _G.GetTime
@@ -35,7 +33,6 @@ local UnitIsConnected = _G.UnitIsConnected
 local UnitIsDeadOrGhost = _G.UnitIsDeadOrGhost
 local UnitName = _G.UnitName
 local UNKNOWN = _G.UNKNOWN
---GLOBALS>
 
 local CreateBlinkingFrame
 do
@@ -95,7 +92,7 @@ end
 
 local blinkingFrame
 
-local function UpdateIcon(self, unit, icon, texture, count, start, duration, r, g, b, a)
+local function UpdateIcon(self, _, icon, texture, count, start, duration, r, g, b, a)
 	if not texture then
 		return icon:Hide()
 	end
@@ -113,9 +110,7 @@ local function UpdateIcon(self, unit, icon, texture, count, start, duration, r, 
 	icon:Show()
 end
 
-local UnitIsConnected, UnitIsDeadOrGhost, UnitName = UnitIsConnected, UnitIsDeadOrGhost, UnitName
-
-local function Update(self, event, unit)
+local function Update(self, _, unit)
 	if unit and unit ~= self.unit then
 		return
 	end

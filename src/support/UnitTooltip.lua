@@ -16,13 +16,13 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --]=]
 
-local _G, addonName, private = _G, ...
-local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
-local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
+local _G = _G
+local oUF_Adirelle = _G.oUF_Adirelle
 
 --<GLOBALS
-local _G = _G
 local GameTooltip = _G.GameTooltip
+local GameTooltip_SetDefaultAnchor = _G.GameTooltip_SetDefaultAnchor
+local GameTooltip_UnitColor = _G.GameTooltip_UnitColor
 local InCombatLockdown = _G.InCombatLockdown
 local UIParent = _G.UIParent
 --GLOBALS>
@@ -45,8 +45,8 @@ function oUF_Adirelle.Unit_OnEnter(frame)
 		not oUF_Adirelle.layoutDB.profile.unitTooltip.enabled
 		or (InCombatLockdown() and not oUF_Adirelle.layoutDB.profile.unitTooltip.inCombat)
 	then
-		-- Forcefully hide TipTop
-		if TipTop and TipTop:IsVisible() then
+		-- Forcefully hide _G.TipTop
+		if _G.TipTop and _G.TipTop:IsVisible() then
 			GameTooltip:Hide()
 		end
 		return

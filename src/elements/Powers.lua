@@ -42,19 +42,24 @@ Sub-widget hooks
 
 --]=]
 
-local _G, addonName, private = _G, ...
+local _G = _G
 local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
-local _G = _G
+local GetSpecialization = _G.GetSpecialization
+local GetSpecializationInfo = _G.GetSpecializationInfo
 local pairs = _G.pairs
+local PowerMap = oUF_Adirelle.Enum.PowerMap
+local UnitClass = _G.UnitClass
+local UnitIsConnected = _G.UnitIsConnected
+local UnitIsPlayer = _G.UnitIsPlayer
+local UnitIsUnit = _G.UnitIsUnit
+local UnitLevel = _G.UnitLevel
 local UnitPower = _G.UnitPower
 local UnitPowerMax = _G.UnitPowerMax
 local UnitPowerType = _G.UnitPowerType
-local UnitIsConnected = _G.UnitIsConnected
 local unpack = _G.unpack
-local PowerMap = oUF_Adirelle.Enum.PowerMap
 --GLOBALS>
 
 -- Set default colors for burning embers and demonic fury

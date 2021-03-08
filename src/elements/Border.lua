@@ -18,12 +18,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 Elements handled: .Border
 --]=]
 
-local _G, addonName, private = _G, ...
+local _G = _G
 local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
---<GLOBALS
-local _G = _G
 local IsInInstance = _G.IsInInstance
 local select = _G.select
 local SPELL_POWER_MANA = _G.Enum.PowerType.Mana
@@ -35,9 +33,8 @@ local UnitPower = _G.UnitPower
 local UnitPowerMax = _G.UnitPowerMax
 local UnitPowerType = _G.UnitPowerType
 local unpack = _G.unpack
---GLOBALS>
 
-local function Update(self, event, unit)
+local function Update(self, _, unit)
 	if unit and unit ~= self.unit then
 		return
 	end

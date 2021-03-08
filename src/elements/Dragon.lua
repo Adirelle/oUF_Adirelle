@@ -18,16 +18,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 Elements handled: .Dragon
 --]=]
 
-local _G, addonName, private = _G, ...
+local _G = _G
 local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
---<GLOBALS
-local _G = _G
+local GetCurrentRegion = _G.GetCurrentRegion
 local type = _G.type
 local UnitClassification = _G.UnitClassification
 local unpack = _G.unpack
---GLOBALS>
 
 local classifMap = {
 	rare = "rare",
@@ -50,7 +48,7 @@ if GetCurrentRegion() == 3 then
 	end
 end
 
-local function Update(self, event, unit)
+local function Update(self, _, unit)
 	if unit and unit ~= self.unit then
 		return
 	end

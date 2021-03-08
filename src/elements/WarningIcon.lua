@@ -18,23 +18,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 Elements handled: .WarningIcon
 --]=]
 
-local _G, addonName, private = _G, ...
+local _G = _G
 local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
-local _G = _G
+local band = _G.bit.band
+local BigWigsLoader = _G.BigWigsLoader
 local DebuffTypeColor = _G.DebuffTypeColor
-local gmatch = _G.gmatch
 local huge = _G.math.huge
 local pairs = _G.pairs
-local tonumber = _G.tonumber
+local select = _G.select
 local UnitBuff = _G.UnitBuff
-local UnitCanAssist = _G.UnitCanAssist
-local UnitCanAttack = _G.UnitCanAttack
 local UnitDebuff = _G.UnitDebuff
 local UnitIsVisible = _G.UnitIsVisible
-local band = bit.band
 --GLOBALS>
 
 -- ------------------------------------------------------------------------------
@@ -119,24 +116,24 @@ end
 -- Element logic
 -- ------------------------------------------------------------------------------
 
-local function GetBuff(unit, index)
-	local name, texture, count, dispelType, duration, expirationTime, _, _, _, spellID = UnitBuff(unit, index)
+local function GetBuff(unit, i)
+	local name, texture, count, dType, duration, expirationTime, _, _, _, spellID = UnitBuff(unit, i)
 	local priority = BUFFS[spellID]
-	if oUF_Adirelle.CanDispel(unit, true, dispelType) then
+	if oUF_Adirelle.CanDispel(unit, true, dType) then
 		priority = (priority or 95) + 5
 	end
-	return name, priority, texture, count, dispelType, duration, expirationTime
+	return name, priority, texture, count, dType, duration, expirationTime
 end
 
-local function GetDebuff(unit, index, noDispellable)
-	local name, texture, count, dispelType, duration, expirationTime, caster, _, _, spellID, _, isBossDebuff = UnitDebuff(unit, index)
-	local isDispellable = oUF_Adirelle.IsDispellable(dispelType)
+local function GetDebuff(unit, i, noDispellable)
+	local name, texture, count, dType, duration, expirationTime, _, _, _, spellID, _, isBossDebuff = UnitDebuff(unit, i)
+	local isDispellable = oUF_Adirelle.IsDispellable(dType)
 	if not name or not spellID or (noDispellable and isDispellable) then
 		return
 	end
 	local priority = DEBUFFS[spellID]
 	if priority then
-		if oUF_Adirelle.CanDispel(unit, false, dispelType) then
+		if oUF_Adirelle.CanDispel(unit, false, dType) then
 			priority = priority + 2
 		elseif isDispellable then
 			priority = priority - 2
@@ -146,32 +143,33 @@ local function GetDebuff(unit, index, noDispellable)
 	elseif ENCOUNTER_DEBUFFS[spellID] then
 		priority = 55
 	end
-	return name, priority, texture, count, dispelType, duration, expirationTime
+	return name, priority, texture, count, dType, duration, expirationTime
 end
 
 local function UpdateIcon(icon, unit, isBuff)
-	local index = 0
+	local i = 0
 	local priority = icon.minPriority or -huge
-	local noDispellable = icon.noDispellable
-	local name, texture, count, dispelType, duration, expirationTime
+	local noDispel = icon.noDispellable
+	local name, texture, count, dType, duration, expirationTime
 	local newPriority, newTexture, newCount, newDispelType, newDuration, newExpirationTime
 	local getFunc = isBuff and GetBuff or GetDebuff
 	repeat
-		index = index + 1
-		name, newPriority, newTexture, newCount, newDispelType, newDuration, newExpirationTime = getFunc(unit, index, noDispellable)
+		i = i + 1
+		name, newPriority, newTexture, newCount, newDispelType, newDuration, newExpirationTime = getFunc(unit, i, noDispel)
 		if name and newPriority and newPriority >= priority then
-			priority, texture, count, dispelType, duration, expirationTime = newPriority, newTexture, newCount, newDispelType, newDuration, newExpirationTime
+			priority, texture, count = newPriority, newTexture, newCount
+			dType, duration, expirationTime = newDispelType, newDuration, newExpirationTime
 		end
 	until not name
-	return icon:SetAura(texture, count, dispelType, duration, expirationTime)
+	return icon:SetAura(texture, count, dType, duration, expirationTime)
 end
 
-local function SetAuraIcon(icon, texture, count, dispelType, duration, expirationTime)
+local function SetAuraIcon(icon, texture, count, dType, duration, expirationTime)
 	if texture then
 		icon:SetTexture(texture)
 		icon:SetCooldown(expirationTime - duration, duration)
 		icon:SetStack(count or 0)
-		local color = dispelType and DebuffTypeColor[dispelType]
+		local color = dType and DebuffTypeColor[dType]
 		if color then
 			icon:SetColor(color.r, color.g, color.b)
 		else
@@ -184,7 +182,7 @@ local function SetAuraIcon(icon, texture, count, dispelType, duration, expiratio
 	return false
 end
 
-local function Update(self, event, unit)
+local function Update(self, _, unit)
 	if unit and unit ~= self.unit then
 		return
 	end

@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --]=]
 
-local _G, moduleName, private = _G, ...
+local _G, _, private = _G, ...
 local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
@@ -25,13 +25,8 @@ if oUF_Adirelle.SingleStyle then
 end
 
 --<GLOBALS
-local abs = _G.abs
-local CreateFrame = _G.CreateFrame
-local GetRuneType = _G.GetRuneType
 local unpack = _G.unpack
 --GLOBALS>
-
-local GAP = oUF_Adirelle.GAP
 
 local playerClass = oUF_Adirelle.playerClass
 local SpawnDiscreteBar = oUF_Adirelle.SpawnDiscreteBar

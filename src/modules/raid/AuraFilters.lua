@@ -21,7 +21,6 @@ local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
-local _G = _G
 local DebuffTypeColor = _G.DebuffTypeColor
 local debugstack = _G.debugstack
 local format = _G.format
@@ -33,11 +32,8 @@ local strjoin = _G.strjoin
 local tostring = _G.tostring
 local tostringall = _G.tostringall
 local type = _G.type
-local UnitAura = _G.UnitAura
-local UnitBuff = _G.UnitBuff
 local UnitCanAssist = _G.UnitCanAssist
 local UnitClass = _G.UnitClass
-local UnitDebuff = _G.UnitDebuff
 local UnitIsUnit = _G.UnitIsUnit
 --GLOBALS>
 
@@ -65,7 +61,11 @@ local function GetSpellName(caller, spellId, ...)
 		end
 		local stack = debugstack(3):match("[^%.\\]+%.lua:%d+")
 		geterrorhandler()(format(
-			"[%s] Wrong spell id passed to %s. Please report this whole error. id=%d, class=%s, version=%s, params=[%s], source=%s",
+			[[
+				[%s] Wrong spell id passed to %s.
+				Please report this whole error.
+				id=%d, class=%s, version=%s, params=[%s], source=%s
+			]],
 			moduleName,
 			caller,
 			spellId,
@@ -92,7 +92,7 @@ function private.GetOwnAuraFilter(spellId, r, g, b)
 	local filterName, exists = GetGenericFilter("OwnAura", spellName, r, g, b)
 	if not exists then
 		oUF:AddAuraFilter(filterName, function(unit)
-			local name, texture, count, _, duration, expirationTime, caster = FindAuraByName(spellName, unit, "PLAYER")
+			local name, texture, count, _, duration, expirationTime = FindAuraByName(spellName, unit, "PLAYER")
 			if name then
 				return texture, count, expirationTime - duration, duration, r, g, b
 			end
@@ -109,7 +109,7 @@ function private.GetAnyAuraFilter(spellId, filter, r, g, b)
 	local filterName, exists = GetGenericFilter("AnyAura", spellName, filter, r, g, b)
 	if not exists then
 		oUF:AddAuraFilter(filterName, function(unit)
-			local name, texture, count, _, duration, expirationTime, caster = FindAuraByName(spellName, unit, filter)
+			local name, texture, count, _, duration, expirationTime = FindAuraByName(spellName, unit, filter)
 			if name then
 				return texture, count, expirationTime - duration, duration, r, g, b
 			end
@@ -149,7 +149,7 @@ oUF:AddAuraFilter("CureableDebuff", function(unit)
 	end
 	local priority, count, expirationTime = 1, 0, 0
 	local texture, debuffType, duration
-	for index, canDispel, thisTexture, thisCount, thisDebuffType, thisDuration, thisExpirationTime, caster, spellID, isBossDebuff in IterateDispellableDebuffs(unit) do
+	for _, canDispel, thisTexture, thisCount, thisDebuffType, thisDuration, thisExpirationTime, _, spellID, isBossDebuff in IterateDispellableDebuffs(unit) do -- luacheck: no max line length
 		local thisPriority
 		if isBossDebuff then
 			thisPriority = 50
@@ -169,7 +169,7 @@ oUF:AddAuraFilter("CureableDebuff", function(unit)
 		end
 
 		if not texture or thisPriority > priority then
-			priority, texture, count, debuffType, duration, expirationTime = thisPriority, thisTexture, thisCount, thisDebuffType, thisDuration, thisExpirationTime
+			priority, texture, count, debuffType, duration, expirationTime = thisPriority, thisTexture, thisCount, thisDebuffType, thisDuration, thisExpirationTime -- luacheck: no max line length
 		end
 	end
 	if texture then

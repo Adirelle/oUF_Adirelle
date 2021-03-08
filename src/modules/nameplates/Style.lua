@@ -16,23 +16,20 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --]=]
 
-local _G, moduleName, private = _G, ...
+local _G = _G
 local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
 local CreateFrame = _G.CreateFrame
 --GLOBALS>
-local mmin, mmax = _G.min, _G.max
 
 local backdrop = oUF_Adirelle.backdrop
 local CreateName = oUF_Adirelle.CreateName
 local GAP = oUF_Adirelle.GAP
 local GetSerialName = oUF_Adirelle.GetSerialName
-local glowBorderBackdrop = oUF_Adirelle.glowBorderBackdrop
 local SpawnStatusBar = oUF_Adirelle.SpawnStatusBar
 local SpawnText = oUF_Adirelle.SpawnText
-local SpawnTexture = oUF_Adirelle.SpawnTexture
 local TEXT_MARGIN = oUF_Adirelle.TEXT_MARGIN
 
 local BORDER_WIDTH = 1
@@ -53,11 +50,11 @@ local function SetCastBarColor(castbar)
 	return castbar:SetStatusBarColor(r, g, b)
 end
 
-local function XRange_PostUpdate(xrange, event, unit, inRange)
+local function XRange_PostUpdate(xrange, _, _, inRange)
 	xrange.__owner:SetAlpha(inRange and 1 or oUF.colors.outOfRange[4])
 end
 
-local function InitFrame(self, unit)
+local function InitFrame(self)
 	local WIDTH, HEIGHT = 120, 16
 	local CASTBAR_SIZE = 12
 	local SYMBOL_SIZE = 20

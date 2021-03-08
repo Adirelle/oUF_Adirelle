@@ -18,15 +18,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 Elements handled: .CustomClick
 --]=]
 
-local _G, addonName, private = _G, ...
+local _G = _G
 local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
---<GLOBALS
-local _G = _G
 local band = _G.bit.band
 local bor = _G.bit.bor
---GLOBALS>
+local GetSpellInfo = _G.GetSpellInfo
+local next = _G.next
+local pairs = _G.pairs
 
 local Dispels = oUF_Adirelle.Dispels
 local LPS = oUF_Adirelle.GetLib("LibPlayerSpells-1.0")

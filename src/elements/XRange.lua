@@ -16,29 +16,32 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --]=]
 
-local _G, addonName, private = _G, ...
+local _G = _G
 local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
-local _G = _G
-local CreateFrame = _G.CreateFrame
-local IsLoggedIn = _G.IsLoggedIn
-local next = _G.next
 local CheckInteractDistance = _G.CheckInteractDistance
+local CreateFrame = _G.CreateFrame
+local geterrorhandler = _G.geterrorhandler
+local GetSpecialization = _G.GetSpecialization
+local GetSpecializationInfo = _G.GetSpecializationInfo
 local GetSpellInfo = _G.GetSpellInfo
+local IsLoggedIn = _G.IsLoggedIn
 local IsSpellInRange = _G.IsSpellInRange
+local next = _G.next
+local pairs = _G.pairs
+local type = _G.type
 local UnitCanAssist = _G.UnitCanAssist
 local UnitCanAttack = _G.UnitCanAttack
-local UnitClass = _G.UnitClass
 local UnitExists = _G.UnitExists
 local UnitInRange = _G.UnitInRange
 local UnitIsConnected = _G.UnitIsConnected
 local UnitIsCorpse = _G.UnitIsCorpse
 local UnitIsUnit = _G.UnitIsUnit
 local UnitIsVisible = _G.UnitIsVisible
-local geterrorhandler = _G.geterrorhandler
-local select = _G.select
+local unpack = _G.unpack
+local strformat = _G.strformat
 --GLOBALS>
 
 -- Per class and specialization spells
@@ -140,11 +143,13 @@ local function BuildSingleCheckFunc(spell)
 	if not name then -- Does not exist anymore (removed)
 		if not warned[spell] then
 			warned[spell] = true
-			geterrorhandler()(
-				"XRange:CheckSpell: the spell #"
-					.. spell
-					.. " has been removed; it cannot be used for range checking. See https://github.com/Adirelle/oUF_Adirelle/issues/13."
-			)
+			geterrorhandler()(strformat(
+				[[
+						XRange:CheckSpell: the spell #%s  has been removed; it cannot be used for range checking.
+						See https://github.com/Adirelle/oUF_Adirelle/issues/13
+					]],
+				spell
+			))
 		end
 		return
 	end
@@ -191,7 +196,6 @@ local EMPTY = {}
 local checks = {
 	FRIENDLY = DefaultRangeCheck,
 	HOSTILE = DefaultRangeCheck,
-	FRIENDLY = DefaultRangeCheck,
 	RESURRECT = DefaultRangeCheck,
 }
 

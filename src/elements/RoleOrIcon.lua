@@ -18,12 +18,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 Elements handled: .RoleIcon
 --]=]
 
-local _G, addonName, private = _G, ...
+local _G = _G
 local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
-local _G = _G
 local GetRaidRosterInfo = _G.GetRaidRosterInfo
 local GetRaidTargetIndex = _G.GetRaidTargetIndex
 local IsInRaid = _G.IsInRaid
@@ -38,7 +37,6 @@ local UnitIsQuestBoss = _G.UnitIsQuestBoss
 local UnitIsUnit = _G.UnitIsUnit
 --GLOBALS>
 
-local Debug = oUF_Adirelle.Debug
 local GetPlayerRole = oUF_Adirelle.GetPlayerRole
 
 local function GetRole(unit, noDamager, noCircle)
@@ -72,7 +70,7 @@ local function GetRole(unit, noDamager, noCircle)
 	end
 end
 
-local function Update(self, event, unit)
+local function Update(self, _, unit)
 	if unit and unit ~= self.unit then
 		return
 	end

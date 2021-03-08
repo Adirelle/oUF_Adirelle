@@ -18,12 +18,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 Elements handled: .ThreatBar
 --]=]
 
-local _G, addonName, private = _G, ...
+local _G = _G
 local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
-local _G = _G
 local LE_PARTY_CATEGORY_HOME = _G.LE_PARTY_CATEGORY_HOME
 local GetNumGroupMembers = _G.GetNumGroupMembers
 local GetThreatStatusColor = _G.GetThreatStatusColor

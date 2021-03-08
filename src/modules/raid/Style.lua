@@ -16,40 +16,30 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --]=]
 
-local _G, moduleName, private = _G, ...
+local _G, _, private = _G, ...
 local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
-local _G = _G
-local abs = _G.abs
+-- local UnitGetTotalAbsorbs = _G.UnitGetTotalAbsorbs
 local ALT_POWER_TEX_FILL = _G.ALT_POWER_TEX_FILL or 2
-local ALTERNATE_POWER_INDEX = _G.Enum.PowerType.Alternate or 10
 local CreateFrame = _G.CreateFrame
-local floor = _G.floor
-local format = _G.format
-local GetTime = _G.GetTime
+local GetSpellInfo = _G.GetSpellInfo
 local GetUnitPowerBarTextureInfo = _G.GetUnitPowerBarTextureInfo
 local gsub = _G.gsub
-local huge = _G.math.huge
 local pairs = _G.pairs
-local SecureButton_GetUnit = _G.SecureButton_GetUnit
 local select = _G.select
 local strmatch = _G.strmatch
-local strsub = _G.strsub
-local tostring = _G.tostring
+local UnitCanAssist = _G.UnitCanAssist
 local UnitClass = _G.UnitClass
+local UnitGetIncomingHeals = _G.UnitGetIncomingHeals
+local UnitGetTotalHealAbsorbs = _G.UnitGetTotalHealAbsorbs
 local UnitHealth = _G.UnitHealth
 local UnitHealthMax = _G.UnitHealthMax
-local UnitIsConnected = _G.UnitIsConnected
-local UnitIsDeadOrGhost = _G.UnitIsDeadOrGhost
 local UnitName = _G.UnitName
-local UnitPower = _G.UnitPower
-local UnitPowerMax = _G.UnitPowerMax
 local UNKNOWN = _G.UNKNOWN
 local unpack = _G.unpack
 --GLOBALS>
-local mmin, mmax = _G.min, _G.max
 
 -- Import some values from oUF_Adirelle namespace
 local GetFrameUnitState = oUF_Adirelle.GetFrameUnitState
@@ -83,23 +73,13 @@ private.ICON_SIZE = ICON_SIZE
 -- Health bar and name updates
 -- ------------------------------------------------------------------------------
 
--- Health point formatting
-local function SmartHPValue(value)
-	if abs(value) >= 1000 then
-		return format("%.1fk", value / 1000)
-	else
-		return format("%d", value)
-	end
-end
-
 -- Update name
-local function UpdateName(self, event, unit)
+local function UpdateName(self, _, unit)
 	if not unit then
 		unit = self.unit
 	elseif unit ~= self.unit and unit ~= self.realUnit then
 		return
 	end
-	local healthBar = self.Health
 	local r, g, b = 0.5, 0.5, 0.5
 	if self.nameColor then
 		r, g, b = unpack(self.nameColor)
@@ -107,7 +87,7 @@ local function UpdateName(self, event, unit)
 	if UnitCanAssist("player", unit) then
 		local health, maxHealth = UnitHealth(unit), UnitHealthMax(unit)
 		local incHeal = UnitGetIncomingHeals(unit) or 0
-		local absorb = UnitGetTotalAbsorbs(unit) or 0
+		--local absorb = UnitGetTotalAbsorbs(unit) or 0
 		local healAbsorb = UnitGetTotalHealAbsorbs(unit) or 0
 		local threshold = maxHealth * 0.25
 		if healAbsorb > 0 and health - healAbsorb <= threshold then
@@ -133,7 +113,8 @@ local function UpdateColor(self, event, unit)
 	local state = GetFrameUnitState(self, true) or class or ""
 	if state ~= self.__stateColor or not event then
 		self.__stateColor = state
-		local r, g, b, nR, nG, nB = 0.5, 0.5, 0.5, 1, 1, 1
+		local r, g, b
+		local nR, nG, nB = 1, 1, 1
 		if class then
 			r, g, b = unpack(oUF.colors.class[class])
 			nR, nG, nB = r, g, b
@@ -211,7 +192,6 @@ end
 -- ------------------------------------------------------------------------------
 
 do
-	local playerClass = oUF_Adirelle.playerClass
 	local GetAnyAuraFilter = private.GetAnyAuraFilter
 
 	local band = _G.bit.band
@@ -230,7 +210,6 @@ do
 	local ExpandFlags
 	do
 		local C = LPS.constants
-		local bnot = _G.bit.bnot
 
 		local function expandSimple2(flags, n, ...)
 			if not n then
@@ -374,11 +353,11 @@ local function AlternativePower_Layout(bar)
 	end
 end
 
-local function XRange_PostUpdate(xrange, event, unit, inRange)
+local function XRange_PostUpdate(xrange, _, _, inRange)
 	xrange.__owner:SetAlpha(inRange and 1 or oUF.colors.outOfRange[4])
 end
 
-local function OnRaidLayoutModified(self, event, layout)
+local function OnRaidLayoutModified(self, _, layout)
 	local small, big = layout.Raid.smallIconSize, layout.Raid.bigIconSize
 	self.WarningIconBuff:SetSize(big, big)
 	self.WarningIconDebuff:SetSize(big, big)
@@ -395,7 +374,7 @@ local function OnRaidLayoutModified(self, event, layout)
 	LayoutClassAuraIcons(self, layout)
 end
 
-local function OnThemeModified(self, event, layout, theme)
+local function OnThemeModified(self, _, _, theme)
 	-- Update border settings
 	local border = self.Border
 	for k, v in pairs(theme.Border) do
@@ -440,7 +419,7 @@ end
 -- Unit frame initialization
 -- ------------------------------------------------------------------------------
 
-local function InitFrame(self, unit)
+local function InitFrame(self)
 	self:RegisterForClicks("AnyDown")
 
 	self:SetScript("OnEnter", oUF_Adirelle.Unit_OnEnter)
@@ -539,7 +518,7 @@ local function InitFrame(self, unit)
 	self.iconBlinkThreshold = 3
 
 	-- Important class buffs
-	self.WarningIconBuff = self:CreateIcon(self.Overlay, ICON_SIZE, false, false, true, false, "CENTER", self, "LEFT", WIDTH * 0.25, 0)
+	self.WarningIconBuff = self:CreateIcon(self.Overlay, ICON_SIZE, false, false, true, false, "CENTER", self, "LEFT", WIDTH * 0.25, 0) -- luacheck: no max line length
 
 	-- Cureable debuffs
 	local debuff = self:CreateIcon(self.Overlay, ICON_SIZE, false, false, false, false, "CENTER")
@@ -548,7 +527,7 @@ local function InitFrame(self, unit)
 	self:AddAuraIcon(debuff, "CureableDebuff")
 
 	-- Important debuffs
-	self.WarningIconDebuff = self:CreateIcon(self.Overlay, ICON_SIZE, false, false, false, false, "CENTER", self, "RIGHT", -WIDTH * 0.25, 0)
+	self.WarningIconDebuff = self:CreateIcon(self.Overlay, ICON_SIZE, false, false, false, false, "CENTER", self, "RIGHT", -WIDTH * 0.25, 0) -- luacheck: no max line length
 	self.WarningIconDebuff.noDispellable = true
 
 	-- Class-specific icons

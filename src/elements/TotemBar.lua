@@ -18,12 +18,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 Elements handled: .RuneBar
 --]=]
 
-local _G, addonName, private = _G, ...
+local _G = _G
 local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
-local _G = _G
 local GetTime = _G.GetTime
 local GetTotemInfo = _G.GetTotemInfo
 local ipairs = _G.ipairs
@@ -38,8 +37,8 @@ local function OnUpdate(totem, elapsed)
 	end
 end
 
-local function Update(self, event, ...)
-	for index, totem in ipairs(self.TotemBar) do
+local function Update(self)
+	for _, totem in ipairs(self.TotemBar) do
 		local haveTotem, name, start, duration = GetTotemInfo(totem.totemType)
 		if haveTotem and name and name ~= "" then
 			totem:SetMinMaxValues(0, duration)
@@ -54,7 +53,7 @@ end
 local function Enable(self)
 	if self.TotemBar then
 		self:RegisterEvent("PLAYER_TOTEM_UPDATE", Update)
-		for index, totem in ipairs(self.TotemBar) do
+		for _, totem in ipairs(self.TotemBar) do
 			totem:Hide()
 			totem:SetScript("OnUpdate", OnUpdate)
 		end

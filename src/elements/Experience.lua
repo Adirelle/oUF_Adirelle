@@ -16,12 +16,11 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --]=]
 
-local _G, addonName, private = _G, ...
+local _G = _G
 local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
-local _G = _G
 local GetXPExhaustion = _G.GetXPExhaustion
 local IsResting = _G.IsResting
 local IsXPUserDisabled = _G.IsXPUserDisabled
@@ -39,7 +38,7 @@ local colors = {
 	rested = { 0.0, 0.37, 0.5 }, -- darker blue
 }
 
-local function Update(self, event)
+local function Update(self)
 	local bar = self.ExperienceBar
 	local restedBar = bar.Rested
 	if UnitLevel("player") == _G.MAX_PLAYER_LEVEL then

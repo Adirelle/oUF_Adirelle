@@ -27,5 +27,5 @@ oUF_Adirelle.FRAME_MARGIN = oUF_Adirelle.BORDER_WIDTH + oUF_Adirelle.GAP
 
 oUF_Adirelle.borderBackdrop = {
 	edgeFile = [[Interface\Addons\oUF_Adirelle\media\white16x16]],
-	edgeSize = BORDER_WIDTH,
+	edgeSize = oUF_Adirelle.BORDER_WIDTH,
 }

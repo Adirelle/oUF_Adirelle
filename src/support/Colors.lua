@@ -16,16 +16,13 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --]=]
 
-local _G, addonName, private = _G, ...
+local _G, addonName = _G, ...
 local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
---<GLOBALS
-local _G = _G
 local pairs = _G.pairs
 local type = _G.type
 local wipe = _G.wipe
---GLOBALS>
 
 -- Use the HCY color gradient by default
 oUF.useHCYColorGradient = true
@@ -96,7 +93,7 @@ local function SaveColors()
 	DeepCopy(oUF.colors, profile.colors, false, DEFAULTS)
 end
 
-oUF_Adirelle:RegisterMessage("OnSettingsModified", function(self, event, _, newProfile)
+oUF_Adirelle:RegisterMessage("OnSettingsModified", function(_, _, _, newProfile)
 	if not DEFAULTS then
 		DEFAULTS = {}
 		DeepCopy(oUF.colors, DEFAULTS)

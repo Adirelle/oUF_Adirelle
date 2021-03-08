@@ -16,15 +16,16 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --]=]
 
-local _G, moduleName, private = _G, ...
+local _G = _G
 local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 oUF:Factory(function()
 	--<GLOBALS
-	local _G = _G
 	local next = _G.next
 	local select = _G.select
+	local max = _G.max
+	local GetScreenWidth = _G.GetScreenWidth
 	--GLOBALS>
 
 	local frames = {}
@@ -43,7 +44,7 @@ oUF:Factory(function()
 
 	local player, pet = Spawn("Adirelle_Single", "Player", "Pet")
 	local target, focus = Spawn("Adirelle_Single_Right", "Target", "Focus")
-	local targettarget, pettarget, focusTarget = Spawn("Adirelle_Single_Health", "TargetTarget", "PetTarget", "FocusTarget")
+	local targettarget, pettarget, focusTarget = Spawn("Adirelle_Single_Health", "TargetTarget", "PetTarget", "FocusTarget") -- luacheck: no max line length
 
 	local offset = 250 + max(0, GetScreenWidth() - 1280) / 5
 
@@ -65,5 +66,5 @@ oUF:Factory(function()
 	slim_focus:SetPoint("BOTTOM", targettarget, "TOP", 0, 15)
 	oUF_Adirelle.RegisterMovable(slim_focus, "slim_focus", "Slim focus frame")
 
-	frames = nil
+	frames = nil -- luacheck: ignore
 end)

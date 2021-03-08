@@ -16,31 +16,28 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --]=]
 
-local _G, addonName, private = _G, ...
+local _G = _G
 local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
---<GLOBALS
-local _G = _G
 local DisableAddOn = _G.DisableAddOn
 local EnableAddOn = _G.EnableAddOn
 local format = _G.format
-local GetAddOnInfo = _G.GetAddOnInfo
+local GetAddOnEnableState = _G.GetAddOnEnableState
+local GetSpellInfo = _G.GetSpellInfo
 local gsub = _G.gsub
 local IsAddOnLoaded = _G.IsAddOnLoaded
-local GetAddOnEnableState = _G.GetAddOnEnableState
+local LibStub = _G.LibStub
 local next = _G.next
 local pairs = _G.pairs
-local select = _G.select
+local strsub = _G.strsub
 local tonumber = _G.tonumber
 local tostring = _G.tostring
 local type = _G.type
 local UnitAffectingCombat = _G.UnitAffectingCombat
+local UnitName = _G.UnitName
 local unpack = _G.unpack
 local wipe = _G.wipe
---GLOBALS>
-
-local AceGUIWidgetLSMlists = _G.AceGUIWidgetLSMlists
 
 -- ------------------------------------------------------------------------------
 -- Main option builder
@@ -53,7 +50,6 @@ local function GetOptions()
 	end
 
 	local LibMovable = oUF_Adirelle.GetLib("LibMovable-1.0")
-	local LibPlayerSpells = oUF_Adirelle.GetLib("LibPlayerSpells-1.0")
 
 	local playerName = UnitName("player")
 	local reloadNeeded = false
@@ -114,9 +110,9 @@ local function GetOptions()
 	local IsFrameDisabled = {}
 	for key, module in pairs(unitModuleMap) do
 		if key ~= "arenapet" then
-			local key, module = key, module -- Make them fixed upvalues
+			local constKey, constModule = key, module -- Make them fixed upvalues
 			IsFrameDisabled[key] = function()
-				return not IsAddOnEnabled(module) or layoutDB.profile.disabled[key]
+				return not IsAddOnEnabled(constModule) or layoutDB.profile.disabled[constKey]
 			end
 		end
 	end
@@ -135,12 +131,11 @@ local function GetOptions()
 	end
 
 	-- Fetch the list of elements that can be disabled
-	local elementList, IsElementDisabled = {}, {}
-	for i, key in pairs(oUF_Adirelle.optionalElements) do
-		local key = key
-		elementList[key] = gsub(key, "([a-z])([A-Z])", "%1 %2")
+	local IsElementDisabled = {}
+	for _, key in pairs(oUF_Adirelle.optionalElements) do
+		local constKey = key
 		IsElementDisabled[key] = function()
-			return not layoutDB.profile.elements[key]
+			return not layoutDB.profile.elements[constKey]
 		end
 	end
 
@@ -300,10 +295,10 @@ local function GetOptions()
 			name = label,
 			type = "select",
 			order = order,
-			get = function(info)
+			get = function()
 				return layoutDB.profile.Single.Auras.sides[key]
 			end,
-			set = function(info, value)
+			set = function(_, value)
 				layoutDB.profile.Single.Auras.sides[key] = value
 				SettingsModified("OnSingleLayoutModified")
 			end,
@@ -418,7 +413,7 @@ local function GetOptions()
 			local _, providers = LPS:GetSpellInfo(id)
 			if type(providers) == "table" then
 				return function()
-					for i, p in pairs(providers) do
+					for _, p in pairs(providers) do
 						if LS:IsKnown(p) then
 							return true
 						end
@@ -435,8 +430,8 @@ local function GetOptions()
 			end
 		end
 
-		for id, default in pairs(defaults) do
-			local id, default = id, default
+		for loopId, loopDefault in pairs(defaults) do
+			local id, default = loopId, loopDefault
 			local IsKnown = BuildIsKnownFunc(id)
 
 			group.args[tostring(id)] = {
@@ -452,7 +447,7 @@ local function GetOptions()
 					return "Use the dropdown menu to move this buff in another area."
 				end,
 				type = "select",
-				set = function(info, x)
+				set = function(_, x)
 					local value = strsub(x, 3)
 					layoutDB.profile.Raid.classAuraIcons[id] = value ~= default and value or nil
 					SettingsModified("OnRaidLayoutModified")
@@ -489,15 +484,19 @@ local function GetOptions()
 				args = {
 					modules = {
 						name = "Enabled modules",
-						desc = "There you can enable and disable the frame modules. This is the same as disabling the matching addons on the character selection screen. These settings are specific to each character and require to reload the interface to apply the changes.",
+						desc = [[
+							There you can enable and disable the frame modules.
+							This is the same as disabling the matching addons on the character selection screen.
+							These settings are specific to each character and require to reload the interface to apply the changes.
+						]],
 						type = "multiselect",
 						order = 10,
 						width = "double",
 						values = moduleList,
-						get = function(info, addon)
+						get = function(_, addon)
 							return IsAddOnEnabled(addon)
 						end,
-						set = function(info, addon, value)
+						set = function(_, addon, value)
 							if value then
 								EnableAddOn(addon)
 							else
@@ -564,10 +563,10 @@ local function GetOptions()
 									end
 									return t
 								end,
-								get = function(info, key)
+								get = function(_, key)
 									return togglableFrames[key]:GetEnabledSetting()
 								end,
-								set = function(info, key, enabled)
+								set = function(_, key, enabled)
 									togglableFrames[key]:SetEnabledSetting(enabled)
 								end,
 							},
@@ -593,10 +592,10 @@ local function GetOptions()
 						name = "Elements",
 						type = "group",
 						order = 25,
-						get = function(info, key)
+						get = function(_, key)
 							return layoutDB.profile.elements[key]
 						end,
-						set = function(info, key, value)
+						set = function(_, key, value)
 							layoutDB.profile.elements[key] = value
 							SettingsModified("OnElementsModified")
 						end,
@@ -785,7 +784,10 @@ local function GetOptions()
 									},
 									debuffFilter = {
 										name = "Debuffs to ignore",
-										desc = "Select which debuffs should be displayed in combat. Debuffs matching any checked category are hidden.",
+										desc = [[
+											Select which debuffs should be displayed in combat.
+											Debuffs matching any checked category are hidden.
+										]],
 										type = "multiselect",
 										width = "double",
 										values = {
@@ -947,17 +949,20 @@ local function GetOptions()
 											arena = "Arenas",
 											battleground = "Battlegrounds",
 										},
-										get = function(info, key)
+										get = function(_, key)
 											return layoutDB.profile.Raid.showPets[key]
 										end,
-										set = function(info, key, value)
+										set = function(_, key, value)
 											layoutDB.profile.Raid.showPets[key] = value
 											SettingsModified("OnRaidLayoutModified")
 										end,
 									},
 									strictSize = {
 										name = "Strict raid size",
-										desc = "When enabled, oUF_Adirelle will only show groups according to instance size, e.g. only groups 1 and 2 for a 10-man raid or battleground.",
+										desc = [[
+										When enabled, oUF_Adirelle will only show groups according to instance size,
+										e.g. only groups 1 and 2 for a 10-man raid or battleground.",
+										]],
 										type = "toggle",
 										order = 110,
 									},
@@ -1009,7 +1014,10 @@ local function GetOptions()
 							},
 							fadeOut = {
 								name = "Fade out",
-								desc = "When enabled, the tooltip fades out when the mouse pointer leaves it. If disabled, the tooltip is immediately hidden.",
+								desc = [[
+									When enabled, the tooltip fades out when the mouse pointer leaves it.
+									If disabled, the tooltip is immediately hidden.
+									]],
 								type = "toggle",
 								order = 40,
 								disabled = function()
@@ -1064,10 +1072,10 @@ local function GetOptions()
 								desc = "Select which conditions affect the health bar color",
 								type = "multiselect",
 								order = 10,
-								get = function(info, key)
+								get = function(_, key)
 									return themeDB.profile.Health[key]
 								end,
-								set = function(info, key, value)
+								set = function(_, key, value)
 									themeDB.profile.Health[key] = value
 									SettingsModified("OnSingleThemeModified")
 								end,
@@ -1088,10 +1096,10 @@ local function GetOptions()
 								desc = "Select which conditions affect the power bar color",
 								type = "multiselect",
 								order = 20,
-								get = function(info, key)
+								get = function(_, key)
 									return themeDB.profile.Power[key]
 								end,
-								set = function(info, key, value)
+								set = function(_, key, value)
 									themeDB.profile.Power[key] = value
 									SettingsModified("OnSingleThemeModified")
 								end,
@@ -1118,10 +1126,10 @@ local function GetOptions()
 								name = "Health bar",
 								desc = "Configure the display of health bars.",
 								type = "multiselect",
-								get = function(info, key)
+								get = function(_, key)
 									return themeDB.profile.raid.Health[key]
 								end,
-								set = function(info, key, value)
+								set = function(_, key, value)
 									themeDB.profile.raid.Health[key] = value
 									SettingsModified("OnThemeModified")
 								end,
@@ -1201,7 +1209,9 @@ local function GetOptions()
 										type = "description",
 										order = 210,
 										arg = "Border",
-										name = "These thresholds are used to display the blue border around units that are considered \"out of mana\".",
+										name = [[
+											These thresholds are used to display the blue border around units that are considered "out of mana".
+										]],
 									},
 									inCombatManaLevel = {
 										name = "In combat",

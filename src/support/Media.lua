@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --]=]
 
-local _G, addonName, private = _G, ...
+local _G, addonName = _G, ...
 local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
@@ -44,7 +44,7 @@ local function SetFont(self)
 end
 
 -- The meta to allow unit frames to register their fontstrings
-oUF:RegisterMetaFunction("RegisterFontString", function(self, fontstring, kind, size, flags, noShadow)
+oUF:RegisterMetaFunction("RegisterFontString", function(_, fontstring, kind, size, flags, noShadow)
 	assert(
 		fontstring:IsObjectType("FontString"),
 		"RegisterFontString(object, kind): object should be a FontString"
@@ -80,7 +80,7 @@ local function Texture_Callback(bar)
 end
 
 -- The meta to allow unit frames to register their textures
-oUF:RegisterMetaFunction("RegisterStatusBarTexture", function(self, bar)
+oUF:RegisterMetaFunction("RegisterStatusBarTexture", function(_, bar)
 	local callback = assert(
 		bar:IsObjectType("StatusBar") and StatusBar_Callback or bar:IsObjectType("Texture") and Texture_Callback,
 		"RegisterStatusBarTexture(object): object should be a Texture or a StatusBar"
