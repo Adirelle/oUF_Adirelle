@@ -25,5 +25,6 @@ jobs:
           path: downloads
       - name: Check code style
         run: |
-          unzip downloads/stylua-0.5.0-linux.zip
+          unzip -q downloads/stylua-0.5.0-linux.zip
+          chmod +x ./stylua
           ./stylua --check src
