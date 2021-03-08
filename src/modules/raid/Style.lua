@@ -196,6 +196,8 @@ local function OnSizeChanged(self, width, height)
 	local w = BORDER_WIDTH / self:GetEffectiveScale()
 	self.Border:SetSize(width + 2 * w, height + 2 * w)
 	self.ReadyCheckIndicator:SetSize(height, height)
+	self.SummonIndicator:SetSize(height, height)
+	self.ResurrectIndicator:SetSize(height, height)
 	self.StatusIcon:SetSize(height*2, height)
 	self.WarningIconBuff:SetPoint("CENTER", self, "LEFT", width / 4, 0)
 	self.WarningIconDebuff:SetPoint("CENTER", self, "RIGHT", -width / 4, 0)
@@ -471,12 +473,21 @@ local function InitFrame(self, unit)
 	local rc = CreateFrame("Frame", self:GetName().."ReadyCheck", overlay)
 	rc:SetFrameLevel(self:GetFrameLevel()+5)
 	rc:SetPoint('CENTER')
-	rc:SetAlpha(1)
-	rc:Hide()
 	rc.icon = rc:CreateTexture(rc:GetName().."Texture")
 	rc.icon:SetAllPoints(rc)
 	rc.SetTexture = function(_, ...) return rc.icon:SetTexture(...) end
 	self.ReadyCheckIndicator = rc
+
+	-- Resurrect Indicator
+	local ri = overlay:CreateTexture(self:GetName().."ResurrectIndicator", "OVERLAY", nil, 1)
+	ri:SetPoint('CENTER')
+	ri:SetTexture([[Interface\RaidFrame\Raid-Icon-Rez]]);
+	self.ResurrectIndicator = ri
+
+	-- Summon Indicator
+	local si = overlay:CreateTexture(self:GetName().."SummonIndicator", "OVERLAY", nil, 1)
+	si:SetPoint('CENTER')
+	self.SummonIndicator = si
 
 	-- Have icons blinking 3 seconds before fading out
 	self.iconBlinkThreshold = 3
