@@ -18,14 +18,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 local _G, parent, private = _G, ...
 local assert = _G.assert
-local oUF = assert(private.oUF, "oUF is undefined in "..parent.." namespace")
+local oUF = assert(private.oUF, "oUF is undefined in " .. parent .. " namespace")
 
 -- Export our namespace for standalone modules
 local oUF_Adirelle = { oUF = oUF }
 _G.oUF_Adirelle = oUF_Adirelle
 
 --<GLOBALS
-local _G = _G
 local IsAddOnLoaded = _G.IsAddOnLoaded
 local LoadAddOn = _G.LoadAddOn
 local next = _G.next
@@ -33,7 +32,7 @@ local print = _G.print
 local strlower = _G.strlower
 local strmatch = _G.strmatch
 local tonumber = _G.tonumber
---GLOBALS>
+--GLOBALS >
 
 -- Debugging stuff
 local AdiDebug = _G.AdiDebug
@@ -41,10 +40,11 @@ if AdiDebug then
 	oUF_Adirelle.Debug = AdiDebug:GetSink("oUF_Adirelle")
 	AdiDebug:Embed(oUF, "oUF_Adirelle")
 else
-	oUF_Adirelle.Debug = function() end
+	oUF_Adirelle.Debug = function()
+	end
 	oUF.Debug = oUF_Adirelle.Debug
 end
-oUF:RegisterMetaFunction('Debug', oUF.Debug)
+oUF:RegisterMetaFunction("Debug", oUF.Debug)
 
 -- Version query command
 _G.SLASH_OUFADIRELLEVER1 = "/ouf_adirelle_ver"
@@ -53,15 +53,15 @@ _G.SLASH_OUFADIRELLEVER3 = "/oufav"
 
 local versions = {}
 
-oUF_Adirelle.VERSION = 'v'.._G.GetAddOnMetadata(parent, 'version')
+oUF_Adirelle.VERSION = "v" .. _G.GetAddOnMetadata(parent, "version")
 --@debug@
 oUF_Adirelle.VERSION = "developer version"
 --@end-debug@
 
 _G.SlashCmdList.OUFADIRELLEVER = function()
-	print('oUF_Adirelle '..oUF_Adirelle.VERSION)
+	print("oUF_Adirelle " .. oUF_Adirelle.VERSION)
 	for major, minor in next, versions do
-		print('- '..major..' v'..minor)
+		print("- " .. major .. " v" .. minor)
 	end
 end
 
@@ -76,7 +76,8 @@ if LibStub then
 		end
 	end
 else
-	oUF_Adirelle.GetLib = function() end
+	oUF_Adirelle.GetLib = function()
+	end
 end
 
 -- DiminishingReturns support
@@ -105,18 +106,18 @@ _G.SlashCmdList.OUFADIRELLE = ToggleConfig
 _G.SLASH_OUFALOWHEALTH1 = "/oufa_health"
 _G.SLASH_OUFALOWHEALTH2 = "/oufah"
 _G.SlashCmdList.OUFALOWHEALTH = function(arg)
-	local number, suffix = strmatch(strlower(arg), '(%d+)([%%k]?)')
+	local number, suffix = strmatch(strlower(arg), "(%d+)([%%k]?)")
 	local threshold = tonumber(number)
 	if threshold then
 		local db = oUF_Adirelle.themeDB.profile.LowHealth
-		if suffix == '%' then
+		if suffix == "%" then
 			if threshold >= 5 and threshold <= 95 then
 				db.isPercent, db.percent = true, threshold / 100
-				return oUF_Adirelle.SettingsModified('OnThemeModified')
+				return oUF_Adirelle.SettingsModified("OnThemeModified")
 			end
 		elseif threshold > 0 then
-			db.isPercent, db.amount = false, threshold * (suffix == 'k' and 1000 or 1)
-			return oUF_Adirelle.SettingsModified('OnThemeModified')
+			db.isPercent, db.amount = false, threshold * (suffix == "k" and 1000 or 1)
+			return oUF_Adirelle.SettingsModified("OnThemeModified")
 		end
 	end
 	if not IsAddOnLoaded("oUF_Adirelle_Config") then
@@ -127,22 +128,24 @@ _G.SlashCmdList.OUFALOWHEALTH = function(arg)
 	end
 end
 
-local LDB = oUF_Adirelle.GetLib('LibDataBroker-1.1')
+local LDB = oUF_Adirelle.GetLib("LibDataBroker-1.1")
 if LDB then
 	oUF_Adirelle.launcher = LDB:NewDataObject(parent, {
-		type = 'launcher',
+		type = "launcher",
 		icon = [[Interface\Icons\Ability_Vehicle_ShellShieldGenerator]],
 		tocname = parent,
 		label = parent,
 		OnClick = ToggleConfig,
 		OnTooltipShow = function(tooltip)
-			if not tooltip then tooltip = _G.GameTooltip end
-			tooltip:AddLine('oUF_Adirelle '..oUF_Adirelle.VERSION, 1, 1, 1)
+			if not tooltip then
+				tooltip = _G.GameTooltip
+			end
+			tooltip:AddLine("oUF_Adirelle " .. oUF_Adirelle.VERSION, 1, 1, 1)
 			if oUF_Adirelle.ToggleLock then
 				tooltip:AddLine("Left click to (un)lock the frames.")
 			end
 			tooltip:AddLine("Right click to open the configuration window.")
-		end
+		end,
 	})
 end
 
@@ -150,19 +153,22 @@ end
 
 -- Get player class once
 local _
-_, oUF_Adirelle.playerClass = _G. UnitClass("player")
+_, oUF_Adirelle.playerClass = _G.UnitClass("player")
 
 -- Frame background
 oUF_Adirelle.backdrop = {
 	--bgFile = [[Interface\Tooltips\UI-Tooltip-Background]],
-	bgFile = [[Interface\AddOns\oUF_Adirelle\media\white16x16]], bgAlpha = 0.85,
+	bgFile = [[Interface\AddOns\oUF_Adirelle\media\white16x16]],
+	bgAlpha = 0.85,
 	tile = true,
 	tileSize = 16,
-	insets = {left = 0, right = 0, top = 0, bottom = 0},
+	insets = { left = 0, right = 0, top = 0, bottom = 0 },
 }
 
 -- Glow border backdrop
 oUF_Adirelle.glowBorderBackdrop = {
-	edgeFile = [[Interface\AddOns\oUF_Adirelle\media\glowborder]], edgeSize = 4, alpha = 1,
-	--edgeFile = [[Interface\AddOns\oUF_Adirelle\media\white16x16]], edgeSize = 2, alpha = 0.5,
+	edgeFile = [[Interface\AddOns\oUF_Adirelle\media\glowborder]],
+	edgeSize = 4,
+	alpha = 1,
+--edgeFile = [[Interface\AddOns\oUF_Adirelle\media\white16x16]], edgeSize = 2, alpha = 0.5,
 }

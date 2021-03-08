@@ -1,4 +1,4 @@
- --[=[
+--[=[
 Adirelle's oUF layout
 (c) 2014-2016 Adirelle (adirelle@gmail.com)
 
@@ -29,8 +29,8 @@ local bor = _G.bit.bor
 --GLOBALS>
 
 local Dispels = oUF_Adirelle.Dispels
-local LPS = oUF_Adirelle.GetLib('LibPlayerSpells-1.0')
-local LS = oUF_Adirelle.GetLib('LibSpellbook-1.0')
+local LPS = oUF_Adirelle.GetLib("LibPlayerSpells-1.0")
+local LS = oUF_Adirelle.GetLib("LibSpellbook-1.0")
 local C = LPS.constants
 local HARMFUL = C.HARMFUL
 
@@ -52,7 +52,9 @@ local function SetAction(self, targetType, spellID)
 end
 
 local function Update(self)
-	if not self:CanChangeAttribute() then return end
+	if not self:CanChangeAttribute() then
+		return
+	end
 
 	local flags = self.CustomClick.flags
 	local helpfulSpell, harmfulSpell
@@ -67,7 +69,7 @@ local function Update(self)
 			if helpfulSpell and harmfulSpell then
 				break
 			end
-        end
+		end
 	end
 
 	SetAction(self, "help", helpfulSpell)
@@ -98,9 +100,9 @@ local function Enable(self)
 		end
 
 		element.__owner, element.ForceUpdate = self, ForceUpdate
-		self:RegisterEvent('PLAYER_REGEN_DISABLED', Update, true)
-		self:RegisterEvent('PLAYER_REGEN_ENABLED', Update, true)
-		LS.RegisterCallback(self, 'LibSpellbook_Spells_Changed', Update, self)
+		self:RegisterEvent("PLAYER_REGEN_DISABLED", Update, true)
+		self:RegisterEvent("PLAYER_REGEN_ENABLED", Update, true)
+		LS.RegisterCallback(self, "LibSpellbook_Spells_Changed", Update, self)
 		return true
 	end
 end
@@ -111,10 +113,10 @@ local function Disable(self)
 			SetAction(self, "help", nil)
 			SetAction(self, "harm", nil)
 		end
-		self:UnregisterEvent('PLAYER_REGEN_DISABLED', Update)
-		self:UnregisterEvent('PLAYER_REGEN_ENABLED', Update)
-		LS.UnregisterCallback(self, 'LibSpellbook_Spells_Changed')
+		self:UnregisterEvent("PLAYER_REGEN_DISABLED", Update)
+		self:UnregisterEvent("PLAYER_REGEN_ENABLED", Update)
+		LS.UnregisterCallback(self, "LibSpellbook_Spells_Changed")
 	end
 end
 
-oUF:AddElement('CustomClick', Update, Enable, Disable)
+oUF:AddElement("CustomClick", Update, Enable, Disable)

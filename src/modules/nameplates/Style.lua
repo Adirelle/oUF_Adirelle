@@ -38,7 +38,7 @@ local TEXT_MARGIN = oUF_Adirelle.TEXT_MARGIN
 local BORDER_WIDTH = 1
 local borderBackdrop = {
 	edgeFile = [[Interface\Addons\oUF_Adirelle\media\white16x16]],
-	edgeSize = BORDER_WIDTH
+	edgeSize = BORDER_WIDTH,
 }
 
 local function SetCastBarColor(castbar)
@@ -66,11 +66,11 @@ local function InitFrame(self, unit)
 	self:SetPoint("BOTTOM")
 
 	local backdropFrame = CreateFrame("Frame", nil, self, "BackdropTemplate")
-	backdropFrame:SetFrameLevel(self:GetFrameLevel()-1)
+	backdropFrame:SetFrameLevel(self:GetFrameLevel() - 1)
 	backdropFrame:SetAllPoints()
 	backdropFrame:SetBackdrop(backdrop)
-	backdropFrame:SetBackdropColor(0,0,0,backdrop.bgAlpha)
-	backdropFrame:SetBackdropBorderColor(0,0,0,0)
+	backdropFrame:SetBackdropColor(0, 0, 0, backdrop.bgAlpha)
+	backdropFrame:SetBackdropBorderColor(0, 0, 0, 0)
 
 	-- Border
 	local border = CreateFrame("Frame", CreateName(self, "Border"), self, "BackdropTemplate")
@@ -99,7 +99,7 @@ local function InitFrame(self, unit)
 	-- Indicator overlays
 	local overlay = CreateFrame("Frame", nil, self)
 	overlay:SetAllPoints(self)
-	overlay:SetFrameLevel(border:GetFrameLevel()+3)
+	overlay:SetFrameLevel(border:GetFrameLevel() + 3)
 
 	-- Name
 	local name = SpawnText(self, overlay, nil, nil, nil, nil, nil, "text")
@@ -128,7 +128,7 @@ local function InitFrame(self, unit)
 	castbar:Hide()
 	castbar.__owner = self
 	castbar:SetHeight(CASTBAR_SIZE)
-	castbar:SetPoint('TOPRIGHT', self, 'BOTTOMRIGHT', -GAP, -GAP)
+	castbar:SetPoint("TOPRIGHT", self, "BOTTOMRIGHT", -GAP, -GAP)
 	castbar.hideTradeSkills = true
 	castbar.PostCastStart = SetCastBarColor
 	castbar.CastInterruptible = SetCastBarColor
@@ -139,20 +139,20 @@ local function InitFrame(self, unit)
 
 	local icon = castbar:CreateTexture(CreateName(castbar, "Icon"), "ARTWORK")
 	icon:SetSize(CASTBAR_SIZE, CASTBAR_SIZE)
-	icon:SetPoint('TOPLEFT', self, 'BOTTOMLEFT', GAP, -GAP)
-	icon:SetTexCoord(4/64, 60/64, 4/64, 60/64)
+	icon:SetPoint("TOPLEFT", self, "BOTTOMLEFT", GAP, -GAP)
+	icon:SetTexCoord(4 / 64, 60 / 64, 4 / 64, 60 / 64)
 	castbar.Icon = icon
 	castbar:SetPoint("LEFT", icon, "RIGHT")
 
 	local spellText = SpawnText(self, castbar, "OVERLAY", nil, nil, nil, nil, "text")
-	spellText:SetPoint('TOPLEFT', castbar, 'TOPLEFT', TEXT_MARGIN, 0)
-	spellText:SetPoint('BOTTOMRIGHT', castbar, 'BOTTOMRIGHT', -TEXT_MARGIN, 0)
+	spellText:SetPoint("TOPLEFT", castbar, "TOPLEFT", TEXT_MARGIN, 0)
+	spellText:SetPoint("BOTTOMRIGHT", castbar, "BOTTOMRIGHT", -TEXT_MARGIN, 0)
 	castbar.Text = spellText
 
 	local bg = castbar:CreateTexture(CreateName(castbar, "Background"), "BACKGROUND")
-	bg:SetColorTexture(0,0,0,1)
-	bg:SetPoint('TOPLEFT', icon)
-	bg:SetPoint('BOTTOMRIGHT', castbar)
+	bg:SetColorTexture(0, 0, 0, 1)
+	bg:SetPoint("TOPLEFT", icon)
+	bg:SetPoint("BOTTOMRIGHT", castbar)
 
 	-- Raid target icon
 	local raidTargetIcon = overlay:CreateTexture(GetSerialName(self, "RaidTarget"), "OVERLAY")
@@ -165,14 +165,14 @@ local function InitFrame(self, unit)
 	threat:SetPoint("TOPLEFT", border, -32, 16)
 	threat:SetPoint("BOTTOMRIGHT", border, 32, -16)
 	threat:SetTexture([[Interface\Addons\oUF_Adirelle\media\threat_overlay]])
-	threat:SetTexCoord(85/512, (512-85)/512, 0, 1)
+	threat:SetTexCoord(85 / 512, (512 - 85) / 512, 0, 1)
 	threat:SetVertexColor(1.0, 0.0, 0.0, 0.7)
 	self.SmartThreat = threat
 
 	-- Range fading
 	local xrange = CreateFrame("Frame", nil, overlay)
 	xrange:SetAllPoints(self)
-	xrange:SetFrameLevel(overlay:GetFrameLevel()+10)
+	xrange:SetFrameLevel(overlay:GetFrameLevel() + 10)
 	xrange.PostUpdate = XRange_PostUpdate
 
 	local tex = xrange:CreateTexture(nil, "OVERLAY")

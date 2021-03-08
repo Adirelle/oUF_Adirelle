@@ -29,8 +29,10 @@ local SetRaidTargetIconTexture = _G.SetRaidTargetIconTexture
 --GLOBALS>
 
 local function Update(self, event, unit)
-	if unit and unit ~= self.unit then return end
-	local target = self.unit == "player" and "target" or (self.unit.."target")
+	if unit and unit ~= self.unit then
+		return
+	end
+	local target = self.unit == "player" and "target" or (self.unit .. "target")
 	local raidTarget = GetRaidTargetIndex(target)
 	if raidTarget and raidTarget ~= 0 then
 		SetRaidTargetIconTexture(self.TargetIcon, raidTarget)
@@ -45,7 +47,7 @@ local function Path(self, ...)
 end
 
 local function ForceUpdate(element)
-	return Path(element.__owner, 'ForceUpdate')
+	return Path(element.__owner, "ForceUpdate")
 end
 
 local function Enable(self)
@@ -56,8 +58,8 @@ local function Enable(self)
 			icon:SetTexture([[Interface\TargetingFrame\UI-RaidTargetingIcons]])
 			icon:SetVertexColor(1, 1, 1, 1)
 		end
-		self:RegisterEvent('UNIT_TARGET', Path)
-		self:RegisterEvent('RAID_TARGET_UPDATE', Path)
+		self:RegisterEvent("UNIT_TARGET", Path)
+		self:RegisterEvent("RAID_TARGET_UPDATE", Path)
 		icon:Hide()
 		return true
 	end
@@ -66,11 +68,10 @@ end
 local function Disable(self)
 	local icon = self.TargetIcon
 	if icon then
-		self:UnregisterEvent('UNIT_TARGET', Path)
-		self:UnregisterEvent('RAID_TARGET_UPDATE', Path)
+		self:UnregisterEvent("UNIT_TARGET", Path)
+		self:UnregisterEvent("RAID_TARGET_UPDATE", Path)
 		icon:Hide()
 	end
 end
 
-oUF:AddElement('TargetIcon', Path, Enable, Disable)
-
+oUF:AddElement("TargetIcon", Path, Enable, Disable)

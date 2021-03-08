@@ -28,7 +28,8 @@ local tonumber = _G.tonumber
 local type = _G.type
 --GLOBALS>
 
-local function NOOP() end
+local function NOOP()
+end
 
 local function SetTexture(self, path)
 	local texture = self.Texture
@@ -79,7 +80,7 @@ local function SetBorderColor(self, r, g, b, a)
 	return SetAlpha(self, r, g, b, a)
 end
 
-oUF:RegisterMetaFunction('CreateIcon', function(self, parent, size, noCooldown, noStack, noBorder, noTexture, ...)
+oUF:RegisterMetaFunction("CreateIcon", function(self, parent, size, noCooldown, noStack, noBorder, noTexture, ...)
 	assert(parent and type(parent[0]) == "userdata", "CreateIcon: parent should be a Frame")
 	assert(type(size) == "nil" or type(size) == "number", "CreateIcon: size should be a number")
 	local icon = CreateFrame("Frame", nil, parent)
@@ -91,8 +92,8 @@ oUF:RegisterMetaFunction('CreateIcon', function(self, parent, size, noCooldown, 
 	if not noTexture then
 		local texture = icon:CreateTexture(nil, "ARTWORK")
 		texture:SetAllPoints(icon)
-		texture:SetTexCoord(4/64, 60/64, 4/64, 60/64)
-		texture:SetColorTexture(1,1,1,0)
+		texture:SetTexCoord(4 / 64, 60 / 64, 4 / 64, 60 / 64)
+		texture:SetColorTexture(1, 1, 1, 0)
 		icon.Texture = texture
 		icon.SetTexture = SetTexture
 	else
@@ -134,7 +135,7 @@ oUF:RegisterMetaFunction('CreateIcon', function(self, parent, size, noCooldown, 
 		icon.SetColor = SetAlpha
 	end
 
-	if select('#', ...) > 0 then
+	if select("#", ...) > 0 then
 		icon:SetPoint(...)
 	end
 

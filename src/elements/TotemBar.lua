@@ -43,7 +43,7 @@ local function Update(self, event, ...)
 		local haveTotem, name, start, duration = GetTotemInfo(totem.totemType)
 		if haveTotem and name and name ~= "" then
 			totem:SetMinMaxValues(0, duration)
-			totem:SetValue(start+duration-GetTime())
+			totem:SetValue(start + duration - GetTime())
 			totem:Show()
 		else
 			totem:Hide()
@@ -53,10 +53,10 @@ end
 
 local function Enable(self)
 	if self.TotemBar then
-		self:RegisterEvent('PLAYER_TOTEM_UPDATE', Update)
+		self:RegisterEvent("PLAYER_TOTEM_UPDATE", Update)
 		for index, totem in ipairs(self.TotemBar) do
 			totem:Hide()
-			totem:SetScript('OnUpdate', OnUpdate)
+			totem:SetScript("OnUpdate", OnUpdate)
 		end
 		return true
 	end
@@ -64,9 +64,9 @@ end
 
 local function Disable(self)
 	if self.TotemBar then
-		self:UnregisterEvent('PLAYER_TOTEM_UPDATE', Update)
+		self:UnregisterEvent("PLAYER_TOTEM_UPDATE", Update)
 		self.TotemBar:Hide()
 	end
 end
 
-oUF:AddElement('TotemBar', Update, Enable, Disable)
+oUF:AddElement("TotemBar", Update, Enable, Disable)

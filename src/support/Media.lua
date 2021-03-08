@@ -23,7 +23,7 @@ local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 --<GLOBALS
 --GLOBALS>
 
-local SharedMedia = oUF_Adirelle.GetLib('LibSharedMedia-3.0')
+local SharedMedia = oUF_Adirelle.GetLib("LibSharedMedia-3.0")
 local FONT = SharedMedia.MediaType.FONT
 local STATUSBAR = SharedMedia.MediaType.STATUSBAR
 
@@ -44,11 +44,14 @@ local function SetFont(self)
 end
 
 -- The meta to allow unit frames to register their fontstrings
-oUF:RegisterMetaFunction('RegisterFontString', function(self, fontstring, kind, size, flags, noShadow)
-	assert(fontstring:IsObjectType('FontString'), "RegisterFontString(object, kind): object should be a FontString")
+oUF:RegisterMetaFunction("RegisterFontString", function(self, fontstring, kind, size, flags, noShadow)
+	assert(
+		fontstring:IsObjectType("FontString"),
+		"RegisterFontString(object, kind): object should be a FontString"
+	)
 	if not fontstring.RegisterMessage then
 		oUF_Adirelle.EmbedMessaging(fontstring)
-		fontstring:RegisterMessage('SetFont', SetFont)
+		fontstring:RegisterMessage("SetFont", SetFont)
 	end
 	fontstring:SetTextColor(1, 1, 1, 1)
 	if noShadow then
@@ -77,28 +80,29 @@ local function Texture_Callback(bar)
 end
 
 -- The meta to allow unit frames to register their textures
-oUF:RegisterMetaFunction('RegisterStatusBarTexture', function(self, bar)
+oUF:RegisterMetaFunction("RegisterStatusBarTexture", function(self, bar)
 	local callback = assert(
-		bar:IsObjectType("StatusBar") and StatusBar_Callback
-		or bar:IsObjectType("Texture") and Texture_Callback,
+		bar:IsObjectType("StatusBar") and StatusBar_Callback or bar:IsObjectType("Texture") and Texture_Callback,
 		"RegisterStatusBarTexture(object): object should be a Texture or a StatusBar"
 	)
 	oUF_Adirelle.EmbedMessaging(bar)
-	bar:RegisterMessage('SetStatusBarTexture', callback)
+	bar:RegisterMessage("SetStatusBarTexture", callback)
 	callback(bar) -- Update once immediately
 end)
 
 -- Top-level callbacks
 local function UpdateFont()
-	oUF_Adirelle:SendMessage('SetFont')
+	oUF_Adirelle:SendMessage("SetFont")
 end
 
 local function UpdateStatusBar()
-	local textureSetting = oUF_Adirelle.themeDB.profile and oUF_Adirelle.themeDB.profile.statusbar or SharedMedia.DefaultMedia[STATUSBAR]
+	local textureSetting = oUF_Adirelle.themeDB.profile
+		and oUF_Adirelle.themeDB.profile.statusbar
+		or SharedMedia.DefaultMedia[STATUSBAR]
 	local newTexture = SharedMedia:Fetch(STATUSBAR, textureSetting)
 	if newTexture and newTexture ~= texture then
 		texture = newTexture
-		oUF_Adirelle:SendMessage('SetStatusBarTexture')
+		oUF_Adirelle:SendMessage("SetStatusBarTexture")
 	end
 end
 
@@ -108,9 +112,9 @@ local function UpdateBoth()
 end
 
 -- Setting handling
-oUF_Adirelle:RegisterMessage('OnFontModified', UpdateFont)
-oUF_Adirelle:RegisterMessage('OnTextureModified', UpdateStatusBar)
-oUF_Adirelle:RegisterMessage('OnSettingsModified', UpdateBoth)
+oUF_Adirelle:RegisterMessage("OnFontModified", UpdateFont)
+oUF_Adirelle:RegisterMessage("OnTextureModified", UpdateStatusBar)
+oUF_Adirelle:RegisterMessage("OnSettingsModified", UpdateBoth)
 
 -- LSM callbacks
 local function LSM_Update(mediaType)
@@ -122,5 +126,5 @@ local function LSM_Update(mediaType)
 	end
 end
 
-SharedMedia.RegisterCallback(addonName, 'LibSharedMedia_SetGlobal', LSM_Update)
-SharedMedia.RegisterCallback(addonName, 'LibSharedMedia_Registered', LSM_Update)
+SharedMedia.RegisterCallback(addonName, "LibSharedMedia_SetGlobal", LSM_Update)
+SharedMedia.RegisterCallback(addonName, "LibSharedMedia_Registered", LSM_Update)

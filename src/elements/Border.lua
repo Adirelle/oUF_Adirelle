@@ -1,4 +1,4 @@
- --[=[
+--[=[
 Adirelle's oUF layout
 (c) 2009-2016 Adirelle (adirelle@gmail.com)
 
@@ -38,7 +38,9 @@ local unpack = _G.unpack
 --GLOBALS>
 
 local function Update(self, event, unit)
-	if unit and unit ~= self.unit then return end
+	if unit and unit ~= self.unit then
+		return
+	end
 	unit = self.unit
 	local border = self.Border
 	local r, g, b
@@ -46,9 +48,9 @@ local function Update(self, event, unit)
 		r, g, b = 0, 0, 0
 	end
 	if unit and UnitExists(unit) then
-		if self.unit ~= "target" and not border.noTarget and UnitIsUnit('target', unit) then
+		if self.unit ~= "target" and not border.noTarget and UnitIsUnit("target", unit) then
 			r, g, b = 1, 1, 1
-		elseif self.unit ~= "focus" and not border.noFocus and UnitIsUnit('focus', unit) then
+		elseif self.unit ~= "focus" and not border.noFocus and UnitIsUnit("focus", unit) then
 			r, g, b = 1, 0.8, 0
 		elseif not UnitIsDeadOrGhost(unit) and border.manaThreshold then
 			local manaCur, manaMax = UnitPower(unit, SPELL_POWER_MANA), UnitPowerMax(unit, SPELL_POWER_MANA)
@@ -73,7 +75,9 @@ local function PowerUpdate(self, event, unit, power)
 end
 
 local function TogglePowerUpdates(self, event, unit)
-	if unit and unit ~= self.unit then return end
+	if unit and unit ~= self.unit then
+		return
+	end
 	local border = self.Border
 	local manaThreshold
 	if UnitPowerType(self.unit) == SPELL_POWER_MANA then
@@ -85,7 +89,9 @@ local function TogglePowerUpdates(self, event, unit)
 			manaThreshold = border.oocManaLevel
 		end
 	end
-	if border.manaThreshold == manaThreshold then return end
+	if border.manaThreshold == manaThreshold then
+		return
+	end
 	border.manaThreshold = manaThreshold
 	if manaThreshold then
 		self:RegisterEvent("UNIT_POWER_UPDATE", PowerUpdate)
@@ -140,4 +146,4 @@ local function Disable(self)
 	end
 end
 
-oUF:AddElement('Border', ForceUpdate, Enable, Disable)
+oUF:AddElement("Border", ForceUpdate, Enable, Disable)

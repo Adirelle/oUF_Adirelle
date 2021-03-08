@@ -34,13 +34,15 @@ local function OnUpdate(rune)
 	local now = GetTime()
 	rune:SetValue(now)
 	if now > rune.readyTime then
-		rune:SetScript('OnUpdate', nil)
+		rune:SetScript("OnUpdate", nil)
 	end
 end
 
 local function RuneUpdate(self, event, index)
 	local rune = self.RuneBar[index]
-	if not rune then return end
+	if not rune then
+		return
+	end
 	if rune.UpdateRuneColor then
 		rune:UpdateRuneColor()
 	end
@@ -49,15 +51,15 @@ local function RuneUpdate(self, event, index)
 		rune.duration = duration
 		rune.readyTime = start + duration
 		rune:SetMinMaxValues(start, start + duration)
-		rune:SetScript('OnUpdate', OnUpdate)
+		rune:SetScript("OnUpdate", OnUpdate)
 	else
-		rune:SetScript('OnUpdate', nil)
+		rune:SetScript("OnUpdate", nil)
 	end
 end
 
 local function Update(self, event, index, ...)
 	if not tonumber(index) then
-		if self.unit ~= 'player' then
+		if self.unit ~= "player" then
 			return self.RuneBar:Hide()
 		else
 			self.RuneBar:Show()
@@ -72,8 +74,8 @@ end
 
 local function Enable(self)
 	if self.RuneBar then
-		self:RegisterEvent('RUNE_POWER_UPDATE', Update)
-		self:RegisterEvent('RUNE_TYPE_UPDATE', Update)
+		self:RegisterEvent("RUNE_POWER_UPDATE", Update)
+		self:RegisterEvent("RUNE_TYPE_UPDATE", Update)
 		RuneFrame:Hide()
 		RuneFrame.Show = RuneFrame.Hide
 		RuneFrame:UnregisterAllEvents()
@@ -83,11 +85,10 @@ end
 
 local function Disable(self)
 	if self.RuneBar then
-		self:UnregisterEvent('RUNE_POWER_UPDATE', Update)
-		self:UnregisterEvent('RUNE_TYPE_UPDATE', Update)
+		self:UnregisterEvent("RUNE_POWER_UPDATE", Update)
+		self:UnregisterEvent("RUNE_TYPE_UPDATE", Update)
 		self.RuneBar:Hide()
 	end
 end
 
-oUF:AddElement('RuneBar', Update, Enable, Disable)
-
+oUF:AddElement("RuneBar", Update, Enable, Disable)

@@ -39,10 +39,10 @@ if oUF_Adirelle.playerClass == "DEATHKNIGHT" then
 elseif oUF_Adirelle.playerClass == "SHAMAN" then
 	-- Totem colors
 	oUF.colors.totems = {
-		[_G.FIRE_TOTEM_SLOT]  = { 1.0, 0.3, 0.0 },
+		[_G.FIRE_TOTEM_SLOT] = { 1.0, 0.3, 0.0 },
 		[_G.EARTH_TOTEM_SLOT] = { 0.3, 1.0, 0.2 },
 		[_G.WATER_TOTEM_SLOT] = { 0.3, 0.2, 1.0 },
-		[_G.AIR_TOTEM_SLOT]   = { 0.2, 0.8, 1.0 },
+		[_G.AIR_TOTEM_SLOT] = { 0.2, 0.8, 1.0 },
 	}
 end
 
@@ -64,7 +64,7 @@ oUF.colors.vehicle = {
 
 oUF.colors.charmed = {
 	name = { 1, 0.6, 0.3 },
-	background =  { 1, 0, 0 },
+	background = { 1, 0, 0 },
 }
 
 local profile
@@ -96,12 +96,12 @@ local function SaveColors()
 	DeepCopy(oUF.colors, profile.colors, false, DEFAULTS)
 end
 
-oUF_Adirelle:RegisterMessage('OnSettingsModified', function(self, event, _, newProfile)
+oUF_Adirelle:RegisterMessage("OnSettingsModified", function(self, event, _, newProfile)
 	if not DEFAULTS then
 		DEFAULTS = {}
 		DeepCopy(oUF.colors, DEFAULTS)
-		oUF_Adirelle.themeDB.RegisterCallback(addonName.."_colors", "OnDatabaseShutdown", SaveColors)
-		oUF_Adirelle.themeDB.RegisterCallback(addonName.."_colors", "OnProfileShutdown", SaveColors)
+		oUF_Adirelle.themeDB.RegisterCallback(addonName .. "_colors", "OnDatabaseShutdown", SaveColors)
+		oUF_Adirelle.themeDB.RegisterCallback(addonName .. "_colors", "OnProfileShutdown", SaveColors)
 	end
 	if profile ~= newProfile then
 		-- Update the upvalue

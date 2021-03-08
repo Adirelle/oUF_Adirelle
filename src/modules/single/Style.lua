@@ -20,7 +20,9 @@ local _G, _, private = _G, ...
 local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
-if oUF_Adirelle.SingleStyle then return end
+if oUF_Adirelle.SingleStyle then
+	return
+end
 
 --<GLOBALS
 local ALT_POWER_TEX_FILL = _G.ALT_POWER_TEX_FILL or 2
@@ -74,7 +76,7 @@ end
 
 local function Auras_PostCreateIcon(icons, button)
 	local cd, count, overlay = button.cd, button.count, button.overlay
-	button.icon:SetTexCoord(5/64, 59/64, 5/64, 59/64)
+	button.icon:SetTexCoord(5 / 64, 59 / 64, 5 / 64, 59 / 64)
 	overlay:SetTexture([[Interface\AddOns\oUF_Adirelle\media\icon_border]])
 	overlay:SetTexCoord(0, 1, 0, 1)
 	cd.noCooldownCount = true
@@ -108,10 +110,7 @@ local function Buffs_CustomFilter(icons, unit, icon, name, texture, count, dtype
 		priority, bigger = 6, true
 	else
 		local inCombat, filter = InCombatLockdown(), oUF_Adirelle.layoutDB.profile.Single.Auras.buffFilter
-		if inCombat and (
-			(filter.permanent and duration == 0) or
-			(filter.allies and IsAlly(caster))
-		) then
+		if inCombat and ((filter.permanent and duration == 0) or (filter.allies and IsAlly(caster))) then
 			return false
 		elseif UnitCanAttack("player", unit) then
 			if (canSteal and isStealable) or oUF_Adirelle:CanDispel(unit, true, dtype) then
@@ -138,11 +137,14 @@ local function Debuffs_CustomFilter(icons, unit, icon, name, texture, count, dty
 		priority = 5
 	else
 		local inCombat, filter = InCombatLockdown(), oUF_Adirelle.layoutDB.profile.Single.Auras.buffFilter
-		if inCombat and (
-			(filter.permanent and duration == 0) or
-			(filter.allies and IsAlly(caster)) or
-			(filter.unknown and not canApplyAura)
-		) then
+		if
+			inCombat
+			and (
+				(filter.permanent and duration == 0)
+				or (filter.allies and IsAlly(caster))
+				or (filter.unknown and not canApplyAura)
+			)
+		then
 			return false
 		elseif UnitCanAttack("player", unit) then
 			priority = IsMine(caster) and 3 or canApplyAura and 2 or 1
@@ -178,9 +180,13 @@ do
 
 	local tmp = {}
 	function Auras_SetPosition(icons)
-		if not icons then return end
+		if not icons then
+			return
+		end
 		local num = #icons
-		if num == 0 then return end
+		if num == 0 then
+			return
+		end
 		local spacing = icons.spacing or 1
 		local width, height = icons:GetSize()
 		local size = icons.size
@@ -196,7 +202,7 @@ do
 
 		local shown = 0
 		local visible = icons.maxNum
-		oUF.Debug('Auras_SetPosition', num, 'icons', visible, 'visible', 'maxNum=', icons.maxNum)
+		oUF.Debug("Auras_SetPosition", num, "icons", visible, "visible", "maxNum=", icons.maxNum)
 
 		-- Icon sizes
 		local enlarge = icons.enlarge
@@ -250,7 +256,9 @@ do
 end
 
 local function Auras_ForceUpdate(self, event, unit)
-	if unit and unit ~= self.unit then return end
+	if unit and unit ~= self.unit then
+		return
+	end
 	if self.Buffs then
 		self.Buffs:ForceUpdate()
 	end
@@ -266,12 +274,14 @@ local function Power_PostUpdate(power, unit, min, max)
 end
 
 local function AlternativePower_PostUpdate(bar, unit, cur, min, max)
-	if unit ~= bar.__owner.unit or not cur or not min then return end
+	if unit ~= bar.__owner.unit or not cur or not min then
+		return
+	end
 	bar.Label:SetText(bar.powerName)
 	local barUD
 	local _, powerRed, powerGreen, powerBlue = GetUnitPowerBarTextureInfo(unit, ALT_POWER_TEX_FILL + 1)
 	if powerRed and powerGreen and powerBlue then
-		local r, g, b = oUF.ColorGradient(cur-min, max-min, powerRed, powerGreen, powerBlue, 1, 0, 0)
+		local r, g, b = oUF.ColorGradient(cur - min, max - min, powerRed, powerGreen, powerBlue, 1, 0, 0)
 		bar:SetStatusBarColor(r, g, b)
 	else
 		bar:SetStatusBarColor(0.75, 0.75, 0.75)
@@ -287,21 +297,23 @@ end
 -- Additional auxiliary bars
 local function LayoutAuxiliaryBars(self)
 	local bars = self.AuxiliaryBars
-	if not bars then return end
+	if not bars then
+		return
+	end
 	local anchor, offset = self, 0
 	if self.Buffs and self.Buffs.side == "BOTTOM" then
-		offset = - self.Buffs:GetHeight()
+		offset = -self.Buffs:GetHeight()
 	end
 	for i, bar in ipairs(bars) do
 		if bar:IsShown() then
-			bar:SetPoint("TOP", anchor, "BOTTOM", 0, -FRAME_MARGIN+offset)
+			bar:SetPoint("TOP", anchor, "BOTTOM", 0, -FRAME_MARGIN + offset)
 			anchor, offset = bar, 0
 		end
 	end
 end
 
 local function LayoutAuxiliaryBars_Hook(bar)
-	 return LayoutAuxiliaryBars(bar.__mainFrame)
+	return LayoutAuxiliaryBars(bar.__mainFrame)
 end
 
 local function AddAuxiliaryBar(self, bar)
@@ -310,14 +322,16 @@ local function AddAuxiliaryBar(self, bar)
 	end
 	tinsert(self.AuxiliaryBars, bar)
 	bar.__mainFrame = self
-	bar:HookScript('OnShow', LayoutAuxiliaryBars_Hook)
-	bar:HookScript('OnHide', LayoutAuxiliaryBars_Hook)
+	bar:HookScript("OnShow", LayoutAuxiliaryBars_Hook)
+	bar:HookScript("OnHide", LayoutAuxiliaryBars_Hook)
 end
 
 -- General bar layout
 local function LayoutBars(self)
 	local width, height = self:GetSize()
-	if not width or not height or width == 0 or height == 0 then return end
+	if not width or not height or width == 0 or height == 0 then
+		return
+	end
 	self.Border:SetSize(width + 2 * BORDER_WIDTH, height + 2 * BORDER_WIDTH)
 	if self.Portrait then
 		self.Portrait:SetSize(height, height)
@@ -340,7 +354,7 @@ local function XRange_PostUpdate(xrange, event, unit, inRange)
 end
 
 local function ApplyAuraPosition(self, target, initialAnchor, anchorTo, growthx, growthy, dx, dy)
-	self:Debug('ApplyAuraPosition', target, initialAnchor, anchorTo, growthx, growthy, dx, dy)
+	self:Debug("ApplyAuraPosition", target, initialAnchor, anchorTo, growthx, growthy, dx, dy)
 	target.initialAnchor = initialAnchor
 	target.growthx = growthx
 	target.growthy = growthy
@@ -360,15 +374,15 @@ local function OnAuraLayoutModified(self, event, layout)
 	end
 
 	-- Apply position
-	if side == 'LEFT' or side == 'RIGHT' then
+	if side == "LEFT" or side == "RIGHT" then
 		-- Left or right
 		local dx, opposite
-		if side == 'LEFT' then
-			dx, opposite = -1, 'RIGHT'
+		if side == "LEFT" then
+			dx, opposite = -1, "RIGHT"
 		else
-			dx, opposite = 1, 'LEFT'
+			dx, opposite = 1, "LEFT"
 		end
-		ApplyAuraPosition(self, buffs, 'BOTTOM'..opposite, 'BOTTOM'..side, dx, -1, dx, 0)
+		ApplyAuraPosition(self, buffs, "BOTTOM" .. opposite, "BOTTOM" .. side, dx, -1, dx, 0)
 
 		-- Ensure we can display at least maxNum large icons
 		local maxNum = max(auras.numBuffs, auras.enlarge and auras.numDebuffs or 0)
@@ -377,23 +391,23 @@ local function OnAuraLayoutModified(self, event, layout)
 		-- Share the available space
 		if auras.numBuffs > 0 then
 			if debuffs and auras.numDebuffs > 0 then
-				ApplyAuraPosition(self, debuffs, 'TOP'..opposite, 'TOP'..side, dx, 1, dx, 0)
+				ApplyAuraPosition(self, debuffs, "TOP" .. opposite, "TOP" .. side, dx, 1, dx, 0)
 				buffs:SetSize(auraWidth, height / 2)
 				debuffs:SetSize(auraWidth, height / 2)
 			else
 				buffs:SetSize(auraWidth, height)
 			end
 		elseif debuffs and auras.numDebuffs > 0 then
-			ApplyAuraPosition(self, debuffs, 'TOP'..opposite, 'TOP'..side, dx, 1, dx, 0)
+			ApplyAuraPosition(self, debuffs, "TOP" .. opposite, "TOP" .. side, dx, 1, dx, 0)
 			debuffs:SetSize(auraWidth, height)
 		end
 	else
 		-- Top or bottom
 		local dy, opposite
-		if side == 'TOP' then
-			dy, opposite = 1, 'BOTTOM'
+		if side == "TOP" then
+			dy, opposite = 1, "BOTTOM"
 		else
-			dy, opposite = -1, 'TOP'
+			dy, opposite = -1, "TOP"
 		end
 
 		-- Ensure we can display at least two rows of normal icons, or a row of large ones plus a row of normal ones
@@ -403,16 +417,16 @@ local function OnAuraLayoutModified(self, event, layout)
 		end
 
 		if auras.numBuffs > 0 then
-			ApplyAuraPosition(self, buffs, opposite..'LEFT', side..'LEFT', 1, dy, 0, dy)
+			ApplyAuraPosition(self, buffs, opposite .. "LEFT", side .. "LEFT", 1, dy, 0, dy)
 			if debuffs and auras.numDebuffs > 0 then
-				ApplyAuraPosition(self, debuffs, opposite..'RIGHT', side..'RIGHT', -1, dy, 0, dy)
+				ApplyAuraPosition(self, debuffs, opposite .. "RIGHT", side .. "RIGHT", -1, dy, 0, dy)
 				buffs:SetSize(width / 2, auraHeight)
 				debuffs:SetSize(width / 2, auraHeight)
 			else
 				buffs:SetSize(width, auraHeight)
 			end
 		elseif debuffs and auras.numDebuffs > 0 then
-			ApplyAuraPosition(self, debuffs, opposite..'RIGHT', side..'RIGHT', -1, dy, 0, dy)
+			ApplyAuraPosition(self, debuffs, opposite .. "RIGHT", side .. "RIGHT", -1, dy, 0, dy)
 			debuffs:SetSize(width, auraHeight)
 		end
 	end
@@ -430,7 +444,7 @@ local function OnAuraLayoutModified(self, event, layout)
 end
 
 local function OnSingleLayoutModified(self, event, layout, theme)
-	local width, height = layout.Single.width, layout.Single['height'..self.heightType]
+	local width, height = layout.Single.width, layout.Single["height" .. self.heightType]
 	if self.heightFactor then
 		height = height * self.heightFactor
 	end
@@ -442,7 +456,7 @@ end
 local function OnSingleThemeModified(self, event, layout, theme)
 	-- Update health coloring flags
 	local health = self.Health
-	for k,v in pairs(theme.Health) do
+	for k, v in pairs(theme.Health) do
 		health[k] = v
 	end
 	if self.baseUnit == "arena" then
@@ -453,7 +467,7 @@ local function OnSingleThemeModified(self, event, layout, theme)
 	-- Update power coloring flags
 	local power = self.Power
 	if power then
-		for k,v in pairs(theme.Power) do
+		for k, v in pairs(theme.Power) do
 			power[k] = v
 		end
 		power:ForceUpdate()
@@ -490,8 +504,8 @@ local function OnColorModified(self, event, layout, theme)
 end
 
 local DRAGON_TEXTURES = {
-	rare  = { [[Interface\Addons\oUF_Adirelle\media\rare_graphic]],  6/128, 123/128, 17/128, 112/128, },
-	elite = { [[Interface\Addons\oUF_Adirelle\media\elite_graphic]], 6/128, 123/128, 17/128, 112/128, },
+	rare = { [[Interface\Addons\oUF_Adirelle\media\rare_graphic]], 6 / 128, 123 / 128, 17 / 128, 112 / 128 },
+	elite = { [[Interface\Addons\oUF_Adirelle\media\elite_graphic]], 6 / 128, 123 / 128, 17 / 128, 112 / 128 },
 }
 
 local function CastBar_SetColor(castbar)
@@ -510,30 +524,30 @@ local function CreateCastBar(self, anchor)
 	local castbar = CreateFrame("StatusBar", CreateName(self, "CastBar"), self)
 	castbar:Hide()
 	castbar.__owner = self
-	castbar:SetPoint('BOTTOMRIGHT', anchor)
+	castbar:SetPoint("BOTTOMRIGHT", anchor)
 	castbar.timeToHold = 0.3
 	castbar.PostCastStart = CastBar_SetColor
 	castbar.CastInterruptible = CastBar_SetColor
 	castbar.PostCastFail = CastBar_SetColor
-	castbar:SetScript('OnSizeChanged', CastBar_Update)
-	castbar:SetScript('OnShow', CastBar_Update)
+	castbar:SetScript("OnSizeChanged", CastBar_Update)
+	castbar:SetScript("OnShow", CastBar_Update)
 	self:RegisterStatusBarTexture(castbar)
 	self.Castbar = castbar
 
 	local icon = castbar:CreateTexture(CreateName(castbar, "Icon"), "ARTWORK")
-	icon:SetPoint('TOPLEFT', anchor)
-	icon:SetTexCoord(4/64, 60/64, 4/64, 60/64)
+	icon:SetPoint("TOPLEFT", anchor)
+	icon:SetTexCoord(4 / 64, 60 / 64, 4 / 64, 60 / 64)
 	castbar.Icon = icon
 
 	local spellText = SpawnText(self, castbar, "OVERLAY", nil, nil, nil, nil, "text")
-	spellText:SetPoint('TOPLEFT', castbar, 'TOPLEFT', TEXT_MARGIN, 0)
-	spellText:SetPoint('BOTTOMRIGHT', castbar, 'BOTTOMRIGHT', -TEXT_MARGIN, 0)
+	spellText:SetPoint("TOPLEFT", castbar, "TOPLEFT", TEXT_MARGIN, 0)
+	spellText:SetPoint("BOTTOMRIGHT", castbar, "BOTTOMRIGHT", -TEXT_MARGIN, 0)
 	castbar.Text = spellText
 
 	local bg = castbar:CreateTexture(CreateName(castbar, "Background"), "BACKGROUND")
-	bg:SetColorTexture(0,0,0,1)
-	bg:SetPoint('TOPLEFT', icon)
-	bg:SetPoint('BOTTOMRIGHT', castbar)
+	bg:SetColorTexture(0, 0, 0, 1)
+	bg:SetPoint("TOPLEFT", icon)
+	bg:SetPoint("BOTTOMRIGHT", castbar)
 
 	castbar:SetPoint("TOPLEFT", icon, "TOPRIGHT", GAP, 0)
 	CastBar_Update(castbar)
@@ -547,9 +561,9 @@ local function InitFrame(settings, self, unit)
 	self.baseUnit, self.isArenaUnit = unit, isArenaUnit
 	self.heightType = settings.heightType
 
-	self:SetSize(settings['initial-width'], settings['initial-height'])
+	self:SetSize(settings["initial-width"], settings["initial-height"])
 	if unit == "pet" then
-		self.heightFactor = 40/47
+		self.heightFactor = 40 / 47
 	end
 
 	if self.isNamePlate then
@@ -571,21 +585,21 @@ local function InitFrame(settings, self, unit)
 	end
 
 	local backdropFrame = CreateFrame("Frame", nil, self, "BackdropTemplate")
-	backdropFrame:SetFrameLevel(self:GetFrameLevel()-1)
+	backdropFrame:SetFrameLevel(self:GetFrameLevel() - 1)
 	backdropFrame:SetAllPoints()
 	backdropFrame:SetBackdrop(backdrop)
-	backdropFrame:SetBackdropColor(0,0,0,backdrop.bgAlpha)
-	backdropFrame:SetBackdropBorderColor(0,0,0,0)
+	backdropFrame:SetBackdropColor(0, 0, 0, backdrop.bgAlpha)
+	backdropFrame:SetBackdropBorderColor(0, 0, 0, 0)
 
 	-- Register setting callbacks early
-	self:RegisterMessage('OnSingleLayoutModified', OnSingleLayoutModified)
-	self:RegisterMessage('OnSettingsModified', OnSingleLayoutModified)
-	self:RegisterMessage('OnSingleThemeModified', OnSingleThemeModified)
-	self:RegisterMessage('OnSettingsModified', OnSingleThemeModified)
-	self:RegisterMessage('OnColorModified', OnColorModified)
-	self:RegisterMessage('OnSettingsModified', OnColorModified)
-	self:RegisterMessage('OnSettingsModified', OnThemeModified)
-	self:RegisterMessage('OnThemeModified', OnThemeModified)
+	self:RegisterMessage("OnSingleLayoutModified", OnSingleLayoutModified)
+	self:RegisterMessage("OnSettingsModified", OnSingleLayoutModified)
+	self:RegisterMessage("OnSingleThemeModified", OnSingleThemeModified)
+	self:RegisterMessage("OnSettingsModified", OnSingleThemeModified)
+	self:RegisterMessage("OnColorModified", OnColorModified)
+	self:RegisterMessage("OnSettingsModified", OnColorModified)
+	self:RegisterMessage("OnSettingsModified", OnThemeModified)
+	self:RegisterMessage("OnThemeModified", OnThemeModified)
 
 	-- Border
 	local border = CreateFrame("Frame", CreateName(self, "Border"), self, "BackdropTemplate")
@@ -625,21 +639,25 @@ local function InitFrame(settings, self, unit)
 		self.Portrait = portrait
 
 		-- Display important (de)buff all over the portrait
-		importantDebuff:SetFrameLevel(portrait:GetFrameLevel()+1)
+		importantDebuff:SetFrameLevel(portrait:GetFrameLevel() + 1)
 		importantDebuff:SetAllPoints(portrait)
 
 		-- Spawn a container frame that spans remaining space
-		barContainer:SetPoint("TOP"..left, portrait, "TOP"..right, GAP*dir, 0)
-		barContainer:SetPoint("BOTTOM"..right)
+		barContainer:SetPoint("TOP" .. left, portrait, "TOP" .. right, GAP * dir, 0)
+		barContainer:SetPoint("BOTTOM" .. right)
 
 		-- Have the bars cover the whole frame if the portrait is disabled
-		portrait:SetScript('OnShow', function() barContainer:SetPoint("TOP"..left, portrait, "TOP"..right, GAP*dir, 0) end)
-		portrait:SetScript('OnHide', function() barContainer:SetPoint("TOP"..left, self, "TOP"..left, 0, 0) end)
+		portrait:SetScript("OnShow", function()
+			barContainer:SetPoint("TOP" .. left, portrait, "TOP" .. right, GAP * dir, 0)
+		end)
+		portrait:SetScript("OnHide", function()
+			barContainer:SetPoint("TOP" .. left, self, "TOP" .. left, 0, 0)
+		end)
 	else
 		barContainer:SetAllPoints(self)
 
 		-- Display the on the side
-		importantDebuff:SetPoint(left, self, right, GAP*dir, 0)
+		importantDebuff:SetPoint(left, self, right, GAP * dir, 0)
 	end
 
 	-- Health bar
@@ -654,7 +672,10 @@ local function InitFrame(settings, self, unit)
 	local name = SpawnText(self, health, "OVERLAY", "TOPLEFT", "TOPLEFT", TEXT_MARGIN, 0, "text")
 	name:SetPoint("BOTTOMLEFT", health, "BOTTOMLEFT", TEXT_MARGIN)
 	name:SetPoint("RIGHT", health.Text, "LEFT")
-	self:Tag(name, (unit == "player" or unit == "pet" or unit == "boss" or isArenaUnit) and "[name]" or "[name][ $>status<$]")
+	self:Tag(
+		name,
+		(unit == "player" or unit == "pet" or unit == "boss" or isArenaUnit) and "[name]" or "[name][ $>status<$]"
+	)
 	self.Name = name
 
 	-- Low health indicator
@@ -669,7 +690,7 @@ local function InitFrame(settings, self, unit)
 	-- Used for some overlays
 	local indicators = CreateFrame("Frame", CreateName(self, "Indicators"), self)
 	indicators:SetAllPoints(self)
-	indicators:SetFrameLevel(health:GetFrameLevel()+3)
+	indicators:SetFrameLevel(health:GetFrameLevel() + 3)
 	self.Indicators = indicators
 
 	-- Power bar
@@ -682,12 +703,12 @@ local function InitFrame(settings, self, unit)
 
 		local powers = {}
 		-- Additional power bars that requires specialization information
-		if unit == 'player' or unit == 'target' or unit == 'focus' or unit == 'pet' then
+		if unit == "player" or unit == "target" or unit == "focus" or unit == "pet" then
 			powers.MANA = SpawnStatusBar(self)
 			powers.SOUL_SHARDS = SpawnHybridBar(self, 4, 100, [[Interface\Addons\oUF_Adirelle\media\white16x16]])
 		end
 		-- Additional power bars available only on players
-		if unit == 'player' or unit == 'target' or unit == 'focus' or unit == 'pet' or unit == 'arena' then
+		if unit == "player" or unit == "target" or unit == "focus" or unit == "pet" or unit == "arena" then
 			powers.CHI = SpawnDiscreteBar(self, 6, false, [[Interface\Addons\oUF_Adirelle\media\white16x16]])
 			powers.HOLY_POWER = SpawnDiscreteBar(self, 5, false, [[Interface\Addons\oUF_Adirelle\media\white16x16]])
 			powers.HOLY_POWER.PostUpdate = HighlightHolyPower
@@ -701,7 +722,7 @@ local function InitFrame(settings, self, unit)
 		end
 
 		-- Special bars
-		if unit == 'player' and private.SetupSecondaryPowerBar then
+		if unit == "player" and private.SetupSecondaryPowerBar then
 			local bar = private.SetupSecondaryPowerBar(self)
 			barContainer:AddWidget(bar, 50, 2)
 		end
@@ -716,14 +737,14 @@ local function InitFrame(settings, self, unit)
 		end
 
 		-- Casting Bar
-		if unit ~= 'player' then
+		if unit ~= "player" then
 			local castbar = CreateCastBar(self, power)
 			castbar:SetFrameLevel(power:GetFrameLevel() + 5)
 		end
 
 	elseif unit == "nameplate" then
 		local container = CreateFrame("Frame", CreateName(self, "CastBarContainer"), self)
-		container:SetSize(settings['initial-width'], settings['initial-height']);
+		container:SetSize(settings["initial-width"], settings["initial-height"])
 		container:SetPoint("TOP", self, "BOTTOM", 0, -GAP)
 		CreateCastBar(self, container)
 	end
@@ -733,26 +754,28 @@ local function InitFrame(settings, self, unit)
 		-- Add a simple threat bar on the target
 		local threatBar = SpawnStatusBar(self, false)
 		threatBar:SetBackdrop(backdrop)
-		threatBar:SetBackdropColor(0,0,0,backdrop.bgAlpha)
-		threatBar:SetBackdropBorderColor(0,0,0,1)
-		threatBar:SetWidth(190*0.5)
+		threatBar:SetBackdropColor(0, 0, 0, backdrop.bgAlpha)
+		threatBar:SetBackdropBorderColor(0, 0, 0, 1)
+		threatBar:SetWidth(190 * 0.5)
 		threatBar:SetHeight(14)
 		threatBar:SetMinMaxValues(0, 100)
 		threatBar.PostUpdate = function(self, event, unit, bar, isTanking, status, scaledPercent, rawPercent, threatValue)
-			if not bar.Text then return end
-			if threatValue then
-				local value, unit = threatValue / 100, ""
-				if value > 1000000 then
-					value, unit = value / 1000000, "m"
-				elseif value > 1000 then
-					value, unit = value / 1000, "k"
+				if not bar.Text then
+					return
 				end
-				bar.Text:SetFormattedText("%d%% (%.1f%s)", scaledPercent, value, unit)
-				bar.Text:Show()
-			else
-				bar.Text:Hide()
+				if threatValue then
+					local value, unit = threatValue / 100, ""
+					if value > 1000000 then
+						value, unit = value / 1000000, "m"
+					elseif value > 1000 then
+						value, unit = value / 1000, "k"
+					end
+					bar.Text:SetFormattedText("%d%% (%.1f%s)", scaledPercent, value, unit)
+					bar.Text:Show()
+				else
+					bar.Text:Hide()
+				end
 			end
-		end
 		self.ThreatBar = threatBar
 		AddAuxiliaryBar(self, threatBar)
 	end
@@ -765,29 +788,29 @@ local function InitFrame(settings, self, unit)
 	local threat = CreateFrame("Frame", CreateName(self, "ThreatGlow"), self, "BackdropTemplate")
 	threat:SetAllPoints(self.Border)
 	threat:SetBackdrop(glowBorderBackdrop)
-	threat:SetBackdropColor(0,0,0,0)
+	threat:SetBackdropColor(0, 0, 0, 0)
 	threat.SetVertexColor = threat.SetBackdropBorderColor
 	threat:SetAlpha(glowBorderBackdrop.alpha)
-	threat:SetFrameLevel(self:GetFrameLevel()+2)
+	threat:SetFrameLevel(self:GetFrameLevel() + 2)
 	self.SmartThreat = threat
 
 	if unit ~= "boss" and unit ~= "nameplate" and not isArenaUnit then
 		-- Various indicators
-		self.LeaderIndicator = SpawnTexture(indicators, 16, "TOP"..left)
-		self.AssistantIndicator = SpawnTexture(indicators, 16, "TOP"..left)
-		self.CombatIndicator = SpawnTexture(indicators, 16, "BOTTOM"..left)
+		self.LeaderIndicator = SpawnTexture(indicators, 16, "TOP" .. left)
+		self.AssistantIndicator = SpawnTexture(indicators, 16, "TOP" .. left)
+		self.CombatIndicator = SpawnTexture(indicators, 16, "BOTTOM" .. left)
 
 		-- Indicators around the portrait, if there is one
 		if self.Portrait then
 			-- Group role icons
 			self.RoleIcon = SpawnTexture(indicators, 16)
-			self.RoleIcon:SetPoint("CENTER", self.Portrait, "TOP"..right)
+			self.RoleIcon:SetPoint("CENTER", self.Portrait, "TOP" .. right)
 			self.RoleIcon.noRaidTarget = true
 
 			-- PvP flag
 			local pvp = SpawnTexture(indicators, 16)
 			pvp:SetTexCoord(0, 0.6, 0, 0.6)
-			pvp:SetPoint("CENTER", self.Portrait, "BOTTOM"..right)
+			pvp:SetPoint("CENTER", self.Portrait, "BOTTOM" .. right)
 			self.PvPIndicator = pvp
 
 			-- PvP timer
@@ -809,13 +832,13 @@ local function InitFrame(settings, self, unit)
 		-- Combo points
 		local DOT_SIZE = 10
 		local cpoints = CreateFrame("Frame", CreateName(indicators, "ComboPoints"), indicators)
-		cpoints:SetPoint("BOTTOM", health, 0, -DOT_SIZE/2)
-		cpoints:SetSize((DOT_SIZE + GAP) * MAX_COMBO_POINTS - GAP, DOT_SIZE);
-		for i =  1, MAX_COMBO_POINTS  do
+		cpoints:SetPoint("BOTTOM", health, 0, -DOT_SIZE / 2)
+		cpoints:SetSize((DOT_SIZE + GAP) * MAX_COMBO_POINTS - GAP, DOT_SIZE)
+		for i = 1, MAX_COMBO_POINTS do
 			local cpoint = SpawnTexture(cpoints, DOT_SIZE)
 			cpoint:SetTexture([[Interface\AddOns\oUF_Adirelle\media\combo]])
-			cpoint:SetTexCoord(3/16, 13/16, 5/16, 15/16)
-			cpoint:SetPoint("LEFT", (i-1)*(DOT_SIZE+GAP), 0)
+			cpoint:SetTexCoord(3 / 16, 13 / 16, 5 / 16, 15 / 16)
+			cpoint:SetPoint("LEFT", (i - 1) * (DOT_SIZE + GAP), 0)
 			cpoint:Hide()
 			tinsert(cpoints, cpoint)
 		end
@@ -831,18 +854,21 @@ local function InitFrame(settings, self, unit)
 		buffs.growthx = 1
 		buffs.growthy = -1
 
-	elseif (unit == "target" or unit == "focus" or unit == "boss" or unit == "arena") and settings.heightType ~= 'Small' then
+	elseif
+		(unit == "target" or unit == "focus" or unit == "boss" or unit == "arena")
+		and settings.heightType ~= "Small"
+	then
 		buffs = CreateFrame("Frame", CreateName(self, "Buffs"), self)
-		buffs:SetPoint("BOTTOM"..right, self, "BOTTOM"..left, -FRAME_MARGIN*dir, 0)
+		buffs:SetPoint("BOTTOM" .. right, self, "BOTTOM" .. left, -FRAME_MARGIN * dir, 0)
 		buffs.showType = true
-		buffs.initialAnchor = "BOTTOM"..right
+		buffs.initialAnchor = "BOTTOM" .. right
 		buffs.growthx = (left == "LEFT") and -1 or 1
 		buffs.growthy = 1
 
 		debuffs = CreateFrame("Frame", CreateName(self, "Debuffs"), self)
-		debuffs:SetPoint("TOP"..right, self, "TOP"..left, -FRAME_MARGIN*dir, 0)
+		debuffs:SetPoint("TOP" .. right, self, "TOP" .. left, -FRAME_MARGIN * dir, 0)
 		debuffs.showType = true
-		debuffs.initialAnchor = "TOP"..right
+		debuffs.initialAnchor = "TOP" .. right
 		debuffs.growthx = (left == "LEFT") and -1 or 1
 		debuffs.growthy = -1
 	end
@@ -871,19 +897,19 @@ local function InitFrame(settings, self, unit)
 	end
 
 	if buffs or debuffs then
-		self:RegisterEvent('UNIT_FACTION', Auras_ForceUpdate)
-		self:RegisterEvent('UNIT_TARGETABLE_CHANGED', Auras_ForceUpdate)
-		self:RegisterMessage('OnSettingsModified', OnAuraLayoutModified)
-		self:RegisterMessage('OnSingleLayoutModified', OnAuraLayoutModified)
+		self:RegisterEvent("UNIT_FACTION", Auras_ForceUpdate)
+		self:RegisterEvent("UNIT_TARGETABLE_CHANGED", Auras_ForceUpdate)
+		self:RegisterMessage("OnSettingsModified", OnAuraLayoutModified)
+		self:RegisterMessage("OnSingleLayoutModified", OnAuraLayoutModified)
 	end
 
 	-- Classification dragon
 	if not settings.noPortrait and (unit == "target" or unit == "focus" or unit == "boss") then
 		local dragon = indicators:CreateTexture(CreateName(self, "Classification"), "ARTWORK")
-		local DRAGON_HEIGHT = 45*95/80+2
-		dragon:SetWidth(DRAGON_HEIGHT*117/95)
+		local DRAGON_HEIGHT = 45 * 95 / 80 + 2
+		dragon:SetWidth(DRAGON_HEIGHT * 117 / 95)
 		dragon:SetHeight(DRAGON_HEIGHT)
-		dragon:SetPoint('TOPLEFT', self, 'TOPLEFT', -44*DRAGON_HEIGHT/95-1, 15*DRAGON_HEIGHT/95+1)
+		dragon:SetPoint("TOPLEFT", self, "TOPLEFT", -44 * DRAGON_HEIGHT / 95 - 1, 15 * DRAGON_HEIGHT / 95 + 1)
 		dragon.elite = DRAGON_TEXTURES.elite
 		dragon.rare = DRAGON_TEXTURES.rare
 		self.Dragon = dragon
@@ -896,16 +922,22 @@ local function InitFrame(settings, self, unit)
 		xpFrame:SetPoint("RIGHT")
 		xpFrame:SetHeight(12)
 		xpFrame:SetBackdrop(backdrop)
-		xpFrame:SetBackdropColor(0,0,0,backdrop.bgAlpha)
-		xpFrame:SetBackdropBorderColor(0,0,0,1)
+		xpFrame:SetBackdropColor(0, 0, 0, backdrop.bgAlpha)
+		xpFrame:SetBackdropBorderColor(0, 0, 0, 1)
 		xpFrame:EnableMouse(false)
 
 		local xpBar = SpawnStatusBar(self, true)
 		xpBar:SetParent(xpFrame)
 		xpBar:SetAllPoints(xpFrame)
-		xpBar.Show = function() return xpFrame:Show() end
-		xpBar.Hide = function() return xpFrame:Hide() end
-		xpBar.IsShown = function() return xpFrame:IsShown() end
+		xpBar.Show = function()
+			return xpFrame:Show()
+		end
+		xpBar.Hide = function()
+			return xpFrame:Hide()
+		end
+		xpBar.IsShown = function()
+			return xpFrame:IsShown()
+		end
 		xpBar:EnableMouse(false)
 
 		local restedBar = SpawnStatusBar(self, true)
@@ -930,7 +962,7 @@ local function InitFrame(settings, self, unit)
 		end
 
 		xpBar.Rested = restedBar
-		xpBar:SetFrameLevel(restedBar:GetFrameLevel()+1)
+		xpBar:SetFrameLevel(restedBar:GetFrameLevel() + 1)
 
 		self.ExperienceBar = xpBar
 		AddAuxiliaryBar(self, xpFrame)
@@ -951,7 +983,9 @@ local function InitFrame(settings, self, unit)
 		self:RegisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT", self.UpdateAllElements)
 	end
 	self:RegisterEvent("UNIT_TARGETABLE_CHANGED", function(_, event, unit)
-		if unit == self.unit then return self:UpdateAllElements(event)	end
+		if unit == self.unit then
+			return self:UpdateAllElements(event)
+		end
 	end)
 
 	-- Altenate power bar (e.g. sound on Atramedes, or poison on Isorath)
@@ -959,8 +993,8 @@ local function InitFrame(settings, self, unit)
 
 		local alternativePower = SpawnStatusBar(self)
 		alternativePower:SetBackdrop(backdrop)
-		alternativePower:SetBackdropColor(0,0,0,backdrop.bgAlpha)
-		alternativePower:SetBackdropBorderColor(0,0,0,1)
+		alternativePower:SetBackdropColor(0, 0, 0, backdrop.bgAlpha)
+		alternativePower:SetBackdropBorderColor(0, 0, 0, 1)
 		alternativePower:SetPoint("LEFT")
 		alternativePower:SetPoint("RIGHT")
 		alternativePower:SetHeight(12)
@@ -979,14 +1013,14 @@ local function InitFrame(settings, self, unit)
 	self.PowerPrediction = self:SpawnPowerPrediction()
 
 	-- Update layout at least once
-	self:HookScript('OnSizeChanged', LayoutBars)
+	self:HookScript("OnSizeChanged", LayoutBars)
 	LayoutBars(self)
 end
 
 local single_style = setmetatable({
 	["initial-width"] = 190,
 	["initial-height"] = 47,
-	heightType = 'Big',
+	heightType = "Big",
 }, {
 	__call = InitFrame,
 })
@@ -994,7 +1028,7 @@ local single_style = setmetatable({
 oUF:RegisterStyle("Adirelle_Single", single_style)
 
 local single_style_right = setmetatable({
-	mirroredFrame = true
+	mirroredFrame = true,
 }, {
 	__call = InitFrame,
 	__index = single_style,
@@ -1004,10 +1038,10 @@ oUF:RegisterStyle("Adirelle_Single_Right", single_style_right)
 
 local single_style_health = setmetatable({
 	["initial-height"] = 20,
-	heightType = 'Small',
+	heightType = "Small",
 	noPower = true,
 	noPortrait = true,
-	noDragon = true
+	noDragon = true,
 }, {
 	__call = InitFrame,
 	__index = single_style,

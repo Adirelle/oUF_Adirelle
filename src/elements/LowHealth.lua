@@ -34,7 +34,9 @@ local UnitIsDeadOrGhost = _G.UnitIsDeadOrGhost
 --GLOBALS>
 
 local function Update(self, event, unit)
-	if (unit and unit ~= self.unit) then return end
+	if (unit and unit ~= self.unit) then
+		return
+	end
 	unit = self.unit
 	if UnitIsConnected(unit) and not UnitIsDeadOrGhost(unit) and UnitCanAssist("player", unit) then
 		local health = UnitHealth(unit)
@@ -43,7 +45,7 @@ local function Update(self, event, unit)
 			health - (UnitGetTotalHealAbsorbs(unit) or 0) + (UnitGetIncomingHeals(unit) or 0)
 		)
 		local threshold = self.LowHealth.threshold
-		local actualThreshold = (threshold < 0) and (-threshold * UnitHealthMax(unit)) or threshold
+		local actualThreshold = (threshold < 0) and -threshold * UnitHealthMax(unit) or threshold
 		return self.LowHealth:SetShown(virtualHealth <= actualThreshold)
 	end
 	self.LowHealth:Hide()
@@ -54,7 +56,7 @@ local function Path(self, ...)
 end
 
 local function ForceUpdate(element)
-	return Path(element.__owner, 'ForceUpdate')
+	return Path(element.__owner, "ForceUpdate")
 end
 
 local function Enable(self)
@@ -69,9 +71,9 @@ local function Enable(self)
 		self:RegisterEvent("UNIT_MAXHEALTH", Path)
 		self:RegisterEvent("UNIT_CONNECTION", Path)
 		self:RegisterEvent("UNIT_TARGETABLE_CHANGED", Path)
-		self:RegisterEvent('UNIT_HEAL_PREDICTION', Path)
-		self:RegisterEvent('UNIT_ABSORB_AMOUNT_CHANGED', Path)
-		self:RegisterEvent('UNIT_HEAL_ABSORB_AMOUNT_CHANGED', Path)
+		self:RegisterEvent("UNIT_HEAL_PREDICTION", Path)
+		self:RegisterEvent("UNIT_ABSORB_AMOUNT_CHANGED", Path)
+		self:RegisterEvent("UNIT_HEAL_ABSORB_AMOUNT_CHANGED", Path)
 		return true
 	end
 end
@@ -83,10 +85,10 @@ local function Disable(self)
 		self:UnregisterEvent("UNIT_MAXHEALTH", Path)
 		self:UnregisterEvent("UNIT_CONNECTION", Path)
 		self:UnregisterEvent("UNIT_TARGETABLE_CHANGED", Path)
-		self:UnregisterEvent('UNIT_HEAL_PREDICTION', Path)
-		self:UnregisterEvent('UNIT_ABSORB_AMOUNT_CHANGED', Path)
-		self:UnregisterEvent('UNIT_HEAL_ABSORB_AMOUNT_CHANGED', Path)
+		self:UnregisterEvent("UNIT_HEAL_PREDICTION", Path)
+		self:UnregisterEvent("UNIT_ABSORB_AMOUNT_CHANGED", Path)
+		self:UnregisterEvent("UNIT_HEAL_ABSORB_AMOUNT_CHANGED", Path)
 	end
 end
 
-oUF:AddElement('LowHealth', Path, Enable, Disable)
+oUF:AddElement("LowHealth", Path, Enable, Disable)

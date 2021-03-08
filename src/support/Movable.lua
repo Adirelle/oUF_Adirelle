@@ -24,7 +24,7 @@ local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 --GLOBALS>
 
 -- Embed LibMovable-1.0
-local libmovable = oUF_Adirelle.GetLib('LibMovable-1.0').Embed(oUF_Adirelle)
+local libmovable = oUF_Adirelle.GetLib("LibMovable-1.0").Embed(oUF_Adirelle)
 
 -- Return the "anchors" table for the given frame
 local function GetDatabase(frame)
@@ -32,12 +32,16 @@ local function GetDatabase(frame)
 end
 
 -- Enable/disable methods
-local function LM10_Enable(frame) return frame:SetEnabledSetting(true) end
-local function LM10_Disable(frame) return frame:SetEnabledSetting(false) end
+local function LM10_Enable(frame)
+	return frame:SetEnabledSetting(true)
+end
+local function LM10_Disable(frame)
+	return frame:SetEnabledSetting(false)
+end
 
 local RegisterMovable = oUF_Adirelle.RegisterMovable
 function oUF_Adirelle.RegisterMovable(frame, key, label, mask)
-	frame:Debug('Registering movable', key, label, mask)
+	frame:Debug("Registering movable", key, label, mask)
 
 	-- The frame can be disabled
 	oUF_Adirelle.RegisterTogglableFrame(frame, key, label)
@@ -52,10 +56,12 @@ function oUF_Adirelle.RegisterMovable(frame, key, label, mask)
 end
 
 -- Update the position when settings are loaded
-oUF_Adirelle:RegisterMessage('OnSettingsModified', "UpdateMovableLayout")
+oUF_Adirelle:RegisterMessage("OnSettingsModified", "UpdateMovableLayout")
 
 -- LibMovable compat layer
-function oUF_Adirelle.IsLocked() return oUF_Adirelle:AreMovablesLocked() end
+function oUF_Adirelle.IsLocked()
+	return oUF_Adirelle:AreMovablesLocked()
+end
 function oUF_Adirelle.ToggleLock()
 	if oUF_Adirelle:AreMovablesLocked() then
 		oUF_Adirelle:UnlockMovables()

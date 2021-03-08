@@ -20,7 +20,9 @@ local _G, moduleName, private = _G, ...
 local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
-if oUF_Adirelle.SingleStyle then return end
+if oUF_Adirelle.SingleStyle then
+	return
+end
 
 --<GLOBALS
 local abs = _G.abs
@@ -35,7 +37,7 @@ local playerClass = oUF_Adirelle.playerClass
 local SpawnDiscreteBar = oUF_Adirelle.SpawnDiscreteBar
 local SpawnStatusBar = oUF_Adirelle.SpawnStatusBar
 
-if playerClass == 'DEATHKNIGHT' then
+if playerClass == "DEATHKNIGHT" then
 	-- Runes
 	private.SetupSecondaryPowerBar = function(self)
 		local runeBar = SpawnDiscreteBar(self, 6, true)
@@ -62,7 +64,7 @@ elseif playerClass == "SHAMAN" then
 		return bar
 	end
 
-elseif playerClass == 'MONK' then
+elseif playerClass == "MONK" then
 	-- Stagger bar
 	private.SetupSecondaryPowerBar = function(self)
 		local bar = SpawnStatusBar(self)

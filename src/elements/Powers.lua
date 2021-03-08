@@ -1,4 +1,4 @@
- --[=[
+--[=[
 Adirelle's oUF layout
 (c) 2009-2016 Adirelle (adirelle@gmail.com)
 
@@ -59,24 +59,24 @@ local PowerMap = oUF_Adirelle.Enum.PowerMap
 
 -- Set default colors for burning embers and demonic fury
 if not oUF.colors.power.BURNING_EMBERS then
-	oUF.colors.power.BURNING_EMBERS = { 175/255, 39/255, 5/255, 247/255, 190/255, 41/255 }
+	oUF.colors.power.BURNING_EMBERS = { 175 / 255, 39 / 255, 5 / 255, 247 / 255, 190 / 255, 41 / 255 }
 end
 if not oUF.colors.power.DEMONIC_FURY then
-	oUF.colors.power.DEMONIC_FURY = { 148/255, 36/255, 214/255 }
+	oUF.colors.power.DEMONIC_FURY = { 148 / 255, 36 / 255, 214 / 255 }
 end
 
 local RequiredClasses = {
-	MANA           = { DRUID = true, MONK = true },
-	CHI            = { MONK = true },
-	SOUL_SHARDS    = { WARLOCK = true },
+	MANA = { DRUID = true, MONK = true },
+	CHI = { MONK = true },
+	SOUL_SHARDS = { WARLOCK = true },
 	BURNING_EMBERS = { WARLOCK = true },
-	DEMONIC_FURY   = { WARLOCK = true },
-	SHADOW_ORBS    = { PRIEST = true },
-	HOLY_POWER     = { PALADIN = true },
+	DEMONIC_FURY = { WARLOCK = true },
+	SHADOW_ORBS = { PRIEST = true },
+	HOLY_POWER = { PALADIN = true },
 }
 
 local RequiredSpecializations = {
-	MANA           = {
+	MANA = {
 		-- Druid specs
 		[102] = true, -- Balance
 		[103] = true, -- Feral
@@ -85,10 +85,10 @@ local RequiredSpecializations = {
 		-- Monk specs
 		[270] = true, -- Mistweaver
 	},
-	SOUL_SHARDS    = { [265] = true }, -- Affliction Warlock
+	SOUL_SHARDS = { [265] = true }, -- Affliction Warlock
 	BURNING_EMBERS = { [267] = true }, -- Destruction Warlock
-	DEMONIC_FURY   = { [266] = true }, -- Demonology Warlock
-	SHADOW_ORBS    = { [258] = true }, -- Shadow Priest
+	DEMONIC_FURY = { [266] = true }, -- Demonology Warlock
+	SHADOW_ORBS = { [258] = true }, -- Shadow Priest
 }
 
 local function ShouldShow(unit, powerIndex, powerType)
@@ -104,7 +104,7 @@ local function ShouldShow(unit, powerIndex, powerType)
 		end
 	end
 	if specs then
-		if not UnitIsUnit(unit, 'player') or UnitLevel(unit) < 10 then
+		if not UnitIsUnit(unit, "player") or UnitLevel(unit) < 10 then
 			return false
 		end
 		local specIndex = GetSpecialization()
@@ -120,14 +120,16 @@ end
 local function Update(self, event)
 	local unit, powerIndex = self.__owner.unit, self.powerIndex
 
-	if event ~= 'UNIT_POWER_UPDATE' and event ~= 'UNIT_POWER_FREQUENT' and event ~= 'UNIT_MAXPOWER' then
+	if event ~= "UNIT_POWER_UPDATE" and event ~= "UNIT_POWER_FREQUENT" and event ~= "UNIT_MAXPOWER" then
 		self:SetShown(ShouldShow(unit, powerIndex, self.powerType))
 	end
 	if not self:IsVisible() then
 		return
 	end
 
-	if self.PreUpdate then self:PreUpdate(unit) end
+	if self.PreUpdate then
+		self:PreUpdate(unit)
+	end
 
 	local current, max = (UnitPower(unit, powerIndex, true) or 0), (UnitPowerMax(unit, powerIndex, true) or 0)
 	self:SetMinMaxValues(0, max)
@@ -147,7 +149,9 @@ local function Update(self, event)
 		bg:SetVertexColor(r * mu, g * mu, b * mu)
 	end
 
-	if self.PostUpdate then self:PostUpdate(unit, current, max) end
+	if self.PostUpdate then
+		self:PostUpdate(unit, current, max)
+	end
 end
 
 -- Handled powers
@@ -157,7 +161,9 @@ for powerType in pairs(RequiredClasses) do
 end
 
 local CommonPath = function(self, event, unit, ...)
-	if unit ~= self.unit then return end
+	if unit ~= self.unit then
+		return
+	end
 	local powers = self.Powers
 	for powerType in pairs(HandledPowers) do
 		local widget = powers[powerType]
@@ -168,11 +174,13 @@ local CommonPath = function(self, event, unit, ...)
 end
 
 local CommonForceUpdate = function(element)
-	return CommonPath(element.__owner.Powers, 'ForceUpdate', element.__owner.unit)
+	return CommonPath(element.__owner.Powers, "ForceUpdate", element.__owner.unit)
 end
 
 local CommonPowerPath = function(self, event, unit, powerType, ...)
-	if unit ~= self.unit then return end
+	if unit ~= self.unit then
+		return
+	end
 	local widget = self.Powers[powerType]
 	if widget then
 		return (widget.Override or Update)(widget, event, unit, powerType, ...)
@@ -203,18 +211,18 @@ local CommonEnable = function(self, unit)
 			return false
 		end
 
-		if self.frequentUpdates and (unit == 'player' or unit == 'pet') then
-			self:RegisterEvent('UNIT_POWER_FREQUENT', CommonPowerPath)
+		if self.frequentUpdates and (unit == "player" or unit == "pet") then
+			self:RegisterEvent("UNIT_POWER_FREQUENT", CommonPowerPath)
 		else
-			self:RegisterEvent('UNIT_POWER_UPDATE', CommonPowerPath)
+			self:RegisterEvent("UNIT_POWER_UPDATE", CommonPowerPath)
 		end
-		self:RegisterEvent('UNIT_MAXPOWER', CommonPowerPath)
+		self:RegisterEvent("UNIT_MAXPOWER", CommonPowerPath)
 
-		self:RegisterEvent('UNIT_DISPLAYPOWER', CommonPath)
-		self:RegisterEvent('UNIT_CONNECTION', CommonPath)
+		self:RegisterEvent("UNIT_DISPLAYPOWER", CommonPath)
+		self:RegisterEvent("UNIT_CONNECTION", CommonPath)
 		if unit == "player" then
-			self:RegisterEvent('UNIT_LEVEL', CommonPath)
-			self:RegisterEvent('PLAYER_SPECIALIZATION_CHANGED', CommonPath)
+			self:RegisterEvent("UNIT_LEVEL", CommonPath)
+			self:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED", CommonPath)
 		end
 
 		return true
@@ -230,14 +238,14 @@ local CommonDisable = function(self)
 			end
 		end
 
-		self:UnregisterEvent('UNIT_POWER_FREQUENT', CommonPowerPath)
-		self:UnregisterEvent('UNIT_POWER_UPDATE', CommonPowerPath)
-		self:UnregisterEvent('UNIT_MAXPOWER', CommonPowerPath)
+		self:UnregisterEvent("UNIT_POWER_FREQUENT", CommonPowerPath)
+		self:UnregisterEvent("UNIT_POWER_UPDATE", CommonPowerPath)
+		self:UnregisterEvent("UNIT_MAXPOWER", CommonPowerPath)
 
-		self:UnregisterEvent('UNIT_DISPLAYPOWER', CommonPath)
-		self:UnregisterEvent('UNIT_CONNECTION', CommonPath)
-		self:UnregisterEvent('UNIT_LEVEL', CommonPath)
-		self:UnregisterEvent('PLAYER_SPECIALIZATION_CHANGED', CommonPath)
+		self:UnregisterEvent("UNIT_DISPLAYPOWER", CommonPath)
+		self:UnregisterEvent("UNIT_CONNECTION", CommonPath)
+		self:UnregisterEvent("UNIT_LEVEL", CommonPath)
+		self:UnregisterEvent("PLAYER_SPECIALIZATION_CHANGED", CommonPath)
 
 		if self.Hide then
 			self:Hide()
@@ -245,4 +253,4 @@ local CommonDisable = function(self)
 	end
 end
 
-oUF:AddElement('Powers', CommonPath, CommonEnable, CommonDisable)
+oUF:AddElement("Powers", CommonPath, CommonEnable, CommonDisable)

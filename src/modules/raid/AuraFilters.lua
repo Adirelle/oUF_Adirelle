@@ -25,7 +25,7 @@ local _G = _G
 local DebuffTypeColor = _G.DebuffTypeColor
 local debugstack = _G.debugstack
 local format = _G.format
-local FindAuraByName =  _G.AuraUtil.FindAuraByName
+local FindAuraByName = _G.AuraUtil.FindAuraByName
 local geterrorhandler = _G.geterrorhandler
 local GetSpellInfo = _G.GetSpellInfo
 local select = _G.select
@@ -46,7 +46,7 @@ local UnitIsUnit = _G.UnitIsUnit
 -- ------------------------------------------------------------------------------
 
 local function IsMeOrMine(caster)
-	return caster and (UnitIsUnit('player', caster) or UnitIsUnit('pet', caster) or UnitIsUnit('vehicle', caster))
+	return caster and (UnitIsUnit("player", caster) or UnitIsUnit("pet", caster) or UnitIsUnit("vehicle", caster))
 end
 
 -- ------------------------------------------------------------------------------
@@ -57,7 +57,7 @@ local reported
 local function GetSpellName(caller, spellId, ...)
 	local spellName = GetSpellInfo(spellId)
 	if not spellName then
-		local k = strjoin('-', tostringall(caller, spellId, ...))
+		local k = strjoin("-", tostringall(caller, spellId, ...))
 		if not reported then
 			reported = {}
 		elseif reported[k] then
@@ -66,7 +66,13 @@ local function GetSpellName(caller, spellId, ...)
 		local stack = debugstack(3):match("[^%.\\]+%.lua:%d+")
 		geterrorhandler()(format(
 			"[%s] Wrong spell id passed to %s. Please report this whole error. id=%d, class=%s, version=%s, params=[%s], source=%s",
-			moduleName, caller, spellId, select(2, UnitClass('player')), oUF_Adirelle.VERSION, strjoin(',', tostringall(...)), stack
+			moduleName,
+			caller,
+			spellId,
+			select(2, UnitClass("player")),
+			oUF_Adirelle.VERSION,
+			strjoin(",", tostringall(...)),
+			stack
 		))
 		reported[k] = true
 	end
@@ -80,13 +86,15 @@ end
 
 function private.GetOwnAuraFilter(spellId, r, g, b)
 	local spellName = GetSpellName("GetOwnAuraFilter", spellId, r, g, b)
-	if not spellName then return "none" end
+	if not spellName then
+		return "none"
+	end
 	local filterName, exists = GetGenericFilter("OwnAura", spellName, r, g, b)
 	if not exists then
 		oUF:AddAuraFilter(filterName, function(unit)
 			local name, texture, count, _, duration, expirationTime, caster = FindAuraByName(spellName, unit, "PLAYER")
 			if name then
-				return texture, count, expirationTime-duration, duration, r, g, b
+				return texture, count, expirationTime - duration, duration, r, g, b
 			end
 		end)
 	end
@@ -95,13 +103,15 @@ end
 
 function private.GetAnyAuraFilter(spellId, filter, r, g, b)
 	local spellName = GetSpellName("GetAnyAuraFilter", spellId, filter, r, g, b)
-	if not spellName then return "none" end
+	if not spellName then
+		return "none"
+	end
 	local filterName, exists = GetGenericFilter("AnyAura", spellName, filter, r, g, b)
 	if not exists then
 		oUF:AddAuraFilter(filterName, function(unit)
 			local name, texture, count, _, duration, expirationTime, caster = FindAuraByName(spellName, unit, filter)
 			if name then
-				return texture, count, expirationTime-duration, duration, r, g, b
+				return texture, count, expirationTime - duration, duration, r, g, b
 			end
 		end)
 	end
@@ -110,14 +120,16 @@ end
 
 function private.GetOwnStackedAuraFilter(spellId, countThreshold, r, g, b)
 	local spellName = GetSpellName("GetOwnStackedAuraFilter", spellId, countThreshold, r, g, b)
-	if not spellName then return "none" end
-	assert(type(countThreshold) == "number", "invalid count threshold: "..tostring(countThreshold))
+	if not spellName then
+		return "none"
+	end
+	assert(type(countThreshold) == "number", "invalid count threshold: " .. tostring(countThreshold))
 	local filter, exists = GetGenericFilter("OwnStackedAura", spellName, countThreshold, r, g, b)
 	if not exists then
 		oUF:AddAuraFilter(filter, function(unit)
 			local name, texture, count, _, duration, expirationTime, caster = FindAuraByName(spellName, unit)
 			if name and IsMeOrMine(caster) and count >= countThreshold then
-				return texture, 1, expirationTime-duration, duration, r, g, b
+				return texture, 1, expirationTime - duration, duration, r, g, b
 			end
 		end)
 	end
@@ -132,7 +144,9 @@ local IsEncounterDebuff = oUF_Adirelle.IsEncounterDebuff
 local IterateDispellableDebuffs = oUF_Adirelle.IterateDispellableDebuffs
 
 oUF:AddAuraFilter("CureableDebuff", function(unit)
-	if not UnitCanAssist("player", unit) then return end
+	if not UnitCanAssist("player", unit) then
+		return
+	end
 	local priority, count, expirationTime = 1, 0, 0
 	local texture, debuffType, duration
 	for index, canDispel, thisTexture, thisCount, thisDebuffType, thisDuration, thisExpirationTime, caster, spellID, isBossDebuff in IterateDispellableDebuffs(unit) do
@@ -162,9 +176,9 @@ oUF:AddAuraFilter("CureableDebuff", function(unit)
 		local color = DebuffTypeColor[debuffType]
 		oUF:Debug("CureableDebuff", "debuffType=", debuffType, "priority=", priority)
 		if color then
-			return texture, count, expirationTime-duration, duration, color.r, color.g, color.b, 1
+			return texture, count, expirationTime - duration, duration, color.r, color.g, color.b, 1
 		else
-			return texture, count, expirationTime-duration, duration, nil, nil, nil, 1
+			return texture, count, expirationTime - duration, duration, nil, nil, nil, 1
 		end
 	end
 end)

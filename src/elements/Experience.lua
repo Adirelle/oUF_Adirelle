@@ -43,7 +43,7 @@ local function Update(self, event)
 	local bar = self.ExperienceBar
 	local restedBar = bar.Rested
 	if UnitLevel("player") == _G.MAX_PLAYER_LEVEL then
-		return self:DisableElement('Experience')
+		return self:DisableElement("Experience")
 	elseif IsXPUserDisabled() then
 		restedBar:Hide()
 		return bar:Hide()
@@ -94,13 +94,13 @@ local function Enable(self, unit)
 		end
 	end
 
-	self:RegisterEvent('PLAYER_LOGIN', Path, true)
-	self:RegisterEvent('UPDATE_EXHAUSTION', Path, true)
-	self:RegisterEvent('DISABLE_XP_GAIN', Path, true)
-	self:RegisterEvent('ENABLE_XP_GAIN', Path, true)
-	self:RegisterEvent('PLAYER_XP_UPDATE', Path, true)
-	self:RegisterEvent('PLAYER_UPDATE_RESTING', Path, true)
-	self:RegisterEvent('PLAYER_LEVEL_UP', Path, true)
+	self:RegisterEvent("PLAYER_LOGIN", Path, true)
+	self:RegisterEvent("UPDATE_EXHAUSTION", Path, true)
+	self:RegisterEvent("DISABLE_XP_GAIN", Path, true)
+	self:RegisterEvent("ENABLE_XP_GAIN", Path, true)
+	self:RegisterEvent("PLAYER_XP_UPDATE", Path, true)
+	self:RegisterEvent("PLAYER_UPDATE_RESTING", Path, true)
+	self:RegisterEvent("PLAYER_LEVEL_UP", Path, true)
 	return true
 end
 
@@ -108,13 +108,13 @@ local function Disable(self)
 	local bar = self.ExperienceBar
 	bar:Hide()
 	bar.Rested:Hide()
-	self:UnregisterEvent('PLAYER_LOGIN', Path)
-	self:UnregisterEvent('UPDATE_EXHAUSTION', Path)
-	self:UnregisterEvent('DISABLE_XP_GAIN', Path)
-	self:UnregisterEvent('ENABLE_XP_GAIN', Path)
-	self:UnregisterEvent('PLAYER_XP_UPDATE', Path)
-	self:UnregisterEvent('PLAYER_UPDATE_RESTING', Path)
-	self:UnregisterEvent('PLAYER_LEVEL_UP', Path)
+	self:UnregisterEvent("PLAYER_LOGIN", Path)
+	self:UnregisterEvent("UPDATE_EXHAUSTION", Path)
+	self:UnregisterEvent("DISABLE_XP_GAIN", Path)
+	self:UnregisterEvent("ENABLE_XP_GAIN", Path)
+	self:UnregisterEvent("PLAYER_XP_UPDATE", Path)
+	self:UnregisterEvent("PLAYER_UPDATE_RESTING", Path)
+	self:UnregisterEvent("PLAYER_LEVEL_UP", Path)
 end
 
-oUF:AddElement('Experience', Path, Enable, Disable)
+oUF:AddElement("Experience", Path, Enable, Disable)

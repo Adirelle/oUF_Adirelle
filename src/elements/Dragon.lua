@@ -30,11 +30,11 @@ local unpack = _G.unpack
 --GLOBALS>
 
 local classifMap = {
-	rare = 'rare',
-	rareelite = 'rare',
-	elite = 'elite',
-	worldboss = 'elite',
-	boss = 'elite',
+	rare = "rare",
+	rareelite = "rare",
+	elite = "elite",
+	worldboss = "elite",
+	boss = "elite",
 }
 
 -- Easter egg
@@ -51,7 +51,9 @@ if GetCurrentRegion() == 3 then
 end
 
 local function Update(self, event, unit)
-	if unit and unit ~= self.unit then return end
+	if unit and unit ~= self.unit then
+		return
+	end
 	local dragon = self.Dragon
 	local texture = dragon[classifMap[UnitClassification(self.unit) or false] or false]
 	if texture then
@@ -70,7 +72,7 @@ end
 
 local function Enable(self)
 	if self.Dragon then
-		self:RegisterEvent('UNIT_CLASSIFICATION_CHANGED', Update)
+		self:RegisterEvent("UNIT_CLASSIFICATION_CHANGED", Update)
 		return true
 	end
 end
@@ -78,8 +80,8 @@ end
 local function Disable(self)
 	if self.Dragon then
 		self.Dragon:Hide()
-		self:UnregisterEvent('UNIT_CLASSIFICATION_CHANGED', Update)
+		self:UnregisterEvent("UNIT_CLASSIFICATION_CHANGED", Update)
 	end
 end
 
-oUF:AddElement('Dragon', Update, Enable, Disable)
+oUF:AddElement("Dragon", Update, Enable, Disable)

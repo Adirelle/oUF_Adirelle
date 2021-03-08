@@ -28,7 +28,9 @@ local UIParent = _G.UIParent
 --GLOBALS>
 
 local function UpdateTooltip(frame)
-	if not GameTooltip:IsOwned(frame) then return end
+	if not GameTooltip:IsOwned(frame) then
+		return
+	end
 	if GameTooltip:SetUnit(frame.unit) then
 		frame.UpdateTooltip = UpdateTooltip
 	else
@@ -39,8 +41,10 @@ local function UpdateTooltip(frame)
 end
 
 function oUF_Adirelle.Unit_OnEnter(frame)
-	if not oUF_Adirelle.layoutDB.profile.unitTooltip.enabled
-		or (InCombatLockdown() and not oUF_Adirelle.layoutDB.profile.unitTooltip.inCombat) then
+	if
+		not oUF_Adirelle.layoutDB.profile.unitTooltip.enabled
+		or (InCombatLockdown() and not oUF_Adirelle.layoutDB.profile.unitTooltip.inCombat)
+	then
 		-- Forcefully hide TipTop
 		if TipTop and TipTop:IsVisible() then
 			GameTooltip:Hide()
@@ -53,8 +57,8 @@ function oUF_Adirelle.Unit_OnEnter(frame)
 	else
 		local x = frame:GetCenter() / frame:GetEffectiveScale()
 		local w = UIParent:GetWidth() / UIParent:GetEffectiveScale()
-		local side = (x < w/2) and "LEFT" or "RIGHT"
-		GameTooltip:SetOwner(frame, anchor..side)
+		local side = (x < w / 2) and "LEFT" or "RIGHT"
+		GameTooltip:SetOwner(frame, anchor .. side)
 	end
 	return UpdateTooltip(frame)
 end

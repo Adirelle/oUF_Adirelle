@@ -48,25 +48,29 @@ local AceGUIWidgetLSMlists = _G.AceGUIWidgetLSMlists
 
 local options
 local function GetOptions()
-	if options then return options end
+	if options then
+		return options
+	end
 
-	local LibMovable = oUF_Adirelle.GetLib('LibMovable-1.0')
-	local LibPlayerSpells = oUF_Adirelle.GetLib('LibPlayerSpells-1.0')
+	local LibMovable = oUF_Adirelle.GetLib("LibMovable-1.0")
+	local LibPlayerSpells = oUF_Adirelle.GetLib("LibPlayerSpells-1.0")
 
 	local playerName = UnitName("player")
 	local reloadNeeded = false
 
 	local SettingsModified = oUF_Adirelle.SettingsModified
 
-	local function IsLockedDown() return UnitAffectingCombat("player") end
+	local function IsLockedDown()
+		return UnitAffectingCombat("player")
+	end
 
 	-- The list of modules
 	local moduleList = {
-		oUF_Adirelle_Raid = 'Party/raid grid',
-		oUF_Adirelle_Single = 'Player, pet, target and focus frames',
-		oUF_Adirelle_Boss = 'Boss frames',
-		oUF_Adirelle_Arena = 'Arena enemy frames',
-		oUF_Adirelle_Nameplates = 'Nameplates',
+		oUF_Adirelle_Raid = "Party/raid grid",
+		oUF_Adirelle_Single = "Player, pet, target and focus frames",
+		oUF_Adirelle_Boss = "Boss frames",
+		oUF_Adirelle_Arena = "Arena enemy frames",
+		oUF_Adirelle_Nameplates = "Nameplates",
 	}
 
 	-- Map "base" units to their respective modules
@@ -87,29 +91,33 @@ local function GetOptions()
 
 	-- Create the profile options of the layout
 	local layoutDB = oUF_Adirelle.layoutDB
-	local layoutDBOptions = LibStub('AceDBOptions-3.0'):GetOptionsTable(layoutDB)
-	LibStub('LibDualSpec-1.0'):EnhanceOptions(layoutDBOptions, layoutDB)
+	local layoutDBOptions = LibStub("AceDBOptions-3.0"):GetOptionsTable(layoutDB)
+	LibStub("LibDualSpec-1.0"):EnhanceOptions(layoutDBOptions, layoutDB)
 	layoutDBOptions.disabled = IsLockedDown
 	layoutDBOptions.order = -1
 
 	-- Create the profile options of the theme
 	local themeDB = oUF_Adirelle.themeDB
-	local themeDBOptions = LibStub('AceDBOptions-3.0'):GetOptionsTable(themeDB)
-	LibStub('LibDualSpec-1.0'):EnhanceOptions(themeDBOptions, themeDB)
+	local themeDBOptions = LibStub("AceDBOptions-3.0"):GetOptionsTable(themeDB)
+	LibStub("LibDualSpec-1.0"):EnhanceOptions(themeDBOptions, themeDB)
 	themeDBOptions.order = -1
 
 	-- Fetch the list of togglable frames
 	local togglableFrameList = {}
 	local togglableFrames = oUF_Adirelle.togglableFrames
 
-	local function IsAddOnEnabled(name) return name and GetAddOnEnableState(playerName, name) > 0 end
+	local function IsAddOnEnabled(name)
+		return name and GetAddOnEnableState(playerName, name) > 0
+	end
 
 	-- Test if a frame is disabled
 	local IsFrameDisabled = {}
 	for key, module in pairs(unitModuleMap) do
 		if key ~= "arenapet" then
 			local key, module = key, module -- Make them fixed upvalues
-			IsFrameDisabled[key] = function() return not IsAddOnEnabled(module) or layoutDB.profile.disabled[key] end
+			IsFrameDisabled[key] = function()
+				return not IsAddOnEnabled(module) or layoutDB.profile.disabled[key]
+			end
 		end
 	end
 	IsFrameDisabled.arenapet = IsFrameDisabled.arena
@@ -122,7 +130,8 @@ local function GetOptions()
 	-- Test if the single style is not used
 	local function IsSingleStyleUnused()
 		local d = layoutDB.profile.disabled
-		return not oUF_Adirelle.SingleStyle or (d.arena and d.boss and d.player and d.pet and d.pettarget and d.target and d.targettarget and d.focus)
+		return not oUF_Adirelle.SingleStyle
+			or (d.arena and d.boss and d.player and d.pet and d.pettarget and d.target and d.targettarget and d.focus)
 	end
 
 	-- Fetch the list of elements that can be disabled
@@ -130,7 +139,9 @@ local function GetOptions()
 	for i, key in pairs(oUF_Adirelle.optionalElements) do
 		local key = key
 		elementList[key] = gsub(key, "([a-z])([A-Z])", "%1 %2")
-		IsElementDisabled[key] = function() return not layoutDB.profile.elements[key] end
+		IsElementDisabled[key] = function()
+			return not layoutDB.profile.elements[key]
+		end
 	end
 
 	local colorArgs
@@ -141,7 +152,7 @@ local function GetOptions()
 			if info.option.hasAlpha then
 				info.arg[4] = a
 			end
-			SettingsModified('OnColorModified')
+			SettingsModified("OnColorModified")
 		end
 		local function GetColor(info)
 			return unpack(info.arg, 1, info.option.hasAlpha and 4 or 3)
@@ -149,13 +160,23 @@ local function GetOptions()
 
 		-- Build one color option
 		local function BuildColorArg(name, color, hasAlpha, order)
-			return { name = name, type = 'color', arg = color, hasAlpha = hasAlpha, order = order or 10, get = GetColor, set = SetColor }
+			return {
+				name = name,
+				type = "color",
+				arg = color,
+				hasAlpha = hasAlpha,
+				order = order or 10,
+				get = GetColor,
+				set = SetColor,
+			}
 		end
 
 		-- Build a group of color options from a table of colors
 		local function BuildColorGroup(name, colors, names, hasAlpha)
-			if not colors then return end
-			local group = { name = name, type = 'group', inline = true, order = 20, args = {} }
+			if not colors then
+				return
+			end
+			local group = { name = name, type = "group", inline = true, order = 20, args = {} }
 			for key, color in pairs(colors) do
 				local entryName = key
 				if type(names) == "table" then
@@ -187,13 +208,18 @@ local function GetOptions()
 				BURNING_EMBERS = _G.BURNING_EMBERS,
 				DEMONIC_FURY = _G.DEMONIC_FURY,
 				SHADOW_ORBS = _G.SHADOW_ORBS,
-				HOLY_POWER = _G.HOLY_POWER
+				HOLY_POWER = _G.HOLY_POWER,
 			}),
-			health = BuildColorArg('Health', oUF.colors.health),
-			disconnected = BuildColorArg('Disconnected player', oUF.colors.disconnected),
-			tapped = BuildColorArg('Tapped mob', oUF.colors.tapped),
-			outOfRange = BuildColorArg('Out of range', oUF.colors.outOfRange, true),
-			healthPrediction = BuildColorGroup("Health prediction", oUF.colors.healthPrediction, { self = "Self", others = "Others'", absorb = "Shields", healAbsorb = "Heal absorption" }, true),
+			health = BuildColorArg("Health", oUF.colors.health),
+			disconnected = BuildColorArg("Disconnected player", oUF.colors.disconnected),
+			tapped = BuildColorArg("Tapped mob", oUF.colors.tapped),
+			outOfRange = BuildColorArg("Out of range", oUF.colors.outOfRange, true),
+			healthPrediction = BuildColorGroup(
+				"Health prediction",
+				oUF.colors.healthPrediction,
+				{ self = "Self", others = "Others'", absorb = "Shields", healAbsorb = "Heal absorption" },
+				true
+			),
 			lowHealth = BuildColorArg("Low health warning", oUF.colors.lowHealth, true),
 			selection = BuildColorGroup("Selection", oUF.colors.selection, {
 				[0] = "Hostile",
@@ -218,34 +244,46 @@ local function GetOptions()
 				[3] = "Tanking",
 			}),
 			group = {
-				name = 'Group member status',
-				type = 'group',
+				name = "Group member status",
+				type = "group",
 				inline = true,
 				hidden = IsRaidStyleUnused,
 				args = {
-					vehicle = BuildColorGroup('In vehicle', oUF.colors.vehicle, {name="Name", background="Background"}),
-					charmed = BuildColorGroup('Charmed', oUF.colors.charmed, {name="Name", background="Background"}),
+					vehicle = BuildColorGroup("In vehicle", oUF.colors.vehicle, { name = "Name", background = "Background" }),
+					charmed = BuildColorGroup("Charmed", oUF.colors.charmed, { name = "Name", background = "Background" }),
 				},
 			},
 		}
 
 		-- Set up the conditions to show some color options
-		colorArgs.reaction.hidden = function() return IsSingleStyleUnused() or not (themeDB.profile.Health.colorReaction or themeDB.profile.Power.colorReaction) end
-		colorArgs.selection.hidden = function() return IsSingleStyleUnused() or not themeDB.profile.Health.colorSelection end
-		colorArgs.threat.hidden = function() return IsSingleStyleUnused() or not themeDB.profile.Health.colorThreat end
-		colorArgs.tapped.hidden = function() return IsSingleStyleUnused() or not (themeDB.profile.Health.colorTapping or themeDB.profile.Power.colorTapping) end
-		colorArgs.power.hidden = function() return IsSingleStyleUnused() or not themeDB.profile.Power.colorPower end
+		colorArgs.reaction.hidden = function()
+			return IsSingleStyleUnused()
+				or not (themeDB.profile.Health.colorReaction or themeDB.profile.Power.colorReaction)
+		end
+		colorArgs.selection.hidden = function()
+			return IsSingleStyleUnused() or not themeDB.profile.Health.colorSelection
+		end
+		colorArgs.threat.hidden = function()
+			return IsSingleStyleUnused() or not themeDB.profile.Health.colorThreat
+		end
+		colorArgs.tapped.hidden = function()
+			return IsSingleStyleUnused()
+				or not (themeDB.profile.Health.colorTapping or themeDB.profile.Power.colorTapping)
+		end
+		colorArgs.power.hidden = function()
+			return IsSingleStyleUnused() or not themeDB.profile.Power.colorPower
+		end
 		colorArgs.lowHealth.hidden = IsElementDisabled.LowHealth
 		colorArgs.healthPrediction.hidden = IsElementDisabled.HealthPrediction
 		colorArgs.outOfRange.hidden = IsElementDisabled.XRange
 
 		-- Class-specific colors
 		if oUF_Adirelle.playerClass == "DEATHKNIGHT" then
-			local runes = BuildColorArg('Runes', oUF.colors.runes)
+			local runes = BuildColorArg("Runes", oUF.colors.runes)
 			runes.hidden = IsElementDisabled.RuneBar
 			colorArgs.runes = runes
 		elseif oUF_Adirelle.playerClass == "SHAMAN" then
-			local totems = BuildColorGroup('Totems', oUF.colors.totems, {
+			local totems = BuildColorGroup("Totems", oUF.colors.totems, {
 				[_G.FIRE_TOTEM_SLOT] = "Fire",
 				[_G.EARTH_TOTEM_SLOT] = "Earth",
 				[_G.WATER_TOTEM_SLOT] = "Water",
@@ -260,47 +298,53 @@ local function GetOptions()
 	local function BuildAuraSideOption(key, label, order)
 		return {
 			name = label,
-			type = 'select',
+			type = "select",
 			order = order,
-			get = function(info) return layoutDB.profile.Single.Auras.sides[key] end,
+			get = function(info)
+				return layoutDB.profile.Single.Auras.sides[key]
+			end,
 			set = function(info, value)
 				layoutDB.profile.Single.Auras.sides[key] = value
 				SettingsModified("OnSingleLayoutModified")
 			end,
 			hidden = IsFrameDisabled[key],
 			values = {
-				TOP = 'Top',
-				BOTTOM = 'Bottom',
-				RIGHT = 'Right',
-				LEFT = 'Left',
+				TOP = "Top",
+				BOTTOM = "Bottom",
+				RIGHT = "Right",
+				LEFT = "Left",
 			},
 		}
 	end
 
-	local SharedMedia = oUF_Adirelle.GetLib('LibSharedMedia-3.0')
+	local SharedMedia = oUF_Adirelle.GetLib("LibSharedMedia-3.0")
 
 	local function BuildFontGroup(kind, label, order)
 		return {
 			name = label,
-			type = 'group',
+			type = "group",
 			inline = true,
 			order = order,
-			get = function(info) return themeDB.profile.fonts[kind][info[#info]] end,
+			get = function(info)
+				return themeDB.profile.fonts[kind][info[#info]]
+			end,
 			set = function(info, value)
 				themeDB.profile.fonts[kind][info[#info]] = value
 				SettingsModified("OnFontModified")
 			end,
 			args = {
 				name = {
-					name = 'Font',
-					type = 'select',
-					dialogControl = 'LSM30_Font',
-					values = function() return SharedMedia:HashTable("font") end,
+					name = "Font",
+					type = "select",
+					dialogControl = "LSM30_Font",
+					values = function()
+						return SharedMedia:HashTable("font")
+					end,
 					order = 10,
 				},
 				scale = {
-					name = 'Scale',
-					type = 'range',
+					name = "Scale",
+					type = "range",
 					isPercent = true,
 					min = 0.05,
 					max = 2.0,
@@ -308,8 +352,8 @@ local function GetOptions()
 					order = 20,
 				},
 				flags = {
-					name = 'Outline',
-					type = 'select',
+					name = "Outline",
+					type = "select",
 					values = {
 						[""] = "None",
 						["DEFAULT"] = "Default",
@@ -318,25 +362,27 @@ local function GetOptions()
 					},
 					order = 30,
 				},
-			}
+			},
 		}
 	end
 
 	local function BuildClassAuraIconGroup(order)
 		local defaults = oUF_Adirelle.ClassAuraIcons and oUF_Adirelle.ClassAuraIcons.defaultAnchors
-		if not defaults or not next(defaults) then return end
+		if not defaults or not next(defaults) then
+			return
+		end
 
 		local group = {
 			name = "Buff icons",
 			desc = "Where to place your buffs on the raid frames.",
 			order = order,
-			type = 'group',
+			type = "group",
 			args = {
 				_HELP = {
 					name = "Use the dropdown menu to move the buffs around. Do not put several buffs at the same place.",
 					type = "description",
 					order = 0,
-				}
+				},
 			},
 		}
 		local values = {
@@ -351,16 +397,23 @@ local function GetOptions()
 			Z_HIDDEN = "Hidden",
 		}
 		local orders = {
-			TOPLEFT = 10, TOP = 20, TOPRIGHT = 30, LEFT = 40, RIGHT = 50,
-			BOTTOMLEFT = 60, BOTTOM = 70, BOTTOMRIGHT = 80, HIDDEN = 90
+			TOPLEFT = 10,
+			TOP = 20,
+			TOPRIGHT = 30,
+			LEFT = 40,
+			RIGHT = 50,
+			BOTTOMLEFT = 60,
+			BOTTOM = 70,
+			BOTTOMRIGHT = 80,
+			HIDDEN = 90,
 		}
 		for x, label in pairs(values) do
 			local value = strsub(x, 3)
-			group.args["_"..value] = { name = label, type = "header", order = orders[value] }
+			group.args["_" .. value] = { name = label, type = "header", order = orders[value] }
 		end
 
-		local LPS = oUF_Adirelle.GetLib('LibPlayerSpells-1.0')
-		local LS = oUF_Adirelle.GetLib('LibSpellbook-1.0')
+		local LPS = oUF_Adirelle.GetLib("LibPlayerSpells-1.0")
+		local LS = oUF_Adirelle.GetLib("LibSpellbook-1.0")
 		local function BuildIsKnownFunc(id)
 			local _, providers = LPS:GetSpellInfo(id)
 			if type(providers) == "table" then
@@ -373,9 +426,13 @@ local function GetOptions()
 					return false
 				end
 			elseif type(providers) == "number" then
-				return function() return LS:IsKnown(providers) end
+				return function()
+					return LS:IsKnown(providers)
+				end
 			end
-			return function() return false end
+			return function()
+				return false
+			end
 		end
 
 		for id, default in pairs(defaults) do
@@ -394,13 +451,15 @@ local function GetOptions()
 				desc = function()
 					return "Use the dropdown menu to move this buff in another area."
 				end,
-				type = 'select',
+				type = "select",
 				set = function(info, x)
 					local value = strsub(x, 3)
 					layoutDB.profile.Raid.classAuraIcons[id] = value ~= default and value or nil
 					SettingsModified("OnRaidLayoutModified")
 				end,
-				hidden = function() return not IsKnown() end,
+				hidden = function()
+					return not IsKnown()
+				end,
 				values = values,
 			}
 		end
@@ -410,26 +469,28 @@ local function GetOptions()
 
 	-- Build the big table
 	options = {
-		name = 'oUF_Adirelle '..oUF_Adirelle.VERSION,
-		type = 'group',
-		childGroups = 'tab',
+		name = "oUF_Adirelle " .. oUF_Adirelle.VERSION,
+		type = "group",
+		childGroups = "tab",
 		args = {
 			_combatLockdown = {
-				name = '|cffff0000WARNING:|r some settings are unavailable because of addon restrictions during fights.',
-				type = 'description',
-				hidden = function() return not IsLockedDown() end,
+				name = "|cffff0000WARNING:|r some settings are unavailable because of addon restrictions during fights.",
+				type = "description",
+				hidden = function()
+					return not IsLockedDown()
+				end,
 			},
 			modules = {
-				name = 'Modules',
-				type = 'group',
-				childGroups = 'tree',
+				name = "Modules",
+				type = "group",
+				childGroups = "tree",
 				order = -10,
 				disabled = IsLockedDown,
 				args = {
 					modules = {
-						name = 'Enabled modules',
-						desc = 'There you can enable and disable the frame modules. This is the same as disabling the matching addons on the character selection screen. These settings are specific to each character and require to reload the interface to apply the changes.',
-						type = 'multiselect',
+						name = "Enabled modules",
+						desc = "There you can enable and disable the frame modules. This is the same as disabling the matching addons on the character selection screen. These settings are specific to each character and require to reload the interface to apply the changes.",
+						type = "multiselect",
 						order = 10,
 						width = "double",
 						values = moduleList,
@@ -444,8 +505,8 @@ local function GetOptions()
 							end
 							reloadNeeded = false
 							for name in pairs(moduleList) do
-								local enabled, loaded =  IsAddOnEnabled(addon), IsAddOnLoaded(name)
-								if (enabled and not loaded) or (not enabled and loaded) then
+								local enabled, loaded = IsAddOnEnabled(addon), IsAddOnLoaded(name)
+								if (enabled and not loaded) or not enabled and loaded then
 									reloadNeeded = true
 									break
 								end
@@ -453,44 +514,48 @@ local function GetOptions()
 						end,
 					},
 					reload = {
-						name = 'Apply changes',
-						desc = 'Reload the user interface to apply the changes.',
-						type = 'execute',
+						name = "Apply changes",
+						desc = "Reload the user interface to apply the changes.",
+						type = "execute",
 						order = 20,
 						func = _G.ReloadUI,
-						hidden = function() return not reloadNeeded end,
+						hidden = function()
+							return not reloadNeeded
+						end,
 					},
 					minimapIcon = oUF_Adirelle.hasMinimapIcon and {
-						name = 'Display minimap icon',
-						type = 'toggle',
+						name = "Display minimap icon",
+						type = "toggle",
 						order = 30,
-						get = function() return not layoutDB.global.minimapIcon.hide end,
+						get = function()
+							return not layoutDB.global.minimapIcon.hide
+						end,
 						set = function(_, value)
 							layoutDB.global.minimapIcon.hide = not value
 							if value then
-								LibStub('LibDBIcon-1.0'):Show('oUF_Adirelle')
+								LibStub("LibDBIcon-1.0"):Show("oUF_Adirelle")
 							else
-								LibStub('LibDBIcon-1.0'):Hide('oUF_Adirelle')
+								LibStub("LibDBIcon-1.0"):Hide("oUF_Adirelle")
 							end
 						end,
 					} or nil,
 				},
 			},
 			layout = {
-				name = 'Layout',
-				type = 'group',
+				name = "Layout",
+				type = "group",
 				order = 20,
-				childGroups = 'tree',
+				childGroups = "tree",
 				args = {
 					frames = {
-						name = 'Frames',
-						type = 'group',
+						name = "Frames",
+						type = "group",
 						order = 20,
 						disabled = IsLockedDown,
 						args = {
 							frames = {
-								name = 'Enabled frames',
-								type = 'multiselect',
+								name = "Enabled frames",
+								type = "multiselect",
 								order = 30,
 								values = function()
 									local t = wipe(togglableFrameList)
@@ -510,13 +575,13 @@ local function GetOptions()
 								name = function()
 									return oUF_Adirelle.IsLocked() and "Unlock" or "Lock"
 								end,
-								type = 'execute',
+								type = "execute",
 								order = 40,
 								func = oUF_Adirelle.ToggleLock,
 							},
 							reset = {
-								name = 'Reset positions',
-								type = 'execute',
+								name = "Reset positions",
+								type = "execute",
 								order = 50,
 								func = function()
 									LibMovable.ResetLayout("oUF_Adirelle")
@@ -525,8 +590,8 @@ local function GetOptions()
 						},
 					},
 					elements = {
-						name = 'Elements',
-						type = 'group',
+						name = "Elements",
+						type = "group",
 						order = 25,
 						get = function(info, key)
 							return layoutDB.profile.elements[key]
@@ -537,13 +602,13 @@ local function GetOptions()
 						end,
 						args = {
 							_warn = {
-								name = 'Some elements may be linked together.',
-								type = 'description',
+								name = "Some elements may be linked together.",
+								type = "description",
 								order = 1,
 							},
 							bars = {
-								name = 'Bars / powers',
-								type = 'multiselect',
+								name = "Bars / powers",
+								type = "multiselect",
 								order = 10,
 								values = {
 									Experience = "Experience",
@@ -560,8 +625,8 @@ local function GetOptions()
 								},
 							},
 							icons = {
-								name = 'Icons',
-								type = 'multiselect',
+								name = "Icons",
+								type = "multiselect",
 								order = 20,
 								values = {
 									RoleIcon = "Role or raid icon",
@@ -577,8 +642,8 @@ local function GetOptions()
 								},
 							},
 							misc = {
-								name = 'Miscellaneous',
-								type = 'multiselect',
+								name = "Miscellaneous",
+								type = "multiselect",
 								order = 30,
 								values = {
 									Dragon = "Classification dragon",
@@ -593,10 +658,12 @@ local function GetOptions()
 						},
 					},
 					Single = {
-						name = 'Unit frames',
-						type = 'group',
+						name = "Unit frames",
+						type = "group",
 						order = 30,
-						get = function(info) return layoutDB.profile.Single[info[#info]] end,
+						get = function(info)
+							return layoutDB.profile.Single[info[#info]]
+						end,
 						set = function(info, value)
 							layoutDB.profile.Single[info[#info]] = value
 							SettingsModified("OnSingleLayoutModified")
@@ -604,8 +671,8 @@ local function GetOptions()
 						hidden = IsSingleStyleUnused,
 						args = {
 							width = {
-								name = 'Width',
-								type = 'range',
+								name = "Width",
+								type = "range",
 								disabled = IsLockedDown,
 								order = 10,
 								min = 80,
@@ -614,8 +681,8 @@ local function GetOptions()
 								bigStep = 5,
 							},
 							heightBig = {
-								name = 'Large frame height',
-								type = 'range',
+								name = "Large frame height",
+								type = "range",
 								disabled = IsLockedDown,
 								order = 20,
 								min = 37,
@@ -624,8 +691,8 @@ local function GetOptions()
 								bigStep = 5,
 							},
 							heightSmall = {
-								name = 'Thin frame height',
-								type = 'range',
+								name = "Thin frame height",
+								type = "range",
 								disabled = IsLockedDown,
 								order = 30,
 								min = 10,
@@ -633,18 +700,18 @@ local function GetOptions()
 								step = 1,
 							},
 							Auras = {
-								name = 'Buffs & debuffs',
-								type = 'group',
+								name = "Buffs & debuffs",
+								type = "group",
 								order = 40,
 								get = function(info, key)
-									if info.type == 'multiselect' then
+									if info.type == "multiselect" then
 										return layoutDB.profile.Single.Auras[info[#info]][key]
 									else
 										return layoutDB.profile.Single.Auras[info[#info]]
 									end
 								end,
 								set = function(info, ...)
-									if info.type == 'multiselect' then
+									if info.type == "multiselect" then
 										local key, value = ...
 										layoutDB.profile.Single.Auras[info[#info]][key] = value
 									else
@@ -654,36 +721,36 @@ local function GetOptions()
 								end,
 								args = {
 									size = {
-										name = 'Icon size',
-										desc = 'Set the ',
-										type = 'range',
+										name = "Icon size",
+										desc = "Set the ",
+										type = "range",
 										order = 10,
 										min = 8,
 										max = 32,
 										step = 1,
 									},
 									spacing = {
-										name = 'Spacing',
-										type = 'range',
+										name = "Spacing",
+										type = "range",
 										order = 20,
 										min = 0,
 										max = 8,
 										step = 1,
 									},
 									enlarge = {
-										name = 'Enlarge special auras',
-										type = 'toggle',
+										name = "Enlarge special auras",
+										type = "toggle",
 										order = 30,
 									},
 									_ = {
-										name = 'Filters',
-										type = 'header',
+										name = "Filters",
+										type = "header",
 										order = 40,
 									},
 									numBuffs = {
-										name = 'Maximum buffs',
-										desc = 'Set the maximum number of displayed buffs; the excess one are hidden.',
-										type = 'range',
+										name = "Maximum buffs",
+										desc = "Set the maximum number of displayed buffs; the excess one are hidden.",
+										type = "range",
 										min = 0,
 										max = 32,
 										step = 1,
@@ -691,23 +758,25 @@ local function GetOptions()
 										order = 45,
 									},
 									buffFilter = {
-										name = 'Buffs to ignore',
-										desc = 'Select which buffs should be displayed in combat. Buffs matching any checked category are hidden.',
-										type = 'multiselect',
-										width = 'double',
+										name = "Buffs to ignore",
+										desc = "Select which buffs should be displayed in combat. Buffs matching any checked category are hidden.",
+										type = "multiselect",
+										width = "double",
 										values = {
-											permanent     = 'Permanent buffs',
-											allies        = "Allies' buffs",
-											consolidated  = 'Raid buffs',
+											permanent = "Permanent buffs",
+											allies = "Allies' buffs",
+											consolidated = "Raid buffs",
 											undispellable = "Buffs I cannot dispell/steal (on enemy)",
 										},
-										disabled = function() return oUF_Adirelle.layoutDB.profile.Single.Auras.numBuffs == 0 end,
+										disabled = function()
+											return oUF_Adirelle.layoutDB.profile.Single.Auras.numBuffs == 0
+										end,
 										order = 50,
 									},
 									numDebuffs = {
-										name = 'Maximum debuffs',
-										desc = 'Set the maximum number of displayed debuffs; the excess one are hidden.',
-										type = 'range',
+										name = "Maximum debuffs",
+										desc = "Set the maximum number of displayed debuffs; the excess one are hidden.",
+										type = "range",
 										min = 0,
 										max = 40,
 										step = 1,
@@ -715,38 +784,42 @@ local function GetOptions()
 										order = 55,
 									},
 									debuffFilter = {
-										name = 'Debuffs to ignore',
-										desc = 'Select which debuffs should be displayed in combat. Debuffs matching any checked category are hidden.',
-										type = 'multiselect',
-										width = 'double',
+										name = "Debuffs to ignore",
+										desc = "Select which debuffs should be displayed in combat. Debuffs matching any checked category are hidden.",
+										type = "multiselect",
+										width = "double",
 										values = {
-											permanent     = 'Permanent debuffs',
-											allies        = "Allies' debuffs",
+											permanent = "Permanent debuffs",
+											allies = "Allies' debuffs",
 											undispellable = "Debuffs I cannot dispell (on ally)",
-											unknown       = "Debuffs I cannot apply",
+											unknown = "Debuffs I cannot apply",
 										},
-										disabled = function() return oUF_Adirelle.layoutDB.profile.Single.Auras.numDebuffs == 0 end,
+										disabled = function()
+											return oUF_Adirelle.layoutDB.profile.Single.Auras.numDebuffs == 0
+										end,
 										order = 60,
 									},
 									_sides = {
-										name = 'Aura side',
-										type = 'header',
+										name = "Aura side",
+										type = "header",
 										order = 100,
 									},
-									target = BuildAuraSideOption('target', 'Target', 105),
-									focus = BuildAuraSideOption('focus', 'Focus', 110),
-									pet = BuildAuraSideOption('pet', 'Pet', 115),
-									boss = BuildAuraSideOption('boss', 'Bosses', 120),
-									arena = BuildAuraSideOption('arena', 'Arena enemies', 125),
+									target = BuildAuraSideOption("target", "Target", 105),
+									focus = BuildAuraSideOption("focus", "Focus", 110),
+									pet = BuildAuraSideOption("pet", "Pet", 115),
+									boss = BuildAuraSideOption("boss", "Bosses", 120),
+									arena = BuildAuraSideOption("arena", "Arena enemies", 125),
 								},
 							},
 						},
 					},
 					Raid = {
-						name = 'Group grid',
-						type = 'group',
+						name = "Group grid",
+						type = "group",
 						order = 40,
-						get = function(info) return layoutDB.profile.Raid[info[#info]] end,
+						get = function(info)
+							return layoutDB.profile.Raid[info[#info]]
+						end,
 						set = function(info, value)
 							layoutDB.profile.Raid[info[#info]] = value
 							SettingsModified("OnRaidLayoutModified")
@@ -755,54 +828,54 @@ local function GetOptions()
 						disabled = IsLockedDown,
 						args = {
 							width = {
-								name = 'Cell width',
-								desc = 'The width of each unit cell, in pixels.',
+								name = "Cell width",
+								desc = "The width of each unit cell, in pixels.",
 								order = 10,
-								type = 'range',
+								type = "range",
 								min = 60,
 								max = 160,
 								step = 1,
 								bigStep = 5,
 							},
 							height = {
-								name = 'Cell height',
-								desc = 'The default height of each unit cell, in pixels.',
+								name = "Cell height",
+								desc = "The default height of each unit cell, in pixels.",
 								order = 20,
-								type = 'range',
+								type = "range",
 								min = 20,
 								max = 80,
 								step = 1,
 							},
 							healerHeight = {
-								name = 'Healer cell height',
-								desc = 'The height of unit cells when playing a healer spec and there are 25 people or less in the raid.',
+								name = "Healer cell height",
+								desc = "The height of unit cells when playing a healer spec and there are 25 people or less in the raid.",
 								order = 30,
-								type = 'range',
+								type = "range",
 								min = 20,
 								max = 80,
 								step = 1,
 							},
 							alignment = {
-								name = 'Alignement',
-								desc = 'Select how the units should be aligned with regard to the anchor.',
-								type = 'select',
+								name = "Alignement",
+								desc = "Select how the units should be aligned with regard to the anchor.",
+								type = "select",
 								order = 40,
 								values = {
-									TOPLEFT = 'Top left',
-									TOP = 'Top',
-									TOPRIGHT = 'Top right',
-									LEFT = 'Left',
-									CENTER = 'Center',
-									RIGHT = 'Right',
-									BOTTOMLEFT = 'Bottom left',
-									BOTTOM = 'Bottom',
-									BOTTOMRIGHT = 'Bottom right',
+									TOPLEFT = "Top left",
+									TOP = "Top",
+									TOPRIGHT = "Top right",
+									LEFT = "Left",
+									CENTER = "Center",
+									RIGHT = "Right",
+									BOTTOMLEFT = "Bottom left",
+									BOTTOM = "Bottom",
+									BOTTOMRIGHT = "Bottom right",
 								},
 							},
 							orientation = {
-								name = 'Group shape',
-								desc = 'Select how each group is displayed individually.',
-								type = 'select',
+								name = "Group shape",
+								desc = "Select how each group is displayed individually.",
+								type = "select",
 								order = 50,
 								values = {
 									horizontal = "Rows",
@@ -810,60 +883,60 @@ local function GetOptions()
 								},
 							},
 							unitSpacing = {
-								name = 'Unit spacing',
-								desc = 'The size of the space between cells of the same group, in pixels.',
-								type = 'range',
+								name = "Unit spacing",
+								desc = "The size of the space between cells of the same group, in pixels.",
+								type = "range",
 								order = 60,
 								min = 2,
 								max = 20,
 								step = 1,
 							},
 							groupSpacing = {
-								name = 'Group spacing',
-								desc = 'The size of the space between groups, in pixels.',
-								type = 'range',
+								name = "Group spacing",
+								desc = "The size of the space between groups, in pixels.",
+								type = "range",
 								order = 70,
 								min = 2,
 								max = 20,
 								step = 1,
 							},
 							smallIconSize = {
-								name = 'Small icon size',
-								desc = 'The size of small icons, in pixels.',
-								type = 'range',
+								name = "Small icon size",
+								desc = "The size of small icons, in pixels.",
+								type = "range",
 								order = 80,
 								min = 5,
 								max = 32,
 								step = 1,
 							},
 							bigIconSize = {
-								name = 'Large icon size',
-								desc = 'The size of large icons, in pixels.',
-								type = 'range',
+								name = "Large icon size",
+								desc = "The size of large icons, in pixels.",
+								type = "range",
 								order = 80,
 								min = 5,
 								max = 32,
 								step = 1,
 							},
 							visibility = {
-								name = 'Group layout',
-								type = 'group',
+								name = "Group layout",
+								type = "group",
 								order = 85,
 								args = {
 									showSolo = {
-										name = 'Show when alone',
-										type = 'toggle',
+										name = "Show when alone",
+										type = "toggle",
 										order = 85,
 									},
 									showTanks = {
-										name = 'Show tank group',
-										desc = 'Enable to show a separate group with tanks.',
-										type = 'toggle',
+										name = "Show tank group",
+										desc = "Enable to show a separate group with tanks.",
+										type = "toggle",
 										order = 90,
 									},
 									showPets = {
-										name = 'Show pets in...',
-										type = 'multiselect',
+										name = "Show pets in...",
+										type = "multiselect",
 										order = 100,
 										values = {
 											party = "5-man groups",
@@ -874,27 +947,31 @@ local function GetOptions()
 											arena = "Arenas",
 											battleground = "Battlegrounds",
 										},
-										get = function(info, key) return layoutDB.profile.Raid.showPets[key] end,
+										get = function(info, key)
+											return layoutDB.profile.Raid.showPets[key]
+										end,
 										set = function(info, key, value)
 											layoutDB.profile.Raid.showPets[key] = value
 											SettingsModified("OnRaidLayoutModified")
 										end,
 									},
 									strictSize = {
-										name = 'Strict raid size',
-										desc = 'When enabled, oUF_Adirelle will only show groups according to instance size, e.g. only groups 1 and 2 for a 10-man raid or battleground.',
-										type = 'toggle',
+										name = "Strict raid size",
+										desc = "When enabled, oUF_Adirelle will only show groups according to instance size, e.g. only groups 1 and 2 for a 10-man raid or battleground.",
+										type = "toggle",
 										order = 110,
 									},
-								}
+								},
 							},
 							classAuraIcons = BuildClassAuraIconGroup(120),
 						},
 					},
 					unitTooltip = {
-						name = 'Unit tooltip',
-						type = 'group',
-						get = function(info) return layoutDB.profile.unitTooltip[info[#info]] end,
+						name = "Unit tooltip",
+						type = "group",
+						get = function(info)
+							return layoutDB.profile.unitTooltip[info[#info]]
+						end,
 						set = function(info, value)
 							layoutDB.profile.unitTooltip[info[#info]] = value
 							SettingsModified("OnUnitTooltipModified")
@@ -902,36 +979,42 @@ local function GetOptions()
 						order = 45,
 						args = {
 							enabled = {
-								name = 'Enabled',
-								desc = 'Uncheck to totally disable unit tooltips.',
-								type = 'toggle',
+								name = "Enabled",
+								desc = "Uncheck to totally disable unit tooltips.",
+								type = "toggle",
 								order = 10,
 							},
 							inCombat = {
-								name = 'In Combat',
-								desc = 'Uncheck to disable tooltips in combat.',
-								type = 'toggle',
+								name = "In Combat",
+								desc = "Uncheck to disable tooltips in combat.",
+								type = "toggle",
 								order = 20,
-								disabled = function() return not layoutDB.profile.unitTooltip.enabled end,
+								disabled = function()
+									return not layoutDB.profile.unitTooltip.enabled
+								end,
 							},
 							anchor = {
-								name = 'Anchoring',
-								desc = 'Select how the unit tooltip should be placed.',
-								type = 'select',
+								name = "Anchoring",
+								desc = "Select how the unit tooltip should be placed.",
+								type = "select",
 								values = {
-									DEFAULT = 'At the default position',
-									ANCHOR_TOP = 'Above the unit frame',
-									ANCHOR_BOTTOM = 'Below the unit frame',
+									DEFAULT = "At the default position",
+									ANCHOR_TOP = "Above the unit frame",
+									ANCHOR_BOTTOM = "Below the unit frame",
 								},
 								order = 30,
-								disabled = function() return not layoutDB.profile.unitTooltip.enabled end,
+								disabled = function()
+									return not layoutDB.profile.unitTooltip.enabled
+								end,
 							},
 							fadeOut = {
-								name = 'Fade out',
-								desc = 'When enabled, the tooltip fades out when the mouse pointer leaves it. If disabled, the tooltip is immediately hidden.',
-								type = 'toggle',
+								name = "Fade out",
+								desc = "When enabled, the tooltip fades out when the mouse pointer leaves it. If disabled, the tooltip is immediately hidden.",
+								type = "toggle",
 								order = 40,
-								disabled = function() return not layoutDB.profile.unitTooltip.enabled end,
+								disabled = function()
+									return not layoutDB.profile.unitTooltip.enabled
+								end,
 							},
 						},
 					},
@@ -939,22 +1022,24 @@ local function GetOptions()
 				},
 			},
 			theme = {
-				name = 'Theme',
-				type = 'group',
+				name = "Theme",
+				type = "group",
 				order = 30,
-				childGroups = 'tree',
+				childGroups = "tree",
 				args = {
 					media = {
-						name = 'Texture & fonts',
-						type = 'group',
+						name = "Texture & fonts",
+						type = "group",
 						order = 10,
 						args = {
 							statusbar = {
-								name = 'Bar texture',
-								type = 'select',
-								dialogControl = 'LSM30_Statusbar',
+								name = "Bar texture",
+								type = "select",
+								dialogControl = "LSM30_Statusbar",
 								order = 10,
-								values = function() return SharedMedia:HashTable("statusbar") end,
+								values = function()
+									return SharedMedia:HashTable("statusbar")
+								end,
 								get = function()
 									return themeDB.profile.statusbar
 								end,
@@ -969,146 +1054,160 @@ local function GetOptions()
 						},
 					},
 					single = {
-						name = 'Basic/arena/boss frames',
-						type = 'group',
+						name = "Basic/arena/boss frames",
+						type = "group",
 						order = 20,
 						hidden = IsSingleStyleUnused,
 						args = {
 							healthColor = {
-								name = 'Health bar color',
-								desc = 'Select which conditions affect the health bar color',
-								type = 'multiselect',
+								name = "Health bar color",
+								desc = "Select which conditions affect the health bar color",
+								type = "multiselect",
 								order = 10,
-								get = function(info, key) return themeDB.profile.Health[key] end,
+								get = function(info, key)
+									return themeDB.profile.Health[key]
+								end,
 								set = function(info, key, value)
 									themeDB.profile.Health[key] = value
-									SettingsModified('OnSingleThemeModified')
+									SettingsModified("OnSingleThemeModified")
 								end,
 								values = {
-									colorTapping = 'Tapped mobs',
-									colorDisconnected = 'Disconnected players',
-									colorClass = 'Class (Player)',
-									colorClassNPC = 'Class (NPC)',
-									colorClassPet = 'Class (Pet)',
-									colorReaction = 'Reaction',
-									colorSelection = 'Selection',
-									colorThreat = 'Threat status',
-									colorSmooth = 'Smooth',
+									colorTapping = "Tapped mobs",
+									colorDisconnected = "Disconnected players",
+									colorClass = "Class (Player)",
+									colorClassNPC = "Class (NPC)",
+									colorClassPet = "Class (Pet)",
+									colorReaction = "Reaction",
+									colorSelection = "Selection",
+									colorThreat = "Threat status",
+									colorSmooth = "Smooth",
 								},
 							},
 							powerColor = {
-								name = 'Power bar color',
-								desc = 'Select which conditions affect the power bar color',
-								type = 'multiselect',
+								name = "Power bar color",
+								desc = "Select which conditions affect the power bar color",
+								type = "multiselect",
 								order = 20,
-								get = function(info, key) return themeDB.profile.Power[key] end,
+								get = function(info, key)
+									return themeDB.profile.Power[key]
+								end,
 								set = function(info, key, value)
 									themeDB.profile.Power[key] = value
-									SettingsModified('OnSingleThemeModified')
+									SettingsModified("OnSingleThemeModified")
 								end,
 								values = {
-									colorTapping = 'Tapped mobs',
-									colorDisconnected = 'Disconnected players',
-									colorPower = 'Power type',
-									colorClass = 'Class (Player)',
-									colorClassNPC = 'Class (NPC)',
-									colorClassPet = 'Class (Pet)',
-									colorReaction = 'Reaction',
-									colorSmooth = 'Smooth',
+									colorTapping = "Tapped mobs",
+									colorDisconnected = "Disconnected players",
+									colorPower = "Power type",
+									colorClass = "Class (Player)",
+									colorClassNPC = "Class (NPC)",
+									colorClassPet = "Class (Pet)",
+									colorReaction = "Reaction",
+									colorSmooth = "Smooth",
 								},
 							},
 						},
 					},
 					raid = {
-						name = 'Party/raid frames',
-						type = 'group',
+						name = "Party/raid frames",
+						type = "group",
 						order = 25,
 						hidden = IsRaidStyleUnused,
 						args = {
 							Health = {
-								name = 'Health bar',
-								desc = 'Configure the display of health bars.',
-								type = 'multiselect',
-								get = function(info, key) return themeDB.profile.raid.Health[key] end,
+								name = "Health bar",
+								desc = "Configure the display of health bars.",
+								type = "multiselect",
+								get = function(info, key)
+									return themeDB.profile.raid.Health[key]
+								end,
 								set = function(info, key, value)
 									themeDB.profile.raid.Health[key] = value
-									SettingsModified('OnThemeModified')
+									SettingsModified("OnThemeModified")
 								end,
 								values = {
-									colorClass  ='Class color',
-									invertedBar = 'Inverted bar',
+									colorClass = "Class color",
+									invertedBar = "Inverted bar",
 								},
 							},
 						},
 					},
 					warningThresholds = {
-						name = 'Warning thresholds',
-						type = 'group',
+						name = "Warning thresholds",
+						type = "group",
 						order = 30,
-						hidden = function(info) return IsElementDisabled[info.arg] and IsElementDisabled[info.arg]() end,
-						get = function(info) return themeDB.profile[info.arg][info[#info]] end,
+						hidden = function(info)
+							return IsElementDisabled[info.arg] and IsElementDisabled[info.arg]()
+						end,
+						get = function(info)
+							return themeDB.profile[info.arg][info[#info]]
+						end,
 						set = function(info, value)
 							themeDB.profile[info.arg][info[#info]] = value
-							SettingsModified('OnThemeModified')
+							SettingsModified("OnThemeModified")
 						end,
-						arg = '*',
+						arg = "*",
 						args = {
 							Health = {
-								name = 'Health',
-								type = 'group',
+								name = "Health",
+								type = "group",
 								inline = true,
 								order = 10,
-								arg = 'LowHealth',
+								arg = "LowHealth",
 								args = {
 									isPercent = {
-										name = 'Percentage instead of amount',
-										type = 'toggle',
+										name = "Percentage instead of amount",
+										type = "toggle",
 										order = 20,
-										arg = 'LowHealth',
+										arg = "LowHealth",
 									},
 									percent = {
-										name = 'Threshold',
-										type = 'range',
+										name = "Threshold",
+										type = "range",
 										order = 30,
-										arg = 'LowHealth',
+										arg = "LowHealth",
 										isPercent = true,
 										min = 0.05,
 										max = 0.95,
 										step = 0.01,
 										bigStep = 0.05,
-										hidden = function() return not themeDB.profile.LowHealth.isPercent end,
+										hidden = function()
+											return not themeDB.profile.LowHealth.isPercent
+										end,
 									},
 									amount = {
-										name = 'Threshold',
-										type = 'range',
+										name = "Threshold",
+										type = "range",
 										order = 0,
-										arg = 'LowHealth',
+										arg = "LowHealth",
 										min = 1000,
 										max = 200000,
 										step = 100,
 										bigStep = 1000,
-										hidden = function() return themeDB.profile.LowHealth.isPercent end,
+										hidden = function()
+											return themeDB.profile.LowHealth.isPercent
+										end,
 									},
 								},
 							},
 							Mana = {
-								name = 'Mana',
-								type = 'group',
+								name = "Mana",
+								type = "group",
 								inline = true,
 								order = 20,
-								arg = 'Border',
+								arg = "Border",
 								args = {
 									_manaDesc = {
-										type = 'description',
+										type = "description",
 										order = 210,
-										arg = 'Border',
-										name = 'These thresholds are used to display the blue border around units that are considered "out of mana".',
+										arg = "Border",
+										name = "These thresholds are used to display the blue border around units that are considered \"out of mana\".",
 									},
 									inCombatManaLevel = {
-										name = 'In combat',
-										type = 'range',
+										name = "In combat",
+										type = "range",
 										order = 220,
-										arg = 'Border',
+										arg = "Border",
 										isPercent = true,
 										min = 0,
 										max = 1,
@@ -1116,10 +1215,10 @@ local function GetOptions()
 										bigStep = 0.05,
 									},
 									oocInRaidManaLevel = {
-										name = 'Out of combat in raid instances',
-										type = 'range',
+										name = "Out of combat in raid instances",
+										type = "range",
 										order = 230,
-										arg = 'Border',
+										arg = "Border",
 										isPercent = true,
 										min = 0,
 										max = 1,
@@ -1127,10 +1226,10 @@ local function GetOptions()
 										bigStep = 0.05,
 									},
 									oocManaLevel = {
-										name = 'Out of combat',
-										type = 'range',
+										name = "Out of combat",
+										type = "range",
 										order = 240,
-										arg = 'Border',
+										arg = "Border",
 										isPercent = true,
 										min = 0,
 										max = 1,
@@ -1142,12 +1241,12 @@ local function GetOptions()
 						},
 					},
 					colors = {
-						name = 'Colors',
-						type = 'group',
+						name = "Colors",
+						type = "group",
 						order = -10,
 						args = colorArgs,
 					},
-					profiles = themeDBOptions
+					profiles = themeDBOptions,
 				},
 			},
 		},

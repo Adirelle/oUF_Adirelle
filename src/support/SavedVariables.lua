@@ -21,7 +21,7 @@ local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
-local _G = _G
+local LibStub = _G.LibStub
 local ipairs = _G.ipairs
 local pairs = _G.pairs
 local rawget = _G.rawget
@@ -36,12 +36,12 @@ local layout, theme
 
 local LAYOUT_DEFAULTS = {
 	profile = {
-		anchors = { ['*'] = {} },
+		anchors = { ["*"] = {} },
 		disabled = {
-			['*'] = false,
-			slim_focus = true
+			["*"] = false,
+			slim_focus = true,
 		},
-		elements = { ['*'] = true },
+		elements = { ["*"] = true },
 		Raid = {
 			width = 80,
 			height = 20,
@@ -56,13 +56,12 @@ local LAYOUT_DEFAULTS = {
 			showSolo = false,
 			showTanks = false,
 			showPets = {
-				['*'] = true,
+				["*"] = true,
 				battleground = false,
 				raid25 = false,
 				raid40 = false,
 			},
-			classAuraIcons = {
-			},
+			classAuraIcons = {},
 		},
 		Single = {
 			width = 190,
@@ -73,12 +72,12 @@ local LAYOUT_DEFAULTS = {
 				spacing = 1,
 				enlarge = true,
 				numBuffs = 12,
-				buffFilter = { ['*'] = false },
+				buffFilter = { ["*"] = false },
 				numDebuffs = 12,
-				debuffFilter = { ['*'] = false },
+				debuffFilter = { ["*"] = false },
 				sides = {
-					['*'] = 'RIGHT',
-					pet = 'TOP',
+					["*"] = "RIGHT",
+					pet = "TOP",
 				},
 			},
 		},
@@ -94,17 +93,17 @@ local LAYOUT_DEFAULTS = {
 	},
 }
 
-local SharedMedia = oUF_Adirelle.GetLib('LibSharedMedia-3.0')
+local SharedMedia = oUF_Adirelle.GetLib("LibSharedMedia-3.0")
 
 local THEME_DEFAULTS = {
 	profile = {
-		statusbar = 'BantoBar',
+		statusbar = "BantoBar",
 		fonts = {
-			['**'] = {
-				name = SharedMedia:GetDefault('font'),
+			["**"] = {
+				name = SharedMedia:GetDefault("font"),
 				scale = 1.0,
 				flags = "DEFAULT",
-			}
+			},
 		},
 		Border = {
 			inCombatManaLevel = 0.3,
@@ -140,10 +139,10 @@ local THEME_DEFAULTS = {
 		raid = {
 			Health = {
 				colorClass = true,
-				invertedBar = true
-			}
-		}
-	}
+				invertedBar = true,
+			},
+		},
+	},
 }
 
 local function UpdateProfiles()
@@ -162,7 +161,7 @@ local function UpdateProfiles()
 end
 
 function oUF_Adirelle.SettingsModified(event)
-	oUF_Adirelle:SendMessage(event or 'OnSettingsModified', layout, theme)
+	oUF_Adirelle:SendMessage(event or "OnSettingsModified", layout, theme)
 end
 
 -- Publish the databases and apply the settings
@@ -177,17 +176,19 @@ local function OnDatabaseChanged()
 	oUF_Adirelle.SettingsModified()
 end
 
-local function ADDON_LOADED(self, event, name)
-	if name ~= addonName then return end
-	self:UnregisterEvent('ADDON_LOADED', ADDON_LOADED)
+local function ADDON_LOADED(self, _, name)
+	if name ~= addonName then
+		return
+	end
+	self:UnregisterEvent("ADDON_LOADED", ADDON_LOADED)
 	ADDON_LOADED = nil
 
 	-- Initialize the databases
-	local layoutDB = LibStub('AceDB-3.0'):New("oUF_Adirelle_Layout", LAYOUT_DEFAULTS, true)
-	local themeDB = LibStub('AceDB-3.0'):New("oUF_Adirelle_Theme", THEME_DEFAULTS, true)
+	local layoutDB = LibStub("AceDB-3.0"):New("oUF_Adirelle_Layout", LAYOUT_DEFAULTS, true)
+	local themeDB = LibStub("AceDB-3.0"):New("oUF_Adirelle_Theme", THEME_DEFAULTS, true)
 
-	LibStub('LibDualSpec-1.0'):EnhanceDatabase(layoutDB, addonName.." Layout")
-	LibStub('LibDualSpec-1.0'):EnhanceDatabase(themeDB, addonName.." Theme")
+	LibStub("LibDualSpec-1.0"):EnhanceDatabase(layoutDB, addonName .. " Layout")
+	LibStub("LibDualSpec-1.0"):EnhanceDatabase(themeDB, addonName .. " Theme")
 
 	self.layoutDB, self.themeDB = layoutDB, themeDB
 
@@ -198,13 +199,17 @@ local function ADDON_LOADED(self, event, name)
 	if type(_G.oUF_Adirelle_DB) == "table" then
 		local old = _G.oUF_Adirelle_DB
 		if old.disabled then
-			for k,v in pairs(old.disabled) do
+			for k, v in pairs(old.disabled) do
 				layout.disabled[k] = not not v
 			end
 		end
 		for key, pos in pairs(old) do
-			if key ~= "disable" and type(pos) == "table" and (pos.pointFrom or pos.pointTo or pos.refFrame or pos.xOffset or pos.yOffset) then
-				for k,v in pairs(pos) do
+			if
+				key ~= "disable"
+				and type(pos) == "table"
+				and (pos.pointFrom or pos.pointTo or pos.refFrame or pos.xOffset or pos.yOffset)
+			then
+				for k, v in pairs(pos) do
 					layout.anchors[key][k] = v
 				end
 			end
@@ -223,7 +228,7 @@ local function ADDON_LOADED(self, event, name)
 	themeDB.RegisterCallback(self, "OnProfileReset", OnDatabaseChanged)
 
 	-- Optional launcher icon on the minimap
-	local LibDBIcon = LibStub('LibDBIcon-1.0', true)
+	local LibDBIcon = LibStub("LibDBIcon-1.0", true)
 	if self.launcher and LibDBIcon then
 		self.hasMinimapIcon = true
 		LibDBIcon:Register("oUF_Adirelle", self.launcher, layoutDB.global.minimapIcon)
@@ -232,26 +237,50 @@ local function ADDON_LOADED(self, event, name)
 	-- Run
 	return OnDatabaseChanged()
 end
-oUF_Adirelle:RegisterEvent('ADDON_LOADED', ADDON_LOADED)
+oUF_Adirelle:RegisterEvent("ADDON_LOADED", ADDON_LOADED)
 
 -- ------------------------------------------------------------------------------
 -- Handle optional elements
 -- ------------------------------------------------------------------------------
 
 local optionalElements = {
-	"AssistantIndicator", "Castbar", "ComboPoints", "CombatIndicator", "Dragon",
-	"EclipseBar", "Experience",	"HolyPower", "HealthPrediction", "LeaderIndicator",
-	"LowHealth","MasterLooter", "PvP", "PvPTimer", "RaidTargetIndicator",
-	"ReadyCheckIndicator", "RestingIndicator", "RoleIcon", "RuneBar", "SmartThreat",
-	"SoulShards", "StatusIcon", "TargetIcon", "ThreatBar", "TotemBar", "WarningIcon",
-	"XRange", "Portrait", "CustomClick", "PowerPrediction"
+	"AssistantIndicator",
+	"Castbar",
+	"ComboPoints",
+	"CombatIndicator",
+	"Dragon",
+	"EclipseBar",
+	"Experience",
+	"HolyPower",
+	"HealthPrediction",
+	"LeaderIndicator",
+	"LowHealth",
+	"MasterLooter",
+	"PvP",
+	"PvPTimer",
+	"RaidTargetIndicator",
+	"ReadyCheckIndicator",
+	"RestingIndicator",
+	"RoleIcon",
+	"RuneBar",
+	"SmartThreat",
+	"SoulShards",
+	"StatusIcon",
+	"TargetIcon",
+	"ThreatBar",
+	"TotemBar",
+	"WarningIcon",
+	"XRange",
+	"Portrait",
+	"CustomClick",
+	"PowerPrediction",
 }
 oUF_Adirelle.optionalElements = optionalElements
 
 local function UpdateElements(self, event, layout)
 	-- Enable/disable the elements
 	local changed = false
-	for i, name in ipairs(optionalElements) do
+	for _, name in ipairs(optionalElements) do
 		if layout.elements[name] then
 			if not self:IsElementEnabled(name) then
 				self:EnableElement(name)
@@ -262,7 +291,7 @@ local function UpdateElements(self, event, layout)
 			changed = true
 		end
 	end
-	if changed and event ~= 'OnSettingsModified' then
+	if changed and event ~= "OnSettingsModified" then
 		self:UpdateAllElements(event)
 	end
 end
@@ -281,7 +310,9 @@ end
 local function Frame_SetEnabledSetting(self, enabled)
 	if layout then
 		local disabled = not enabled
-		if layout.disabled[self.dbKey] == disabled then return end
+		if layout.disabled[self.dbKey] == disabled then
+			return
+		end
 		layout.disabled[self.dbKey] = disabled
 	end
 	if enabled then
@@ -301,7 +332,9 @@ end
 
 -- Register a frame that can be permanently enabled/disabled
 function oUF_Adirelle.RegisterTogglableFrame(frame, key, label)
-	if frame.GetEnabledSetting then return end
+	if frame.GetEnabledSetting then
+		return
+	end
 
 	-- List the frame
 	togglableFrames[key] = frame
@@ -319,7 +352,7 @@ function oUF_Adirelle.RegisterTogglableFrame(frame, key, label)
 
 	-- Setup setting callbacks
 	oUF_Adirelle.EmbedMessaging(frame)
-	frame:RegisterMessage('OnSettingsModified', ApplyEnabledSettings)
+	frame:RegisterMessage("OnSettingsModified", ApplyEnabledSettings)
 
 	-- Apply setting immediately if possible
 	if layout then
@@ -334,16 +367,15 @@ end
 oUF:RegisterInitCallback(function(self)
 
 	-- Optional element handling
-	self:RegisterMessage('OnSettingsModified', UpdateElements)
-	self:RegisterMessage('OnElementsModified', UpdateElements)
+	self:RegisterMessage("OnSettingsModified", UpdateElements)
+	self:RegisterMessage("OnElementsModified", UpdateElements)
 
 	-- Update all elements in the ends
-	self:RegisterMessage('OnSettingsModified', 'UpdateAllElements')
+	self:RegisterMessage("OnSettingsModified", "UpdateAllElements")
 
 	-- Immediately update if possible
 	if layout and theme then
-		self:TriggerMessage('OnSettingsModified', layout, theme)
+		self:TriggerMessage("OnSettingsModified", layout, theme)
 	end
 
 end)
-

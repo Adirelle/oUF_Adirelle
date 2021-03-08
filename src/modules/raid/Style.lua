@@ -68,7 +68,7 @@ local SMALL_ICON_SIZE = 8
 
 local borderBackdrop = {
 	edgeFile = [[Interface\Addons\oUF_Adirelle\media\white16x16]],
-	edgeSize = BORDER_WIDTH
+	edgeSize = BORDER_WIDTH,
 }
 
 -- Export some constants
@@ -86,7 +86,7 @@ private.ICON_SIZE = ICON_SIZE
 -- Health point formatting
 local function SmartHPValue(value)
 	if abs(value) >= 1000 then
-		return format("%.1fk",value/1000)
+		return format("%.1fk", value / 1000)
 	else
 		return format("%d", value)
 	end
@@ -104,7 +104,7 @@ local function UpdateName(self, event, unit)
 	if self.nameColor then
 		r, g, b = unpack(self.nameColor)
 	end
-	if UnitCanAssist('player', unit) then
+	if UnitCanAssist("player", unit) then
 		local health, maxHealth = UnitHealth(unit), UnitHealthMax(unit)
 		local incHeal = UnitGetIncomingHeals(unit) or 0
 		local absorb = UnitGetTotalAbsorbs(unit) or 0
@@ -122,9 +122,13 @@ end
 
 -- Update health and name color
 local function UpdateColor(self, event, unit)
-	if unit and (unit ~= self.unit and unit ~= self.realUnit) then return end
-	local refUnit = (self.realUnit or self.unit):gsub('pet', '')
-	if refUnit == '' then refUnit = 'player' end -- 'pet'
+	if unit and (unit ~= self.unit and unit ~= self.realUnit) then
+		return
+	end
+	local refUnit = (self.realUnit or self.unit):gsub("pet", "")
+	if refUnit == "" then
+		refUnit = "player"
+	end -- 'pet'
 	local class = self.colorClass and UnitName(refUnit) ~= UNKNOWN and select(2, UnitClass(refUnit))
 	local state = GetFrameUnitState(self, true) or class or ""
 	if state ~= self.__stateColor or not event then
@@ -168,37 +172,36 @@ do
 		end
 	end
 
-	oUF:AddElement('Adirelle_Raid:UpdateColor',
-		UpdateColor,
-		function(self)
-			if self.Health and self.bgColor and self.style == "Adirelle_Raid" then
-				self:RegisterEvent('UNIT_NAME_UPDATE', UpdateColor)
-				self:RegisterEvent('UNIT_HEAL_PREDICTION', UpdateName)
-				self:RegisterEvent('UNIT_MAXHEALTH', UpdateName)
-				self:RegisterEvent('UNIT_HEALTH', UpdateName)
-				self:RegisterEvent('UNIT_ABSORB_AMOUNT_CHANGED', UpdateName)
-				self:RegisterEvent('UNIT_HEAL_ABSORB_AMOUNT_CHANGED', UpdateName)
-				if self.unit and strmatch(self.unit, 'pet') then
-					self:RegisterEvent('UNIT_PET', UNIT_PET)
-				end
-				return true
+	oUF:AddElement("Adirelle_Raid:UpdateColor", UpdateColor, function(self)
+		if self.Health and self.bgColor and self.style == "Adirelle_Raid" then
+			self:RegisterEvent("UNIT_NAME_UPDATE", UpdateColor)
+			self:RegisterEvent("UNIT_HEAL_PREDICTION", UpdateName)
+			self:RegisterEvent("UNIT_MAXHEALTH", UpdateName)
+			self:RegisterEvent("UNIT_HEALTH", UpdateName)
+			self:RegisterEvent("UNIT_ABSORB_AMOUNT_CHANGED", UpdateName)
+			self:RegisterEvent("UNIT_HEAL_ABSORB_AMOUNT_CHANGED", UpdateName)
+			if self.unit and strmatch(self.unit, "pet") then
+				self:RegisterEvent("UNIT_PET", UNIT_PET)
 			end
-		end,
-		function() end
-	)
+			return true
+		end
+	end, function()
+	end)
 end
 
 -- Layout internal frames on size change
 local function OnSizeChanged(self, width, height)
 	width = width or self:GetWidth()
 	height = height or self:GetHeight()
-	if not width or not height then return end
+	if not width or not height then
+		return
+	end
 	local w = BORDER_WIDTH / self:GetEffectiveScale()
 	self.Border:SetSize(width + 2 * w, height + 2 * w)
 	self.ReadyCheckIndicator:SetSize(height, height)
 	self.SummonIndicator:SetSize(height, height)
 	self.ResurrectIndicator:SetSize(height, height)
-	self.StatusIcon:SetSize(height*2, height)
+	self.StatusIcon:SetSize(height * 2, height)
 	self.WarningIconBuff:SetPoint("CENTER", self, "LEFT", width / 4, 0)
 	self.WarningIconDebuff:SetPoint("CENTER", self, "RIGHT", -width / 4, 0)
 end
@@ -212,8 +215,8 @@ do
 	local GetAnyAuraFilter = private.GetAnyAuraFilter
 
 	local band = _G.bit.band
-	local LPS = oUF_Adirelle.GetLib('LibPlayerSpells-1.0')
-	local requiredFlags = oUF_Adirelle.playerClass.." AURA"
+	local LPS = oUF_Adirelle.GetLib("LibPlayerSpells-1.0")
+	local requiredFlags = oUF_Adirelle.playerClass .. " AURA"
 	local rejectedFlags = "INTERRUPT DISPEL BURST SURVIVAL HARMFUL"
 	local INVERT_AURA = LPS.constants.INVERT_AURA
 	local UNIQUE_AURA = LPS.constants.UNIQUE_AURA
@@ -249,8 +252,22 @@ do
 				if band(flags, C.CROWD_CTRL) ~= 0 then
 					return expandSimple2(flags, "DISORIENT", "INCAPACITATE", "ROOT", "STUN", "TAUNT")
 				end
-				return expandSimple2(flags, "DEATHKNIGHT", "DEMONHUNTER", "DRUID", "HUNTER", "MAGE", "MONK",
-					"PALADIN", "PRIEST", "ROGUE", "SHAMAN", "WARLOCK", "WARRIOR", "RACIAL")
+				return expandSimple2(
+					flags,
+					"DEATHKNIGHT",
+					"DEMONHUNTER",
+					"DRUID",
+					"HUNTER",
+					"MAGE",
+					"MONK",
+					"PALADIN",
+					"PRIEST",
+					"ROGUE",
+					"SHAMAN",
+					"WARLOCK",
+					"WARRIOR",
+					"RACIAL"
+				)
 			end
 			local v = C[n]
 			if band(flags, v) ~= 0 then
@@ -261,9 +278,26 @@ do
 		end
 
 		function ExpandFlags(flags)
-			return expandSimple(flags, "DISPEL", "CROWD_CTRL", "HELPFUL", "HARMFUL", "PERSONAL", "PET", "AURA",
-				"INVERT_AURA", "UNIQUE_AURA", "COOLDOWN", "SURVIVAL", "BURST", "POWER_REGEN", "IMPORTANT", "INTERRUPT",
-				"KNOCKBACK", "SNARE")
+			return expandSimple(
+				flags,
+				"DISPEL",
+				"CROWD_CTRL",
+				"HELPFUL",
+				"HARMFUL",
+				"PERSONAL",
+				"PET",
+				"AURA",
+				"INVERT_AURA",
+				"UNIQUE_AURA",
+				"COOLDOWN",
+				"SURVIVAL",
+				"BURST",
+				"POWER_REGEN",
+				"IMPORTANT",
+				"INTERRUPT",
+				"KNOCKBACK",
+				"SNARE"
+			)
 		end
 	end
 
@@ -272,7 +306,15 @@ do
 		if band(flags, UNIQUE_AURA) == 0 then
 			auraFilter = auraFilter .. " PLAYER"
 		end
-		oUF_Adirelle.Debug('Watching buff', spellId, GetSpellInfo(spellId), 'with filter', auraFilter, 'flags: ', ExpandFlags(flags))
+		oUF_Adirelle.Debug(
+			"Watching buff",
+			spellId,
+			GetSpellInfo(spellId),
+			"with filter",
+			auraFilter,
+			"flags: ",
+			ExpandFlags(flags)
+		)
 
 		filters[spellId] = GetAnyAuraFilter(spellId, auraFilter)
 		count = (count % #anchors) + 1
@@ -281,7 +323,7 @@ do
 
 	oUF_Adirelle.ClassAuraIcons = {
 		filters = filters,
-		defaultAnchors = defaultAnchors
+		defaultAnchors = defaultAnchors,
 	}
 end
 
@@ -311,10 +353,12 @@ end
 -- ------------------------------------------------------------------------------
 
 local function AlternativePower_PostUpdate(bar, unit, cur, min, max)
-	if unit ~= bar.__owner.unit or not cur or not min then return end
+	if unit ~= bar.__owner.unit or not cur or not min then
+		return
+	end
 	local _, powerRed, powerGreen, powerBlue = GetUnitPowerBarTextureInfo(unit, ALT_POWER_TEX_FILL + 1)
 	if powerRed and powerGreen and powerBlue then
-		local r, g, b = oUF.ColorGradient(cur-min, max-min, powerRed, powerGreen, powerBlue, 1, 0, 0)
+		local r, g, b = oUF.ColorGradient(cur - min, max - min, powerRed, powerGreen, powerBlue, 1, 0, 0)
 		bar:SetStatusBarColor(r, g, b)
 	else
 		bar:SetStatusBarColor(0.75, 0.75, 0.75)
@@ -403,7 +447,7 @@ local function InitFrame(self, unit)
 	self:SetScript("OnLeave", oUF_Adirelle.Unit_OnLeave)
 
 	local backdropFrame = CreateFrame("Frame", nil, self, "BackdropTemplate")
-	backdropFrame:SetFrameLevel(self:GetFrameLevel()-1)
+	backdropFrame:SetFrameLevel(self:GetFrameLevel() - 1)
 	backdropFrame:SetAllPoints()
 	backdropFrame:SetBackdrop(backdrop)
 	backdropFrame:SetBackdropColor(0, 0, 0, backdrop.bgAlpha)
@@ -448,7 +492,7 @@ local function InitFrame(self, unit)
 	-- Indicator overlays
 	local overlay = CreateFrame("Frame", nil, self)
 	overlay:SetAllPoints(self)
-	overlay:SetFrameLevel(border:GetFrameLevel()+3)
+	overlay:SetFrameLevel(border:GetFrameLevel() + 3)
 	self.Overlay = overlay
 
 	-- Name
@@ -470,23 +514,25 @@ local function InitFrame(self, unit)
 	self.StatusIcon = status
 
 	-- ReadyCheck icon
-	local rc = CreateFrame("Frame", self:GetName().."ReadyCheck", overlay)
-	rc:SetFrameLevel(self:GetFrameLevel()+5)
-	rc:SetPoint('CENTER')
-	rc.icon = rc:CreateTexture(rc:GetName().."Texture")
+	local rc = CreateFrame("Frame", self:GetName() .. "ReadyCheck", overlay)
+	rc:SetFrameLevel(self:GetFrameLevel() + 5)
+	rc:SetPoint("CENTER")
+	rc.icon = rc:CreateTexture(rc:GetName() .. "Texture")
 	rc.icon:SetAllPoints(rc)
-	rc.SetTexture = function(_, ...) return rc.icon:SetTexture(...) end
+	rc.SetTexture = function(_, ...)
+		return rc.icon:SetTexture(...)
+	end
 	self.ReadyCheckIndicator = rc
 
 	-- Resurrect Indicator
-	local ri = overlay:CreateTexture(self:GetName().."ResurrectIndicator", "OVERLAY", nil, 1)
-	ri:SetPoint('CENTER')
-	ri:SetTexture([[Interface\RaidFrame\Raid-Icon-Rez]]);
+	local ri = overlay:CreateTexture(self:GetName() .. "ResurrectIndicator", "OVERLAY", nil, 1)
+	ri:SetPoint("CENTER")
+	ri:SetTexture([[Interface\RaidFrame\Raid-Icon-Rez]])
 	self.ResurrectIndicator = ri
 
 	-- Summon Indicator
-	local si = overlay:CreateTexture(self:GetName().."SummonIndicator", "OVERLAY", nil, 1)
-	si:SetPoint('CENTER')
+	local si = overlay:CreateTexture(self:GetName() .. "SummonIndicator", "OVERLAY", nil, 1)
+	si:SetPoint("CENTER")
 	self.SummonIndicator = si
 
 	-- Have icons blinking 3 seconds before fading out
@@ -512,10 +558,10 @@ local function InitFrame(self, unit)
 	local threat = CreateFrame("Frame", nil, self, "BackdropTemplate")
 	threat:SetAllPoints(self)
 	threat:SetBackdrop(glowBorderBackdrop)
-	threat:SetBackdropColor(0,0,0,0)
+	threat:SetBackdropColor(0, 0, 0, 0)
 	threat.SetVertexColor = threat.SetBackdropBorderColor
 	threat:SetAlpha(glowBorderBackdrop.alpha)
-	threat:SetFrameLevel(self:GetFrameLevel()+2)
+	threat:SetFrameLevel(self:GetFrameLevel() + 2)
 	self.SmartThreat = threat
 
 	-- Role/Raid icon
@@ -548,24 +594,24 @@ local function InitFrame(self, unit)
 	alternativePower:SetHeight(5)
 	alternativePower:Hide()
 	alternativePower.PostUpdate = AlternativePower_PostUpdate
-	alternativePower:SetScript('OnShow', AlternativePower_Layout)
-	alternativePower:SetScript('OnHide', AlternativePower_Layout)
-	alternativePower:SetFrameLevel(threat:GetFrameLevel()+1)
+	alternativePower:SetScript("OnShow", AlternativePower_Layout)
+	alternativePower:SetScript("OnHide", AlternativePower_Layout)
+	alternativePower:SetFrameLevel(threat:GetFrameLevel() + 1)
 	self:RegisterStatusBarTexture(alternativePower)
 	self.AlternativePower = alternativePower
 
 	-- Setting callbacks
-	self:RegisterMessage('OnSettingsModified', OnRaidLayoutModified)
-	self:RegisterMessage('OnRaidLayoutModified', OnRaidLayoutModified)
-	self:RegisterMessage('OnSettingsModified', OnColorModified)
-	self:RegisterMessage('OnColorModified', OnColorModified)
-	self:RegisterMessage('OnSettingsModified', OnThemeModified)
-	self:RegisterMessage('OnThemeModified', OnThemeModified)
+	self:RegisterMessage("OnSettingsModified", OnRaidLayoutModified)
+	self:RegisterMessage("OnRaidLayoutModified", OnRaidLayoutModified)
+	self:RegisterMessage("OnSettingsModified", OnColorModified)
+	self:RegisterMessage("OnColorModified", OnColorModified)
+	self:RegisterMessage("OnSettingsModified", OnThemeModified)
+	self:RegisterMessage("OnThemeModified", OnThemeModified)
 
 	-- Range fading
 	local xrange = CreateFrame("Frame", nil, overlay)
 	xrange:SetAllPoints(self)
-	xrange:SetFrameLevel(overlay:GetFrameLevel()+10)
+	xrange:SetFrameLevel(overlay:GetFrameLevel() + 10)
 	xrange.PostUpdate = XRange_PostUpdate
 
 	local tex = xrange:CreateTexture(nil, "OVERLAY")
@@ -577,7 +623,7 @@ local function InitFrame(self, unit)
 	self.XRange = xrange
 
 	-- Hook OnSizeChanged to layout internal on size change
-	self:HookScript('OnSizeChanged', OnSizeChanged)
+	self:HookScript("OnSizeChanged", OnSizeChanged)
 	OnSizeChanged(self, WIDTH, HEIGHT)
 end
 

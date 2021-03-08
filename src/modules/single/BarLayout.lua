@@ -39,7 +39,7 @@ end
 
 local function UpdateLayout(self)
 	self.dirty = false
-	self:SetScript('OnUpdate', nil)
+	self:SetScript("OnUpdate", nil)
 
 	wipe(wlist)
 	local totalWeight = 0
@@ -62,7 +62,7 @@ local function UpdateLayout(self)
 		if i == 1 then
 			widget:SetPoint("TOP", self, 0, 0)
 		else
-			widget:SetPoint("TOP", wlist[i-1], "BOTTOM", 0, -GAP)
+			widget:SetPoint("TOP", wlist[i - 1], "BOTTOM", 0, -GAP)
 		end
 	end
 end
@@ -74,8 +74,8 @@ local function AddWidget(self, widget, order, weight)
 	widget:ClearAllPoints()
 	widget:SetPoint("LEFT", self)
 	widget:SetPoint("RIGHT", self)
-	widget:HookScript('OnShow', self.RequireUpdate)
-	widget:HookScript('OnHide', self.RequireUpdate)
+	widget:HookScript("OnShow", self.RequireUpdate)
+	widget:HookScript("OnHide", self.RequireUpdate)
 	self:RequireUpdate()
 end
 
@@ -86,10 +86,10 @@ local function SpawnBarLayout(self)
 	widget.AddWidget = AddWidget
 	widget.RequireUpdate = function()
 		widget.dirty = true
-		widget:SetScript('OnUpdate', UpdateLayout)
+		widget:SetScript("OnUpdate", UpdateLayout)
 	end
-	widget:SetScript('OnShow', widget.RequireUpdate)
-	widget:SetScript('OnSizeChanged', widget.RequireUpdate)
+	widget:SetScript("OnShow", widget.RequireUpdate)
+	widget:SetScript("OnSizeChanged", widget.RequireUpdate)
 	return widget
 end
 

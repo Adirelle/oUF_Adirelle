@@ -76,4 +76,4 @@ local function Disable(self)
 	end
 end
 
-oUF:AddElement('ThreatBar', Update, Enable, Disable)
+oUF:AddElement("ThreatBar", Update, Enable, Disable)

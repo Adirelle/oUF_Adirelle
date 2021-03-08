@@ -65,9 +65,9 @@ local function Enable(self)
 	if timer then
 		timer:Hide()
 		if self.unit == "player" then
-			timer:SetScript('OnUpdate', OnUpdate)
+			timer:SetScript("OnUpdate", OnUpdate)
 			timer.elapsed, timer.timeLeft = 0, 0
-			self:RegisterEvent('PLAYER_FLAGS_CHANGED', Update)
+			self:RegisterEvent("PLAYER_FLAGS_CHANGED", Update)
 			return true
 		end
 	end
@@ -76,8 +76,8 @@ end
 local function Disable(self)
 	if self.PvPTimer then
 		self.PvPTimer:Hide()
-		self:UnregisterEvent('PLAYER_FLAGS_CHANGED', Update)
+		self:UnregisterEvent("PLAYER_FLAGS_CHANGED", Update)
 	end
 end
 
-oUF:AddElement('PvPTimer', Update, Enable, Disable)
+oUF:AddElement("PvPTimer", Update, Enable, Disable)

@@ -39,7 +39,9 @@ local inRaid
 
 local function UpdatePlayerRole(event)
 	local spec = GetSpecialization()
-	if not spec then return end
+	if not spec then
+		return
+	end
 	local role = GetSpecializationRole(spec)
 	if role and role ~= "NONE" then
 		if role ~= current then
@@ -66,23 +68,22 @@ local function GROUP_ROSTER_UPDATE(self)
 end
 
 local function PLAYER_ALIVE(self)
-	self:UnregisterEvent('PLAYER_ALIVE', PLAYER_ALIVE)
+	self:UnregisterEvent("PLAYER_ALIVE", PLAYER_ALIVE)
 	PLAYER_ALIVE = nil
 
-	self:RegisterEvent('GROUP_ROSTER_UPDATE', GROUP_ROSTER_UPDATE)
-	self:RegisterEvent('ACTIVE_TALENT_GROUP_CHANGED', UpdatePlayerRole)
-	self:RegisterEvent('PLAYER_REGEN_DISABLED', UpdatePlayerRole)
+	self:RegisterEvent("GROUP_ROSTER_UPDATE", GROUP_ROSTER_UPDATE)
+	self:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED", UpdatePlayerRole)
+	self:RegisterEvent("PLAYER_REGEN_DISABLED", UpdatePlayerRole)
 	return GROUP_ROSTER_UPDATE(self)
 end
 
 if GetSpecialization() then
 	PLAYER_ALIVE(oUF_Adirelle)
 else
-	oUF_Adirelle:RegisterEvent('PLAYER_ALIVE', PLAYER_ALIVE)
+	oUF_Adirelle:RegisterEvent("PLAYER_ALIVE", PLAYER_ALIVE)
 end
 
 -- "Public" API
 function oUF_Adirelle.GetPlayerRole()
 	return current or UpdatePlayerRole()
 end
-

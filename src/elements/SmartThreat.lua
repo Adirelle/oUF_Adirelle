@@ -32,11 +32,15 @@ local UnitThreatSituation = _G.UnitThreatSituation
 --GLOBALS>
 
 local Update = function(self, event, unit)
-	if unit ~= self.unit then return end
+	if unit ~= self.unit then
+		return
+	end
 	unit = unit or self.unit
 
 	local threat = self.SmartThreat
-	if threat.PreUpdate then threat:PreUpdate(unit) end
+	if threat.PreUpdate then
+		threat:PreUpdate(unit)
+	end
 
 	local status
 	if UnitCanAttack(unit, "player") then
@@ -59,7 +63,7 @@ local Update = function(self, event, unit)
 		threat:Hide()
 	end
 
-	if threat.PostUpdate  then
+	if threat.PostUpdate then
 		return threat:PostUpdate(unit, status)
 	end
 end
@@ -69,12 +73,12 @@ local Path = function(self, ...)
 end
 
 local ForceUpdate = function(element)
-	return Path(element.__owner, 'ForceUpdate', element.__owner.unit)
+	return Path(element.__owner, "ForceUpdate", element.__owner.unit)
 end
 
 local Enable = function(self)
 	local threat = self.SmartThreat
-	if threat  then
+	if threat then
 		threat.__owner = self
 		threat.ForceUpdate = ForceUpdate
 
@@ -97,4 +101,4 @@ local Disable = function(self)
 	end
 end
 
-oUF:AddElement('SmartThreat', Path, Enable, Disable)
+oUF:AddElement("SmartThreat", Path, Enable, Disable)

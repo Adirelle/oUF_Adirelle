@@ -45,15 +45,15 @@ local BUFFS = {}
 local DEBUFFS = {}
 local ENCOUNTER_DEBUFFS = {}
 
-local LPS = oUF_Adirelle.GetLib('LibPlayerSpells-1.0')
+local LPS = oUF_Adirelle.GetLib("LibPlayerSpells-1.0")
 
 -- PvP debuffs using LPS-1.0
 do
 	local priorities = {
-		[LPS.constants.STUN]         = 90,
+		[LPS.constants.STUN] = 90,
 		[LPS.constants.INCAPACITATE] = 80,
-		[LPS.constants.DISORIENT]    = 60,
-		[LPS.constants.ROOT]         = 40,
+		[LPS.constants.DISORIENT] = 60,
+		[LPS.constants.ROOT] = 40,
 	}
 	for spellID, _, _, _, ccType in LPS:IterateSpells(nil, "AURA HARMFUL CROWD_CTRL") do
 		DEBUFFS[spellID] = priorities[ccType] or 10
@@ -70,15 +70,21 @@ if BigWigsLoader and BigWigsLoader.RegisterMessage then
 	-- Listen to BigWigs messages to update ENCOUNTER_DEBUFFS
 
 	-- Thanks Funkeh for adding this one
-	BigWigsLoader.RegisterMessage(ENCOUNTER_DEBUFFS, 'BigWigs_OnBossLog', function(_, bossMod, event, ...)
-		if event ~= 'SPELL_AURA_APPLIED' and event ~= 'SPELL_AURA_APPLIED_DOSE' and event ~= "SPELL_CAST_SUCCESS" then return end
-		for i = 1, select('#', ...) do
+	BigWigsLoader.RegisterMessage(ENCOUNTER_DEBUFFS, "BigWigs_OnBossLog", function(_, bossMod, event, ...)
+		if
+			event ~= "SPELL_AURA_APPLIED"
+			and event ~= "SPELL_AURA_APPLIED_DOSE"
+			and event ~= "SPELL_CAST_SUCCESS"
+		then
+			return
+		end
+		for i = 1, select("#", ...) do
 			local id = select(i, ...)
 			ENCOUNTER_DEBUFFS[id] = bossMod
 		end
 	end)
 
-	BigWigsLoader.RegisterMessage(ENCOUNTER_DEBUFFS, 'BigWigs_OnBossDisable', function(_, bossMod)
+	BigWigsLoader.RegisterMessage(ENCOUNTER_DEBUFFS, "BigWigs_OnBossDisable", function(_, bossMod)
 		for id, mod in pairs(ENCOUNTER_DEBUFFS) do
 			if mod == bossMod then
 				ENCOUNTER_DEBUFFS[id] = nil
@@ -163,7 +169,7 @@ end
 local function SetAuraIcon(icon, texture, count, dispelType, duration, expirationTime)
 	if texture then
 		icon:SetTexture(texture)
-		icon:SetCooldown(expirationTime-duration, duration)
+		icon:SetCooldown(expirationTime - duration, duration)
 		icon:SetStack(count or 0)
 		local color = dispelType and DebuffTypeColor[dispelType]
 		if color then
@@ -179,7 +185,9 @@ local function SetAuraIcon(icon, texture, count, dispelType, duration, expiratio
 end
 
 local function Update(self, event, unit)
-	if unit and unit ~= self.unit then return end
+	if unit and unit ~= self.unit then
+		return
+	end
 	unit = self.unit
 
 	local debuffIcon, buffIcon, bothIcon = self.WarningIconDebuff, self.WarningIconBuff, self.WarningIcon
@@ -210,7 +218,7 @@ local function Update(self, event, unit)
 end
 
 local function ForceUpdate(element)
-	return Update(element.__owner, 'ForceUpdate')
+	return Update(element.__owner, "ForceUpdate")
 end
 
 local function EnableIcon(self, icon)
@@ -231,7 +239,7 @@ local function Enable(self)
 		EnableIcon(self, self.WarningIcon)
 		EnableIcon(self, self.WarningIconBuff)
 		EnableIcon(self, self.WarningIconDebuff)
-		self:RegisterEvent('UNIT_AURA', Update)
+		self:RegisterEvent("UNIT_AURA", Update)
 		return true
 	end
 end
@@ -239,9 +247,9 @@ end
 local function Disable(self)
 	local icon = self.WarningIcon
 	if icon then
-		self:UnregisterEvent('UNIT_AURA', Update)
+		self:UnregisterEvent("UNIT_AURA", Update)
 		icon:Hide()
 	end
 end
 
-oUF:AddElement('WarningIcon', Update, Enable, Disable)
+oUF:AddElement("WarningIcon", Update, Enable, Disable)

@@ -42,15 +42,17 @@ local Debug = oUF_Adirelle.Debug
 local GetPlayerRole = oUF_Adirelle.GetPlayerRole
 
 local function GetRole(unit, noDamager, noCircle)
-	if not UnitIsPlayer(unit) then return end
+	if not UnitIsPlayer(unit) then
+		return
+	end
 
 	-- Check assigned raid roles
 	local raidId = IsInRaid() and UnitInRaid(unit)
 	if raidId then
 		local role = select(10, GetRaidRosterInfo(raidId))
 		--Debug('Role from GetRaidRosterInfo for ', unit, ':', role)
-		if role and role ~= "NONE" and (not noDamager or role ~= "DAMAGER") then
-			return "Interface\\GroupFrame\\UI-Group-"..role.."Icon"
+		if role and role ~= "NONE" and not noDamager or role ~= "DAMAGER" then
+			return "Interface\\GroupFrame\\UI-Group-" .. role .. "Icon"
 		end
 	end
 
@@ -71,7 +73,9 @@ local function GetRole(unit, noDamager, noCircle)
 end
 
 local function Update(self, event, unit)
-	if unit and unit ~= self.unit then return end
+	if unit and unit ~= self.unit then
+		return
+	end
 	local icon = self.RoleIcon
 
 	-- Quest mobs
@@ -108,7 +112,7 @@ local function Path(self, ...)
 end
 
 local function ForceUpdate(element)
-	return Path(element.__owner, 'ForceUpdate')
+	return Path(element.__owner, "ForceUpdate")
 end
 
 local function OnPlayerRoleChanged(self, event)
@@ -119,13 +123,13 @@ local function Enable(self)
 	local icon = self.RoleIcon
 	if icon then
 		icon.__owner, icon.ForceUpdate = self, ForceUpdate
-		self:RegisterMessage('OnPlayerRoleChanged', OnPlayerRoleChanged)
+		self:RegisterMessage("OnPlayerRoleChanged", OnPlayerRoleChanged)
 		self:RegisterEvent("RAID_TARGET_UPDATE", Path, true)
-		self:RegisterEvent('LFG_ROLE_UPDATE', Path, true)
-		self:RegisterEvent('GROUP_ROSTER_UPDATE', Path, true)
-		self:RegisterEvent('PLAYER_ROLES_ASSIGNED', Path, true)
-		self:RegisterEvent('UNIT_CLASSIFICATION_CHANGED', Path)
-		self:RegisterEvent('PLAYER_SPECIALIZATION_CHANGED', Path, true)
+		self:RegisterEvent("LFG_ROLE_UPDATE", Path, true)
+		self:RegisterEvent("GROUP_ROSTER_UPDATE", Path, true)
+		self:RegisterEvent("PLAYER_ROLES_ASSIGNED", Path, true)
+		self:RegisterEvent("UNIT_CLASSIFICATION_CHANGED", Path)
+		self:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED", Path, true)
 		icon:Hide()
 		return true
 	end
@@ -135,15 +139,14 @@ local function Disable(self)
 	local icon = self.RoleIcon
 	if icon then
 		icon:Hide()
-		self:UnregisterMessage('OnPlayerRoleChanged', OnPlayerRoleChanged)
+		self:UnregisterMessage("OnPlayerRoleChanged", OnPlayerRoleChanged)
 		self:UnregisterEvent("RAID_TARGET_UPDATE", Path)
-		self:UnregisterEvent('LFG_ROLE_UPDATE', Path)
-		self:UnregisterEvent('GROUP_ROSTER_UPDATE', Path)
-		self:UnregisterEvent('PLAYER_ROLES_ASSIGNED', Path)
-		self:UnregisterEvent('UNIT_CLASSIFICATION_CHANGED', Path)
-		self:UnregisterEvent('PLAYER_SPECIALIZATION_CHANGED', Path)
+		self:UnregisterEvent("LFG_ROLE_UPDATE", Path)
+		self:UnregisterEvent("GROUP_ROSTER_UPDATE", Path)
+		self:UnregisterEvent("PLAYER_ROLES_ASSIGNED", Path)
+		self:UnregisterEvent("UNIT_CLASSIFICATION_CHANGED", Path)
+		self:UnregisterEvent("PLAYER_SPECIALIZATION_CHANGED", Path)
 	end
 end
 
-oUF:AddElement('RoleIcon', Path, Enable, Disable)
-
+oUF:AddElement("RoleIcon", Path, Enable, Disable)

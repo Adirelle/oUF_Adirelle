@@ -20,7 +20,9 @@ local _G, addonName, private = _G, ...
 local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
-if oUF_Adirelle.CreatePseudoHeader then return end
+if oUF_Adirelle.CreatePseudoHeader then
+	return
+end
 
 --<GLOBALS
 local _G = _G
@@ -33,7 +35,7 @@ local UIParent = _G.UIParent
 --GLOBALS>
 
 local headerProto = {
-	Debug = oUF.Debug
+	Debug = oUF.Debug,
 }
 
 function headerProto:AddFrame(frame)
@@ -46,35 +48,35 @@ function headerProto:Enable()
 	if self:IsShown() then
 		return
 	elseif not self:CanChangeProtectedState() then
-		self:RegisterEvent('PLAYER_REGEN_ENABLED')
+		self:RegisterEvent("PLAYER_REGEN_ENABLED")
 		return
 	end
 	self:Show()
 	for i, frame in ipairs(self.frames) do
 		frame:Enable()
 	end
-	self:Debug('Enabled')
+	self:Debug("Enabled")
 end
 
 function headerProto:Disable()
 	if not self:IsShown() then
 		return
 	elseif not self:CanChangeProtectedState() then
-		self:RegisterEvent('PLAYER_REGEN_ENABLED')
+		self:RegisterEvent("PLAYER_REGEN_ENABLED")
 		return
 	end
 	for i, frame in ipairs(self.frames) do
 		frame:Disable()
 	end
 	self:Hide()
-	self:Debug('Disabled')
+	self:Debug("Disabled")
 end
 
 function headerProto:OnEvent(event, ...)
 	if event == "PLAYER_REGEN_ENABLED" then
-		self:UnregisterEvent('PLAYER_REGEN_ENABLED')
+		self:UnregisterEvent("PLAYER_REGEN_ENABLED")
 	end
-	self:Debug('Updating on', event)
+	self:Debug("Updating on", event)
 	if self:GetEnabledSetting() and self:ShouldEnable() then
 		self:Enable()
 	else
@@ -92,7 +94,7 @@ function oUF_Adirelle.CreatePseudoHeader(name, key, label, width, height, from, 
 		header[name] = func
 	end
 
-	header:SetScript('OnEvent', header.OnEvent)
+	header:SetScript("OnEvent", header.OnEvent)
 
 	oUF_Adirelle.RegisterMovable(header, key, label)
 

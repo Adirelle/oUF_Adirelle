@@ -41,13 +41,15 @@ local callbackListMeta = {
 		for i, callback in ipairs(list) do
 			callback(...)
 		end
-	end
+	end,
 }
 
 -- Used to wrap methods calls
 local methodCallbacks = setmetatable({}, {
 	__index = function(t, name)
-		local callback = function(self, ...) return self[name](self, ...) end
+		local callback = function(self, ...)
+			return self[name](self, ...)
+		end
 		t[name] = callback
 		return callback
 	end,
@@ -56,12 +58,22 @@ local methodCallbacks = setmetatable({}, {
 -- Register a message callback
 local function RegisterMessage(self, message, callback)
 	-- Argument checks
-	assert(type(message) == "string", "RegisterMessage(self, message, callback): message should be a string, not a "..type(message))
-	assert(type(callback) == "string" or type(callback) == "function", "RegisterMessage(self, message, callback): callback should be a string or a function, not a "..type(callback))
+	assert(
+		type(message) == "string",
+		"RegisterMessage(self, message, callback): message should be a string, not a " .. type(message)
+	)
+	assert(
+		type(callback) == "string" or type(callback) == "function",
+		"RegisterMessage(self, message, callback): callback should be a string or a function, not a "
+			.. type(callback)
+	)
 
 	-- Get a function to handle method callbacks
 	if type(callback) == "string" then
-		assert(type(self) == "table", "RegisterMessage(self, message, callback): cannot register method callback for a "..type(self))
+		assert(
+			type(self) == "table",
+			"RegisterMessage(self, message, callback): cannot register method callback for a " .. type(self)
+		)
 		callback = methodCallbacks[callback]
 	end
 
@@ -93,8 +105,15 @@ end
 
 local function UnregisterMessage(self, message, callback)
 	-- Argument checks
-	assert(type(message) == "string", "UnregisterMessage(self, message, callback): message should be a string, not a "..type(message))
-	assert(type(callback) == "string" or type(callback) == "function", "UnregisterMessage(self, message, callback): callback should be a string or a function, not a "..type(callback))
+	assert(
+		type(message) == "string",
+		"UnregisterMessage(self, message, callback): message should be a string, not a " .. type(message)
+	)
+	assert(
+		type(callback) == "string" or type(callback) == "function",
+		"UnregisterMessage(self, message, callback): callback should be a string or a function, not a "
+			.. type(callback)
+	)
 
 	-- Fetch existing callback(s)
 	local existing = callbacks[message] and callbacks[message][self]
@@ -142,7 +161,9 @@ end
 
 -- Send a message
 local function SendMessage(self, message, ...)
-	if not callbacks[message] then return end
+	if not callbacks[message] then
+		return
+	end
 	for target, callback in pairs(callbacks[message]) do
 		callback(target, message, ...)
 	end
@@ -178,7 +199,7 @@ oUF_Adirelle:EmbedMessaging()
 
 -- Build an simple event broadcast system on top of the messaging system
 local eventFrame = CreateFrame("Frame")
-eventFrame:SetScript('OnEvent', SendMessage)
+eventFrame:SetScript("OnEvent", SendMessage)
 
 -- Register an event for target, also register it to eventFrame if need be
 local function RegisterEvent(target, event, callback)
@@ -208,4 +229,3 @@ end
 
 -- Embed it into ourself
 oUF_Adirelle:EmbedEventMessaging()
-

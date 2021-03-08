@@ -80,11 +80,11 @@ local function HealthPrediction_UpdateColors(frame)
 	hp.healAbsorbBar:SetColorTexture(unpack(colors.healAbsorb, 1, 4))
 end
 
-oUF:RegisterMetaFunction('SpawnHealthPrediction', function(self, maxOverflow)
+oUF:RegisterMetaFunction("SpawnHealthPrediction", function(self, maxOverflow)
 	local health = self.Health
 
 	local myIncomingHeal = SpawnPredictionBar(health)
-	local otherIncomingHeal =SpawnPredictionBar(health)
+	local otherIncomingHeal = SpawnPredictionBar(health)
 	local absorb = SpawnPredictionBar(health)
 	local healAbsorb = SpawnPredictionBar(health)
 
@@ -93,7 +93,7 @@ oUF:RegisterMetaFunction('SpawnHealthPrediction', function(self, maxOverflow)
 	otherIncomingHeal:SetPoint("LEFT", myIncomingHeal, "RIGHT")
 	absorb:SetPoint("LEFT", otherIncomingHeal, "RIGHT")
 
-	health:HookScript('OnSizeChanged', HealthPrediction_OnSizeChanged)
+	health:HookScript("OnSizeChanged", HealthPrediction_OnSizeChanged)
 
 	self.HealthPrediction = {
 		frequentUpdates = health.frequentUpdates,
@@ -101,15 +101,14 @@ oUF:RegisterMetaFunction('SpawnHealthPrediction', function(self, maxOverflow)
 		myBar = myIncomingHeal,
 		otherBar = otherIncomingHeal,
 		absorbBar = absorb,
-		healAbsorbBar = healAbsorb
+		healAbsorbBar = healAbsorb,
 	}
 	HealthPrediction_UpdateColors(self)
 
-	self:RegisterMessage('OnColorModified', HealthPrediction_UpdateColors)
+	self:RegisterMessage("OnColorModified", HealthPrediction_UpdateColors)
 
 	return self.HealthPrediction
 end)
-
 
 local function PowerPrediction_OnSizeChanged(power)
 	local pp = power.__owner.PowerPrediction
@@ -121,7 +120,7 @@ local function PowerPrediction_OnSizeChanged(power)
 	end
 end
 
-oUF:RegisterMetaFunction('SpawnPowerPrediction', function(self)
+oUF:RegisterMetaFunction("SpawnPowerPrediction", function(self)
 	local mainBar, altBar
 
 	local power = self.Power
@@ -144,7 +143,7 @@ oUF:RegisterMetaFunction('SpawnPowerPrediction', function(self)
 			altBar = altBar,
 		}
 
-		power:HookScript('OnSizeChanged', PowerPrediction_OnSizeChanged)
+		power:HookScript("OnSizeChanged", PowerPrediction_OnSizeChanged)
 	end
 
 	return self.PowerPrediction

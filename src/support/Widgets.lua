@@ -32,14 +32,16 @@ local GameFontWhiteSmall = _G.GameFontWhiteSmall
 local GAP, TEXT_MARGIN = oUF_Adirelle.GAP, oUF_Adirelle.TEXT_MARGIN
 local GetLib = oUF_Adirelle.GetLib
 
-local function CreateName() end
-local function GetSerialName() end
+local function CreateName()
+end
+local function GetSerialName()
+end
 --@debug@
 -- These are only used in unpackaged version
 do
 	function CreateName(parent, suffix)
 		local name = parent and parent:GetName()
-		return name and (name..suffix)
+		return name and (name .. suffix)
 	end
 
 	local serials = {}
@@ -58,9 +60,9 @@ oUF_Adirelle.GetSerialName = GetSerialName
 
 local function smartValue(value)
 	if value >= 10000000 then
-		return format("%.1fm", value/1000000)
+		return format("%.1fm", value / 1000000)
 	elseif value >= 10000 then
-		return format("%.1fk", value/1000)
+		return format("%.1fk", value / 1000)
 	else
 		return tostring(value)
 	end
@@ -68,16 +70,20 @@ end
 oUF_Adirelle.smartValue = smartValue
 
 local function OnStatusBarUpdate(bar)
-	if not bar:IsShown() then return end
+	if not bar:IsShown() then
+		return
+	end
 	local text = bar.Text
-	if not text then return end
+	if not text then
+		return
+	end
 	local value, min, max = bar:GetValue(), bar:GetMinMaxValues()
 	if max == 100 then
 		text:SetFormattedText("%d%%", floor(value))
 	elseif max <= 1 then
 		return text:Hide()
-	elseif UnitClassification(bar:GetParent().unit) ~= 'normal' and value < max then
-		text:SetFormattedText("%d%% %s", ceil(value/max*100), smartValue(value))
+	elseif UnitClassification(bar:GetParent().unit) ~= "normal" and value < max then
+		text:SetFormattedText("%d%% %s", ceil(value / max * 100), smartValue(value))
 	else
 		text:SetText(smartValue(value))
 	end
@@ -119,9 +125,9 @@ local function SpawnStatusBar(self, noText, from, anchor, to, xOffset, yOffset, 
 		local text = SpawnText(self, bar, "OVERLAY", "TOPRIGHT", "TOPRIGHT", -TEXT_MARGIN, 0, fontKind, fontSize, fontFlags)
 		text:SetPoint("BOTTOMRIGHT", bar, "BOTTOMRIGHT", -TEXT_MARGIN, 0)
 		bar.Text = text
-		bar:SetScript('OnShow', OnStatusBarUpdate)
-		bar:SetScript('OnValueChanged', OnStatusBarUpdate)
-		bar:SetScript('OnMinMaxChanged', OnStatusBarUpdate)
+		bar:SetScript("OnShow", OnStatusBarUpdate)
+		bar:SetScript("OnValueChanged", OnStatusBarUpdate)
+		bar:SetScript("OnMinMaxChanged", OnStatusBarUpdate)
 	end
 	if from then
 		bar:SetPoint(from, anchor or self, to or from, xOffset or 0, yOffset or 0)
@@ -139,7 +145,7 @@ local function DiscreteBar_Layout(bar)
 		for i = 1, bar.maxItems do
 			local item = bar[i]
 			if i <= bar.numItems then
-				item:SetPoint("TOPLEFT", bar, "TOPLEFT", spacing * (i-1), 0)
+				item:SetPoint("TOPLEFT", bar, "TOPLEFT", spacing * (i - 1), 0)
 				item:SetSize(itemWidth, itemHeight)
 				item:SetShown(i <= rel)
 			else
@@ -162,7 +168,9 @@ local function DiscreteBar_SetMinMaxValues(bar, min, max)
 end
 
 local function DiscreteBar_SetValue(bar, current)
-	if current == bar.value then return end
+	if current == bar.value then
+		return
+	end
 	bar.value = current
 	local rel = current - bar.minValue
 	for i = 1, bar.numItems do
@@ -188,8 +196,8 @@ local function SpawnDiscreteBar(self, numItems, createStatusBar, texture)
 	bar.minValue = 0
 	bar.maxValue = numItems
 	bar.value = 0
-	bar:SetScript('OnShow', DiscreteBar_Layout)
-	bar:SetScript('OnSizeChanged', DiscreteBar_Layout)
+	bar:SetScript("OnShow", DiscreteBar_Layout)
+	bar:SetScript("OnSizeChanged", DiscreteBar_Layout)
 	bar.SetMinMaxValues = DiscreteBar_SetMinMaxValues
 	bar.SetValue = DiscreteBar_SetValue
 	bar.SetStatusBarColor = DiscreteBar_SetStatusBarColor
@@ -223,14 +231,16 @@ local function HybridBar_SetMinMaxValues(bar, min, max)
 		local num = floor((max - min) / step)
 		bar.numItems = num
 		for i = 1, num do
-			bar[i]:SetMinMaxValues(min + step * (i-1), min + (step * i))
+			bar[i]:SetMinMaxValues(min + step * (i - 1), min + (step * i))
 		end
 		return DiscreteBar_Layout(bar)
 	end
 end
 
 local function HybridBar_SetValue(bar, current)
-	if current == bar.value or not bar.numItems then return end
+	if current == bar.value or not bar.numItems then
+		return
+	end
 	bar.value = current
 	for i = 1, bar.numItems do
 		bar[i]:SetValue(current)
