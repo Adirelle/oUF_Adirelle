@@ -37,6 +37,18 @@ local IsEncounterDebuff = oUF_Adirelle.IsEncounterDebuff
 local LPS = oUF_Adirelle.GetLib("LibPlayerSpells-1.0")
 local IsCrowdControl = LPS:GetSpellTester("DISORIENT INCAPACITATE ROOT STUN", "CROWD_CTRL", "TAUNT")
 
+local MM_AFFIXES = { -- Shadowlands S1
+	178658, -- Enrage
+	209858, -- Necrotic Wound
+	209859, -- Bolster
+	226510, -- Sanguine Ichor (healing mobs)
+	226512, -- Sanguine Ichor (hurting players)
+	240443, -- Burst
+	240447, -- Quake
+	240559, -- Grievous Wound
+	343502, -- Inspiring Presence
+}
+
 local BORDER_WIDTH = 1
 local borderBackdrop = {
 	edgeFile = [[Interface\Addons\oUF_Adirelle\media\white16x16]],
@@ -68,9 +80,8 @@ local function Auras_CustomFilter(_, unit, button, _, _, _, debuffType, duration
 		return false
 	end
 	return isBossDebuff
-		or IsEncounterDebuff(spellID)
-		or IsCrowdControl(spellID)
 		or CanDispel(unit, not button.isDebuff, debuffType)
+		or (spellID and (IsEncounterDebuff(spellID) or IsCrowdControl(spellID) or MM_AFFIXES[spellID]))
 end
 
 local function InitFrame(self)
