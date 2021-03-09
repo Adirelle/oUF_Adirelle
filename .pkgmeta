@@ -45,6 +45,7 @@ move-folders:
   oUF_Adirelle/tocs/oUF_Adirelle_Single: oUF_Adirelle_Single
   oUF_Adirelle/tocs/oUF_Adirelle_Boss: oUF_Adirelle_Boss
   oUF_Adirelle/tocs/oUF_Adirelle_Arena: oUF_Adirelle_Arena
+  oUF_Adirelle/tocs/oUF_Adirelle_Nameplates: oUF_Adirelle_Nameplates
   oUF_Adirelle/tocs/oUF_Adirelle_Config: oUF_Adirelle_Config
 
 ignore:
