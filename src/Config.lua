@@ -60,6 +60,13 @@ local function GetOptions()
 		return UnitAffectingCombat("player")
 	end
 
+	local function join(a, ...)
+		if not a then
+			return ""
+		end
+		return a .. " " .. join(...)
+	end
+
 	-- The list of modules
 	local moduleList = {
 		oUF_Adirelle_Raid = "Party/raid grid",
@@ -484,11 +491,11 @@ local function GetOptions()
 				args = {
 					modules = {
 						name = "Enabled modules",
-						desc = [[
-							There you can enable and disable the frame modules.
-							This is the same as disabling the matching addons on the character selection screen.
-							These settings are specific to each character and require to reload the interface to apply the changes.
-						]],
+						desc = join(
+							"There you can enable and disable the frame modules.",
+							"This is the same as disabling the matching addons on the character selection screen.",
+							"These settings are specific to each character and require to reload the interface to apply the changes."
+						),
 						type = "multiselect",
 						order = 10,
 						width = "double",
@@ -784,10 +791,10 @@ local function GetOptions()
 									},
 									debuffFilter = {
 										name = "Debuffs to ignore",
-										desc = [[
-											Select which debuffs should be displayed in combat.
-											Debuffs matching any checked category are hidden.
-										]],
+										desc = join(
+											"Select which debuffs should be displayed in combat.",
+											"Debuffs matching any checked category are hidden."
+										),
 										type = "multiselect",
 										width = "double",
 										values = {
@@ -959,10 +966,10 @@ local function GetOptions()
 									},
 									strictSize = {
 										name = "Strict raid size",
-										desc = [[
-										When enabled, oUF_Adirelle will only show groups according to instance size,
-										e.g. only groups 1 and 2 for a 10-man raid or battleground.",
-										]],
+										desc = join(
+											"When enabled, oUF_Adirelle will only show groups according to instance size,",
+											"e.g. only groups 1 and 2 for a 10-man raid or battleground."
+										),
 										type = "toggle",
 										order = 110,
 									},
@@ -1014,10 +1021,10 @@ local function GetOptions()
 							},
 							fadeOut = {
 								name = "Fade out",
-								desc = [[
-									When enabled, the tooltip fades out when the mouse pointer leaves it.
-									If disabled, the tooltip is immediately hidden.
-									]],
+								desc = join(
+									"When enabled, the tooltip fades out when the mouse pointer leaves it.",
+									"If disabled, the tooltip is immediately hidden."
+								),
 								type = "toggle",
 								order = 40,
 								disabled = function()
@@ -1209,9 +1216,10 @@ local function GetOptions()
 										type = "description",
 										order = 210,
 										arg = "Border",
-										name = [[
-											These thresholds are used to display the blue border around units that are considered "out of mana".
-										]],
+										name = join(
+											"These thresholds are used to display the blue border around units",
+											"that are considered \"out of mana\"."
+										),
 									},
 									inCombatManaLevel = {
 										name = "In combat",
