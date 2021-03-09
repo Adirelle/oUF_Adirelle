@@ -31,6 +31,11 @@ local GetSerialName = oUF_Adirelle.GetSerialName
 local SpawnStatusBar = oUF_Adirelle.SpawnStatusBar
 local SpawnText = oUF_Adirelle.SpawnText
 local TEXT_MARGIN = oUF_Adirelle.TEXT_MARGIN
+local CanDispel = oUF_Adirelle.CanDispel
+local IsEncounterDebuff = oUF_Adirelle.IsEncounterDebuff
+
+local LPS = oUF_Adirelle.GetLib("LibPlayerSpells-1.0")
+local IsCrowdControl = LPS:GetSpellTester("DISORIENT INCAPACITATE ROOT STUN", "CROWD_CTRL", "TAUNT")
 
 local BORDER_WIDTH = 1
 local borderBackdrop = {
@@ -52,6 +57,16 @@ end
 
 local function XRange_PostUpdate(xrange, _, _, inRange)
 	xrange.__owner:SetAlpha(inRange and 1 or oUF.colors.outOfRange[4])
+end
+
+local function Auras_CustomFilter(_, unit, button, _, _, _, debuffType, duration, _, _, _, _, spellID, _, isBossDebuff) -- luacheck: no max line length
+	if not duration or duration == 0 then
+		return false
+	end
+	return isBossDebuff
+		or IsEncounterDebuff(spellID)
+		or IsCrowdControl(spellID)
+		or CanDispel(unit, not button.isDebuff, debuffType)
 end
 
 local function InitFrame(self)
@@ -107,10 +122,17 @@ local function InitFrame(self)
 	self.Name = name
 
 	-- Create an icon displaying important debuffs
-	local importantDebuff = self:CreateIcon(overlay, HEIGHT * 1.4)
-	importantDebuff.minPriority = 50
-	importantDebuff:SetPoint("CENTER", self)
-	self.WarningIcon = importantDebuff
+	local auras = CreateFrame("Frame", nil, self)
+	auras:SetPoint("BOTTOMLEFT", self, "TOPLEFT", GAP, GAP)
+	auras:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -GAP, GAP)
+	auras:SetHeight(CASTBAR_SIZE)
+	auras.disableMouse = true
+	auras.size = 12
+	auras.spacing = 1
+	auras.numTotal = 5
+	auras.showType = true
+	auras.CustomFilter = Auras_CustomFilter
+	self.Auras = auras
 
 	-- Elite/rare classification
 	local dragon = overlay:CreateTexture(CreateName(self, "Dragon"), "OVERLAY")
