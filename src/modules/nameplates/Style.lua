@@ -75,13 +75,12 @@ local function Auras_PostCreateIcon(_, button)
 	button.cd:SetReverse(true)
 end
 
-local function Auras_CustomFilter(_, unit, button, _, _, _, debuffType, duration, _, _, _, _, spellID, _, isBossDebuff) -- luacheck: no max line length
-	if not duration or duration == 0 then
-		return false
-	end
+local function Auras_CustomFilter(_, unit, button, _, _, _, debuffType, _, _, _, _, _, spellID, _, isBossDebuff)
 	return isBossDebuff
 		or CanDispel(unit, not button.isDebuff, debuffType)
-		or (spellID and (IsEncounterDebuff(spellID) or IsCrowdControl(spellID) or MM_AFFIXES[spellID]))
+		or IsEncounterDebuff(spellID)
+		or IsCrowdControl(spellID)
+		or MM_AFFIXES[spellID or 0]
 end
 
 local function InitFrame(self)
