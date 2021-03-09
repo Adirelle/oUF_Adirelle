@@ -59,6 +59,10 @@ local function XRange_PostUpdate(xrange, _, _, inRange)
 	xrange.__owner:SetAlpha(inRange and 1 or oUF.colors.outOfRange[4])
 end
 
+local function Auras_PostCreateIcon(_, button)
+	button.cd:SetReverse(true)
+end
+
 local function Auras_CustomFilter(_, unit, button, _, _, _, debuffType, duration, _, _, _, _, spellID, _, isBossDebuff) -- luacheck: no max line length
 	if not duration or duration == 0 then
 		return false
@@ -132,6 +136,7 @@ local function InitFrame(self)
 	auras.numTotal = 5
 	auras.showType = true
 	auras.CustomFilter = Auras_CustomFilter
+	auras.PostCreateIcon = Auras_PostCreateIcon
 	self.Auras = auras
 
 	-- Elite/rare classification
