@@ -123,18 +123,18 @@ local function InitFrame(self)
 	health.considerSelectionInCombatHostile = true
 	self.Health = health
 
-	-- Indicator overlays
-	local overlay = CreateFrame("Frame", nil, self)
-	overlay:SetAllPoints(self)
-	overlay:SetFrameLevel(border:GetFrameLevel() + 3)
-
 	-- Name
-	local name = SpawnText(self, overlay, nil, nil, nil, nil, nil, "text")
+	local name = SpawnText(self, health, nil, nil, nil, nil, nil, "text")
 	name:SetPoint("TOPLEFT", TEXT_MARGIN, 0)
 	name:SetPoint("BOTTOMRIGHT", -TEXT_MARGIN, 0)
 	name:SetJustifyH("CENTER")
 	self:Tag(name, "[name]")
 	self.Name = name
+
+	-- Indicator overlays
+	local overlay = CreateFrame("Frame", nil, self)
+	overlay:SetAllPoints(self)
+	overlay:SetFrameLevel(border:GetFrameLevel() + 10)
 
 	-- Create an icon displaying important debuffs
 	local auras = CreateFrame("Frame", nil, self)
@@ -207,7 +207,7 @@ local function InitFrame(self)
 	-- Range fading
 	local xrange = CreateFrame("Frame", nil, overlay)
 	xrange:SetAllPoints(self)
-	xrange:SetFrameLevel(overlay:GetFrameLevel() + 10)
+	xrange:SetFrameLevel(health:GetFrameLevel() + 1)
 	xrange.PostUpdate = XRange_PostUpdate
 
 	local tex = xrange:CreateTexture(nil, "OVERLAY")

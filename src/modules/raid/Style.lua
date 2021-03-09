@@ -471,11 +471,11 @@ local function InitFrame(self)
 	-- Indicator overlays
 	local overlay = CreateFrame("Frame", nil, self)
 	overlay:SetAllPoints(self)
-	overlay:SetFrameLevel(border:GetFrameLevel() + 3)
+	overlay:SetFrameLevel(self:GetFrameLevel() + 10)
 	self.Overlay = overlay
 
 	-- Name
-	local name = overlay:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+	local name = hp:CreateFontString(nil, "ARTWORK", "GameFontNormal")
 	name:SetPoint("TOPLEFT", 6, 0)
 	name:SetPoint("BOTTOMRIGHT", -6, 0)
 	name:SetJustifyH("CENTER")
@@ -588,9 +588,9 @@ local function InitFrame(self)
 	self:RegisterMessage("OnThemeModified", OnThemeModified)
 
 	-- Range fading
-	local xrange = CreateFrame("Frame", nil, overlay)
+	local xrange = CreateFrame("Frame", nil, hp)
 	xrange:SetAllPoints(self)
-	xrange:SetFrameLevel(overlay:GetFrameLevel() + 10)
+	xrange:SetFrameLevel(self:GetFrameLevel() + 5)
 	xrange.PostUpdate = XRange_PostUpdate
 
 	local tex = xrange:CreateTexture(nil, "OVERLAY")
