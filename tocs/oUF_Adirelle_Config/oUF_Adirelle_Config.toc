@@ -1,4 +1,4 @@
-## Interface: 90002
+## Interface: 90005
 ## Author: Adirelle
 ## Version: 1.0
 ## Title: oUF_Adirelle - configuration
