@@ -1,4 +1,7 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/">
-	<Script file="Config.lua"/>
-	<Script file="Legacy.lua"/>
+    <Script file="Config.lua"/>
+    <Script file="Profiles.lua"/>
+
+    <!-- To be removed at some point -->
+    <Script file="Legacy.lua"/>
 </Ui>

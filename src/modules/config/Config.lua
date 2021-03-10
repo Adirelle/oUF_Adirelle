@@ -23,12 +23,24 @@ local LibStub = _G.LibStub
 local tinsert = _G.tinsert
 local xpcall = _G.xpcall
 local geterrorhandler = _G.geterrorhandler
+local UnitName = _G.UnitName
+local UnitAffectingCombat = _G.UnitAffectingCombat
 
 local Config = oUF_Adirelle.Config
 
 local AC = LibStub("AceConfig-3.0")
 local ACD = LibStub("AceConfigDialog-3.0")
 local ACR = LibStub("AceConfigRegistry-3.0")
+
+Config.playerName = UnitName("player")
+
+function Config:SettingsModified(...)
+	return oUF_Adirelle.SettingsModified(...)
+end
+
+function Config:IsLockedDown()
+	return UnitAffectingCombat("player")
+end
 
 local Build
 do

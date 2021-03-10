@@ -25,17 +25,20 @@ local LoadAddOn = _G.LoadAddOn
 local function noop()
 end
 
-oUF_Adirelle.Config = {
+local Config = {
 	Reset = noop,
 	Close = noop,
-	Toggle = function(self)
-		return self:Close() or self:Open()
-	end,
-	Open = function(self, ...)
-		if not IsAddOnLoaded("oUF_Adirelle_Config") then
-			self.Open = noop
-			LoadAddOn("oUF_Adirelle_Config")
-		end
-		return self:Open(...)
-	end,
 }
+oUF_Adirelle.Config = Config
+
+function Config:Toggle()
+	return self:Close() or self:Open()
+end
+
+function Config:Open(...)
+	if not IsAddOnLoaded("oUF_Adirelle_Config") then
+		self.Open = noop -- prevents infinite loop if loading fail
+		LoadAddOn("oUF_Adirelle_Config")
+	end
+	return self:Open(...)
+end

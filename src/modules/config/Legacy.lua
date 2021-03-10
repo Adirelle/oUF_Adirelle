@@ -34,27 +34,23 @@ local strsub = _G.strsub
 local tonumber = _G.tonumber
 local tostring = _G.tostring
 local type = _G.type
-local UnitAffectingCombat = _G.UnitAffectingCombat
-local UnitName = _G.UnitName
 local unpack = _G.unpack
 local wipe = _G.wipe
+
+local LibMovable = oUF_Adirelle.GetLib("LibMovable-1.0")
+
+local Config = oUF_Adirelle.Config
+local SettingsModified = oUF_Adirelle.SettingsModified
+local layoutDB = oUF_Adirelle.layoutDB
+local themeDB = oUF_Adirelle.themeDB
+
+local IsLockedDown = Config.IsLockedDown
+local playerName = Config.playerName
+local reloadNeeded = false
 
 -- ------------------------------------------------------------------------------
 -- Main option builder
 -- ------------------------------------------------------------------------------
-
-local Config = oUF_Adirelle.Config
-
-local LibMovable = oUF_Adirelle.GetLib("LibMovable-1.0")
-
-local playerName = UnitName("player")
-local reloadNeeded = false
-
-local SettingsModified = oUF_Adirelle.SettingsModified
-
-local function IsLockedDown()
-	return UnitAffectingCombat("player")
-end
 
 local function join(a, ...)
 	if not a then
@@ -87,19 +83,6 @@ local unitModuleMap = {
 	slim_focus = "oUF_Adirelle_Single",
 	nameplate = "oUF_Adirelle_Nameplates",
 }
-
--- Create the profile options of the layout
-local layoutDB = oUF_Adirelle.layoutDB
-local layoutDBOptions = LibStub("AceDBOptions-3.0"):GetOptionsTable(layoutDB)
-LibStub("LibDualSpec-1.0"):EnhanceOptions(layoutDBOptions, layoutDB)
-layoutDBOptions.disabled = IsLockedDown
-layoutDBOptions.order = -1
-
--- Create the profile options of the theme
-local themeDB = oUF_Adirelle.themeDB
-local themeDBOptions = LibStub("AceDBOptions-3.0"):GetOptionsTable(themeDB)
-LibStub("LibDualSpec-1.0"):EnhanceOptions(themeDBOptions, themeDB)
-themeDBOptions.order = -1
 
 -- Fetch the list of togglable frames
 local togglableFrameList = {}
@@ -1293,7 +1276,6 @@ Config:RegisterBuilder(function(_, _, merge)
 					order = -10,
 					args = colorArgs,
 				},
-				profiles = themeDBOptions,
 			},
 		},
 	})
