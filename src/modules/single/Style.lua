@@ -526,7 +526,7 @@ local function CreateCastBar(self, anchor)
 	castbar.PostCastFail = CastBar_SetColor
 	castbar:SetScript("OnSizeChanged", CastBar_Update)
 	castbar:SetScript("OnShow", CastBar_Update)
-	self:RegisterStatusBarTexture(castbar)
+	self:RegisterStatusBarTexture(castbar, "castbar")
 	self.Castbar = castbar
 
 	local icon = castbar:CreateTexture(CreateName(castbar, "Icon"), "ARTWORK")
@@ -534,7 +534,7 @@ local function CreateCastBar(self, anchor)
 	icon:SetTexCoord(4 / 64, 60 / 64, 4 / 64, 60 / 64)
 	castbar.Icon = icon
 
-	local spellText = SpawnText(self, castbar, "OVERLAY", nil, nil, nil, nil, "text")
+	local spellText = SpawnText(self, castbar, "OVERLAY", nil, nil, nil, nil, "castbar")
 	spellText:SetPoint("TOPLEFT", castbar, "TOPLEFT", TEXT_MARGIN, 0)
 	spellText:SetPoint("BOTTOMRIGHT", castbar, "BOTTOMRIGHT", -TEXT_MARGIN, 0)
 	castbar.Text = spellText
@@ -618,7 +618,7 @@ local function InitFrame(settings, self, initUnit)
 	local stack = importantDebuff.Stack
 	stack:ClearAllPoints()
 	stack:SetPoint("BOTTOMRIGHT", importantDebuff, -1, 1)
-	self:RegisterFontString(importantDebuff.Stack, "number", 14, "OUTLINE")
+	self:RegisterFontString(importantDebuff.Stack, "stack", 14, "OUTLINE")
 	self.WarningIcon = importantDebuff
 
 	-- Portrait
@@ -651,7 +651,7 @@ local function InitFrame(settings, self, initUnit)
 	end
 
 	-- Health bar
-	local health = SpawnStatusBar(self, false)
+	local health = SpawnStatusBar(self, "health", false)
 	health:SetPoint("TOPRIGHT", barContainer)
 	health.frequentUpdates = true
 	health.considerSelectionInCombatHostile = true
@@ -659,7 +659,7 @@ local function InitFrame(settings, self, initUnit)
 	barContainer:AddWidget(health, 10, 4)
 
 	-- Name
-	local name = SpawnText(self, health, "OVERLAY", "TOPLEFT", "TOPLEFT", TEXT_MARGIN, 0, "text")
+	local name = SpawnText(self, health, "OVERLAY", "TOPLEFT", "TOPLEFT", TEXT_MARGIN, 0, "name")
 	name:SetPoint("BOTTOMLEFT", health, "BOTTOMLEFT", TEXT_MARGIN)
 	name:SetPoint("RIGHT", health.Text, "LEFT")
 	self:Tag(
@@ -685,7 +685,7 @@ local function InitFrame(settings, self, initUnit)
 
 	-- Power bar
 	if not settings.noPower then
-		local power = SpawnStatusBar(self, false)
+		local power = SpawnStatusBar(self, "power", false)
 		power.frequentUpdates = true
 		power.PostUpdate = Power_PostUpdate
 		self.Power = power
@@ -694,13 +694,13 @@ local function InitFrame(settings, self, initUnit)
 		local powers = {}
 		-- Additional power bars that requires specialization information
 		if unit == "player" or unit == "target" or unit == "focus" or unit == "pet" then
-			powers.MANA = SpawnStatusBar(self)
-			powers.SOUL_SHARDS = SpawnHybridBar(self, 4, 100, [[Interface\Addons\oUF_Adirelle\media\white16x16]])
+			powers.MANA = SpawnStatusBar(self, "power")
+			powers.SOUL_SHARDS = SpawnHybridBar(self, "soul_shards", 4, 100, [[Interface\Addons\oUF_Adirelle\media\white16x16]])
 		end
 		-- Additional power bars available only on players
 		if unit == "player" or unit == "target" or unit == "focus" or unit == "pet" or unit == "arena" then
-			powers.CHI = SpawnDiscreteBar(self, 6, false, [[Interface\Addons\oUF_Adirelle\media\white16x16]])
-			powers.HOLY_POWER = SpawnDiscreteBar(self, 5, false, [[Interface\Addons\oUF_Adirelle\media\white16x16]])
+			powers.CHI = SpawnDiscreteBar(self, "chi", 6, false, [[Interface\Addons\oUF_Adirelle\media\white16x16]])
+			powers.HOLY_POWER = SpawnDiscreteBar(self, "holy_power", 5, false, [[Interface\Addons\oUF_Adirelle\media\white16x16]])
 			powers.HOLY_POWER.PostUpdate = HighlightHolyPower
 		end
 		if next(powers) then
@@ -719,7 +719,7 @@ local function InitFrame(settings, self, initUnit)
 
 		-- Unit level and class (or creature family)
 		if unit ~= "player" and unit ~= "pet" then
-			local classif = SpawnText(self, power, "OVERLAY", nil, nil, nil, nil, "text")
+			local classif = SpawnText(self, power, "OVERLAY", nil, nil, nil, nil, "level")
 			classif:SetPoint("TOPLEFT", self.Health, "BOTTOMLEFT", 0, -GAP)
 			classif:SetPoint("BOTTOM", barContainer)
 			classif:SetPoint("RIGHT", power.Text, "LEFT")
@@ -737,7 +737,7 @@ local function InitFrame(settings, self, initUnit)
 	-- Threat Bar
 	if unit == "target" then
 		-- Add a simple threat bar on the target
-		local threatBar = SpawnStatusBar(self, false)
+		local threatBar = SpawnStatusBar(self, "threat", false)
 		threatBar:SetBackdrop(backdrop)
 		threatBar:SetBackdropColor(0, 0, 0, backdrop.bgAlpha)
 		threatBar:SetBackdropBorderColor(0, 0, 0, 1)
@@ -802,7 +802,7 @@ local function InitFrame(settings, self, initUnit)
 			if unit == "player" then
 				local timer = CreateFrame("Frame", CreateName(indicators, "PvPTimer"), indicators)
 				timer:SetAllPoints(pvp)
-				timer.text = SpawnText(self, timer, "OVERLAY", nil, nil, nil, nil, "number")
+				timer.text = SpawnText(self, timer, "OVERLAY", nil, nil, nil, nil, "timer")
 				timer.text:SetPoint("CENTER", pvp)
 				self.PvPTimer = timer
 			end
@@ -911,7 +911,7 @@ local function InitFrame(settings, self, initUnit)
 		xpFrame:SetBackdropBorderColor(0, 0, 0, 1)
 		xpFrame:EnableMouse(false)
 
-		local xpBar = SpawnStatusBar(self, true)
+		local xpBar = SpawnStatusBar(self, "xp", true)
 		xpBar:SetParent(xpFrame)
 		xpBar:SetAllPoints(xpFrame)
 		xpBar.Show = function()
@@ -925,15 +925,15 @@ local function InitFrame(settings, self, initUnit)
 		end
 		xpBar:EnableMouse(false)
 
-		local restedBar = SpawnStatusBar(self, true)
+		local restedBar = SpawnStatusBar(self, "xp", true)
 		restedBar:SetParent(xpFrame)
 		restedBar:SetAllPoints(xpFrame)
 		restedBar:EnableMouse(false)
 
-		local levelText = SpawnText(self, xpBar, "OVERLAY", "TOPLEFT", "TOPLEFT", TEXT_MARGIN, 0)
+		local levelText = SpawnText(self, xpBar, "OVERLAY", "TOPLEFT", "TOPLEFT", TEXT_MARGIN, 0, "level")
 		levelText:SetPoint("BOTTOMLEFT", xpBar, "BOTTOMLEFT", TEXT_MARGIN, 0)
 
-		local xpText = SpawnText(self, xpBar, "OVERLAY", "TOPRIGHT", "TOPRIGHT", -TEXT_MARGIN, 0)
+		local xpText = SpawnText(self, xpBar, "OVERLAY", "TOPRIGHT", "TOPRIGHT", -TEXT_MARGIN, 0, "xp")
 		xpText:SetPoint("BOTTOMRIGHT", xpBar, "BOTTOMRIGHT", -TEXT_MARGIN, 0)
 
 		local smartValue = oUF_Adirelle.smartValue
@@ -976,7 +976,7 @@ local function InitFrame(settings, self, initUnit)
 	-- Altenate power bar (e.g. sound on Atramedes, or poison on Isorath)
 	if unit == "player" or unit == "target" then
 
-		local alternativePower = SpawnStatusBar(self)
+		local alternativePower = SpawnStatusBar(self, "altpower")
 		alternativePower:SetBackdrop(backdrop)
 		alternativePower:SetBackdropColor(0, 0, 0, backdrop.bgAlpha)
 		alternativePower:SetBackdropBorderColor(0, 0, 0, 1)
@@ -986,7 +986,7 @@ local function InitFrame(settings, self, initUnit)
 		alternativePower.textureColor = { 1, 1, 1, 1 }
 		alternativePower.PostUpdate = AlternativePower_PostUpdate
 
-		local label = SpawnText(self, alternativePower, "OVERLAY", "TOPLEFT", "TOPLEFT", TEXT_MARGIN, 0)
+		local label = SpawnText(self, alternativePower, "OVERLAY", "TOPLEFT", "TOPLEFT", TEXT_MARGIN, 0, "altpower")
 		label:SetPoint("RIGHT", alternativePower.Text, "LEFT", -TEXT_MARGIN, 0)
 		alternativePower.Label = label
 

@@ -27,6 +27,9 @@ local SharedMedia = oUF_Adirelle.GetLib("LibSharedMedia-3.0")
 local FONT = SharedMedia.MediaType.FONT
 local STATUSBAR = SharedMedia.MediaType.STATUSBAR
 
+oUF_Adirelle.fontKinds = {}
+oUF_Adirelle.statusBarKinds = {}
+
 local function SetFont(self)
 	local name, size, flags = SharedMedia.DefaultMedia[FONT], self.__fontSize, self.__fontFlags
 	if oUF_Adirelle.themeDB.profile then
@@ -61,30 +64,39 @@ oUF:RegisterMetaFunction("RegisterFontString", function(_, fontstring, kind, siz
 		fontstring:SetShadowOffset(1, -1)
 	end
 	fontstring.__fontKind, fontstring.__fontSize, fontstring.__fontFlags = kind, size or 10, flags or ""
+	oUF_Adirelle.fontKinds[fontstring.__fontKind] = true
 	SetFont(fontstring) -- Update once immediately
 end)
 
--- The statusbar texture (with default)
-local texture = [[Interface\TargetingFrame\UI-StatusBar]]
+local function GetStatusBarTexture(bar)
+	if oUF_Adirelle.themeDB.profile then
+		local name = oUF_Adirelle.themeDB.profile.statusBars[bar.__statusBarKind]
+		return SharedMedia:Fetch(STATUSBAR, name)
+	end
+	return [[Interface\TargetingFrame\UI-StatusBar]]
+end
 
 local function StatusBar_Callback(bar)
 	local r, g, b, a = bar:GetStatusBarColor()
-	bar:SetStatusBarTexture(texture)
+	bar:SetStatusBarTexture(GetStatusBarTexture(bar))
 	bar:SetStatusBarColor(r, g, b, a)
 end
 
 local function Texture_Callback(bar)
 	local r, g, b, a = bar:GetVertexColor()
-	bar:SetTexture(texture)
+	bar:SetTexture(GetStatusBarTexture(bar))
 	bar:SetVertexColor(r, g, b, a)
 end
 
 -- The meta to allow unit frames to register their textures
-oUF:RegisterMetaFunction("RegisterStatusBarTexture", function(_, bar)
+oUF:RegisterMetaFunction("RegisterStatusBarTexture", function(_, bar, kind)
 	local callback = assert(
 		bar:IsObjectType("StatusBar") and StatusBar_Callback or bar:IsObjectType("Texture") and Texture_Callback,
-		"RegisterStatusBarTexture(object): object should be a Texture or a StatusBar"
+		"RegisterStatusBarTexture(object, kind): object should be a Texture or a StatusBar"
 	)
+	assert(type(kind) == "string", "RegisterStatusBarTexture(object, kind): kind should be a string")
+	bar.__statusBarKind = kind
+	oUF_Adirelle.statusBarKinds[kind] = true
 	oUF_Adirelle.EmbedMessaging(bar)
 	bar:RegisterMessage("SetStatusBarTexture", callback)
 	callback(bar) -- Update once immediately
@@ -96,14 +108,7 @@ local function UpdateFont()
 end
 
 local function UpdateStatusBar()
-	local textureSetting = oUF_Adirelle.themeDB.profile
-		and oUF_Adirelle.themeDB.profile.statusbar
-		or SharedMedia.DefaultMedia[STATUSBAR]
-	local newTexture = SharedMedia:Fetch(STATUSBAR, textureSetting)
-	if newTexture and newTexture ~= texture then
-		texture = newTexture
-		oUF_Adirelle:SendMessage("SetStatusBarTexture")
-	end
+	oUF_Adirelle:SendMessage("SetStatusBarTexture")
 end
 
 local function UpdateBoth()

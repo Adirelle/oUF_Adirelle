@@ -113,7 +113,7 @@ oUF:RegisterMetaFunction("CreateIcon", function(self, parent, size, noCooldown, 
 
 	if not noStack then
 		local stack = (icon.Cooldown or icon):CreateFontString(nil, "OVERLAY", "NumberFontNormal")
-		self:RegisterFontString(stack, "number", 10, "OUTLINE", true)
+		self:RegisterFontString(stack, "stack", 10, "OUTLINE", true)
 		stack:SetAllPoints(icon.Texture or icon)
 		stack:SetJustifyH("CENTER")
 		stack:SetJustifyV("MIDDLE")

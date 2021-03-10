@@ -444,13 +444,13 @@ local function InitFrame(self)
 	hp:SetPoint("BOTTOMRIGHT")
 	hp.current, hp.max = 0, 0
 	self.Health = hp
-	self:RegisterStatusBarTexture(hp)
+	self:RegisterStatusBarTexture(hp, "health")
 
 	local hpbg = hp:CreateTexture(nil, "BACKGROUND", nil, -1)
 	hpbg:SetAllPoints(hp)
 	hpbg:SetAlpha(1)
 	hp.bg = hpbg
-	self:RegisterStatusBarTexture(hpbg)
+	self:RegisterStatusBarTexture(hpbg, "health")
 
 	--UpdateHealthLayout(self)
 
@@ -576,7 +576,7 @@ local function InitFrame(self)
 	alternativePower:SetScript("OnShow", AlternativePower_Layout)
 	alternativePower:SetScript("OnHide", AlternativePower_Layout)
 	alternativePower:SetFrameLevel(threat:GetFrameLevel() + 1)
-	self:RegisterStatusBarTexture(alternativePower)
+	self:RegisterStatusBarTexture(alternativePower, "altpower")
 	self.AlternativePower = alternativePower
 
 	-- Setting callbacks

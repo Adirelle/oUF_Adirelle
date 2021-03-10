@@ -25,13 +25,8 @@ local oUF_Adirelle = { oUF = oUF }
 _G.oUF_Adirelle = oUF_Adirelle
 
 --<GLOBALS
-local IsAddOnLoaded = _G.IsAddOnLoaded
-local LoadAddOn = _G.LoadAddOn
 local next = _G.next
 local print = _G.print
-local strlower = _G.strlower
-local strmatch = _G.strmatch
-local tonumber = _G.tonumber
 --GLOBALS >
 
 -- Debugging stuff
@@ -80,51 +75,18 @@ else
 	end
 end
 
--- DiminishingReturns support
-function oUF_Adirelle.RegisterDiminishingReturns()
-	_G.DiminishingReturns:DeclareOUF(parent, oUF)
-end
-
--- Configuration
-
-local function ToggleConfig(arg, button)
-	if oUF_Adirelle.ToggleLock and (arg == "lock" or button == "LeftButton") then
-		return oUF_Adirelle.ToggleLock()
-	end
-	if not IsAddOnLoaded("oUF_Adirelle_Config") then
-		LoadAddOn("oUF_Adirelle_Config")
-	end
-	if oUF_Adirelle.ToggleConfig then
-		oUF_Adirelle.ToggleConfig()
-	end
-end
+-- Configuration toggle
 
 _G.SLASH_OUFADIRELLE1 = "/ouf_adirelle"
 _G.SLASH_OUFADIRELLE2 = "/oufa"
-_G.SlashCmdList.OUFADIRELLE = ToggleConfig
-
-_G.SLASH_OUFALOWHEALTH1 = "/oufa_health"
-_G.SLASH_OUFALOWHEALTH2 = "/oufah"
-_G.SlashCmdList.OUFALOWHEALTH = function(arg)
-	local number, suffix = strmatch(strlower(arg), "(%d+)([%%k]?)")
-	local threshold = tonumber(number)
-	if threshold then
-		local db = oUF_Adirelle.themeDB.profile.LowHealth
-		if suffix == "%" then
-			if threshold >= 5 and threshold <= 95 then
-				db.isPercent, db.percent = true, threshold / 100
-				return oUF_Adirelle.SettingsModified("OnThemeModified")
-			end
-		elseif threshold > 0 then
-			db.isPercent, db.amount = false, threshold * (suffix == "k" and 1000 or 1)
-			return oUF_Adirelle.SettingsModified("OnThemeModified")
-		end
+_G.SlashCmdList.OUFADIRELLE = function(arg, ...)
+	if oUF_Adirelle.ToggleLock and arg == "lock" then
+		return oUF_Adirelle.ToggleLock()
 	end
-	if not IsAddOnLoaded("oUF_Adirelle_Config") then
-		LoadAddOn("oUF_Adirelle_Config")
-	end
-	if oUF_Adirelle.ToggleConfig then
-		oUF_Adirelle.ToggleConfig("theme", "warningThresholds")
+	if arg then
+		oUF_Adirelle.Config:Open(arg, ...)
+	else
+		oUF_Adirelle.Config:Toggle()
 	end
 end
 
@@ -135,7 +97,12 @@ if LDB then
 		icon = [[Interface\Icons\Ability_Vehicle_ShellShieldGenerator]],
 		tocname = parent,
 		label = parent,
-		OnClick = ToggleConfig,
+		OnClick = function(_, button)
+			if oUF_Adirelle.ToggleLock and button == "LeftButton" then
+				return oUF_Adirelle.ToggleLock()
+			end
+			oUF_Adirelle.Config:Toggle()
+		end,
 		OnTooltipShow = function(tooltip)
 			if not tooltip then
 				tooltip = _G.GameTooltip

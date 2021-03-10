@@ -31,6 +31,9 @@ oUF\oUF.xml
 # Setup namespace
 src\oUF_Adirelle.lua
 
+# Configuration Stub
+src\support\ConfigStub.lua
+
 # Layout constants
 src\support\Constants.lua
 

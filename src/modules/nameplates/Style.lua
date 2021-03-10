@@ -112,7 +112,7 @@ local function InitFrame(self)
 	self.Border = border
 
 	-- Health bar
-	local health = SpawnStatusBar(self, true)
+	local health = SpawnStatusBar(self, "health", true)
 	health:SetAllPoints()
 	health.frequentUpdates = true
 	health.colorTapping = true
@@ -123,7 +123,7 @@ local function InitFrame(self)
 	self.Health = health
 
 	-- Name
-	local name = SpawnText(self, health, nil, nil, nil, nil, nil, "text")
+	local name = SpawnText(self, health, nil, nil, nil, nil, nil, "nameplate")
 	name:SetPoint("TOPLEFT", TEXT_MARGIN, 0)
 	name:SetPoint("BOTTOMRIGHT", -TEXT_MARGIN, 0)
 	name:SetJustifyH("CENTER")
@@ -168,7 +168,7 @@ local function InitFrame(self)
 	castbar.CastInterruptible = SetCastBarColor
 	castbar.PostCastFail = SetCastBarColor
 	castbar.timeToHold = 0.5
-	self:RegisterStatusBarTexture(castbar)
+	self:RegisterStatusBarTexture(castbar, "castbar")
 	self.Castbar = castbar
 
 	local icon = castbar:CreateTexture(CreateName(castbar, "Icon"), "ARTWORK")
@@ -178,7 +178,7 @@ local function InitFrame(self)
 	castbar.Icon = icon
 	castbar:SetPoint("LEFT", icon, "RIGHT")
 
-	local spellText = SpawnText(self, castbar, "OVERLAY", nil, nil, nil, nil, "text")
+	local spellText = SpawnText(self, castbar, "OVERLAY", nil, nil, nil, nil, "castbar")
 	spellText:SetPoint("TOPLEFT", castbar, "TOPLEFT", TEXT_MARGIN, 0)
 	spellText:SetPoint("BOTTOMRIGHT", castbar, "BOTTOMRIGHT", -TEXT_MARGIN, 0)
 	castbar.Text = spellText

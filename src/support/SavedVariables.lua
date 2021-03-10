@@ -28,6 +28,8 @@ local rawget = _G.rawget
 local type = _G.type
 --GLOBALS>
 
+local LSM = oUF_Adirelle.GetLib("LibSharedMedia-3.0")
+
 -- ------------------------------------------------------------------------------
 -- Main SV handling
 -- ------------------------------------------------------------------------------
@@ -93,14 +95,14 @@ local LAYOUT_DEFAULTS = {
 	},
 }
 
-local SharedMedia = oUF_Adirelle.GetLib("LibSharedMedia-3.0")
-
 local THEME_DEFAULTS = {
 	profile = {
-		statusbar = "BantoBar",
+		statusBars = {
+			["*"] = LSM:GetDefault(LSM.MediaType.STATUSBAR),
+		},
 		fonts = {
 			["**"] = {
-				name = SharedMedia:GetDefault("font"),
+				name = LSM:GetDefault(LSM.MediaType.FONT),
 				scale = 1.0,
 				flags = "DEFAULT",
 			},
@@ -246,34 +248,36 @@ oUF_Adirelle:RegisterEvent("ADDON_LOADED", ADDON_LOADED)
 local optionalElements = {
 	"AssistantIndicator",
 	"Castbar",
-	"ComboPoints",
 	"CombatIndicator",
+	"ComboPoints",
+	"CustomClick",
 	"Dragon",
 	"EclipseBar",
 	"Experience",
-	"HolyPower",
 	"HealthPrediction",
+	"HolyPower",
 	"LeaderIndicator",
 	"LowHealth",
 	"MasterLooter",
+	"Portrait",
+	"PowerPrediction",
 	"PvP",
 	"PvPTimer",
 	"RaidTargetIndicator",
 	"ReadyCheckIndicator",
 	"RestingIndicator",
+	"ResurrectIndicator",
 	"RoleIcon",
 	"RuneBar",
 	"SmartThreat",
 	"SoulShards",
 	"StatusIcon",
+	"SummonIndicator",
 	"TargetIcon",
 	"ThreatBar",
 	"TotemBar",
 	"WarningIcon",
 	"XRange",
-	"Portrait",
-	"CustomClick",
-	"PowerPrediction",
 }
 oUF_Adirelle.optionalElements = optionalElements
 
