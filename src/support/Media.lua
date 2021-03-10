@@ -23,6 +23,8 @@ local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 --<GLOBALS
 --GLOBALS>
 
+local Config = oUF_Adirelle.Config
+
 local SharedMedia = oUF_Adirelle.GetLib("LibSharedMedia-3.0")
 local FONT = SharedMedia.MediaType.FONT
 local STATUSBAR = SharedMedia.MediaType.STATUSBAR
@@ -30,20 +32,12 @@ local STATUSBAR = SharedMedia.MediaType.STATUSBAR
 oUF_Adirelle.fontKinds = {}
 oUF_Adirelle.statusBarKinds = {}
 
-local function SetFont(self)
-	local name, size, flags = SharedMedia.DefaultMedia[FONT], self.__fontSize, self.__fontFlags
-	if oUF_Adirelle.themeDB.profile then
-		local db = oUF_Adirelle.themeDB.profile.fonts[self.__fontKind]
-		name = db.name
-		size = size * db.scale
-		if db.flags ~= "DEFAULT" then
-			flags = db.flags
-		end
+local function SetFont(self, _, key)
+	if key and key ~= self.__fontKind then
+		return
 	end
-	local actualFont = SharedMedia:Fetch(FONT, name)
-	if actualFont then
-		self:SetFont(actualFont, size, flags)
-	end
+	local name, size, flags = Config:GetFont(self.__fontKind, self.__fontSize, self.__fontFlags)
+	self:SetFont(SharedMedia:Fetch(FONT, name), size, flags)
 end
 
 -- The meta to allow unit frames to register their fontstrings
@@ -64,41 +58,42 @@ oUF:RegisterMetaFunction("RegisterFontString", function(_, fontstring, kind, siz
 		fontstring:SetShadowOffset(1, -1)
 	end
 	fontstring.__fontKind, fontstring.__fontSize, fontstring.__fontFlags = kind, size or 10, flags or ""
-	oUF_Adirelle.fontKinds[fontstring.__fontKind] = true
+	Config:RegisterFont(kind)
 	SetFont(fontstring) -- Update once immediately
 end)
 
-local function GetStatusBarTexture(bar)
-	if oUF_Adirelle.themeDB.profile then
-		local name = oUF_Adirelle.themeDB.profile.statusBars[bar.__statusBarKind]
-		return SharedMedia:Fetch(STATUSBAR, name)
-	end
-	return [[Interface\TargetingFrame\UI-StatusBar]]
-end
-
-local function StatusBar_Callback(bar)
+local function StatusBar_Callback(bar, texture)
 	local r, g, b, a = bar:GetStatusBarColor()
-	bar:SetStatusBarTexture(GetStatusBarTexture(bar))
+	bar:SetStatusBarTexture(texture)
 	bar:SetStatusBarColor(r, g, b, a)
 end
 
-local function Texture_Callback(bar)
+local function Texture_Callback(bar, texture)
 	local r, g, b, a = bar:GetVertexColor()
-	bar:SetTexture(GetStatusBarTexture(bar))
+	bar:SetTexture(texture)
 	bar:SetVertexColor(r, g, b, a)
 end
 
 -- The meta to allow unit frames to register their textures
 oUF:RegisterMetaFunction("RegisterStatusBarTexture", function(_, bar, kind)
-	local callback = assert(
+	local SetTexture = assert(
 		bar:IsObjectType("StatusBar") and StatusBar_Callback or bar:IsObjectType("Texture") and Texture_Callback,
 		"RegisterStatusBarTexture(object, kind): object should be a Texture or a StatusBar"
 	)
 	assert(type(kind) == "string", "RegisterStatusBarTexture(object, kind): kind should be a string")
-	bar.__statusBarKind = kind
-	oUF_Adirelle.statusBarKinds[kind] = true
-	oUF_Adirelle.EmbedMessaging(bar)
-	bar:RegisterMessage("SetStatusBarTexture", callback)
+	local callback = function(_, _, key)
+		if key and key ~= kind then
+			return
+		end
+		local name = Config:GetStatusBar(kind)
+		local texture = SharedMedia:Fetch(STATUSBAR, name)
+		SetTexture(bar, texture)
+	end
+	if not bar.RegisterMessage then
+		oUF_Adirelle.EmbedMessaging(bar)
+		bar:RegisterMessage("SetStatusBar", callback)
+	end
+	Config:RegisterStatusBar(kind)
 	callback(bar) -- Update once immediately
 end)
 
@@ -108,7 +103,7 @@ local function UpdateFont()
 end
 
 local function UpdateStatusBar()
-	oUF_Adirelle:SendMessage("SetStatusBarTexture")
+	oUF_Adirelle:SendMessage("SetStatusBar")
 end
 
 local function UpdateBoth()

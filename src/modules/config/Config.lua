@@ -19,12 +19,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 local _G = _G
 local oUF_Adirelle = _G.oUF_Adirelle
 
-local LibStub = _G.LibStub
-local tinsert = _G.tinsert
-local xpcall = _G.xpcall
 local geterrorhandler = _G.geterrorhandler
-local UnitName = _G.UnitName
+local LibStub = _G.LibStub
+local strformat = _G.strformat
+local tinsert = _G.tinsert
 local UnitAffectingCombat = _G.UnitAffectingCombat
+local UnitName = _G.UnitName
+local xpcall = _G.xpcall
 
 local Config = oUF_Adirelle.Config
 
@@ -46,16 +47,40 @@ local Build
 do
 	local builders = {}
 
+	local labels = {
+		health = "Health bar",
+		power = "Power bar",
+		altpower = "Special resources",
+		soul_shards = "Soul shards",
+		threat = "Threat bar",
+		xp = "Experience bar",
+		castbar = "Casting bar",
+		nameplate = "Nameplate",
+		raid = "Teammate name",
+		name = "Unit name",
+		number = "Amount",
+		level = "Character level",
+		stack = "(De)buff stacks",
+		timer = "timer",
+	}
+
 	local function MergeArgs(path, target, source)
 		for key, value in next, source do
+			local thisPath = path .. "." .. key
 			if target[key] then
-				path = path .. "." .. key
 				if target[key].type == "group" and value.type == "group" then
-					target[key].args = MergeArgs(path, target[key].args, value.args)
+					oUF_Adirelle:Debug("Merge groups", thisPath)
+					target[key].args = MergeArgs(thisPath, target[key].args, value.args)
 				else
-					error("MergeArgs: cannot overwrite " .. path)
+					error(strformat(
+						"MergeArgs: [%s] cannot overwrite %s with %",
+						thisPath,
+						target[key].type,
+						value.type
+					))
 				end
 			else
+				oUF_Adirelle:Debug("Set", value.type, thisPath)
 				target[key] = value
 			end
 		end
@@ -67,12 +92,18 @@ do
 			return MergeArgs(path, target, item)
 		end
 		if type(item) ~= "string" then
-			error("MergeIn: expected item to table or string, not " .. type(item))
+			error(
+				"MergeIn: [" .. path .. "]: expected item to be a table or a string, got a " .. type(item)
+			)
 		end
+		path = path .. "." .. item
 		if not target[item] then
-			target[item] = { name = item, type = "group", args = {} }
+			oUF_Adirelle:Debug("Create group", path)
+			target[item] = { name = labels[item] or item, type = "group", args = {} }
+		elseif target[item].type ~= "group" then
+			error("MergeIn: [" .. path .. "]: expected a group, got a ", target[item].type)
 		end
-		target[item].args = MergeIn(path .. "." .. "item", target[item].args, ...)
+		target[item].args = MergeIn(path, target[item].args, ...)
 		return target
 	end
 

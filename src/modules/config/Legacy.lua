@@ -299,115 +299,6 @@ Config:RegisterBuilder(function(_, _, merge)
 		}
 	end
 
-	local SharedMedia = oUF_Adirelle.GetLib("LibSharedMedia-3.0")
-	local FONT = SharedMedia.MediaType.FONT
-	local STATUSBAR = SharedMedia.MediaType.STATUSBAR
-
-	local function GetFontValues()
-		return SharedMedia:HashTable(FONT)
-	end
-
-	local kind_labels = {
-		health = "Health",
-		power = "Power",
-		altpower = "Special ressources",
-		soul_shards = "Soul shards",
-		threat = "Threat",
-		xp = "Experience",
-		castbar = "Casting bar",
-		nameplate = "Nameplate",
-		raid = "Raid names",
-		text = "Names",
-		number = "Numbers",
-	}
-
-	local function BuildFontGroup(kind)
-		return {
-			name = kind_labels[kind] or kind,
-			type = "group",
-			get = function(info)
-				return themeDB.profile.fonts[kind][info[#info]]
-			end,
-			set = function(info, value)
-				themeDB.profile.fonts[kind][info[#info]] = value
-				SettingsModified("OnFontModified")
-			end,
-			args = {
-				name = {
-					name = "Font",
-					type = "select",
-					dialogControl = "LSM30_Font",
-					values = GetFontValues,
-					width = "double",
-					order = 10,
-				},
-				scale = {
-					name = "Scale",
-					type = "range",
-					isPercent = true,
-					min = 0.05,
-					max = 2.0,
-					step = 0.05,
-					order = 20,
-				},
-				flags = {
-					name = "Outline",
-					type = "select",
-					values = {
-						[""] = "None",
-						["DEFAULT"] = "Default",
-						["OUTLINE"] = "Thin",
-						["THICKOUTLINE"] = "Thick",
-					},
-					order = 30,
-				},
-			},
-		}
-	end
-
-	local function BuildFontGroups()
-		local widgets = {}
-		for kind in next, oUF_Adirelle.fontKinds do
-			widgets[kind] = BuildFontGroup(kind)
-		end
-		return {
-			name = "Fonts",
-			type = "group",
-			order = 20,
-			args = widgets,
-		}
-	end
-
-	local function GetStatusBarValues()
-		return SharedMedia:HashTable(STATUSBAR)
-	end
-
-	local function BuildStatusBarGroup()
-		local widgets = {}
-		for kind in next, oUF_Adirelle.statusBarKinds do
-			local thisKind = kind
-			widgets[thisKind] = {
-				name = kind_labels[thisKind] or thisKind,
-				type = "select",
-				dialogControl = "LSM30_Statusbar",
-				values = GetStatusBarValues,
-			}
-		end
-		return {
-			name = "Textures",
-			type = "group",
-			order = 10,
-			args = widgets,
-			get = function(info)
-				return themeDB.profile.statusBars[info[#info]]
-			end,
-			set = function(info, value)
-				themeDB.profile.statusBars[info[#info]] = value
-				SettingsModified("OnTextureModified")
-			end,
-		}
-	end
-
 	local function BuildClassAuraIconGroup(order)
 		local defaults = oUF_Adirelle.ClassAuraIcons and oUF_Adirelle.ClassAuraIcons.defaultAnchors
 		if not defaults or not next(defaults) then
@@ -1069,7 +960,6 @@ Config:RegisterBuilder(function(_, _, merge)
 						},
 					},
 				},
-				profiles = layoutDBOptions,
 			},
 		},
 		theme = {
@@ -1078,8 +968,6 @@ Config:RegisterBuilder(function(_, _, merge)
 			order = 30,
 			childGroups = "tree",
 			args = {
-				statusBars = BuildStatusBarGroup(),
-				fonts = BuildFontGroups(),
 				single = {
 					name = "Basic/arena/boss frames",
 					type = "group",

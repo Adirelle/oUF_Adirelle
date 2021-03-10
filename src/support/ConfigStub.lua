@@ -26,6 +26,10 @@ local function noop()
 end
 
 local Config = {
+	statusBars = {},
+	colors = {},
+	fonts = {},
+
 	Reset = noop,
 	Close = noop,
 }
@@ -41,4 +45,44 @@ function Config:Open(...)
 		LoadAddOn("oUF_Adirelle_Config")
 	end
 	return self:Open(...)
+end
+
+function Config:RegisterStatusBar(key)
+	if not self.statusBars[key] then
+		self.statusBars[key] = true
+		self:Reset()
+	end
+end
+
+function Config:GetStatusBar(key)
+	local themeDB = oUF_Adirelle.themeDB
+	return themeDB.profile and themeDB.profile.statusBars[key]
+end
+
+function Config:RegisterColor(key)
+	if not self.colors[key] then
+		self.colors[key] = true
+		self:Reset()
+	end
+end
+
+function Config:RegisterFont(key)
+	if not self.fonts[key] then
+		self.fonts[key] = true
+		self:Reset()
+	end
+end
+
+function Config:GetFont(key, size, flags)
+	local name
+	local themeDB = oUF_Adirelle.themeDB
+	if themeDB.profile then
+		local db = themeDB.profile.fonts[key]
+		name = db.name
+		size = size * db.scale
+		if db.flags ~= "DEFAULT" then
+			flags = db.flags
+		end
+	end
+	return name, size, flags
 end
