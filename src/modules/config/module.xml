@@ -6,4 +6,5 @@
 
     <Script file="Profiles.lua"/>
     <Script file="Media.lua"/>
+    <Script file="Colors.lua"/>
 </Ui>
