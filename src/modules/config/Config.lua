@@ -43,26 +43,36 @@ function Config:IsLockedDown()
 	return UnitAffectingCombat("player")
 end
 
+local labels = {
+	altpower = "Special resources",
+	castbar = "Casting bar",
+	class = "Character class",
+	disconnected = "Disconnected player",
+	health = "Health",
+	healthPrediction = "Health prediction",
+	level = "Character level",
+	lowHealth = "Low health",
+	misc = "Miscellanous",
+	name = "Unit character name",
+	nameplate = "Nameplate",
+	outOfRange = "Range fading",
+	power = "Power",
+	raid = "Raid character name",
+	soul_shards = "Soul shards",
+	stack = "(De)buff stacks",
+	tapped = "Tapped mob",
+	threat = "Threat",
+	timer = "Timer",
+	xp = "Experience",
+}
+
+function Config:GetLabel(text)
+	return labels[text] or text
+end
+
 local Build
 do
 	local builders = {}
-
-	local labels = {
-		health = "Health bar",
-		power = "Power bar",
-		altpower = "Special resources",
-		soul_shards = "Soul shards",
-		threat = "Threat bar",
-		xp = "Experience bar",
-		castbar = "Casting bar",
-		nameplate = "Nameplate",
-		raid = "Teammate name",
-		name = "Unit name",
-		number = "Amount",
-		level = "Character level",
-		stack = "(De)buff stacks",
-		timer = "timer",
-	}
 
 	local function MergeArgs(path, target, source)
 		for key, value in next, source do
@@ -99,7 +109,7 @@ do
 		path = path .. "." .. item
 		if not target[item] then
 			oUF_Adirelle:Debug("Create group", path)
-			target[item] = { name = labels[item] or item, type = "group", args = {} }
+			target[item] = { name = Config:GetLabel(item), type = "group", args = {} }
 		elseif target[item].type ~= "group" then
 			error("MergeIn: [" .. path .. "]: expected a group, got a ", target[item].type)
 		end

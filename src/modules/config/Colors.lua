@@ -39,7 +39,12 @@ end
 local labels = {
 	power = _G,
 	class = _G.LOCALIZED_CLASS_NAMES_MALE,
-	healthPrediction = { self = "Self", others = "Others'", absorb = "Shields", healAbsorb = "Heal absorption" },
+	healthPrediction = {
+		self = "Self",
+		others = "Others'",
+		absorb = "Shields",
+		healAbsorb = "Heal absorption",
+	},
 	selection = {
 		[0] = "Hostile",
 		[1] = "Unfriendly",
@@ -71,9 +76,16 @@ local labels = {
 }
 -- "FACTION_STANDING_LABEL%d"
 
+local relocate = {
+	healthPrediction = "health",
+	lowHealth = "health",
+	tapped = "misc",
+	disconnected = "misc",
+}
+
 local function BuildSingleColor(name, color)
 	return {
-		name = name,
+		name = Config:GetLabel(name),
 		type = "color",
 		arg = color,
 		hasAlpha = type(color[4]) == "number",
@@ -83,12 +95,12 @@ local function BuildSingleColor(name, color)
 end
 
 -- Build a group of color options from a table of colors
-local function BuildColorGroup(groupkey, name, colors)
+local function BuildColorGroup(groupKey, name, colors)
 	if not colors then
 		return
 	end
-	local group = { name = name, type = "group", inline = true, args = {} }
-	local thisLabels = labels[groupkey] or {}
+	local group = { name = Config:GetLabel(name), type = "group", inline = true, args = {} }
+	local thisLabels = labels[groupKey] or {}
 	for key, color in pairs(colors) do
 		local label = thisLabels[key]
 		if not thisLabels or label then
@@ -99,12 +111,12 @@ local function BuildColorGroup(groupkey, name, colors)
 end
 
 -- Build a group of color options from a table of colors
-local function BuildColorEntry(key, value)
+local function BuildColorEntry(key, name, value)
 	local arg
 	if type(value[1]) == "number" then
-		arg = BuildSingleColor("Color", value)
+		arg = BuildSingleColor(name, value)
 	else
-		arg = BuildColorGroup(key, "Colors", value)
+		arg = BuildColorGroup(key, name, value)
 	end
 	if arg then
 		arg.order = 15
@@ -114,9 +126,13 @@ end
 
 Config:RegisterBuilder(function(_, _, merge)
 	for key, value in next, oUF.colors do
-		local entry = BuildColorEntry(key, value)
+		local path, argKey, name = key, "color", "Color"
+		if relocate[key] then
+			path, argKey, name = relocate[key], key, key
+		end
+		local entry = BuildColorEntry(key, name, value)
 		if entry then
-			merge("theme", key, { color = entry })
+			merge("theme", path, { [argKey] = entry })
 		end
 	end
 end)
