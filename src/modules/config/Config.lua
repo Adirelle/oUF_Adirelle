@@ -34,25 +34,56 @@ local Build
 do
 	local builders = {}
 
-	function Build()
-		local opts = {
-			name = "oUF_Adirelle " .. oUF_Adirelle.VERSION,
-			type = "group",
-			childGroups = "tab",
-			args = {},
-		}
+	local function MergeArgs(path, target, source)
+		for key, value in next, source do
+			if target[key] then
+				path = path .. "." .. key
+				if target[key].type == "group" and value.type == "group" then
+					target[key].args = MergeArgs(path, target[key].args, value.args)
+				else
+					error("MergeArgs: cannot overwrite " .. path)
+				end
+			else
+				target[key] = value
+			end
+		end
+		return target
+	end
 
-		local function merge(newOpts)
-			opts.args = newOpts
+	local function MergeIn(path, target, item, ...)
+		if type(item) == "table" then
+			return MergeArgs(path, target, item)
+		end
+		if type(item) ~= "string" then
+			error("MergeIn: expected item to table or string, not " .. type(item))
+		end
+		if not target[item] then
+			target[item] = { name = item, type = "group", args = {} }
+		end
+		target[item].args = MergeIn(path .. "." .. "item", target[item].args, ...)
+		return target
+	end
+
+	function Build()
+		local opts = {}
+
+		local function merge(...)
+			opts = MergeIn("", opts, ...)
 		end
 
 		local eh = geterrorhandler()
 		for _, builder in next, builders do
 			xpcall(function()
-				builder(Config, opts.args, merge)
+				builder(Config, opts, merge)
 			end, eh)
 		end
-		return opts
+
+		return {
+			name = "oUF_Adirelle " .. oUF_Adirelle.VERSION,
+			type = "group",
+			childGroups = "tab",
+			args = opts,
+		}
 	end
 
 	function Config:RegisterBuilder(builder)
