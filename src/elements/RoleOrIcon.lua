@@ -39,34 +39,50 @@ local UnitIsUnit = _G.UnitIsUnit
 
 local GetPlayerRole = oUF_Adirelle.GetPlayerRole
 
-local function GetRole(unit, noDamager, noCircle)
-	if not UnitIsPlayer(unit) then
-		return
-	end
+local function AcceptAllRole(role)
+	return role and role ~= "NONE"
+end
 
+local function AcceptNoDamager(role)
+	return role ~= "DAMAGER" and AcceptAllRole(role)
+end
+
+local function GetUnitRole(unit, accept)
 	-- Check assigned raid roles
 	local raidId = IsInRaid() and UnitInRaid(unit)
 	if raidId then
-		local role = select(10, GetRaidRosterInfo(raidId))
-		--Debug('Role from GetRaidRosterInfo for ', unit, ':', role)
-		if role and role ~= "NONE" and not noDamager or role ~= "DAMAGER" then
-			return "Interface\\GroupFrame\\UI-Group-" .. role .. "Icon"
+		local role = select(12, GetRaidRosterInfo(raidId))
+		if accept(role) then
+			return role, true
 		end
 	end
+	local role = UnitGroupRolesAssigned(unit)
+	if accept(role) then
+		return role, false
+	end
+	if UnitIsUnit(unit, "player") then
+		role = GetPlayerRole()
+		return accept(role) and role, false
+	end
+	return
+end
 
-	-- Check assigned roles
-	local role = UnitIsUnit(unit, "player") and GetPlayerRole() or UnitGroupRolesAssigned(unit)
-	if role and role ~= "NONE" then
-		--Debug('Role from UnitGroupRolesAssigned for ', unit, ':', role)
-		if noDamager and role == "DAMAGER" then
-			return
-		end
-		if noCircle then
-			local x0, x1, y0, y1 = GetTexCoordsForRoleSmall(role)
-			return [[Interface\LFGFrame\LFGRole_bw]], x0, x1, y0, y1, 1, 0.82, 0
-		else
-			return [[Interface\LFGFrame\UI-LFG-ICON-PORTRAITROLES]], GetTexCoordsForRoleSmallCircle(role)
-		end
+local function GetRoleTexture(unit, noDamager, noCircle)
+	if not UnitIsPlayer(unit) then
+		return
+	end
+	local role, inRaid = GetUnitRole(unit, noDamager and AcceptNoDamager or AcceptAllRole)
+	if not role then
+		return
+	end
+	if inRaid then
+		return "Interface\\GroupFrame\\UI-Group-" .. role .. "Icon"
+	end
+	if noCircle then
+		local x0, x1, y0, y1 = GetTexCoordsForRoleSmall(role)
+		return [[Interface\LFGFrame\LFGRole_bw]], x0, x1, y0, y1, 1, 0.82, 0
+	else
+		return [[Interface\LFGFrame\UI-LFG-ICON-PORTRAITROLES]], GetTexCoordsForRoleSmallCircle(role)
 	end
 end
 
@@ -94,7 +110,7 @@ local function Update(self, _, unit)
 	end
 
 	-- Check role
-	local texture, x0, x1, y0, y1, r, g, b = GetRole(self.unit, icon.noDamager, icon.noCircle)
+	local texture, x0, x1, y0, y1, r, g, b = GetRoleTexture(self.unit, icon.noDamager, icon.noCircle)
 	if texture then
 		icon:SetTexture(texture)
 		icon:SetVertexColor(r or 1, g or 1, b or 1, 1)
