@@ -28,10 +28,10 @@ local UnitCanAssist = _G.UnitCanAssist
 local UnitCanAttack = _G.UnitCanAttack
 local UnitDebuff = _G.UnitDebuff
 local UnitIsUnit = _G.UnitIsUnit
+local IsSpellKnownOrOverridesKnown = _G.IsSpellKnownOrOverridesKnown
 local unpack = _G.unpack
 
 local LPS = oUF_Adirelle.GetLib("LibPlayerSpells-1.0")
-local LS = oUF_Adirelle.GetLib("LibSpellbook-1.0")
 local C = LPS.constants
 
 local PLAYER = bor(C.PERSONAL, C.HELPFUL)
@@ -66,12 +66,12 @@ local DispelFlags = { Magic = C.MAGIC, Poison = C.POISON, Curse = C.CURSE, Disea
 local TargetsByType = { Magic = 0, Poison = 0, Curse = 0, Disease = 0 }
 
 -- Update the tests according to known spells
-LS.RegisterCallback(oUF_Adirelle, "LibSpellbook_Spells_Changed", function()
+local function Update()
 	for k in pairs(TargetsByType) do
 		TargetsByType[k] = 0
 	end
 	for spellID, data in pairs(Dispels) do
-		if LS:IsKnown(spellID) then
+		if IsSpellKnownOrOverridesKnown(spellID) or IsSpellKnownOrOverridesKnown(spellID, true) then
 			local targets, dispels = unpack(data)
 			for t, f in pairs(DispelFlags) do
 				if band(dispels, f) ~= 0 then
@@ -80,7 +80,13 @@ LS.RegisterCallback(oUF_Adirelle, "LibSpellbook_Spells_Changed", function()
 			end
 		end
 	end
-end)
+	oUF_Adirelle:Debug("dispel targets", TargetsByType)
+end
+
+oUF_Adirelle:RegisterEvent("PLAYER_ENTERING_WORLD", Update)
+oUF_Adirelle:RegisterEvent("PVP_TIMER_UPDATE", Update)
+oUF_Adirelle:RegisterEvent("SPELLS_CHANGED", Update)
+Update()
 
 local function UnitTargetType(unit)
 	if type(unit) ~= "string" or unit == "" then
