@@ -22,6 +22,7 @@ local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
 local CreateFrame = _G.CreateFrame
+local unpack = _G.unpack
 --GLOBALS>
 
 local backdrop = oUF_Adirelle.backdrop
@@ -55,16 +56,17 @@ local borderBackdrop = {
 	edgeSize = BORDER_WIDTH,
 }
 
+local colors = oUF.colors.castbar
 local function SetCastBarColor(castbar)
-	local r, g, b = 0.7, 0, 0
+	local color = "failed"
 	if castbar.notInterruptible then
-		r, g, b = 0.7, 0.7, 0.7
+		color = "notInterruptible"
 	elseif castbar.channeling then
-		r, g, b = 0.0, 0.7, 1.0
+		color = "channeling"
 	elseif castbar.casting then
-		r, g, b = 1.0, 0.7, 0.0
+		color = "casting"
 	end
-	return castbar:SetStatusBarColor(r, g, b)
+	return castbar:SetStatusBarColor(unpack(colors[color]))
 end
 
 local function XRange_PostUpdate(xrange, _, _, inRange)

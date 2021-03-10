@@ -62,6 +62,12 @@ local labels = {
 		[2] = "Risk of loosing aggro",
 		[3] = "Tanking",
 	},
+	castbar = {
+		failed = "Interrupted / failed",
+		notInterruptible = "Not interruptible",
+		channeling = "Channeling",
+		casting = "Casting",
+	},
 }
 -- "FACTION_STANDING_LABEL%d"
 

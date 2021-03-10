@@ -503,16 +503,17 @@ local DRAGON_TEXTURES = {
 	elite = { [[Interface\Addons\oUF_Adirelle\media\elite_graphic]], 6 / 128, 123 / 128, 17 / 128, 112 / 128 },
 }
 
+local colors = oUF.colors.castbar
 local function CastBar_SetColor(castbar)
-	local r, g, b = 0.7, 0, 0
+	local color = "failed"
 	if castbar.notInterruptible then
-		r, g, b = 0.7, 0.7, 0.7
+		color = "notInterruptible"
 	elseif castbar.channeling then
-		r, g, b = 0.0, 0.7, 1.0
+		color = "channeling"
 	elseif castbar.casting then
-		r, g, b = 1.0, 0.7, 0.0
+		color = "casting"
 	end
-	return castbar:SetStatusBarColor(r, g, b)
+	return castbar:SetStatusBarColor(unpack(colors[color]))
 end
 
 local function CreateCastBar(self, anchor)

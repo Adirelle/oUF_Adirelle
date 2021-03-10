@@ -64,6 +64,13 @@ oUF.colors.charmed = {
 	background = { 1, 0, 0 },
 }
 
+oUF.colors.castbar = {
+	failed = { 0.7, 0.0, 0.0 },
+	notInterruptible = { 0.7, 0.7, 0.7 },
+	channeling = { 0.0, 0.7, 1.0 },
+	casting = { 1.0, 0.7, 0.0 },
+}
+
 local profile
 
 local function DeepCopy(from, to, merge, defaults)
