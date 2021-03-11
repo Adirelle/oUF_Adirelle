@@ -821,7 +821,6 @@ Config:RegisterBuilder(function(_, _, merge)
 				single = {
 					name = "Basic/arena/boss frames",
 					type = "group",
-					order = 30,
 					hidden = IsSingleStyleUnused,
 					args = {
 						healthColor = {
@@ -873,141 +872,30 @@ Config:RegisterBuilder(function(_, _, merge)
 						},
 					},
 				},
-				raid = {
-					name = "Party/raid frames",
-					type = "group",
-					order = 40,
-					hidden = IsRaidStyleUnused,
-					args = {
-						Health = {
-							name = "Health bar",
-							desc = "Configure the display of health bars.",
-							type = "multiselect",
-							get = function(_, key)
-								return themeDB.profile.raid.Health[key]
-							end,
-							set = function(_, key, value)
-								themeDB.profile.raid.Health[key] = value
-								SettingsModified("OnThemeModified")
-							end,
-							values = {
-								colorClass = "Class color",
-								invertedBar = "Inverted bar",
-							},
-						},
-					},
-				},
-				warningThresholds = {
-					name = "Warning thresholds",
-					type = "group",
-					order = 50,
-					hidden = function(info)
-						return IsElementDisabled[info.arg] and IsElementDisabled[info.arg]()
-					end,
-					get = function(info)
-						return themeDB.profile[info.arg][info[#info]]
-					end,
-					set = function(info, value)
-						themeDB.profile[info.arg][info[#info]] = value
-						SettingsModified("OnThemeModified")
-					end,
-					arg = "*",
-					args = {
-						Health = {
-							name = "Health",
-							type = "group",
-							inline = true,
-							order = 10,
-							arg = "LowHealth",
-							args = {
-								isPercent = {
-									name = "Percentage instead of amount",
-									type = "toggle",
-									order = 20,
-									arg = "LowHealth",
-								},
-								percent = {
-									name = "Threshold",
-									type = "range",
-									order = 30,
-									arg = "LowHealth",
-									isPercent = true,
-									min = 0.05,
-									max = 0.95,
-									step = 0.01,
-									bigStep = 0.05,
-									hidden = function()
-										return not themeDB.profile.LowHealth.isPercent
-									end,
-								},
-								amount = {
-									name = "Threshold",
-									type = "range",
-									order = 0,
-									arg = "LowHealth",
-									min = 1000,
-									max = 200000,
-									step = 100,
-									bigStep = 1000,
-									hidden = function()
-										return themeDB.profile.LowHealth.isPercent
-									end,
-								},
-							},
-						},
-						Mana = {
-							name = "Mana",
-							type = "group",
-							inline = true,
-							order = 20,
-							arg = "Border",
-							args = {
-								_manaDesc = {
-									type = "description",
-									order = 210,
-									arg = "Border",
-									name = join(
-										"These thresholds are used to display the blue border around units",
-										"that are considered \"out of mana\"."
-									),
-								},
-								inCombatManaLevel = {
-									name = "In combat",
-									type = "range",
-									order = 220,
-									arg = "Border",
-									isPercent = true,
-									min = 0,
-									max = 1,
-									step = 0.01,
-									bigStep = 0.05,
-								},
-								oocInRaidManaLevel = {
-									name = "Out of combat in raid instances",
-									type = "range",
-									order = 230,
-									arg = "Border",
-									isPercent = true,
-									min = 0,
-									max = 1,
-									step = 0.01,
-									bigStep = 0.05,
-								},
-								oocManaLevel = {
-									name = "Out of combat",
-									type = "range",
-									order = 240,
-									arg = "Border",
-									isPercent = true,
-									min = 0,
-									max = 1,
-									step = 0.01,
-									bigStep = 0.05,
-								},
-							},
-						},
-					},
-				},
+				-- raid = {
+				-- 	name = "Party/raid frames",
+				-- 	type = "group",
+				-- 	order = 40,
+				-- 	hidden = IsRaidStyleUnused,
+				-- 	args = {
+				-- 		Health = {
+				-- 			name = "Health bar",
+				-- 			desc = "Configure the display of health bars.",
+				-- 			type = "multiselect",
+				-- 			get = function(_, key)
+				-- 				return themeDB.profile.raid.Health[key]
+				-- 			end,
+				-- 			set = function(_, key, value)
+				-- 				themeDB.profile.raid.Health[key] = value
+				-- 				SettingsModified("OnThemeModified")
+				-- 			end,
+				-- 			values = {
+				-- 				colorClass = "Class color",
+				-- 				invertedBar = "Inverted bar",
+				-- 			},
+				-- 		},
+				-- 	},
+				-- },
 			},
 		},
 	})

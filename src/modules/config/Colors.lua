@@ -24,18 +24,6 @@ local unpack = _G.unpack
 
 local Config = oUF_Adirelle.Config
 
-local function SetColor(info, r, g, b, a)
-	info.arg[1], info.arg[2], info.arg[3] = r, g, b
-	if info.option.hasAlpha then
-		info.arg[4] = a
-	end
-	-- Update
-end
-
-local function GetColor(info)
-	return unpack(info.arg, 1, info.option.hasAlpha and 4 or 3)
-end
-
 local labels = {
 	power = _G,
 	class = _G.LOCALIZED_CLASS_NAMES_MALE,
@@ -73,128 +61,69 @@ local labels = {
 		channeling = "Channeling",
 		casting = "Casting",
 	},
+	totems = {
+		[_G.FIRE_TOTEM_SLOT] = "Fire",
+		[_G.EARTH_TOTEM_SLOT] = "Earth",
+		[_G.WATER_TOTEM_SLOT] = "Water",
+		[_G.AIR_TOTEM_SLOT] = "Air",
+	},
 }
 -- "FACTION_STANDING_LABEL%d"
 
 local relocate = {
 	healthPrediction = "health",
 	lowHealth = "health",
+	smooth = "health",
 	tapped = "misc",
 	disconnected = "misc",
 }
 
-local function BuildSingleColor(name, color)
-	return {
-		name = Config:GetLabel(name),
-		type = "color",
-		arg = color,
-		hasAlpha = type(color[4]) == "number",
-		get = GetColor,
-		set = SetColor,
-	}
+local function SetColor(info, r, g, b, a)
+	info.arg[1], info.arg[2], info.arg[3] = r, g, b
+	if info.option.hasAlpha then
+		info.arg[4] = a
+	end
+	-- Update
 end
 
--- Build a group of color options from a table of colors
-local function BuildColorGroup(groupKey, name, colors)
-	if not colors then
-		return
-	end
-	local group = { name = Config:GetLabel(name), type = "group", inline = true, args = {} }
-	local thisLabels = labels[groupKey] or {}
-	for key, color in pairs(colors) do
-		local label = thisLabels[key]
-		if not thisLabels or label then
-			group.args[tostring(key)] = BuildSingleColor(label, color)
-		end
-	end
-	return next(group.args) and group
-end
-
--- Build a group of color options from a table of colors
-local function BuildColorEntry(key, name, value)
-	local arg
-	if type(value[1]) == "number" then
-		arg = BuildSingleColor(name, value)
-	else
-		arg = BuildColorGroup(key, name, value)
-	end
-	if arg then
-		arg.order = 15
-	end
-	return arg
+local function GetColor(info)
+	return unpack(info.arg, 1, info.option.hasAlpha and 4 or 3)
 end
 
 Config:RegisterBuilder(function(_, _, merge)
+
+	local function addColor(path, key, name, color)
+		merge("theme", path, {
+			colors = {
+				name = "Colors",
+				type = "group",
+				inline = true,
+				args = {
+					[tostring(key)] = {
+						name = Config:GetLabel(name),
+						type = "color",
+						arg = color,
+						hasAlpha = type(color[4]) == "number",
+						get = GetColor,
+						set = SetColor,
+					},
+				},
+			},
+		})
+	end
+
 	for key, value in next, oUF.colors do
-		local path, argKey, name = key, "color", "Color"
-		if relocate[key] then
-			path, argKey, name = relocate[key], key, key
-		end
-		local entry = BuildColorEntry(key, name, value)
-		if entry then
-			merge("theme", path, { [argKey] = entry })
+		local path = relocate[key] or key
+		if type(value[1]) == "number" then
+			addColor(path, key, key, value)
+		else
+			local thisLabels = labels[key] or {}
+			for subKey, color in next, value do
+				local label = thisLabels[subKey]
+				if label then
+					addColor(path, subKey, label, color)
+				end
+			end
 		end
 	end
 end)
-
---[[
-		-- The base color
-		colorArgs = {
-			reaction = BuildColorGroup("Reaction", oUF.colors.reaction, "FACTION_STANDING_LABEL%d"),
-
-			health = BuildColorArg("Health", oUF.colors.health),
-			disconnected = BuildColorArg("Disconnected player", oUF.colors.disconnected),
-			tapped = BuildColorArg("Tapped mob", oUF.colors.tapped),
-			outOfRange = BuildColorArg("Out of range", oUF.colors.outOfRange, true),
-			lowHealth = BuildColorArg("Low health warning", oUF.colors.lowHealth, true),
-			),
-			group = {
-				name = "Group member status",
-				type = "group",
-				inline = true,
-				hidden = IsRaidStyleUnused,
-				args = {
-					vehicle = BuildColorGroup("In vehicle", oUF.colors.vehicle, { name = "Name", background = "Background" }),
-					charmed = BuildColorGroup("Charmed", oUF.colors.charmed, { name = "Name", background = "Background" }),
-				},
-			},
-		}
-
-		-- Set up the conditions to show some color options
-		colorArgs.reaction.hidden = function()
-			return IsSingleStyleUnused()
-				or not (themeDB.profile.Health.colorReaction or themeDB.profile.Power.colorReaction)
-		end
-		colorArgs.selection.hidden = function()
-			return IsSingleStyleUnused() or not themeDB.profile.Health.colorSelection
-		end
-		colorArgs.threat.hidden = function()
-			return IsSingleStyleUnused() or not themeDB.profile.Health.colorThreat
-		end
-		colorArgs.tapped.hidden = function()
-			return IsSingleStyleUnused()
-				or not (themeDB.profile.Health.colorTapping or themeDB.profile.Power.colorTapping)
-		end
-		colorArgs.power.hidden = function()
-			return IsSingleStyleUnused() or not themeDB.profile.Power.colorPower
-		end
-		colorArgs.lowHealth.hidden = IsElementDisabled.LowHealth
-		colorArgs.healthPrediction.hidden = IsElementDisabled.HealthPrediction
-		colorArgs.outOfRange.hidden = IsElementDisabled.XRange
-
-		-- Class-specific colors
-		if oUF_Adirelle.playerClass == "DEATHKNIGHT" then
-			local runes = BuildColorArg("Runes", oUF.colors.runes)
-			runes.hidden = IsElementDisabled.RuneBar
-			colorArgs.runes = runes
-		elseif oUF_Adirelle.playerClass == "SHAMAN" then
-			local totems = BuildColorGroup("Totems", oUF.colors.totems, {
-				[_G.FIRE_TOTEM_SLOT] = "Fire",
-				[_G.EARTH_TOTEM_SLOT] = "Earth",
-				[_G.WATER_TOTEM_SLOT] = "Water",
-				[_G.AIR_TOTEM_SLOT] = "Air",
-			})
-			totems.hidden = IsElementDisabled.TotemBar
-			colorArgs.totems = totems
-		end
---]]

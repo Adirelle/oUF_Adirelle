@@ -21,7 +21,7 @@ local oUF_Adirelle = _G.oUF_Adirelle
 
 local geterrorhandler = _G.geterrorhandler
 local LibStub = _G.LibStub
-local strformat = _G.strformat
+local format = _G.format
 local tinsert = _G.tinsert
 local UnitAffectingCombat = _G.UnitAffectingCombat
 local UnitName = _G.UnitName
@@ -64,6 +64,7 @@ local labels = {
 	threat = "Threat",
 	timer = "Timer",
 	xp = "Experience",
+	smooth = "Gradient low end",
 }
 
 function Config:GetLabel(text)
@@ -82,8 +83,8 @@ do
 					oUF_Adirelle:Debug("Merge groups", thisPath)
 					target[key].args = MergeArgs(thisPath, target[key].args, value.args)
 				else
-					error(strformat(
-						"MergeArgs: [%s] cannot overwrite %s with %",
+					error(format(
+						"MergeArgs: [%s] cannot overwrite %q with %q",
 						thisPath,
 						target[key].type,
 						value.type
