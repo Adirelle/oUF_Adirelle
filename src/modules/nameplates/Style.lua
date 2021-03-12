@@ -138,13 +138,13 @@ local function InitFrame(self)
 	overlay:SetAllPoints(self)
 	overlay:SetFrameLevel(border:GetFrameLevel() + 10)
 
-	-- Create an icon displaying important debuffs
+	-- Display auras of interest on top of the nameplate
 	local auras = CreateFrame("Frame", nil, self)
 	auras:SetPoint("BOTTOMLEFT", self, "TOPLEFT", GAP, GAP)
 	auras:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -GAP, GAP)
 	auras:SetHeight(CASTBAR_SIZE)
 	auras.disableMouse = true
-	auras.size = 12
+	auras.size = 16
 	auras.spacing = 1
 	auras.numTotal = 5
 	auras.showType = true
