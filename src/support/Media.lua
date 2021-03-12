@@ -32,12 +32,41 @@ local STATUSBAR = SharedMedia.MediaType.STATUSBAR
 oUF_Adirelle.fontKinds = {}
 oUF_Adirelle.statusBarKinds = {}
 
-local function SetFont(self, _, key)
-	if key and key ~= self.__fontKind then
-		return
+local fontObjects = {}
+local fontCount = 0
+
+local function CreateFontObject(kind, size, flags, noShadow)
+	fontCount = fontCount + 1
+	local fontObject = CreateFont(addonName .. "_Font_" .. fontCount)
+	fontObject:SetTextColor(1, 1, 1, 1)
+	if noShadow then
+		fontObject:SetShadowColor(0, 0, 0, 0)
+	else
+		fontObject:SetShadowColor(0, 0, 0, 1)
+		fontObject:SetShadowOffset(1, -1)
 	end
-	local name, size, flags = Config:GetFont(self.__fontKind, self.__fontSize, self.__fontFlags)
-	self:SetFont(SharedMedia:Fetch(FONT, name), size, flags)
+
+	local UpdateFontObject = function()
+		local actualName, actualSize, actualFlags = Config:GetFont(kind, size, flags)
+		fontObject:SetFont(SharedMedia:Fetch(FONT, actualName), actualSize, actualFlags)
+	end
+
+	oUF_Adirelle.EmbedMessaging(fontObject)
+	fontObject:RegisterMessage("SetFont", UpdateFontObject)
+	UpdateFontObject()
+	Config:RegisterFont(kind)
+
+	return fontObject
+end
+
+local function GetFontObject(kind, size, flags, noShadow)
+	local key = format("%s_%d_%s_%s", kind, size, flags, tostring(noShadow))
+	local fontObject = fontObjects[key]
+	if not fontObject then
+		fontObject = CreateFontObject(kind, size, flags, noShadow)
+		fontObjects[key] = fontObject
+	end
+	return fontObject
 end
 
 -- The meta to allow unit frames to register their fontstrings
@@ -46,20 +75,7 @@ oUF:RegisterMetaFunction("RegisterFontString", function(_, fontstring, kind, siz
 		fontstring:IsObjectType("FontString"),
 		"RegisterFontString(object, kind): object should be a FontString"
 	)
-	if not fontstring.RegisterMessage then
-		oUF_Adirelle.EmbedMessaging(fontstring)
-		fontstring:RegisterMessage("SetFont", SetFont)
-	end
-	fontstring:SetTextColor(1, 1, 1, 1)
-	if noShadow then
-		fontstring:SetShadowColor(0, 0, 0, 0)
-	else
-		fontstring:SetShadowColor(0, 0, 0, 1)
-		fontstring:SetShadowOffset(1, -1)
-	end
-	fontstring.__fontKind, fontstring.__fontSize, fontstring.__fontFlags = kind, size or 10, flags or ""
-	Config:RegisterFont(kind)
-	SetFont(fontstring) -- Update once immediately
+	fontstring:SetFontObject(GetFontObject(kind, size or 10, flags or "", noShadow or false))
 end)
 
 local function StatusBar_Callback(bar, texture)
