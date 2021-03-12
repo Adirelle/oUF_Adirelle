@@ -397,7 +397,7 @@ local function OnThemeModified(self, _, _, theme)
 end
 
 local function OnColorModified(self)
-	self.XRange.Texture:SetColorTexture(unpack(oUF.colors.outOfRange, 1, 3))
+	self.XRange:SetColorTexture(unpack(oUF.colors.outOfRange, 1, 3))
 	self.XRange:ForceUpdate()
 	return UpdateColor(self)
 end
@@ -452,11 +452,6 @@ local function InitFrame(self)
 	hp.bg = hpbg
 	self:RegisterStatusBarTexture(hpbg, "health")
 
-	--UpdateHealthLayout(self)
-
-	-- Heal prediction
-	self:SpawnHealthPrediction(1.00)
-
 	-- Border
 	local border = CreateFrame("Frame", nil, self, "BackdropTemplate")
 	border:SetFrameStrata("BACKGROUND")
@@ -468,20 +463,36 @@ local function InitFrame(self)
 	border:Hide()
 	self.Border = border
 
-	-- Indicator overlays
-	local overlay = CreateFrame("Frame", nil, self)
-	overlay:SetAllPoints(self)
-	overlay:SetFrameLevel(self:GetFrameLevel() + 10)
-	self.Overlay = overlay
-
 	-- Name
-	local name = hp:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+	local name = hp:CreateFontString(nil, "OVERLAY", "GameFontNormal", 3)
 	name:SetPoint("TOPLEFT", 6, 0)
 	name:SetPoint("BOTTOMRIGHT", -6, 0)
 	name:SetJustifyH("CENTER")
 	name:SetJustifyV("MIDDLE")
 	self:RegisterFontString(name, "raid", 11, "")
 	self.Name = name
+
+	-- LowHealth warning
+	local lowHealth = hp:CreateTexture(nil, "OVERLAY", 2)
+	lowHealth:SetAllPoints(border)
+	lowHealth:SetColorTexture(1, 0, 0, 0.5)
+	self.LowHealth = lowHealth
+
+	-- Range fading
+	local xrange = hp:CreateTexture(nil, "OVERLAY", 1)
+	xrange:SetAllPoints(self)
+	xrange:SetColorTexture(0.4, 0.4, 0.4)
+	xrange:SetBlendMode("MOD")
+	self.XRange = xrange
+
+	-- Heal prediction
+	self:SpawnHealthPrediction(1.00)
+
+	-- Indicator overlays
+	local overlay = CreateFrame("Frame", nil, self)
+	overlay:SetAllPoints(self)
+	overlay:SetFrameLevel(self:GetFrameLevel() + 10)
+	self.Overlay = overlay
 
 	-- Big status icon
 	local status = overlay:CreateTexture(nil, "BORDER", nil, 1)
@@ -557,12 +568,6 @@ local function InitFrame(self)
 	targetIcon:SetPoint("RIGHT", self, "RIGHT", -INSET, 0)
 	self.TargetIcon = targetIcon
 
-	-- LowHealth warning
-	local lowHealth = hp:CreateTexture(nil, "OVERLAY")
-	lowHealth:SetAllPoints(border)
-	lowHealth:SetColorTexture(1, 0, 0, 0.5)
-	self.LowHealth = lowHealth
-
 	-- AlternativePower
 	local alternativePower = CreateFrame("StatusBar", nil, self, "BackdropTemplate")
 	alternativePower:SetBackdrop(backdrop)
@@ -586,20 +591,6 @@ local function InitFrame(self)
 	self:RegisterMessage("OnColorModified", OnColorModified)
 	self:RegisterMessage("OnSettingsModified", OnThemeModified)
 	self:RegisterMessage("OnThemeModified", OnThemeModified)
-
-	-- Range fading
-	local xrange = CreateFrame("Frame", nil, hp)
-	xrange:SetAllPoints(self)
-	xrange:SetFrameLevel(self:GetFrameLevel() + 5)
-	xrange.PostUpdate = XRange_PostUpdate
-
-	local tex = xrange:CreateTexture(nil, "OVERLAY")
-	tex:SetAllPoints(self)
-	tex:SetColorTexture(0.4, 0.4, 0.4)
-	tex:SetBlendMode("MOD")
-
-	xrange.Texture = tex
-	self.XRange = xrange
 
 	-- Hook OnSizeChanged to layout internal on size change
 	self:HookScript("OnSizeChanged", OnSizeChanged)
