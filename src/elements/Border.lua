@@ -34,30 +34,37 @@ local UnitPowerMax = _G.UnitPowerMax
 local UnitPowerType = _G.UnitPowerType
 local unpack = _G.unpack
 
+oUF.colors.border = {
+	target = { 1.0, 1.0, 1.0 },
+	focus = { 1.0, 0.8, 0.0 },
+	black = { 0.0, 0.0, 0.0 },
+	lowMana = oUF.colors.power.MANA,
+}
+
 local function Update(self, _, unit)
 	if unit and unit ~= self.unit then
 		return
 	end
 	unit = self.unit
 	local border = self.Border
-	local r, g, b
+	local color
 	if border.blackByDefault then
-		r, g, b = 0, 0, 0
+		color = oUF.colors.border.black
 	end
 	if unit and UnitExists(unit) then
 		if self.unit ~= "target" and not border.noTarget and UnitIsUnit("target", unit) then
-			r, g, b = 1, 1, 1
+			color = oUF.colors.border.target
 		elseif self.unit ~= "focus" and not border.noFocus and UnitIsUnit("focus", unit) then
-			r, g, b = 1, 0.8, 0
+			color = oUF.colors.border.focus
 		elseif not UnitIsDeadOrGhost(unit) and border.manaThreshold then
 			local manaCur, manaMax = UnitPower(unit, SPELL_POWER_MANA), UnitPowerMax(unit, SPELL_POWER_MANA)
 			if manaMax > 0 and manaCur / manaMax < border.manaThreshold then
-				r, g, b = unpack(oUF.colors.power.MANA)
+				color = oUF.colors.border.lowMana
 			end
 		end
 	end
-	if b then
-		border:SetColor(r, g, b)
+	if color then
+		border:SetColor(unpack(color))
 		border:Show()
 	else
 		border:Hide()
