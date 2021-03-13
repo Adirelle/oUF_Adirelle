@@ -137,8 +137,11 @@ local function FlagUpdate(self, event, unit)
 	end
 	local inCombat = UnitAffectingCombat(self.unit)
 	if inCombat and not border.inCombat then
-		border.inCombat, border.combatTimer = true, 3
-		border:SetScript("OnUpdate", OnUpdate)
+		border.inCombat = true
+		if event == "UNIT_FLAGS" then
+			border.combatTimer = 3
+			border:SetScript("OnUpdate", OnUpdate)
+		end
 	elseif not inCombat and border.inCombat then
 		border.inCombat, border.combatTimer = false, 0
 		border:SetScript("OnUpdate", nil)
