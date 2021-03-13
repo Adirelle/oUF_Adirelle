@@ -4,6 +4,7 @@
 ## Title: oUF_Adirelle - nameplates
 ## Notes: Nameplates.
 ## RequiredDeps: oUF_Adirelle
+## OptionalDeps: Blizzard_NamePlates
 
 ..\oUF_Adirelle\src\modules\nameplates\module.xml
 
