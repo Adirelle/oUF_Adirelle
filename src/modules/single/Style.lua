@@ -803,7 +803,7 @@ local function InitFrame(settings, self, initUnit)
 			if unit == "player" then
 				local timer = CreateFrame("Frame", CreateName(indicators, "PvPTimer"), indicators)
 				timer:SetAllPoints(pvp)
-				timer.text = SpawnText(self, timer, "OVERLAY", nil, nil, nil, nil, "timer")
+				timer.text = SpawnText(self, timer, "OVERLAY", nil, nil, nil, nil, "pvptimer")
 				timer.text:SetPoint("CENTER", pvp)
 				self.PvPTimer = timer
 			end

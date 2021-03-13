@@ -67,6 +67,12 @@ local labels = {
 		[_G.WATER_TOTEM_SLOT] = "Water",
 		[_G.AIR_TOTEM_SLOT] = "Air",
 	},
+	border = {
+		target = "Current target",
+		focus = "Current focus",
+		combat = "Combat flash",
+		lowMana = "Low mana warning",
+	},
 }
 -- "FACTION_STANDING_LABEL%d"
 
@@ -76,6 +82,9 @@ local relocate = {
 	smooth = "health",
 	tapped = "misc",
 	disconnected = "misc",
+	selection = "misc",
+	outOfRange = "misc",
+	class = "info",
 }
 
 local function SetColor(info, r, g, b, a)
