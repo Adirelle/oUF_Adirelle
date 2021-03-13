@@ -144,7 +144,7 @@ local function InitFrame(self)
 	auras:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -GAP, GAP)
 	auras:SetHeight(CASTBAR_SIZE)
 	auras.disableMouse = true
-	auras.size = 16
+	auras.size = 20
 	auras.spacing = 1
 	auras.numTotal = 5
 	auras.showType = true
