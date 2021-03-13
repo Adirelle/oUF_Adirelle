@@ -7,5 +7,6 @@
     <Script file="Profiles.lua"/>
     <Script file="Media.lua"/>
     <Script file="Colors.lua"/>
+    <Script file="Nameplate.lua"/>
     <Script file="WarningThresholds.lua"/>
 </Ui>

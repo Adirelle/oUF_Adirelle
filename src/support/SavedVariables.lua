@@ -30,6 +30,14 @@ local type = _G.type
 
 local LSM = oUF_Adirelle.GetLib("LibSharedMedia-3.0")
 
+local function GetCVarDefaults(options, name, ...)
+	if name then
+		options[name] = tostring(GetCVarDefault(name))
+		return GetCVarDefaults(options, ...)
+	end
+	return options
+end
+
 -- ------------------------------------------------------------------------------
 -- Main SV handling
 -- ------------------------------------------------------------------------------
@@ -88,6 +96,55 @@ local LAYOUT_DEFAULTS = {
 			inCombat = true,
 			anchor = "DEFAULT",
 			fadeOut = true,
+		},
+		nameplates = {
+			cvars = GetCVarDefaults(
+				{},
+				"nameplateShowAll",
+				"nameplateMotion",
+				"nameplateMaxDistance",
+				"nameplateMotionSpeed",
+				"nameplateOverlapV",
+				"nameplateOverlapH",
+				"nameplateOtherAtBase",
+				"nameplateShowSelf",
+				"NameplatePersonalShowWithTarget",
+				"NameplatePersonalShowInCombat",
+				"NameplatePersonalShowAlways",
+				"NameplatePersonalClickThrough",
+				"NameplatePersonalHideDelaySeconds",
+				"NameplatePersonalHideDelayAlpha",
+				"nameplateShowFriends",
+				"nameplateShowFriendlyGuardians",
+				"nameplateShowFriendlyMinions",
+				"nameplateShowFriendlyNPCs",
+				"nameplateShowFriendlyPets",
+				"nameplateShowFriendlyTotems",
+				"nameplateShowEnemies",
+				"nameplateShowEnemyGuardians",
+				"nameplateShowEnemyMinions",
+				"nameplateShowEnemyMinus",
+				"nameplateShowEnemyPets",
+				"nameplateShowEnemyTotems",
+				"nameplateTargetRadialPosition",
+				"nameplateTargetBehindMaxDistance",
+				"nameplateResourceOnTarget",
+				"nameplateOccludedAlphaMult",
+				"nameplateSelfAlpha",
+				"nameplateSelectedAlpha",
+				"nameplateMaxAlphaDistance",
+				"nameplateMaxAlpha",
+				"nameplateMinAlphaDistance",
+				"nameplateMinAlpha",
+				"nameplateGlobalScale",
+				"nameplateSelfScale",
+				"nameplateSelectedScale",
+				"nameplateLargerScale",
+				"nameplateMaxScaleDistance",
+				"nameplateMaxScale",
+				"nameplateMinScaleDistance",
+				"nameplateMinScale"
+			),
 		},
 	},
 	global = {
