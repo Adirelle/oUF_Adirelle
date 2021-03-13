@@ -148,6 +148,7 @@ local function InitFrame(self)
 	auras.spacing = 1
 	auras.numTotal = 5
 	auras.showType = true
+	auras.showStealableBuffs = true
 	auras.CustomFilter = Auras_CustomFilter
 	auras.PostCreateIcon = Auras_PostCreateIcon
 	self.Auras = auras
