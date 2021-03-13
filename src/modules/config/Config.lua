@@ -70,8 +70,14 @@ local labels = {
 	info = "Character infomartion",
 }
 
+local function humanize(text)
+	return text:gsub("(%l)(%u)", function(a, b)
+		return a .. " " .. b:lower()
+	end)
+end
+
 function Config:GetLabel(text)
-	return labels[text] or text
+	return labels[text] or humanize(text)
 end
 
 local Build
@@ -87,7 +93,7 @@ do
 					target[key].args = MergeArgs(thisPath, target[key].args, value.args)
 				else
 					error(format(
-						"MergeArgs: [%s] cannot overwrite %q with %q",
+						"MergeArgs: [%s] option already exists with type %q, cannot replace it (new type: %q)",
 						thisPath,
 						target[key].type,
 						value.type
@@ -101,9 +107,15 @@ do
 		return target
 	end
 
+	local order = 10
+
 	local function MergeIn(path, target, item, ...)
+		if not item then
+			return target
+		end
 		if type(item) == "table" then
-			return MergeArgs(path, target, item)
+			target = MergeArgs(path, target, item)
+			return MergeIn(path, target, ...)
 		end
 		if type(item) ~= "string" then
 			error(
@@ -113,7 +125,8 @@ do
 		path = path .. "." .. item
 		if not target[item] then
 			oUF_Adirelle:Debug("Create group", path)
-			target[item] = { name = Config:GetLabel(item), type = "group", args = {} }
+			order = order + 10
+			target[item] = { name = Config:GetLabel(item), type = "group", order = order, args = {} }
 		elseif target[item].type ~= "group" then
 			error("MergeIn: [" .. path .. "]: expected a group, got a ", target[item].type)
 		end
@@ -130,6 +143,7 @@ do
 
 		local eh = geterrorhandler()
 		for _, builder in next, builders do
+			order = 0
 			xpcall(function()
 				builder(Config, opts, merge)
 			end, eh)
