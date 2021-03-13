@@ -30,14 +30,6 @@ local type = _G.type
 
 local LSM = oUF_Adirelle.GetLib("LibSharedMedia-3.0")
 
-local function GetCVarDefaults(options, name, ...)
-	if name then
-		options[name] = tostring(GetCVarDefault(name))
-		return GetCVarDefaults(options, ...)
-	end
-	return options
-end
-
 -- ------------------------------------------------------------------------------
 -- Main SV handling
 -- ------------------------------------------------------------------------------
@@ -98,53 +90,7 @@ local LAYOUT_DEFAULTS = {
 			fadeOut = true,
 		},
 		nameplates = {
-			cvars = GetCVarDefaults(
-				{},
-				"nameplateShowAll",
-				"nameplateMotion",
-				"nameplateMaxDistance",
-				"nameplateMotionSpeed",
-				"nameplateOverlapV",
-				"nameplateOverlapH",
-				"nameplateOtherAtBase",
-				"nameplateShowSelf",
-				"NameplatePersonalShowWithTarget",
-				"NameplatePersonalShowInCombat",
-				"NameplatePersonalShowAlways",
-				"NameplatePersonalClickThrough",
-				"NameplatePersonalHideDelaySeconds",
-				"NameplatePersonalHideDelayAlpha",
-				"nameplateShowFriends",
-				"nameplateShowFriendlyGuardians",
-				"nameplateShowFriendlyMinions",
-				"nameplateShowFriendlyNPCs",
-				"nameplateShowFriendlyPets",
-				"nameplateShowFriendlyTotems",
-				"nameplateShowEnemies",
-				"nameplateShowEnemyGuardians",
-				"nameplateShowEnemyMinions",
-				"nameplateShowEnemyMinus",
-				"nameplateShowEnemyPets",
-				"nameplateShowEnemyTotems",
-				"nameplateTargetRadialPosition",
-				"nameplateTargetBehindMaxDistance",
-				"nameplateResourceOnTarget",
-				"nameplateOccludedAlphaMult",
-				"nameplateSelfAlpha",
-				"nameplateSelectedAlpha",
-				"nameplateMaxAlphaDistance",
-				"nameplateMaxAlpha",
-				"nameplateMinAlphaDistance",
-				"nameplateMinAlpha",
-				"nameplateGlobalScale",
-				"nameplateSelfScale",
-				"nameplateSelectedScale",
-				"nameplateLargerScale",
-				"nameplateMaxScaleDistance",
-				"nameplateMaxScale",
-				"nameplateMinScaleDistance",
-				"nameplateMinScale"
-			),
+			cvars = {},
 		},
 	},
 	global = {
@@ -203,6 +149,66 @@ local THEME_DEFAULTS = {
 		},
 	},
 }
+
+-- ------------------------------------------------------------------------------
+-- Nameplate cvars
+-- ------------------------------------------------------------------------------
+
+local NAMEPLATE_CVARS = {
+	"nameplateShowAll",
+	"nameplateMotion",
+	"nameplateMaxDistance",
+	"nameplateMotionSpeed",
+	"nameplateOverlapV",
+	"nameplateOverlapH",
+	"nameplateShowSelf",
+	"NameplatePersonalShowWithTarget",
+	"NameplatePersonalShowInCombat",
+	"NameplatePersonalShowAlways",
+	"NameplatePersonalClickThrough",
+	"NameplatePersonalHideDelaySeconds",
+	"NameplatePersonalHideDelayAlpha",
+	"nameplateShowFriends",
+	"nameplateShowFriendlyGuardians",
+	"nameplateShowFriendlyMinions",
+	"nameplateShowFriendlyNPCs",
+	"nameplateShowFriendlyPets",
+	"nameplateShowFriendlyTotems",
+	"nameplateShowEnemies",
+	"nameplateShowEnemyGuardians",
+	"nameplateShowEnemyMinions",
+	"nameplateShowEnemyMinus",
+	"nameplateShowEnemyPets",
+	"nameplateShowEnemyTotems",
+	"nameplateTargetRadialPosition",
+	"nameplateTargetBehindMaxDistance",
+	"nameplateResourceOnTarget",
+	"nameplateOccludedAlphaMult",
+	"nameplateSelfAlpha",
+	"nameplateSelectedAlpha",
+	"nameplateMaxAlphaDistance",
+	"nameplateMaxAlpha",
+	"nameplateMinAlphaDistance",
+	"nameplateMinAlpha",
+	"nameplateGlobalScale",
+	"nameplateSelfScale",
+	"nameplateSelectedScale",
+	"nameplateLargerScale",
+	"nameplateMaxScaleDistance",
+	"nameplateMaxScale",
+	"nameplateMinScaleDistance",
+	"nameplateMinScale",
+}
+oUF_Adirelle.NAMEPLATE_CVARS = NAMEPLATE_CVARS
+
+for _, name in next, NAMEPLATE_CVARS do
+	local value = GetCVarDefault(name)
+	LAYOUT_DEFAULTS.profile.nameplates.cvars = value and tostring(value) or nil
+end
+
+-- ------------------------------------------------------------------------------
+-- Profile handling
+-- ------------------------------------------------------------------------------
 
 local function UpdateProfiles()
 	-- Some frame keys have been renamed at some point, move their settings along

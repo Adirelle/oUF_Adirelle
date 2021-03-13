@@ -25,8 +25,8 @@ local C_CVar = _G.C_CVar
 local labels = {
 	nameplateShowAll = "Show out of combat",
 	nameplateMotion = "Layout type",
-	nameplateOverlapV = "Vertical overlapping",
-	nameplateOverlapH = "Horizontal overlapping",
+	nameplateOverlapV = "Vertical spacing",
+	nameplateOverlapH = "Horizontal spacing",
 	nameplateOccludedAlphaMult = "Out of sight alpha",
 	nameplateTargetRadialPosition = "Clamp to screen",
 }
@@ -136,7 +136,6 @@ Config:RegisterBuilder(function(_, options, merge)
 		Percent("nameplateMotionSpeed"),
 		Percent("nameplateOverlapV"),
 		Percent("nameplateOverlapH"),
-		Toggle("nameplateOtherAtBase"),
 		Select("nameplateTargetRadialPosition", {
 			["0"] = "None",
 			["1"] = "Target only",

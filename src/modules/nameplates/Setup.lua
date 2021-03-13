@@ -20,7 +20,20 @@ local _G = _G
 local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
+local NAMEPLATE_CVARS = oUF_Adirelle.NAMEPLATE_CVARS
+
+local function LoadNameplateCVars()
+	if not oUF_Adirelle.layoutDB then
+		return
+	end
+	local values = oUF_Adirelle.layoutDB.profile.nameplates.cvars
+	for _, name in next, NAMEPLATE_CVARS do
+		SetCVar(name, values[name])
+	end
+end
+
 oUF:Factory(function()
 	oUF:SetActiveStyle("Adirelle_Nameplate")
 	oUF:SpawnNamePlates("oUF_Adirelle_")
+	LoadNameplateCVars()
 end)
