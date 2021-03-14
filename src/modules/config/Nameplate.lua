@@ -30,7 +30,7 @@ local tostring = assert(_G.tostring)
 local Config = oUF_Adirelle.Config
 
 local labels = {
-	nameplateShowAll = "Show out of combat",
+	nameplateShowAll = "Show all nameplates",
 	nameplateMotion = "Layout type",
 	nameplateOverlapV = "Vertical spacing",
 	nameplateOverlapH = "Horizontal spacing",
@@ -103,9 +103,36 @@ local Select = OptionBuilder({ type = "select" }, function(option, _, values)
 	option.values = values
 end)
 
+local Auto = function(key, label)
+	return {
+		[key] = {
+			name = label,
+			type = "select",
+			order = 0,
+			get = function()
+				return oUF_Adirelle.layoutDB.profile.nameplates[key]
+			end,
+			set = function(_, value)
+				if value ~= oUF_Adirelle.layoutDB.profile.nameplates[key] then
+					oUF_Adirelle.layoutDB.profile.nameplates[key] = value
+					oUF_Adirelle:SendMessage("OnNameplateConfigured")
+				end
+			end,
+			values = {
+				never = "Never",
+				outOfCombat = "Out of combat",
+				inCombat = "In combat",
+				always = "Always",
+			},
+		},
+	}
+end
+
 local DisabledIfNot = function(key)
 	return function(info)
-		return info.type ~= "group" and info.arg ~= key and not C_CVar.GetCVarBool(key)
+		return info.type ~= "group"
+			and info[#info] ~= key
+			and oUF_Adirelle.layoutDB.profile.nameplates[key] == "never"
 	end
 end
 
@@ -133,7 +160,7 @@ Config:RegisterBuilder(function(_, options, merge)
 	merge(
 		"nameplates",
 		"general",
-		Toggle("nameplateShowAll"),
+		Auto("autoAll", "Show all nameplates"),
 		Select("nameplateMotion", {
 			["0"] = "Overlapping",
 			["1"] = "Stacking",
@@ -175,7 +202,7 @@ Config:RegisterBuilder(function(_, options, merge)
 	merge(
 		"nameplates",
 		"friends",
-		Toggle("nameplateShowFriends"),
+		Auto("autoFriends", "Show friends"),
 		Toggle("nameplateShowFriendlyGuardians"),
 		Toggle("nameplateShowFriendlyMinions"),
 		Toggle("nameplateShowFriendlyNPCs"),
@@ -187,7 +214,7 @@ Config:RegisterBuilder(function(_, options, merge)
 	merge(
 		"nameplates",
 		"enemies",
-		Toggle("nameplateShowEnemies"),
+		Auto("autoEnemies", "Show enemies"),
 		Toggle("nameplateShowEnemyGuardians"),
 		Toggle("nameplateShowEnemyMinions"),
 		Toggle("nameplateShowEnemyMinus"),
@@ -220,7 +247,6 @@ Config:RegisterBuilder(function(_, options, merge)
 		Scale("nameplateMinScale")
 	)
 
-	options.nameplates.args.self.disabled = DisabledIfNot("nameplateShowSelf")
-	options.nameplates.args.friends.disabled = DisabledIfNot("nameplateShowFriends")
-	options.nameplates.args.enemies.disabled = DisabledIfNot("nameplateShowEnemies")
+	options.nameplates.args.friends.disabled = DisabledIfNot("autoFriends")
+	options.nameplates.args.enemies.disabled = DisabledIfNot("autoEnemies")
 end)

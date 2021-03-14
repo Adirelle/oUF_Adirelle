@@ -95,6 +95,9 @@ local LAYOUT_DEFAULTS = {
 			fadeOut = true,
 		},
 		nameplates = {
+			autoAll = "inCombat",
+			autoFriends = "never",
+			autoEnemies = "always",
 			cvars = {},
 		},
 	},
@@ -160,7 +163,7 @@ local THEME_DEFAULTS = {
 -- ------------------------------------------------------------------------------
 
 local NAMEPLATE_CVARS = {
-	"nameplateShowAll",
+	-- "nameplateShowAll",
 	"nameplateMotion",
 	"nameplateMaxDistance",
 	"nameplateMotionSpeed",
@@ -173,13 +176,13 @@ local NAMEPLATE_CVARS = {
 	"NameplatePersonalClickThrough",
 	"NameplatePersonalHideDelaySeconds",
 	"NameplatePersonalHideDelayAlpha",
-	"nameplateShowFriends",
+	-- "nameplateShowFriends",
 	"nameplateShowFriendlyGuardians",
 	"nameplateShowFriendlyMinions",
 	"nameplateShowFriendlyNPCs",
 	"nameplateShowFriendlyPets",
 	"nameplateShowFriendlyTotems",
-	"nameplateShowEnemies",
+	-- "nameplateShowEnemies",
 	"nameplateShowEnemyGuardians",
 	"nameplateShowEnemyMinions",
 	"nameplateShowEnemyMinus",

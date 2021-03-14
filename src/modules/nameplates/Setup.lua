@@ -21,7 +21,9 @@ local oUF_Adirelle = assert(_G.oUF_Adirelle)
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
+local CreateFrame = assert(_G.CreateFrame)
 local hooksecurefunc = assert(_G.hooksecurefunc)
+local InCombatLockdown = assert(_G.InCombatLockdown)
 local NamePlateDriverFrame = assert(_G.NamePlateDriverFrame)
 local next = assert(_G.next)
 local SetCVar = assert(_G.SetCVar)
@@ -55,12 +57,51 @@ local function LoadNameplateCVars()
 	end
 end
 
-oUF:Factory(function()
-	oUF:SetActiveStyle("Adirelle_Nameplate")
-	oUF:SpawnNamePlates("oUF_Adirelle_")
+local visibility = {
+	variables = {
+		nameplateShowAll = "autoAll",
+		nameplateShowFriends = "autoFriends",
+		nameplateShowEnemies = "autoEnemies",
+	},
+	tests = {
+		never = function()
+			return false
+		end,
+		outOfCombat = function(inCombat)
+			return not inCombat
+		end,
+		inCombat = function(inCombat)
+			return inCombat
+		end,
+		always = function()
+			return true
+		end,
+	},
+}
+
+local function UpdateVisiblities(_, event)
+	local inCombat = (event == "PLAYER_REGEN_DISABLED") or InCombatLockdown()
+	local profile = oUF_Adirelle.layoutDB.profile
+	for cvar, config in next, visibility.variables do
+		local choice = profile.nameplates[config]
+		oUF_Adirelle:Debug("UpdateVisiblities", cvar, config, choice)
+		local enable = visibility.tests[choice](inCombat)
+		SetCVar(cvar, enable and "1" or "0")
+	end
+end
+
+oUF:Factory(function(self)
+	self:SetActiveStyle("Adirelle_Nameplate")
+	self:SpawnNamePlates("oUF_Adirelle_")
 
 	LoadNameplateCVars()
 
 	DisableFrame(NamePlateDriverFrame:GetClassNameplateBar())
 	DisableFrame(NamePlateDriverFrame:SetClassNameplateManaBar())
+
+	local eventFrame = CreateFrame("Frame")
+	eventFrame:RegisterEvent("PLAYER_REGEN_DISABLED", UpdateVisiblities)
+	eventFrame:RegisterEvent("PLAYER_REGEN_ENABLED", UpdateVisiblities)
+	oUF_Adirelle:RegisterMessage("OnNameplateConfigured", UpdateVisiblities)
+	UpdateVisiblities()
 end)
