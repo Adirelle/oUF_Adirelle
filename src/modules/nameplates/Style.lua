@@ -145,8 +145,8 @@ local function InitFrame(self)
 	xrange:SetBlendMode("MOD")
 	self.XRange = xrange
 
-	-- Indicators
-	self.CombatIndicator = self:SpawnTexture(overlay, SYMBOL_SIZE / 2, "BOTTOMLEFT")
+	-- Combat indicator
+	self.CombatFlag = self:SpawnTexture(overlay, SYMBOL_SIZE / 2, "BOTTOMLEFT")
 
 	-- PvP flag
 	local pvp = self:SpawnTexture(overlay, SYMBOL_SIZE / 2)

@@ -771,7 +771,7 @@ local function InitFrame(settings, self, initUnit)
 		-- Various indicators
 		self.LeaderIndicator = self:SpawnTexture(indicators, 16, "TOP" .. left)
 		self.AssistantIndicator = self:SpawnTexture(indicators, 16, "TOP" .. left)
-		self.CombatIndicator = self:SpawnTexture(indicators, 16, "BOTTOM" .. left)
+		self.CombatFlag = self:SpawnTexture(indicators, 16, "BOTTOM" .. left)
 
 		-- Indicators around the portrait, if there is one
 		if self.Portrait then
