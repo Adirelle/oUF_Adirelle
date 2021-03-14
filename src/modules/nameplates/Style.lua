@@ -112,9 +112,16 @@ local function InitFrame(self)
 	border.blackByDefault = true
 	self.Border = border
 
+	-- 2d portrait
+	local portrait = self:CreateTexture(nil, "ARTWORK")
+	portrait:SetSize(HEIGHT, HEIGHT)
+	portrait:SetPoint("LEFT")
+	self.Portrait = portrait
+
 	-- Health bar
 	local health = self:SpawnStatusBar("health", true)
-	health:SetAllPoints()
+	health:SetPoint("TOPLEFT", portrait, "TOPRIGHT")
+	health:SetPoint("BOTTOMRIGHT")
 	health.frequentUpdates = true
 	health.colorTapping = true
 	health.colorClass = true
@@ -162,7 +169,7 @@ local function InitFrame(self)
 	-- Elite/rare classification
 	local dragon = overlay:CreateTexture(CreateName(self, "Dragon"), "OVERLAY")
 	dragon:SetSize(SYMBOL_SIZE / 2, SYMBOL_SIZE / 2)
-	dragon:SetPoint("LEFT", self, "TOPLEFT")
+	dragon:SetPoint("CENTER", self, "TOPLEFT")
 	dragon.rare = [[Interface\Addons\oUF_Adirelle\media\rare_icon]]
 	dragon.elite = [[Interface\Addons\oUF_Adirelle\media\elite_icon]]
 	self.Dragon = dragon
