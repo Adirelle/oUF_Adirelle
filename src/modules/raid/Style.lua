@@ -396,12 +396,6 @@ local function OnThemeModified(self, _, _, theme)
 	end
 end
 
-local function OnColorModified(self)
-	self.XRange:SetColorTexture(unpack(oUF.colors.outOfRange, 1, 3))
-	self.XRange:ForceUpdate()
-	return UpdateColor(self)
-end
-
 local function CureableDebuff_SetColor(icon, r, g, b, a)
 	local texture, border = icon.Texture, icon.Border
 	r, g, b, a = tonumber(r), tonumber(g), tonumber(b), tonumber(a) or 1
@@ -587,8 +581,8 @@ local function InitFrame(self)
 	-- Setting callbacks
 	self:RegisterMessage("OnSettingsModified", OnRaidLayoutModified)
 	self:RegisterMessage("OnRaidLayoutModified", OnRaidLayoutModified)
-	self:RegisterMessage("OnSettingsModified", OnColorModified)
-	self:RegisterMessage("OnColorModified", OnColorModified)
+	self:RegisterMessage("OnSettingsModified", UpdateColor)
+	self:RegisterMessage("OnColorModified", UpdateColor)
 	self:RegisterMessage("OnSettingsModified", OnThemeModified)
 	self:RegisterMessage("OnThemeModified", OnThemeModified)
 
