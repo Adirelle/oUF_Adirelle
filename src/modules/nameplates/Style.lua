@@ -145,6 +145,15 @@ local function InitFrame(self)
 	xrange:SetBlendMode("MOD")
 	self.XRange = xrange
 
+	-- Indicators
+	self.CombatIndicator = self:SpawnTexture(overlay, SYMBOL_SIZE / 2, "BOTTOMLEFT")
+
+	-- PvP flag
+	local pvp = self:SpawnTexture(overlay, SYMBOL_SIZE / 2)
+	pvp:SetTexCoord(0, 0.6, 0, 0.6)
+	pvp:SetPoint("CENTER", self.Portrait, "RIGHT")
+	self.PvPIndicator = pvp
+
 	-- Display auras of interest on top of the nameplate
 	local auras = CreateFrame("Frame", nil, self)
 	auras:SetPoint("BOTTOMLEFT", self, "TOPLEFT", GAP, GAP)
