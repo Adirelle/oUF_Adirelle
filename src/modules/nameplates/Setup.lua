@@ -29,6 +29,22 @@ local SetCVar = assert(_G.SetCVar)
 
 local NAMEPLATE_CVARS = assert(oUF_Adirelle.NAMEPLATE_CVARS)
 
+local function insecureOnShow(frame)
+	frame:Hide()
+end
+
+local function DisableFrame(_, frame)
+	if not frame or frame:IsForbidden() then
+		return
+	end
+	frame:HookScript("OnShow", insecureOnShow)
+	frame:UnregisterAllEvents()
+	frame:Hide()
+end
+
+hooksecurefunc(NamePlateDriverFrame, "SetClassNameplateBar", DisableFrame)
+hooksecurefunc(NamePlateDriverFrame, "SetClassNameplateManaBar", DisableFrame)
+
 local function LoadNameplateCVars()
 	if not oUF_Adirelle.layoutDB then
 		return
@@ -39,36 +55,12 @@ local function LoadNameplateCVars()
 	end
 end
 
-local function insecureOnShow(frame)
-	frame:Hide()
-end
-
-local function DisableFrame(frame)
-	if not frame then
-		return
-	end
-	frame:HookScript("OnShow", insecureOnShow)
-	frame:UnregisterAllEvents()
-	frame:Hide()
-end
-
-local function DisableClassNameplateBar()
-	DisableFrame(NamePlateDriverFrame:GetClassNameplateBar())
-end
-
-local function DisableClassNameplateManaBar()
-	DisableFrame(NamePlateDriverFrame:GetClassNameplateManaBar())
-end
-
 oUF:Factory(function()
 	oUF:SetActiveStyle("Adirelle_Nameplate")
 	oUF:SpawnNamePlates("oUF_Adirelle_")
 
 	LoadNameplateCVars()
 
-	hooksecurefunc(NamePlateDriverFrame, "SetClassNameplateBar", DisableClassNameplateBar)
-	DisableClassNameplateBar()
-
-	hooksecurefunc(NamePlateDriverFrame, "SetClassNameplateManaBar", DisableClassNameplateManaBar)
-	DisableClassNameplateManaBar()
+	DisableFrame(NamePlateDriverFrame:GetClassNameplateBar())
+	DisableFrame(NamePlateDriverFrame:SetClassNameplateManaBar())
 end)
