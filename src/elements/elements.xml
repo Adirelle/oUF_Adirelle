@@ -1,0 +1,20 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/">
+    <Script file="AuraIcons.lua"/>
+    <Script file="Border.lua"/>
+    <Script file="CombatFlag.lua"/>
+    <Script file="CustomClick.lua"/>
+    <Script file="Dragon.lua"/>
+    <Script file="Experience.lua"/>
+    <Script file="LowHealth.lua"/>
+    <Script file="Powers.lua"/>
+    <Script file="PvPTimer.lua"/>
+    <Script file="RoleOrIcon.lua"/>
+    <Script file="RuneBar.lua"/>
+    <Script file="SmartThreat.lua"/>
+    <Script file="StatusIcon.lua"/>
+    <Script file="TargetIcon.lua"/>
+    <Script file="ThreatBar.lua"/>
+    <Script file="TotemBar.lua"/>
+    <Script file="WarningIcon.lua"/>
+    <Script file="XRange.lua"/>
+</Ui>
