@@ -20,13 +20,10 @@ local _G, assert = _G, _G.assert
 local oUF_Adirelle = assert(_G.oUF_Adirelle)
 
 --<GLOBALS
-local DisableAddOn = assert(_G.DisableAddOn)
-local EnableAddOn = assert(_G.EnableAddOn)
 local format = assert(_G.format)
 local GetAddOnEnableState = assert(_G.GetAddOnEnableState)
 local GetSpellInfo = assert(_G.GetSpellInfo)
 local gsub = assert(_G.gsub)
-local IsAddOnLoaded = assert(_G.IsAddOnLoaded)
 local next = assert(_G.next)
 local pairs = assert(_G.pairs)
 local strsub = assert(_G.strsub)
@@ -44,7 +41,6 @@ local themeDB = assert(oUF_Adirelle.themeDB)
 
 local IsLockedDown = assert(Config.IsLockedDown)
 local playerName = assert(Config.playerName)
-local reloadNeeded = false
 
 -- ------------------------------------------------------------------------------
 -- Main option builder
@@ -56,15 +52,6 @@ local function join(a, ...)
 	end
 	return a .. " " .. join(...)
 end
-
--- The list of modules
-local moduleList = {
-	oUF_Adirelle_Raid = "Party/raid grid",
-	oUF_Adirelle_Single = "Player, pet, target and focus frames",
-	oUF_Adirelle_Boss = "Boss frames",
-	oUF_Adirelle_Arena = "Arena enemy frames",
-	oUF_Adirelle_Nameplates = "Nameplates",
-}
 
 -- Map "base" units to their respective modules
 local unitModuleMap = {
@@ -248,71 +235,31 @@ Config:RegisterBuilder(function(_, _, merge)
 				return not IsLockedDown()
 			end,
 		},
-		modules = {
-			name = "Modules",
-			type = "group",
-			childGroups = "tree",
-			order = -10,
-			disabled = IsLockedDown,
-			args = {
-				modules = {
-					name = "Enabled modules",
-					desc = join(
-						"There you can enable and disable the frame modules.",
-						"This is the same as disabling the matching addons on the character selection screen.",
-						"These settings are specific to each character and require to reload the interface to apply the changes."
-					),
-					type = "multiselect",
-					order = 10,
-					width = "double",
-					values = moduleList,
-					get = function(_, addon)
-						return IsAddOnEnabled(addon)
-					end,
-					set = function(_, addon, value)
-						if value then
-							EnableAddOn(addon)
-						else
-							DisableAddOn(addon)
-						end
-						reloadNeeded = false
-						for name in pairs(moduleList) do
-							local enabled, loaded = IsAddOnEnabled(addon), IsAddOnLoaded(name)
-							if (enabled and not loaded) or not enabled and loaded then
-								reloadNeeded = true
-								break
-							end
-						end
-					end,
-				},
-				reload = {
-					name = "Apply changes",
-					desc = "Reload the user interface to apply the changes.",
-					type = "execute",
-					order = 20,
-					func = _G.ReloadUI,
-					hidden = function()
-						return not reloadNeeded
-					end,
-				},
-				minimapIcon = oUF_Adirelle.hasMinimapIcon and {
-					name = "Display minimap icon",
-					type = "toggle",
-					order = 30,
-					get = function()
-						return not layoutDB.global.minimapIcon.hide
-					end,
-					set = function(_, value)
-						layoutDB.global.minimapIcon.hide = not value
-						if value then
-							LibStub("LibDBIcon-1.0"):Show("oUF_Adirelle")
-						else
-							LibStub("LibDBIcon-1.0"):Hide("oUF_Adirelle")
-						end
-					end,
-				} or nil,
-			},
-		},
+		-- modules = {
+		-- 	name = "Modules",
+		-- 	type = "group",
+		-- 	childGroups = "tree",
+		-- 	order = -10,
+		-- 	disabled = IsLockedDown,
+		-- 	args = {
+		-- 		minimapIcon = oUF_Adirelle.hasMinimapIcon and {
+		-- 			name = "Display minimap icon",
+		-- 			type = "toggle",
+		-- 			order = 30,
+		-- 			get = function()
+		-- 				return not layoutDB.global.minimapIcon.hide
+		-- 			end,
+		-- 			set = function(_, value)
+		-- 				layoutDB.global.minimapIcon.hide = not value
+		-- 				if value then
+		-- 					LDI:Show("oUF_Adirelle")
+		-- 				else
+		-- 					LDI:Hide("oUF_Adirelle")
+		-- 				end
+		-- 			end,
+		-- 		} or nil,
+		-- 	},
+		-- },
 		layout = {
 			name = "Layout",
 			type = "group",
