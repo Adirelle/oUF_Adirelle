@@ -161,9 +161,7 @@ local function InitFrame(self)
 	self.Auras = auras
 
 	-- Elite/rare classification
-	local dragon = overlay:CreateTexture(CreateName(self, "Dragon"), "OVERLAY")
-	dragon:SetSize(SYMBOL_SIZE / 2, SYMBOL_SIZE / 2)
-	dragon:SetPoint("CENTER", self, "TOPLEFT")
+	local dragon = self:SpawnTexture(overlay, SYMBOL_SIZE / 2, "TOPLEFT")
 	dragon.rare = [[Interface\Addons\oUF_Adirelle\media\rare_icon]]
 	dragon.elite = [[Interface\Addons\oUF_Adirelle\media\elite_icon]]
 	self.Dragon = dragon
