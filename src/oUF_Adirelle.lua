@@ -16,9 +16,9 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --]=]
 
-local _G, parent, private = _G, ...
+local _G, addonName, private = _G, ...
 local assert = _G.assert
-local oUF = assert(private.oUF, "oUF is undefined in " .. parent .. " namespace")
+local oUF = assert(private.oUF, "oUF is undefined in " .. addonName .. " namespace")
 
 -- Export our namespace for standalone modules
 local oUF_Adirelle = { oUF = oUF }
@@ -26,8 +26,9 @@ _G.oUF_Adirelle = oUF_Adirelle
 
 --<GLOBALS
 local next = _G.next
+local parent = _G.parent
 local print = _G.print
---GLOBALS >
+--GLOBALS>
 
 -- Debugging stuff
 local AdiDebug = _G.AdiDebug
@@ -48,7 +49,7 @@ _G.SLASH_OUFADIRELLEVER3 = "/oufav"
 
 local versions = {}
 
-oUF_Adirelle.VERSION = "v" .. _G.GetAddOnMetadata(parent, "version")
+oUF_Adirelle.VERSION = "v" .. _G.GetAddOnMetadata(addonName, "version")
 --@debug@
 oUF_Adirelle.VERSION = "developer version"
 --@end-debug@

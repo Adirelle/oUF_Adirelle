@@ -25,21 +25,19 @@ if oUF_Adirelle.SingleStyle then
 end
 
 --<GLOBALS
-local ALT_POWER_TEX_FILL = _G.ALT_POWER_TEX_FILL or 2
+local ALT_POWER_TEX_FILL = _G.ALT_POWER_TEX_FILL
 local CreateFrame = _G.CreateFrame
 local GetUnitPowerBarTextureInfo = _G.GetUnitPowerBarTextureInfo
 local gsub = _G.gsub
-local huge = _G.math.huge
 local InCombatLockdown = _G.InCombatLockdown
 local ipairs = _G.ipairs
-local max = _G.max
 local MAX_COMBO_POINTS = _G.MAX_COMBO_POINTS
+local next = _G.next
 local pairs = _G.pairs
 local select = _G.select
 local setmetatable = _G.setmetatable
 local strmatch = _G.strmatch
 local tinsert = _G.tinsert
-local tsort = _G.table.sort
 local UnitAura = _G.UnitAura
 local UnitCanAssist = _G.UnitCanAssist
 local UnitCanAttack = _G.UnitCanAttack
@@ -47,7 +45,11 @@ local UnitClass = _G.UnitClass
 local UnitIsDeadOrGhost = _G.UnitIsDeadOrGhost
 local unpack = _G.unpack
 --GLOBALS>
-local mmin, mmax = _G.min, _G.max
+
+local mmin = _G.min
+local mmax = _G.max
+local huge = _G.math.huge
+local tsort = _G.table.tsort
 
 local AURA_SIZE = oUF_Adirelle.AURA_SIZE
 local backdrop = oUF_Adirelle.backdrop
@@ -364,7 +366,7 @@ local function OnAuraLayoutModified(self, _, layout)
 		ApplyAuraPosition(self, buffs, "BOTTOM" .. opposite, "BOTTOM" .. side, dx, -1, dx, 0)
 
 		-- Ensure we can display at least maxNum large icons
-		local maxNum = max(auras.numBuffs, auras.enlarge and auras.numDebuffs or 0)
+		local maxNum = mmax(auras.numBuffs, auras.enlarge and auras.numDebuffs or 0)
 		local auraWidth = (size * (auras.enlarge and 1.5 or 1)) * maxNum + spacing * (maxNum - 1)
 
 		-- Share the available space

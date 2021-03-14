@@ -20,7 +20,13 @@ local _G = _G
 local oUF_Adirelle = _G.oUF_Adirelle
 local Config = oUF_Adirelle.Config
 
+--<GLOBALS
 local C_CVar = _G.C_CVar
+local IsAddOnLoaded = _G.IsAddOnLoaded
+local setmetatable = _G.setmetatable
+local tonumber = _G.tonumber
+local tostring = _G.tostring
+--GLOBALS>
 
 local labels = {
 	nameplateShowAll = "Show out of combat",

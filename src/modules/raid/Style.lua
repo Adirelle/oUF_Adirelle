@@ -21,8 +21,6 @@ local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
--- local UnitGetTotalAbsorbs = _G.UnitGetTotalAbsorbs
-local ALT_POWER_TEX_FILL = _G.ALT_POWER_TEX_FILL or 2
 local CreateFrame = _G.CreateFrame
 local GetSpellInfo = _G.GetSpellInfo
 local GetUnitPowerBarTextureInfo = _G.GetUnitPowerBarTextureInfo
@@ -30,6 +28,7 @@ local gsub = _G.gsub
 local pairs = _G.pairs
 local select = _G.select
 local strmatch = _G.strmatch
+local tonumber = _G.tonumber
 local UnitCanAssist = _G.UnitCanAssist
 local UnitClass = _G.UnitClass
 local UnitGetIncomingHeals = _G.UnitGetIncomingHeals
@@ -40,6 +39,8 @@ local UnitName = _G.UnitName
 local UNKNOWN = _G.UNKNOWN
 local unpack = _G.unpack
 --GLOBALS>
+
+local ALT_POWER_TEX_FILL = _G.ALT_POWER_TEX_FILL or 2
 
 -- Import some values from oUF_Adirelle namespace
 local GetFrameUnitState = oUF_Adirelle.GetFrameUnitState

@@ -19,13 +19,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 local _G = _G
 local oUF_Adirelle = _G.oUF_Adirelle
 
+--<GLOBALS
+local error = _G.error
+local format = _G.format
 local geterrorhandler = _G.geterrorhandler
 local LibStub = _G.LibStub
-local format = _G.format
+local next = _G.next
 local tinsert = _G.tinsert
+local type = _G.type
 local UnitAffectingCombat = _G.UnitAffectingCombat
 local UnitName = _G.UnitName
 local xpcall = _G.xpcall
+--GLOBALS>
 
 local Config = oUF_Adirelle.Config
 

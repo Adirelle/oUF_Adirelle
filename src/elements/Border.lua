@@ -22,9 +22,9 @@ local _G = _G
 local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
+--<GLOBALS
 local IsInInstance = _G.IsInInstance
 local select = _G.select
-local SPELL_POWER_MANA = _G.Enum.PowerType.Mana
 local UnitAffectingCombat = _G.UnitAffectingCombat
 local UnitExists = _G.UnitExists
 local UnitIsDeadOrGhost = _G.UnitIsDeadOrGhost
@@ -33,6 +33,9 @@ local UnitPower = _G.UnitPower
 local UnitPowerMax = _G.UnitPowerMax
 local UnitPowerType = _G.UnitPowerType
 local unpack = _G.unpack
+--GLOBALS>
+
+local SPELL_POWER_MANA = _G.Enum.PowerType.Mana
 
 oUF.colors.border = {
 	target = { 1.0, 1.0, 1.0 },

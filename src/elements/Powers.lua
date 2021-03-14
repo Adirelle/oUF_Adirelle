@@ -50,7 +50,6 @@ local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 local GetSpecialization = _G.GetSpecialization
 local GetSpecializationInfo = _G.GetSpecializationInfo
 local pairs = _G.pairs
-local PowerMap = oUF_Adirelle.Enum.PowerMap
 local UnitClass = _G.UnitClass
 local UnitIsConnected = _G.UnitIsConnected
 local UnitIsPlayer = _G.UnitIsPlayer
@@ -61,6 +60,8 @@ local UnitPowerMax = _G.UnitPowerMax
 local UnitPowerType = _G.UnitPowerType
 local unpack = _G.unpack
 --GLOBALS>
+
+local PowerMap = oUF_Adirelle.Enum.PowerMap
 
 -- Set default colors for burning embers and demonic fury
 if not oUF.colors.power.BURNING_EMBERS then

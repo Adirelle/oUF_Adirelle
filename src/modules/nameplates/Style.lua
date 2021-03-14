@@ -22,7 +22,6 @@ local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
 local CreateFrame = _G.CreateFrame
-local unpack = _G.unpack
 --GLOBALS>
 
 local backdrop = oUF_Adirelle.backdrop

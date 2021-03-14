@@ -25,9 +25,9 @@ local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 --<GLOBALS
 local GetRaidRosterInfo = _G.GetRaidRosterInfo
 local GetRaidTargetIndex = _G.GetRaidTargetIndex
-local IsInRaid = _G.IsInRaid
-local GetTexCoordsForRoleSmall = _G.GetTexCoordsForRoleSmall
 local GetTexCoordsForRoleSmallCircle = _G.GetTexCoordsForRoleSmallCircle
+local GetTexCoordsForRoleSmall = _G.GetTexCoordsForRoleSmall
+local IsInRaid = _G.IsInRaid
 local select = _G.select
 local SetRaidTargetIconTexture = _G.SetRaidTargetIconTexture
 local UnitGroupRolesAssigned = _G.UnitGroupRolesAssigned

@@ -24,18 +24,19 @@ local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 local DebuffTypeColor = _G.DebuffTypeColor
 local debugstack = _G.debugstack
 local format = _G.format
-local FindAuraByName = _G.AuraUtil.FindAuraByName
 local geterrorhandler = _G.geterrorhandler
 local GetSpellInfo = _G.GetSpellInfo
 local select = _G.select
 local strjoin = _G.strjoin
-local tostring = _G.tostring
 local tostringall = _G.tostringall
+local tostring = _G.tostring
 local type = _G.type
 local UnitCanAssist = _G.UnitCanAssist
 local UnitClass = _G.UnitClass
 local UnitIsUnit = _G.UnitIsUnit
 --GLOBALS>
+
+local FindAuraByName = _G.AuraUtil.FindAuraByName
 
 -- ------------------------------------------------------------------------------
 -- Helper

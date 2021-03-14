@@ -22,10 +22,10 @@ local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 oUF:Factory(function()
 	--<GLOBALS
+	local GetScreenWidth = _G.GetScreenWidth
+	local max = _G.max
 	local next = _G.next
 	local select = _G.select
-	local max = _G.max
-	local GetScreenWidth = _G.GetScreenWidth
 	--GLOBALS>
 
 	local frames = {}

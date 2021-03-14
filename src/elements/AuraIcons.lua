@@ -20,6 +20,7 @@ local _G = _G
 local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
+--<GLOBALS
 local CreateFrame = _G.CreateFrame
 local geterrorhandler = _G.geterrorhandler
 local GetTime = _G.GetTime
@@ -33,6 +34,7 @@ local UnitIsConnected = _G.UnitIsConnected
 local UnitIsDeadOrGhost = _G.UnitIsDeadOrGhost
 local UnitName = _G.UnitName
 local UNKNOWN = _G.UNKNOWN
+--GLOBALS>
 
 local CreateBlinkingFrame
 do

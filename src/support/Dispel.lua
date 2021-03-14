@@ -19,8 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 local _G = _G
 local oUF_Adirelle = _G.oUF_Adirelle
 
-local band = _G.bit.band
-local bor = _G.bit.bor
+--<GLOBALS
+local IsSpellKnownOrOverridesKnown = _G.IsSpellKnownOrOverridesKnown
 local next = _G.next
 local pairs = _G.pairs
 local type = _G.type
@@ -28,8 +28,11 @@ local UnitCanAssist = _G.UnitCanAssist
 local UnitCanAttack = _G.UnitCanAttack
 local UnitDebuff = _G.UnitDebuff
 local UnitIsUnit = _G.UnitIsUnit
-local IsSpellKnownOrOverridesKnown = _G.IsSpellKnownOrOverridesKnown
 local unpack = _G.unpack
+--GLOBALS>
+
+local band = _G.bit.band
+local bor = _G.bit.bor
 
 local LPS = oUF_Adirelle.GetLib("LibPlayerSpells-1.0")
 local C = LPS.constants

@@ -22,6 +22,7 @@ local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
 local CreateFrame = _G.CreateFrame
+local ipairs = _G.ipairs
 local next = _G.next
 local pairs = _G.pairs
 local rawget = _G.rawget

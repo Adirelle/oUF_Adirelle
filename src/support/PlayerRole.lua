@@ -19,11 +19,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 local _G = _G
 local oUF_Adirelle = _G.oUF_Adirelle
 
-local UnitGroupRolesAssigned = _G.UnitGroupRolesAssigned
-local UnitSetRole = _G.UnitSetRole
+--<GLOBALS
 local GetSpecialization = _G.GetSpecialization
 local GetSpecializationRole = _G.GetSpecializationRole
 local IsInRaid = _G.IsInRaid
+local UnitGroupRolesAssigned = _G.UnitGroupRolesAssigned
+local UnitSetRole = _G.UnitSetRole
+--GLOBALS>
 
 local Debug = oUF_Adirelle.Debug
 

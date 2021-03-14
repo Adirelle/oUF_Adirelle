@@ -24,9 +24,10 @@ local CreateFrame = _G.CreateFrame
 local ipairs = _G.ipairs
 local pairs = _G.pairs
 local tinsert = _G.tinsert
-local tsort = _G.table.sort
 local wipe = _G.wipe
 --GLOBALS>
+
+local tsort = _G.table.sort
 
 local CreateName = oUF_Adirelle.CreateName
 local GAP = oUF_Adirelle.GAP

@@ -20,7 +20,12 @@ local _G = _G
 local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
-local unpack = _G.unpack
+--<GLOBALS
+local next = _G.next
+local select = _G.select
+local tostring = _G.tostring
+local type = _G.type
+--GLOBALS>
 
 local Config = oUF_Adirelle.Config
 

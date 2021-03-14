@@ -21,7 +21,6 @@ local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
-local max = _G.math.max
 local UnitCanAssist = _G.UnitCanAssist
 local UnitGetIncomingHeals = _G.UnitGetIncomingHeals
 local UnitGetTotalAbsorbs = _G.UnitGetTotalAbsorbs
@@ -31,6 +30,8 @@ local UnitHealthMax = _G.UnitHealthMax
 local UnitIsConnected = _G.UnitIsConnected
 local UnitIsDeadOrGhost = _G.UnitIsDeadOrGhost
 --GLOBALS>
+
+local max = _G.math.max
 
 local function Update(self, _, unit)
 	if (unit and unit ~= self.unit) then

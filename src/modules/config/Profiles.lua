@@ -19,7 +19,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 local _G = _G
 local oUF_Adirelle = _G.oUF_Adirelle
 
+--<GLOBALS
 local LibStub = _G.LibStub
+--GLOBALS>
+
 local ADO = LibStub("AceDBOptions-3.0")
 local LDS = LibStub("LibDualSpec-1.0")
 

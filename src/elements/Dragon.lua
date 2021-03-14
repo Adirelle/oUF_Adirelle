@@ -22,10 +22,12 @@ local _G = _G
 local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
+--<GLOBALS
 local GetCurrentRegion = _G.GetCurrentRegion
 local type = _G.type
 local UnitClassification = _G.UnitClassification
 local unpack = _G.unpack
+--GLOBALS>
 
 local classifMap = {
 	rare = "rare",

@@ -19,7 +19,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 local _G = _G
 local oUF_Adirelle = _G.oUF_Adirelle
 
+--<GLOBALS
 local next = _G.next
+--GLOBALS>
 
 local Config = oUF_Adirelle.Config
 local themeDB = oUF_Adirelle.themeDB

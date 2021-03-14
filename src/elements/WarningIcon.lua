@@ -23,16 +23,19 @@ local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
-local band = _G.bit.band
+local band = _G.band
 local BigWigsLoader = _G.BigWigsLoader
 local DebuffTypeColor = _G.DebuffTypeColor
-local huge = _G.math.huge
+local huge = _G.huge
 local pairs = _G.pairs
 local select = _G.select
 local UnitBuff = _G.UnitBuff
 local UnitDebuff = _G.UnitDebuff
 local UnitIsVisible = _G.UnitIsVisible
 --GLOBALS>
+
+local band = _G.bit.band
+local huge = _G.math.huge
 
 -- ------------------------------------------------------------------------------
 -- Spell data

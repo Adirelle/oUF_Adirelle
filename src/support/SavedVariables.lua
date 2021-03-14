@@ -21,10 +21,13 @@ local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
-local LibStub = _G.LibStub
+local GetCVarDefault = _G.GetCVarDefault
 local ipairs = _G.ipairs
+local LibStub = _G.LibStub
+local next = _G.next
 local pairs = _G.pairs
 local rawget = _G.rawget
+local tostring = _G.tostring
 local type = _G.type
 --GLOBALS>
 

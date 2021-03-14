@@ -20,9 +20,12 @@ local _G = _G
 local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
-local NamePlateDriverFrame = _G.NamePlateDriverFrame
+--<GLOBALS
 local hooksecurefunc = _G.hooksecurefunc
+local NamePlateDriverFrame = _G.NamePlateDriverFrame
+local next = _G.next
 local SetCVar = _G.SetCVar
+--GLOBALS>
 
 local NAMEPLATE_CVARS = oUF_Adirelle.NAMEPLATE_CVARS
 

@@ -41,7 +41,6 @@ local UnitIsCorpse = _G.UnitIsCorpse
 local UnitIsUnit = _G.UnitIsUnit
 local UnitIsVisible = _G.UnitIsVisible
 local unpack = _G.unpack
-local strformat = _G.strformat
 --GLOBALS>
 
 -- Declare our color
@@ -146,7 +145,7 @@ local function BuildSingleCheckFunc(spell)
 	if not name then -- Does not exist anymore (removed)
 		if not warned[spell] then
 			warned[spell] = true
-			geterrorhandler()(strformat(
+			geterrorhandler()(format(
 				[[
 						XRange:CheckSpell: the spell #%s  has been removed; it cannot be used for range checking.
 						See https://github.com/Adirelle/oUF_Adirelle/issues/13

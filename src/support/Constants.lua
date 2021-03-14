@@ -18,6 +18,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 local oUF_Adirelle = _G.oUF_Adirelle
 
+--<GLOBALS
+--GLOBALS>
+
 oUF_Adirelle.GAP = 2
 oUF_Adirelle.BORDER_WIDTH = 2
 oUF_Adirelle.TEXT_MARGIN = 2

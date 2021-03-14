@@ -20,6 +20,7 @@ local _G = _G
 local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
+--<GLOBALS
 local DisableAddOn = _G.DisableAddOn
 local EnableAddOn = _G.EnableAddOn
 local format = _G.format
@@ -31,11 +32,10 @@ local LibStub = _G.LibStub
 local next = _G.next
 local pairs = _G.pairs
 local strsub = _G.strsub
-local tonumber = _G.tonumber
 local tostring = _G.tostring
 local type = _G.type
-local unpack = _G.unpack
 local wipe = _G.wipe
+--GLOBALS>
 
 local LibMovable = oUF_Adirelle.GetLib("LibMovable-1.0")
 

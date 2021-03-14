@@ -21,6 +21,10 @@ local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
+local CreateFont = _G.CreateFont
+local format = _G.format
+local tostring = _G.tostring
+local type = _G.type
 --GLOBALS>
 
 local Config = oUF_Adirelle.Config

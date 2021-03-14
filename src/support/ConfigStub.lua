@@ -19,8 +19,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 local _G = _G
 local oUF_Adirelle = _G.oUF_Adirelle
 
+--<GLOBALS
 local IsAddOnLoaded = _G.IsAddOnLoaded
 local LoadAddOn = _G.LoadAddOn
+--GLOBALS>
 
 local function noop()
 end
