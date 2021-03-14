@@ -54,19 +54,6 @@ local borderBackdrop = {
 	edgeSize = BORDER_WIDTH,
 }
 
-local colors = oUF.colors.castbar
-local function SetCastBarColor(castbar)
-	local color = "failed"
-	if castbar.notInterruptible then
-		color = "notInterruptible"
-	elseif castbar.channeling then
-		color = "channeling"
-	elseif castbar.casting then
-		color = "casting"
-	end
-	return castbar:SetStatusBarColor(unpack(colors[color]))
-end
-
 local function Auras_PostCreateIcon(_, button)
 	button.cd:SetReverse(true)
 end
@@ -80,10 +67,14 @@ local function Auras_CustomFilter(_, unit, button, _, _, _, debuffType, _, _, _,
 		or MM_AFFIXES[spellID or 0]
 end
 
-local function InitFrame(self)
+local function InitFrame(self, unit)
 	local WIDTH, HEIGHT = 120, 16
 	local CASTBAR_SIZE = 12
 	local SYMBOL_SIZE = 20
+
+	if not unit:match("nameplate%d") then
+		self:Debug("nameplate unit:", unit)
+	end
 
 	self:SetSize(WIDTH, HEIGHT)
 	self:SetPoint("BOTTOM")
@@ -176,35 +167,10 @@ local function InitFrame(self)
 	self.Dragon = dragon
 
 	-- Casting bar
-	local castbar = CreateFrame("StatusBar", CreateName(self, "CastBar"), self)
-	castbar:Hide()
-	castbar.__owner = self
-	castbar:SetHeight(CASTBAR_SIZE)
+	local castbar = self:SpawnCastBar(GAP)
+	castbar:SetHeight(12)
+	castbar:SetPoint("TOPLEFT", self, "BOTTOMLEFT", GAP, -GAP)
 	castbar:SetPoint("TOPRIGHT", self, "BOTTOMRIGHT", -GAP, -GAP)
-	castbar.hideTradeSkills = true
-	castbar.PostCastStart = SetCastBarColor
-	castbar.CastInterruptible = SetCastBarColor
-	castbar.PostCastFail = SetCastBarColor
-	castbar.timeToHold = 0.5
-	self:RegisterStatusBarTexture(castbar, "castbar")
-	self.Castbar = castbar
-
-	local icon = castbar:CreateTexture(CreateName(castbar, "Icon"), "ARTWORK")
-	icon:SetSize(CASTBAR_SIZE, CASTBAR_SIZE)
-	icon:SetPoint("TOPLEFT", self, "BOTTOMLEFT", GAP, -GAP)
-	icon:SetTexCoord(4 / 64, 60 / 64, 4 / 64, 60 / 64)
-	castbar.Icon = icon
-	castbar:SetPoint("LEFT", icon, "RIGHT")
-
-	local spellText = self:SpawnText(castbar, "OVERLAY", nil, nil, nil, nil, "castbar")
-	spellText:SetPoint("TOPLEFT", castbar, "TOPLEFT", TEXT_MARGIN, 0)
-	spellText:SetPoint("BOTTOMRIGHT", castbar, "BOTTOMRIGHT", -TEXT_MARGIN, 0)
-	castbar.Text = spellText
-
-	local bg = castbar:CreateTexture(CreateName(castbar, "Background"), "BACKGROUND")
-	bg:SetColorTexture(0, 0, 0, 1)
-	bg:SetPoint("TOPLEFT", icon)
-	bg:SetPoint("BOTTOMRIGHT", castbar)
 
 	-- Raid target icon
 	local raidTargetIcon = overlay:CreateTexture(GetSerialName(self, "RaidTarget"), "OVERLAY")

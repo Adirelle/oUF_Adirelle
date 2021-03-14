@@ -29,6 +29,9 @@ local tostring = _G.tostring
 local UnitClassification = _G.UnitClassification
 --GLOBALS>
 
+local Config = oUF_Adirelle.Config
+
+local backdrop = oUF_Adirelle.backdrop
 local GAP, TEXT_MARGIN = oUF_Adirelle.GAP, oUF_Adirelle.TEXT_MARGIN
 
 local function CreateName() -- luacheck: ignore
@@ -260,4 +263,89 @@ oUF:RegisterMetaFunction("SpawnHybridBar", function(self, textureKind, numItems,
 	bar.SetMinMaxValues = HybridBar_SetMinMaxValues
 	bar.SetValue = HybridBar_SetValue
 	return bar
+end)
+
+local function CastBar_Update(castbar)
+	local color, spark = "failed", false
+	if castbar.notInterruptible then
+		color = "notInterruptible"
+	elseif castbar.channeling then
+		color, spark = "channeling", true
+	elseif castbar.casting then
+		color, spark = "casting", true
+	end
+	castbar.Spark:SetShown(spark)
+	return castbar.StatusBar:SetStatusBarColor(Config:GetColor({ "castbar", color }))
+end
+
+local function CastBar_UpdateSize(castbar)
+	local size = castbar:GetHeight()
+	castbar.Icon:SetSize(size, size)
+	castbar.Spark:SetSize(size * 4, size * 4)
+end
+
+local function CastBar_UpdateSpark(castbar)
+	local mini, maxi = castbar.StatusBar:GetMinMaxValues()
+	local current = castbar.StatusBar:GetValue()
+	if mini >= maxi or current < mini or current > maxi then
+		castbar.Spark:Hide()
+		return
+	end
+	local width = castbar.StatusBar:GetWidth()
+	local ratio = (current - mini) / (maxi - mini)
+	castbar.Spark:SetPoint("CENTER", castbar.StatusBar, "LEFT", width * ratio, 0)
+end
+
+local function CastBar_SetMinMaxValues(self, ...)
+	self.StatusBar:SetMinMaxValues(...)
+	return CastBar_UpdateSpark(self)
+end
+
+local function CastBar_SetValue(self, ...)
+	self.StatusBar:SetValue(...)
+	return CastBar_UpdateSpark(self)
+end
+
+oUF:RegisterMetaFunction("SpawnCastBar", function(self, gap)
+	local castbar = CreateFrame("frame", CreateName(self, "CastBar"), self, "BackdropTemplate")
+	castbar:SetBackdrop(backdrop)
+	castbar:SetBackdropColor(0, 0, 0, 0.8)
+	castbar:SetBackdropBorderColor(0, 0, 0, 0)
+	castbar:SetScript("OnSizeChanged", CastBar_UpdateSize)
+	castbar.hideTradeSkills = true
+	castbar.timeToHold = 0.5
+	castbar.CastInterruptible = CastBar_Update
+	castbar.PostCastStart = CastBar_Update
+	castbar.PostCastFail = CastBar_Update
+	castbar.SetMinMaxValues = CastBar_SetMinMaxValues
+	castbar.SetValue = CastBar_SetValue
+	self.Castbar = castbar
+
+	local statusbar = CreateFrame("StatusBar", nil, castbar)
+	statusbar:SetPoint("BOTTOMRIGHT")
+	castbar.StatusBar = statusbar
+
+	local icon = castbar:CreateTexture(nil, "ARTWORK")
+	icon:SetPoint("TOPLEFT", castbar)
+	icon:SetTexCoord(4 / 64, 60 / 64, 4 / 64, 60 / 64)
+	castbar.Icon = icon
+	statusbar:SetPoint("TOPLEFT", icon, "TOPRIGHT", gap or 1, 0)
+
+	local spellName = self:SpawnText(statusbar, "ARTWORK", nil, nil, nil, nil, "castbar")
+	spellName:SetPoint("TOPLEFT", statusbar, "TOPLEFT", TEXT_MARGIN, 0)
+	spellName:SetPoint("BOTTOMRIGHT", statusbar, "BOTTOMRIGHT", -TEXT_MARGIN, 0)
+	castbar.Text = spellName
+
+	local spark = statusbar:CreateTexture(nil, "OVERLAY", nil, 1)
+	spark:SetBlendMode("ADD")
+	-- spark:SetPoint("CENTER", statusbar:GetStatusBarTexture(), "RIGHT", 0, 0)
+	spark:SetTexture([[Interface\CastingBar\UI-CastingBar-Spark]])
+	spark:SetColorTexture(1, 1, 1, 1)
+	castbar.Spark = spark
+
+	self:RegisterStatusBarTexture(statusbar, "castbar")
+	self:RegisterColor(castbar, "castbar", CastBar_Update)
+	CastBar_UpdateSize(castbar)
+
+	return castbar
 end)

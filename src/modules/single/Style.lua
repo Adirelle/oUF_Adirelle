@@ -332,13 +332,6 @@ local function LayoutBars(self)
 	end
 end
 
-local function CastBar_Update(castbar)
-	local height = castbar:GetHeight()
-	if height then
-		castbar.Icon:SetSize(height, height)
-	end
-end
-
 local function ApplyAuraPosition(self, target, initialAnchor, anchorTo, growthx, growthy, dx, dy)
 	self:Debug("ApplyAuraPosition", target, initialAnchor, anchorTo, growthx, growthy, dx, dy)
 	target.initialAnchor = initialAnchor
@@ -489,54 +482,6 @@ local DRAGON_TEXTURES = {
 	rare = { [[Interface\Addons\oUF_Adirelle\media\rare_graphic]], 6 / 128, 123 / 128, 17 / 128, 112 / 128 },
 	elite = { [[Interface\Addons\oUF_Adirelle\media\elite_graphic]], 6 / 128, 123 / 128, 17 / 128, 112 / 128 },
 }
-
-local colors = oUF.colors.castbar
-local function CastBar_SetColor(castbar)
-	local color = "failed"
-	if castbar.notInterruptible then
-		color = "notInterruptible"
-	elseif castbar.channeling then
-		color = "channeling"
-	elseif castbar.casting then
-		color = "casting"
-	end
-	return castbar:SetStatusBarColor(unpack(colors[color]))
-end
-
-local function CreateCastBar(self, anchor)
-	local castbar = CreateFrame("StatusBar", CreateName(self, "CastBar"), self)
-	castbar:Hide()
-	castbar.__owner = self
-	castbar:SetPoint("BOTTOMRIGHT", anchor)
-	castbar.timeToHold = 0.3
-	castbar.PostCastStart = CastBar_SetColor
-	castbar.CastInterruptible = CastBar_SetColor
-	castbar.PostCastFail = CastBar_SetColor
-	castbar:SetScript("OnSizeChanged", CastBar_Update)
-	castbar:SetScript("OnShow", CastBar_Update)
-	self:RegisterStatusBarTexture(castbar, "castbar")
-	self.Castbar = castbar
-
-	local icon = castbar:CreateTexture(CreateName(castbar, "Icon"), "ARTWORK")
-	icon:SetPoint("TOPLEFT", anchor)
-	icon:SetTexCoord(4 / 64, 60 / 64, 4 / 64, 60 / 64)
-	castbar.Icon = icon
-
-	local spellText = self:SpawnText(castbar, "OVERLAY", nil, nil, nil, nil, "castbar")
-	spellText:SetPoint("TOPLEFT", castbar, "TOPLEFT", TEXT_MARGIN, 0)
-	spellText:SetPoint("BOTTOMRIGHT", castbar, "BOTTOMRIGHT", -TEXT_MARGIN, 0)
-	castbar.Text = spellText
-
-	local bg = castbar:CreateTexture(CreateName(castbar, "Background"), "BACKGROUND")
-	bg:SetColorTexture(0, 0, 0, 1)
-	bg:SetPoint("TOPLEFT", icon)
-	bg:SetPoint("BOTTOMRIGHT", castbar)
-
-	castbar:SetPoint("TOPLEFT", icon, "TOPRIGHT", GAP, 0)
-	CastBar_Update(castbar)
-
-	return castbar
-end
 
 local function InitFrame(settings, self, initUnit)
 	local unit = gsub(initUnit or self.unit, "%d+", "")
@@ -716,10 +661,10 @@ local function InitFrame(settings, self, initUnit)
 
 		-- Casting Bar
 		if unit ~= "player" then
-			local castbar = CreateCastBar(self, power)
-			castbar:SetFrameLevel(power:GetFrameLevel() + 5)
+			local castbar = self:SpawnCastBar(GAP)
+			castbar:SetAllPoints(power)
+			castbar:SetFrameLevel(health:GetFrameLevel() + 2)
 		end
-
 	end
 
 	-- Threat Bar
