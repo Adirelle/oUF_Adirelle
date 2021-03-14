@@ -29,13 +29,11 @@ local unpack = _G.unpack
 --GLOBALS>
 
 local playerClass = oUF_Adirelle.playerClass
-local SpawnDiscreteBar = oUF_Adirelle.SpawnDiscreteBar
-local SpawnStatusBar = oUF_Adirelle.SpawnStatusBar
 
 if playerClass == "DEATHKNIGHT" then
 	-- Runes
 	private.SetupSecondaryPowerBar = function(self)
-		local runeBar = SpawnDiscreteBar(self, "rune", 6, true)
+		local runeBar = self:SpawnDiscreteBar("rune", 6, true)
 		self.RuneBar = runeBar
 		runeBar:SetMinMaxValues(0, 6)
 		runeBar:SetValue(6)
@@ -49,7 +47,7 @@ elseif playerClass == "SHAMAN" then
 	-- Totems
 	private.SetupSecondaryPowerBar = function(self)
 		local MAX_TOTEMS, SHAMAN_TOTEM_PRIORITIES = _G.MAX_TOTEMS, _G.SHAMAN_TOTEM_PRIORITIES
-		local bar = SpawnDiscreteBar(self, "totem", MAX_TOTEMS, true)
+		local bar = self:SpawnDiscreteBar("totem", MAX_TOTEMS, true)
 		for i = 1, MAX_TOTEMS do
 			local totemType = SHAMAN_TOTEM_PRIORITIES[i]
 			bar[i].totemType = totemType
@@ -62,7 +60,7 @@ elseif playerClass == "SHAMAN" then
 elseif playerClass == "MONK" then
 	-- Stagger bar
 	private.SetupSecondaryPowerBar = function(self)
-		local bar = SpawnStatusBar(self, "stagger")
+		local bar = self:SpawnStatusBar("stagger")
 		self.Stagger = bar
 		return bar
 	end

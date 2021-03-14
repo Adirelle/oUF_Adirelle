@@ -17,7 +17,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --]=]
 
 local _G = _G
-local oUF_Adirelle = _G.oUF_Adirelle
+local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
+local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
 local CreateFrame = _G.CreateFrame
@@ -88,22 +89,20 @@ local function OnStatusBarUpdate(bar)
 	text:Show()
 end
 
-local function SpawnTexture(object, size, to, xOffset, yOffset)
-	local texture = object:CreateTexture(GetSerialName(object, "Texture"), "OVERLAY")
-	texture:SetWidth(size)
-	texture:SetHeight(size)
-	texture:SetPoint("CENTER", object, to or "CENTER", xOffset or 0, yOffset or 0)
+oUF:RegisterMetaFunction("SpawnTexture", function(self, frame, size, to, xOffset, yOffset)
+	local texture = frame:CreateTexture(GetSerialName(frame, "Texture"), "OVERLAY")
+	texture:SetSize(size, size)
+	texture:SetPoint("CENTER", self, to or "CENTER", xOffset or 0, yOffset or 0)
 	return texture
-end
+end)
 
-local function SpawnText(self, object, layer, from, to, xOffset, yOffset, fontKind, fontSize, fontFlags)
-	local text = object:CreateFontString(GetSerialName(object, "Text"), layer, "GameFontNormal")
+oUF:RegisterMetaFunction("SpawnText", function(self, frame, layer, from, to, xOffset, yOffset, fontKind, fontSize, fontFlags)
+	local text = frame:CreateFontString(GetSerialName(frame, "Text"), layer or "ARTWORK", "GameFontNormal")
 	self:RegisterFontString(text, fontKind or "text", fontSize or 12, fontFlags or "")
-	text:SetWidth(0)
-	text:SetHeight(0)
+	text:SetSize(0, 0)
 	text:SetJustifyV("MIDDLE")
 	if from then
-		text:SetPoint(from, object, to or from, xOffset or 0, yOffset or 0)
+		text:SetPoint(from, frame, to or from, xOffset or 0, yOffset or 0)
 		if from:match("RIGHT") then
 			text:SetJustifyH("RIGHT")
 		elseif from:match("LEFT") then
@@ -115,15 +114,14 @@ local function SpawnText(self, object, layer, from, to, xOffset, yOffset, fontKi
 		text:SetJustifyH("LEFT")
 	end
 	return text
-end
+end)
 
-local function SpawnStatusBar(self, textureKind, noText, from, anchor, to, xOffset, yOffset, fontKind, fontSize, fontFlags)
+oUF:RegisterMetaFunction("SpawnStatusBar", function(self, textureKind, noText, from, anchor, to, xOffset, yOffset, fontKind, fontSize, fontFlags)
 	local bar = CreateFrame("StatusBar", GetSerialName(self, "StatusBar"), self, "BackdropTemplate")
 	if not noText then
-		local text = SpawnText(
-			self,
+		local text = self:SpawnText(
 			bar,
-			"OVERLAY",
+			"ARTWORK",
 			"TOPRIGHT",
 			"TOPRIGHT",
 			-TEXT_MARGIN,
@@ -143,7 +141,7 @@ local function SpawnStatusBar(self, textureKind, noText, from, anchor, to, xOffs
 	end
 	self:RegisterStatusBarTexture(bar, textureKind)
 	return bar
-end
+end)
 
 local function DiscreteBar_Layout(bar)
 	if bar.numItems > 0 then
@@ -198,7 +196,7 @@ local function DiscreteBar_SetStatusBarColor(bar, r, g, b, a)
 	end
 end
 
-local function SpawnDiscreteBar(self, textureKind, numItems, createStatusBar, texture)
+oUF:RegisterMetaFunction("SpawnDiscreteBar", function(self, textureKind, numItems, createStatusBar, texture)
 	local bar = CreateFrame("Frame", GetSerialName(self, "DiscreteBar"), self)
 	bar.maxItems = numItems
 	bar.numItems = numItems
@@ -231,7 +229,7 @@ local function SpawnDiscreteBar(self, textureKind, numItems, createStatusBar, te
 		bar[i] = item
 	end
 	return bar
-end
+end)
 
 local function HybridBar_SetMinMaxValues(bar, min, max)
 	if min ~= bar.minValue or max ~= bar.maxValue then
@@ -256,16 +254,10 @@ local function HybridBar_SetValue(bar, current)
 	end
 end
 
-local function SpawnHybridBar(self, textureKind, numItems, step)
-	local bar = SpawnDiscreteBar(self, textureKind, numItems, true)
+oUF:RegisterMetaFunction("SpawnHybridBar", function(self, textureKind, numItems, step)
+	local bar = self:SpawnDiscreteBar(textureKind, numItems, true)
 	bar.valueStep = step
 	bar.SetMinMaxValues = HybridBar_SetMinMaxValues
 	bar.SetValue = HybridBar_SetValue
 	return bar
-end
-
-oUF_Adirelle.SpawnTexture = SpawnTexture
-oUF_Adirelle.SpawnText = SpawnText
-oUF_Adirelle.SpawnStatusBar = SpawnStatusBar
-oUF_Adirelle.SpawnDiscreteBar = SpawnDiscreteBar
-oUF_Adirelle.SpawnHybridBar = SpawnHybridBar
+end)
