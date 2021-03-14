@@ -1,13 +1,12 @@
 ## Interface: 90005
 ## Author: Adirelle
-## Version: 1.0
+## Version: @project-version@
+#@debug@
+## Version: DEV
+#@end-debug@
 ## Title: oUF_Adirelle - nameplates
 ## Notes: Nameplates.
 ## RequiredDeps: oUF_Adirelle
 ## OptionalDeps: Blizzard_NamePlates
 
 ..\oUF_Adirelle\src\modules\nameplates\module.xml
-
-#@debug@
-## Version: DEV
-#@end-debug@

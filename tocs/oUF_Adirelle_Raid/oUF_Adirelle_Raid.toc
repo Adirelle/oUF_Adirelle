@@ -1,12 +1,11 @@
 ## Interface: 90005
 ## Author: Adirelle
-## Version: 1.0
+## Version: @project-version@
+#@debug@
+## Version: DEV
+#@end-debug@
 ## Title: oUF_Adirelle - party/raid frames
 ## Notes: Grid-like party and raid display
 ## RequiredDeps: oUF_Adirelle
 
 ..\oUF_Adirelle\src\modules\raid\module.xml
-
-#@debug@
-## Version: DEV
-#@end-debug@
