@@ -25,6 +25,8 @@ local type = _G.type
 local wipe = _G.wipe
 local unpack = _G.unpack
 
+local Config = oUF_Adirelle.Config
+
 -- Use the HCY color gradient by default
 oUF.useHCYColorGradient = true
 
@@ -116,6 +118,28 @@ oUF_Adirelle:RegisterMessage("OnSettingsModified", function(_, _, _, newProfile)
 	end
 end)
 
+local function resolveColorKey(key)
+	if type(key) == "table" then
+		return oUF.colors[key[1]][key[2]]
+	end
+	return oUF.colors[key]
+end
+
+function Config:GetColor(key)
+	local color = resolveColorKey(key)
+	return unpack(color, 1, color[4] ~= nil and 4 or 3)
+end
+
+function Config:SetColor(key, r, g, b, a)
+	local color = resolveColorKey(key)
+	if color[1] == r and color[2] == g and color[3] == b and color[4] == a then
+		return false
+	end
+	color[1], color[2], color[3], color[4] = r, g, b, a
+	oUF_Adirelle:SendMessage("OnColorsModified", key)
+	return true
+end
+
 oUF:RegisterMetaFunction("RegisterColor", function(self, target, key, callback)
 	if not callback then
 		callback = assert(
@@ -131,7 +155,14 @@ oUF:RegisterMetaFunction("RegisterColor", function(self, target, key, callback)
 		if updatedKey and updatedKey ~= key then
 			return
 		end
-		return callback(target, unpack(oUF.colors[key]))
+		callback(target, Config:GetColor(key))
+		if target.ForceUpdate then
+			target:ForceUpdate()
+		elseif target.UpdateAllElements then
+			target:UpdateAllElements()
+		elseif target.__owner then
+			target.__owner:UpdateAllElements()
+		end
 	end
 	self:RegisterMessage("OnSettingsModified", actualCallback)
 	self:RegisterMessage("OnColorsModified", actualCallback)

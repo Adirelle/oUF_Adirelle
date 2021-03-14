@@ -88,20 +88,20 @@ local relocate = {
 }
 
 local function SetColor(info, r, g, b, a)
-	info.arg[1], info.arg[2], info.arg[3] = r, g, b
-	if info.option.hasAlpha then
-		info.arg[4] = a
-	end
-	-- Update
+	return Config:SetColor(info.arg, r, g, b, a)
 end
 
 local function GetColor(info)
-	return unpack(info.arg, 1, info.option.hasAlpha and 4 or 3)
+	return Config:GetColor(info.arg)
+end
+
+local function HasAlpha(info)
+	return select(4, GetColor(info)) ~= nil
 end
 
 Config:RegisterBuilder(function(_, _, merge)
 
-	local function addColor(path, key, name, color)
+	local function addColor(path, key, name, colorKey)
 		merge("theme", path, {
 			colors = {
 				name = "Colors",
@@ -111,8 +111,8 @@ Config:RegisterBuilder(function(_, _, merge)
 					[tostring(key)] = {
 						name = Config:GetLabel(name),
 						type = "color",
-						arg = color,
-						hasAlpha = type(color[4]) == "number",
+						arg = colorKey,
+						hasAlpha = HasAlpha,
 						get = GetColor,
 						set = SetColor,
 					},
@@ -124,13 +124,13 @@ Config:RegisterBuilder(function(_, _, merge)
 	for key, value in next, oUF.colors do
 		local path = relocate[key] or key
 		if type(value[1]) == "number" then
-			addColor(path, key, key, value)
+			addColor(path, key, key, key)
 		else
 			local thisLabels = labels[key] or {}
-			for subKey, color in next, value do
+			for subKey in next, value do
 				local label = thisLabels[subKey]
 				if label then
-					addColor(path, subKey, label, color)
+					addColor(path, subKey, label, { key, subKey })
 				end
 			end
 		end
