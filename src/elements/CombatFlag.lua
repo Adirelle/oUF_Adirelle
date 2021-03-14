@@ -57,11 +57,9 @@ local function Update(self, _, unit)
 	end
 
 	local inCombat = UnitAffectingCombat(self.unit)
-	if inCombat and not element.inCombat then
-		element.inCombat = true
+	if inCombat then
 		element:Show()
-	elseif not inCombat and element.inCombat then
-		element.inCombat = false
+	else
 		element:Hide()
 	end
 
