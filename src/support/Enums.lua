@@ -1,6 +1,6 @@
 --[=[
 Adirelle's oUF layout
-(c) 2009-2018 Adirelle (adirelle@gmail.com)
+(c) 2009-2021 Adirelle (adirelle@gmail.com)
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
