@@ -51,7 +51,7 @@ local unpack = assert(_G.unpack)
 local mmin = assert(_G.math.min)
 local mmax = assert(_G.math.max)
 local huge = assert(_G.math.huge)
-local tsort = assert(_G.table.tsort)
+local tsort = assert(_G.table.sort)
 
 local AURA_SIZE = assert(oUF_Adirelle.AURA_SIZE)
 local backdrop = assert(oUF_Adirelle.backdrop)
