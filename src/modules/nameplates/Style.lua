@@ -67,10 +67,6 @@ local function SetCastBarColor(castbar)
 	return castbar:SetStatusBarColor(unpack(colors[color]))
 end
 
-local function XRange_PostUpdate(xrange, _, _, inRange)
-	xrange.__owner:SetAlpha(inRange and 1 or oUF.colors.outOfRange[4])
-end
-
 local function Auras_PostCreateIcon(_, button)
 	button.cd:SetReverse(true)
 end
@@ -147,8 +143,6 @@ local function InitFrame(self)
 	local xrange = overlay:CreateTexture(nil, "BACKGROUND")
 	xrange:SetAllPoints(self)
 	xrange:SetBlendMode("MOD")
-	self:RegisterColor(xrange, "outOfRange")
-	xrange.PostUpdate = XRange_PostUpdate
 	self.XRange = xrange
 
 	-- Display auras of interest on top of the nameplate

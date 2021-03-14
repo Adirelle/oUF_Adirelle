@@ -44,6 +44,9 @@ local unpack = _G.unpack
 local strformat = _G.strformat
 --GLOBALS>
 
+-- Declare our color
+oUF.colors.outOfRange = { 0.4, 0.4, 0.4 }
+
 -- Per class and specialization spells
 local RANGE_SPELLS = {
 	PRIEST = {
@@ -311,7 +314,10 @@ local function Enable(self)
 		updateFrame:Show()
 		xrange.__owner, xrange.ForceUpdate = self, ForceUpdate
 		xrange:Hide()
-		objects[self] = true
+		if not objects[self] then
+			self:RegisterColor(xrange, "outOfRange")
+			objects[self] = true
+		end
 		return true
 	end
 end

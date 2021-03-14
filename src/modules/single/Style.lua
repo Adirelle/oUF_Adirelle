@@ -339,10 +339,6 @@ local function CastBar_Update(castbar)
 	end
 end
 
-local function XRange_PostUpdate(xrange, _, _, inRange)
-	xrange.__owner:SetAlpha(inRange and 1 or oUF.colors.outOfRange[4])
-end
-
 local function ApplyAuraPosition(self, target, initialAnchor, anchorTo, growthx, growthy, dx, dy)
 	self:Debug("ApplyAuraPosition", target, initialAnchor, anchorTo, growthx, growthy, dx, dy)
 	target.initialAnchor = initialAnchor
@@ -483,10 +479,6 @@ end
 
 local function OnColorModified(self)
 	self.LowHealth:SetColorTexture(unpack(oUF.colors.lowHealth, 1, 4))
-	if self.XRange then
-		self.XRange:SetColorTexture(unpack(oUF.colors.outOfRange, 1, 3))
-		self.XRange:ForceUpdate()
-	end
 	self.Health:ForceUpdate()
 	if self.Power then
 		self.Power:ForceUpdate()
@@ -953,9 +945,7 @@ local function InitFrame(settings, self, initUnit)
 	if unit ~= "player" then
 		local xrange = indicators:CreateTexture(CreateName(indicators, "Range"), "BACKGROUND")
 		xrange:SetAllPoints(self)
-		xrange:SetColorTexture(0.4, 0.4, 0.4)
 		xrange:SetBlendMode("MOD")
-		xrange.PostUpdate = XRange_PostUpdate
 		self.XRange = xrange
 	end
 

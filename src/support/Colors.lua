@@ -55,8 +55,6 @@ oUF.colors.healthPrediction = {
 
 oUF.colors.lowHealth = { 1, 0, 0, 0.4 }
 
-oUF.colors.outOfRange = { 0.4, 0.4, 0.4, 1 }
-
 oUF.colors.vehicle = {
 	name = { 0.4, 0.8, 0.2 },
 	background = { 0.2, 0.6, 0 },
