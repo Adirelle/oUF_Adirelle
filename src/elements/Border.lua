@@ -38,7 +38,6 @@ oUF.colors.border = {
 	target = { 1.0, 1.0, 1.0 },
 	focus = { 1.0, 0.8, 0.0 },
 	black = { 0.0, 0.0, 0.0 },
-	combat = { 1.0, 0.5, 0.0 },
 	lowMana = oUF.colors.power.MANA,
 }
 
@@ -53,9 +52,7 @@ local function Update(self, _, unit)
 		color = oUF.colors.border.black
 	end
 	if unit and UnitExists(unit) then
-		if border.combatTimer > 0 then
-			color = oUF.colors.border.combat
-		elseif self.unit ~= "target" and not border.noTarget and UnitIsUnit("target", unit) then
+		if self.unit ~= "target" and not border.noTarget and UnitIsUnit("target", unit) then
 			color = oUF.colors.border.target
 		elseif self.unit ~= "focus" and not border.noFocus and UnitIsUnit("focus", unit) then
 			color = oUF.colors.border.focus
@@ -110,50 +107,8 @@ local function TogglePowerUpdates(self, event, unit)
 	return Update(self, event)
 end
 
-local function OnUpdate(border, elapsed)
-	if border.combatTimer < elapsed then
-		border.combatTimer = 0
-		border:SetAlpha(1.0)
-		border:SetScript("OnUpdate", nil)
-		return Update(border.__owner, "OnUpdate")
-	end
-	border.combatTimer = border.combatTimer - elapsed
-	local x = math.fmod(border.combatTimer, 0.5)
-	if x >= 0.25 then
-		border:SetAlpha(4 * x - 1)
-	else
-		border:SetAlpha(1 - 4 * x)
-	end
-end
-
-local function FlagUpdate(self, event, unit)
-	if unit and unit ~= self.unit then
-		return
-	end
-	local updated = TogglePowerUpdates(self, event, unit)
-	local border = self.Border
-	if border.noCombat then
-		return updated
-	end
-	local inCombat = UnitAffectingCombat(self.unit)
-	if inCombat and not border.inCombat then
-		border.inCombat = true
-		if event == "UNIT_FLAGS" then
-			border.combatTimer = 3
-			border:SetScript("OnUpdate", OnUpdate)
-		end
-	elseif not inCombat and border.inCombat then
-		border.inCombat, border.combatTimer = false, 0
-		border:SetScript("OnUpdate", nil)
-	else
-		return updated
-	end
-	OnUpdate(border, 0)
-	return Update(self, event) or updated
-end
-
 local function ForceUpdate(self, event)
-	return FlagUpdate(self, event) or Update(self, event)
+	return TogglePowerUpdates(self, event) or Update(self, event)
 end
 
 local function Element_ForceUpdate(element, event)
@@ -166,10 +121,9 @@ local function Enable(self)
 		border.inCombatManaLevel = border.inCombatManaLevel or 0.3
 		border.oocInRaidManaLevel = border.oocInRaidManaLevel or 0.9
 		border.oocManaLevel = border.oocManaLevel or 0.6
-		border.combatTimer = 0
 		border.__owner, border.ForceUpdate = self, Element_ForceUpdate
 		self:RegisterEvent("UNIT_DISPLAYPOWER", TogglePowerUpdates)
-		self:RegisterEvent("UNIT_FLAGS", FlagUpdate)
+		self:RegisterEvent("UNIT_FLAGS", TogglePowerUpdates)
 		if not border.noTarget then
 			self:RegisterEvent("PLAYER_TARGET_CHANGED", ForceUpdate, true)
 		end
