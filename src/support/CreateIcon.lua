@@ -16,15 +16,15 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --]=]
 
-local _G = _G
-local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
+local _G, assert = _G, _G.assert
+local oUF_Adirelle = assert(_G.oUF_Adirelle)
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
-local CreateFrame = _G.CreateFrame
-local select = _G.select
-local tonumber = _G.tonumber
-local type = _G.type
+local CreateFrame = assert(_G.CreateFrame)
+local select = assert(_G.select)
+local tonumber = assert(_G.tonumber)
+local type = assert(_G.type)
 --GLOBALS>
 
 local function NOOP()

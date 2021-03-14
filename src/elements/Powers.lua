@@ -42,26 +42,26 @@ Sub-widget hooks
 
 --]=]
 
-local _G = _G
-local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
+local _G, assert = _G, _G.assert
+local oUF_Adirelle = assert(_G.oUF_Adirelle)
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
-local GetSpecialization = _G.GetSpecialization
-local GetSpecializationInfo = _G.GetSpecializationInfo
-local pairs = _G.pairs
-local UnitClass = _G.UnitClass
-local UnitIsConnected = _G.UnitIsConnected
-local UnitIsPlayer = _G.UnitIsPlayer
-local UnitIsUnit = _G.UnitIsUnit
-local UnitLevel = _G.UnitLevel
-local UnitPower = _G.UnitPower
-local UnitPowerMax = _G.UnitPowerMax
-local UnitPowerType = _G.UnitPowerType
-local unpack = _G.unpack
+local GetSpecialization = assert(_G.GetSpecialization)
+local GetSpecializationInfo = assert(_G.GetSpecializationInfo)
+local pairs = assert(_G.pairs)
+local UnitClass = assert(_G.UnitClass)
+local UnitIsConnected = assert(_G.UnitIsConnected)
+local UnitIsPlayer = assert(_G.UnitIsPlayer)
+local UnitIsUnit = assert(_G.UnitIsUnit)
+local UnitLevel = assert(_G.UnitLevel)
+local UnitPower = assert(_G.UnitPower)
+local UnitPowerMax = assert(_G.UnitPowerMax)
+local UnitPowerType = assert(_G.UnitPowerType)
+local unpack = assert(_G.unpack)
 --GLOBALS>
 
-local PowerMap = oUF_Adirelle.Enum.PowerMap
+local PowerMap = assert(oUF_Adirelle.Enum.PowerMap)
 
 -- Set default colors for burning embers and demonic fury
 if not oUF.colors.power.BURNING_EMBERS then

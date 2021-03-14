@@ -16,17 +16,17 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --]=]
 
-local _G = _G
-local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
+local _G, assert = _G, _G.assert
+local oUF_Adirelle = assert(_G.oUF_Adirelle)
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
-local ceil = _G.ceil
-local CreateFrame = _G.CreateFrame
-local floor = _G.floor
-local format = _G.format
-local tostring = _G.tostring
-local UnitClassification = _G.UnitClassification
+local ceil = assert(_G.ceil)
+local CreateFrame = assert(_G.CreateFrame)
+local floor = assert(_G.floor)
+local format = assert(_G.format)
+local tostring = assert(_G.tostring)
+local UnitClassification = assert(_G.UnitClassification)
 --GLOBALS>
 
 local Config = oUF_Adirelle.Config

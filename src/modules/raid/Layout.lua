@@ -16,32 +16,34 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --]=]
 
-local _G, _, private = _G, ...
-local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
+local _, private = ...
+
+local _G, assert = _G, _G.assert
+local oUF_Adirelle = assert(_G.oUF_Adirelle)
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 oUF:Factory(function()
 	--<GLOBALS
-	local ceil = _G.ceil
-	local CreateFrame = _G.CreateFrame
-	local GetInstanceInfo = _G.GetInstanceInfo
-	local GetNumGroupMembers = _G.GetNumGroupMembers
-	local GetRaidRosterInfo = _G.GetRaidRosterInfo
-	local hooksecurefunc = _G.hooksecurefunc
-	local IsInActiveWorldPVP = _G.IsInActiveWorldPVP
-	local pairs = _G.pairs
-	local select = _G.select
-	local strjoin = _G.strjoin
-	local strmatch = _G.strmatch
-	local tostring = _G.tostring
-	local UIParent = _G.UIParent
+	local ceil = assert(_G.ceil)
+	local CreateFrame = assert(_G.CreateFrame)
+	local GetInstanceInfo = assert(_G.GetInstanceInfo)
+	local GetNumGroupMembers = assert(_G.GetNumGroupMembers)
+	local GetRaidRosterInfo = assert(_G.GetRaidRosterInfo)
+	local hooksecurefunc = assert(_G.hooksecurefunc)
+	local IsInActiveWorldPVP = assert(_G.IsInActiveWorldPVP)
+	local pairs = assert(_G.pairs)
+	local select = assert(_G.select)
+	local strjoin = assert(_G.strjoin)
+	local strmatch = assert(_G.strmatch)
+	local tostring = assert(_G.tostring)
+	local UIParent = assert(_G.UIParent)
 	--GLOBALS>
 
 	-- Fetch some shared variables into local namespace
-	local SPACING = private.SPACING
-	local WIDTH = private.WIDTH
-	local HEIGHT = private.HEIGHT
-	local GetPlayerRole = oUF_Adirelle.GetPlayerRole
+	local SPACING = assert(private.SPACING)
+	local WIDTH = assert(private.WIDTH)
+	local HEIGHT = assert(private.HEIGHT)
+	local GetPlayerRole = assert(oUF_Adirelle.GetPlayerRole)
 
 	local HEIGHT_SMALL = 20
 

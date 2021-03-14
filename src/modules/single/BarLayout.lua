@@ -16,21 +16,23 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --]=]
 
-local _G, _, private = _G, ...
-local oUF_Adirelle = _G.oUF_Adirelle
+local _, private = ...
+
+local _G, assert = _G, _G.assert
+local oUF_Adirelle = assert(_G.oUF_Adirelle)
 
 --<GLOBALS
-local CreateFrame = _G.CreateFrame
-local ipairs = _G.ipairs
-local pairs = _G.pairs
-local tinsert = _G.tinsert
-local wipe = _G.wipe
+local CreateFrame = assert(_G.CreateFrame)
+local ipairs = assert(_G.ipairs)
+local pairs = assert(_G.pairs)
+local tinsert = assert(_G.tinsert)
+local wipe = assert(_G.wipe)
 --GLOBALS>
 
-local tsort = _G.table.sort
+local tsort = assert(_G.table.sort)
 
-local CreateName = oUF_Adirelle.CreateName
-local GAP = oUF_Adirelle.GAP
+local CreateName = assert(oUF_Adirelle.CreateName)
+local GAP = assert(oUF_Adirelle.GAP)
 
 local wlist = {}
 

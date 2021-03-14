@@ -18,13 +18,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 Elements handled: .TargetIcon
 --]=]
 
-local _G = _G
-local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
+local _G, assert = _G, _G.assert
+local oUF_Adirelle = assert(_G.oUF_Adirelle)
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
-local GetRaidTargetIndex = _G.GetRaidTargetIndex
-local SetRaidTargetIconTexture = _G.SetRaidTargetIconTexture
+local GetRaidTargetIndex = assert(_G.GetRaidTargetIndex)
+local SetRaidTargetIconTexture = assert(_G.SetRaidTargetIconTexture)
 --GLOBALS>
 
 local function Update(self, _, unit)

@@ -16,20 +16,20 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --]=]
 
-local _G = _G
-local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
+local _G, assert = _G, _G.assert
+local oUF_Adirelle = assert(_G.oUF_Adirelle)
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
-local CreateFrame = _G.CreateFrame
-local ipairs = _G.ipairs
-local next = _G.next
-local pairs = _G.pairs
-local rawget = _G.rawget
-local setmetatable = _G.setmetatable
-local tinsert = _G.tinsert
-local tremove = _G.tremove
-local type = _G.type
+local CreateFrame = assert(_G.CreateFrame)
+local ipairs = assert(_G.ipairs)
+local next = assert(_G.next)
+local pairs = assert(_G.pairs)
+local rawget = assert(_G.rawget)
+local setmetatable = assert(_G.setmetatable)
+local tinsert = assert(_G.tinsert)
+local tremove = assert(_G.tremove)
+local type = assert(_G.type)
 --GLOBALS>
 
 -- The big table

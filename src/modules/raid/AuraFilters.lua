@@ -16,27 +16,29 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --]=]
 
-local _G, moduleName, private = _G, ...
-local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
+local moduleName, private = ...
+
+local _G, assert = _G, _G.assert
+local oUF_Adirelle = assert(_G.oUF_Adirelle)
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
-local DebuffTypeColor = _G.DebuffTypeColor
-local debugstack = _G.debugstack
-local format = _G.format
-local geterrorhandler = _G.geterrorhandler
-local GetSpellInfo = _G.GetSpellInfo
-local select = _G.select
-local strjoin = _G.strjoin
-local tostringall = _G.tostringall
-local tostring = _G.tostring
-local type = _G.type
-local UnitCanAssist = _G.UnitCanAssist
-local UnitClass = _G.UnitClass
-local UnitIsUnit = _G.UnitIsUnit
+local DebuffTypeColor = assert(_G.DebuffTypeColor)
+local debugstack = assert(_G.debugstack)
+local format = assert(_G.format)
+local geterrorhandler = assert(_G.geterrorhandler)
+local GetSpellInfo = assert(_G.GetSpellInfo)
+local select = assert(_G.select)
+local strjoin = assert(_G.strjoin)
+local tostringall = assert(_G.tostringall)
+local tostring = assert(_G.tostring)
+local type = assert(_G.type)
+local UnitCanAssist = assert(_G.UnitCanAssist)
+local UnitClass = assert(_G.UnitClass)
+local UnitIsUnit = assert(_G.UnitIsUnit)
 --GLOBALS>
 
-local FindAuraByName = _G.AuraUtil.FindAuraByName
+local FindAuraByName = assert(_G.AuraUtil.FindAuraByName)
 
 -- ------------------------------------------------------------------------------
 -- Helper

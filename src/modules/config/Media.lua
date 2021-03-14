@@ -16,19 +16,19 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --]=]
 
-local _G = _G
-local oUF_Adirelle = _G.oUF_Adirelle
+local _G, assert = _G, _G.assert
+local oUF_Adirelle = assert(_G.oUF_Adirelle)
 
 --<GLOBALS
-local next = _G.next
+local next = assert(_G.next)
 --GLOBALS>
 
-local Config = oUF_Adirelle.Config
-local themeDB = oUF_Adirelle.themeDB
+local Config = assert(oUF_Adirelle.Config)
+local themeDB = assert(oUF_Adirelle.themeDB)
 
 local SharedMedia = oUF_Adirelle.GetLib("LibSharedMedia-3.0")
-local FONT = SharedMedia.MediaType.FONT
-local STATUSBAR = SharedMedia.MediaType.STATUSBAR
+local FONT = assert(SharedMedia.MediaType.FONT)
+local STATUSBAR = assert(SharedMedia.MediaType.STATUSBAR)
 
 local relocate = {
 	raid = "info",

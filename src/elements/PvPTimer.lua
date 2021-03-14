@@ -18,16 +18,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 Elements handled: .PvPTimer
 --]=]
 
-local _G = _G
-local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
+local _G, assert = _G, _G.assert
+local oUF_Adirelle = assert(_G.oUF_Adirelle)
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
-local floor = _G.floor
-local GetPVPTimer = _G.GetPVPTimer
-local gsub = _G.gsub
-local IsPVPTimerRunning = _G.IsPVPTimerRunning
-local SecondsToTimeAbbrev = _G.SecondsToTimeAbbrev
+local floor = assert(_G.floor)
+local GetPVPTimer = assert(_G.GetPVPTimer)
+local gsub = assert(_G.gsub)
+local IsPVPTimerRunning = assert(_G.IsPVPTimerRunning)
+local SecondsToTimeAbbrev = assert(_G.SecondsToTimeAbbrev)
 --GLOBALS>
 
 local function OnElapsed(timer, elapsed)

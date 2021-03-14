@@ -16,18 +16,18 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --]=]
 
-local _G = _G
-local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
+local _G, assert = _G, _G.assert
+local oUF_Adirelle = assert(_G.oUF_Adirelle)
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
-local GetThreatStatusColor = _G.GetThreatStatusColor
-local gsub = _G.gsub
-local UnitAffectingCombat = _G.UnitAffectingCombat
-local UnitCanAttack = _G.UnitCanAttack
-local UnitIsPlayer = _G.UnitIsPlayer
-local UnitIsUnit = _G.UnitIsUnit
-local UnitThreatSituation = _G.UnitThreatSituation
+local GetThreatStatusColor = assert(_G.GetThreatStatusColor)
+local gsub = assert(_G.gsub)
+local UnitAffectingCombat = assert(_G.UnitAffectingCombat)
+local UnitCanAttack = assert(_G.UnitCanAttack)
+local UnitIsPlayer = assert(_G.UnitIsPlayer)
+local UnitIsUnit = assert(_G.UnitIsUnit)
+local UnitThreatSituation = assert(_G.UnitThreatSituation)
 --GLOBALS>
 
 local Update = function(self, _, unit)

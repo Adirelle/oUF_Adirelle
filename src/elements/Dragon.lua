@@ -18,15 +18,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 Elements handled: .Dragon
 --]=]
 
-local _G = _G
-local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
+local _G, assert = _G, _G.assert
+local oUF_Adirelle = assert(_G.oUF_Adirelle)
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
-local GetCurrentRegion = _G.GetCurrentRegion
-local type = _G.type
-local UnitClassification = _G.UnitClassification
-local unpack = _G.unpack
+local GetCurrentRegion = assert(_G.GetCurrentRegion)
+local type = assert(_G.type)
+local UnitClassification = assert(_G.UnitClassification)
+local unpack = assert(_G.unpack)
 --GLOBALS>
 
 local classifMap = {

@@ -16,22 +16,22 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --]=]
 
-local _G = _G
-local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
+local _G, assert = _G, _G.assert
+local oUF_Adirelle = assert(_G.oUF_Adirelle)
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
-local UnitCanAssist = _G.UnitCanAssist
-local UnitGetIncomingHeals = _G.UnitGetIncomingHeals
-local UnitGetTotalAbsorbs = _G.UnitGetTotalAbsorbs
-local UnitGetTotalHealAbsorbs = _G.UnitGetTotalHealAbsorbs
-local UnitHealth = _G.UnitHealth
-local UnitHealthMax = _G.UnitHealthMax
-local UnitIsConnected = _G.UnitIsConnected
-local UnitIsDeadOrGhost = _G.UnitIsDeadOrGhost
+local UnitCanAssist = assert(_G.UnitCanAssist)
+local UnitGetIncomingHeals = assert(_G.UnitGetIncomingHeals)
+local UnitGetTotalAbsorbs = assert(_G.UnitGetTotalAbsorbs)
+local UnitGetTotalHealAbsorbs = assert(_G.UnitGetTotalHealAbsorbs)
+local UnitHealth = assert(_G.UnitHealth)
+local UnitHealthMax = assert(_G.UnitHealthMax)
+local UnitIsConnected = assert(_G.UnitIsConnected)
+local UnitIsDeadOrGhost = assert(_G.UnitIsDeadOrGhost)
 --GLOBALS>
 
-local max = _G.math.max
+local mmax = assert(_G.math.max)
 
 local function Update(self, _, unit)
 	if (unit and unit ~= self.unit) then
@@ -40,7 +40,7 @@ local function Update(self, _, unit)
 	unit = self.unit
 	if UnitIsConnected(unit) and not UnitIsDeadOrGhost(unit) and UnitCanAssist("player", unit) then
 		local health = UnitHealth(unit)
-		local virtualHealth = max(
+		local virtualHealth = mmax(
 			health + (UnitGetTotalAbsorbs(unit) or 0),
 			health - (UnitGetTotalHealAbsorbs(unit) or 0) + (UnitGetIncomingHeals(unit) or 0)
 		)

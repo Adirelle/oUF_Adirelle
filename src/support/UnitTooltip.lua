@@ -16,15 +16,15 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --]=]
 
-local _G = _G
-local oUF_Adirelle = _G.oUF_Adirelle
+local _G, assert = _G, _G.assert
+local oUF_Adirelle = assert(_G.oUF_Adirelle)
 
 --<GLOBALS
-local GameTooltip = _G.GameTooltip
-local GameTooltip_SetDefaultAnchor = _G.GameTooltip_SetDefaultAnchor
-local GameTooltip_UnitColor = _G.GameTooltip_UnitColor
-local InCombatLockdown = _G.InCombatLockdown
-local UIParent = _G.UIParent
+local GameTooltip = assert(_G.GameTooltip)
+local GameTooltip_SetDefaultAnchor = assert(_G.GameTooltip_SetDefaultAnchor)
+local GameTooltip_UnitColor = assert(_G.GameTooltip_UnitColor)
+local InCombatLockdown = assert(_G.InCombatLockdown)
+local UIParent = assert(_G.UIParent)
 --GLOBALS>
 
 local function UpdateTooltip(frame)

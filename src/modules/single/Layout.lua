@@ -16,17 +16,18 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --]=]
 
-local _G = _G
-local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
+local _G, assert = _G, _G.assert
+local oUF_Adirelle = assert(_G.oUF_Adirelle)
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 oUF:Factory(function()
 	--<GLOBALS
-	local GetScreenWidth = _G.GetScreenWidth
-	local max = _G.max
-	local next = _G.next
-	local select = _G.select
+	local GetScreenWidth = assert(_G.GetScreenWidth)
+	local next = assert(_G.next)
+	local select = assert(_G.select)
 	--GLOBALS>
+
+	local max = assert(_G.math.max)
 
 	local frames = {}
 

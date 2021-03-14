@@ -20,7 +20,7 @@ update() {
 
     cat "$TARGET.__before" "$TARGET.__after" \
         | luac -l -p -  \
-        | awk '$3=="GETGLOBAL" && $7 != "_G"{print "local " $7 " = _G." $7}' \
+        | awk '$3=="GETGLOBAL" && $7 != "_G"{print "local " $7 " = assert(_G." $7 ")"}' \
         | sort -u \
         > "$TARGET.__globals"
 

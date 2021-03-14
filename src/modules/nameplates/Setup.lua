@@ -16,18 +16,18 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 --]=]
 
-local _G = _G
-local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
+local _G, assert = _G, _G.assert
+local oUF_Adirelle = assert(_G.oUF_Adirelle)
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
-local hooksecurefunc = _G.hooksecurefunc
-local NamePlateDriverFrame = _G.NamePlateDriverFrame
-local next = _G.next
-local SetCVar = _G.SetCVar
+local hooksecurefunc = assert(_G.hooksecurefunc)
+local NamePlateDriverFrame = assert(_G.NamePlateDriverFrame)
+local next = assert(_G.next)
+local SetCVar = assert(_G.SetCVar)
 --GLOBALS>
 
-local NAMEPLATE_CVARS = oUF_Adirelle.NAMEPLATE_CVARS
+local NAMEPLATE_CVARS = assert(oUF_Adirelle.NAMEPLATE_CVARS)
 
 local function LoadNameplateCVars()
 	if not oUF_Adirelle.layoutDB then

@@ -18,24 +18,24 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 Elements handled: .StatusIcon
 --]=]
 
-local _G = _G
-local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
+local _G, assert = _G, _G.assert
+local oUF_Adirelle = assert(_G.oUF_Adirelle)
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
-local CreateFrame = _G.CreateFrame
-local next = _G.next
-local pairs = _G.pairs
-local UnitHasVehicleUI = _G.UnitHasVehicleUI
-local UnitIsCharmed = _G.UnitIsCharmed
-local UnitIsConnected = _G.UnitIsConnected
-local UnitIsDead = _G.UnitIsDead
-local UnitIsDeadOrGhost = _G.UnitIsDeadOrGhost
-local UnitIsGhost = _G.UnitIsGhost
-local UnitIsPlayer = _G.UnitIsPlayer
-local UnitIsVisible = _G.UnitIsVisible
-local UnitPhaseReason = _G.UnitPhaseReason
-local unpack = _G.unpack
+local CreateFrame = assert(_G.CreateFrame)
+local next = assert(_G.next)
+local pairs = assert(_G.pairs)
+local UnitHasVehicleUI = assert(_G.UnitHasVehicleUI)
+local UnitIsCharmed = assert(_G.UnitIsCharmed)
+local UnitIsConnected = assert(_G.UnitIsConnected)
+local UnitIsDead = assert(_G.UnitIsDead)
+local UnitIsDeadOrGhost = assert(_G.UnitIsDeadOrGhost)
+local UnitIsGhost = assert(_G.UnitIsGhost)
+local UnitIsPlayer = assert(_G.UnitIsPlayer)
+local UnitIsVisible = assert(_G.UnitIsVisible)
+local UnitPhaseReason = assert(_G.UnitPhaseReason)
+local unpack = assert(_G.unpack)
 --GLOBALS>
 
 local function GetFrameUnitState(self, ignoreVisibility)

@@ -18,16 +18,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 Elements handled: .ThreatBar
 --]=]
 
-local _G = _G
-local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
+local _G, assert = _G, _G.assert
+local oUF_Adirelle = assert(_G.oUF_Adirelle)
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
-local GetNumGroupMembers = _G.GetNumGroupMembers
-local GetThreatStatusColor = _G.GetThreatStatusColor
-local LE_PARTY_CATEGORY_HOME = _G.LE_PARTY_CATEGORY_HOME
-local UnitDetailedThreatSituation = _G.UnitDetailedThreatSituation
-local UnitExists = _G.UnitExists
+local GetNumGroupMembers = assert(_G.GetNumGroupMembers)
+local GetThreatStatusColor = assert(_G.GetThreatStatusColor)
+local LE_PARTY_CATEGORY_HOME = assert(_G.LE_PARTY_CATEGORY_HOME)
+local UnitDetailedThreatSituation = assert(_G.UnitDetailedThreatSituation)
+local UnitExists = assert(_G.UnitExists)
 --GLOBALS>
 
 local function Update(self, event, unit)

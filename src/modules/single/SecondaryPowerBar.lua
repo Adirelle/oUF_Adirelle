@@ -16,8 +16,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --]=]
 
-local _G, _, private = _G, ...
-local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
+local _, private = ...
+
+local _G, assert = _G, _G.assert
+local oUF_Adirelle = assert(_G.oUF_Adirelle)
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 if oUF_Adirelle.SingleStyle then
@@ -25,10 +27,10 @@ if oUF_Adirelle.SingleStyle then
 end
 
 --<GLOBALS
-local unpack = _G.unpack
+local unpack = assert(_G.unpack)
 --GLOBALS>
 
-local playerClass = oUF_Adirelle.playerClass
+local playerClass = assert(oUF_Adirelle.playerClass)
 
 if playerClass == "DEATHKNIGHT" then
 	-- Runes

@@ -16,8 +16,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --]=]
 
-local _G, _, private = _G, ...
-local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
+local _, private = ...
+
+local _G, assert = _G, _G.assert
+local oUF_Adirelle = assert(_G.oUF_Adirelle)
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 if oUF_Adirelle.SingleStyle then
@@ -25,41 +27,41 @@ if oUF_Adirelle.SingleStyle then
 end
 
 --<GLOBALS
-local ALT_POWER_TEX_FILL = _G.ALT_POWER_TEX_FILL
-local CreateFrame = _G.CreateFrame
-local GetUnitPowerBarTextureInfo = _G.GetUnitPowerBarTextureInfo
-local gsub = _G.gsub
-local InCombatLockdown = _G.InCombatLockdown
-local ipairs = _G.ipairs
-local MAX_COMBO_POINTS = _G.MAX_COMBO_POINTS
-local next = _G.next
-local pairs = _G.pairs
-local select = _G.select
-local setmetatable = _G.setmetatable
-local strmatch = _G.strmatch
-local tinsert = _G.tinsert
-local UnitAura = _G.UnitAura
-local UnitCanAssist = _G.UnitCanAssist
-local UnitCanAttack = _G.UnitCanAttack
-local UnitClass = _G.UnitClass
-local UnitIsDeadOrGhost = _G.UnitIsDeadOrGhost
-local unpack = _G.unpack
+local ALT_POWER_TEX_FILL = assert(_G.ALT_POWER_TEX_FILL)
+local CreateFrame = assert(_G.CreateFrame)
+local GetUnitPowerBarTextureInfo = assert(_G.GetUnitPowerBarTextureInfo)
+local gsub = assert(_G.gsub)
+local InCombatLockdown = assert(_G.InCombatLockdown)
+local ipairs = assert(_G.ipairs)
+local MAX_COMBO_POINTS = assert(_G.MAX_COMBO_POINTS)
+local next = assert(_G.next)
+local pairs = assert(_G.pairs)
+local select = assert(_G.select)
+local setmetatable = assert(_G.setmetatable)
+local strmatch = assert(_G.strmatch)
+local tinsert = assert(_G.tinsert)
+local UnitAura = assert(_G.UnitAura)
+local UnitCanAssist = assert(_G.UnitCanAssist)
+local UnitCanAttack = assert(_G.UnitCanAttack)
+local UnitClass = assert(_G.UnitClass)
+local UnitIsDeadOrGhost = assert(_G.UnitIsDeadOrGhost)
+local unpack = assert(_G.unpack)
 --GLOBALS>
 
-local mmin = _G.min
-local mmax = _G.max
-local huge = _G.math.huge
-local tsort = _G.table.tsort
+local mmin = assert(_G.math.min)
+local mmax = assert(_G.math.max)
+local huge = assert(_G.math.huge)
+local tsort = assert(_G.table.tsort)
 
-local AURA_SIZE = oUF_Adirelle.AURA_SIZE
-local backdrop = oUF_Adirelle.backdrop
-local BORDER_WIDTH = oUF_Adirelle.BORDER_WIDTH
-local CreateName = oUF_Adirelle.CreateName
-local FRAME_MARGIN = oUF_Adirelle.FRAME_MARGIN
-local GAP = oUF_Adirelle.GAP
-local glowBorderBackdrop = oUF_Adirelle.glowBorderBackdrop
-local PowerMap = oUF_Adirelle.Enum.PowerMap
-local TEXT_MARGIN = oUF_Adirelle.TEXT_MARGIN
+local AURA_SIZE = assert(oUF_Adirelle.AURA_SIZE)
+local backdrop = assert(oUF_Adirelle.backdrop)
+local BORDER_WIDTH = assert(oUF_Adirelle.BORDER_WIDTH)
+local CreateName = assert(oUF_Adirelle.CreateName)
+local FRAME_MARGIN = assert(oUF_Adirelle.FRAME_MARGIN)
+local GAP = assert(oUF_Adirelle.GAP)
+local glowBorderBackdrop = assert(oUF_Adirelle.glowBorderBackdrop)
+local PowerMap = assert(oUF_Adirelle.Enum.PowerMap)
+local TEXT_MARGIN = assert(oUF_Adirelle.TEXT_MARGIN)
 
 local borderBackdrop = { edgeFile = [[Interface\Addons\oUF_Adirelle\media\white16x16]], edgeSize = BORDER_WIDTH }
 

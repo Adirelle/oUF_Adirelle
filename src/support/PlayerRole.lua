@@ -16,18 +16,18 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --]=]
 
-local _G = _G
-local oUF_Adirelle = _G.oUF_Adirelle
+local _G, assert = _G, _G.assert
+local oUF_Adirelle = assert(_G.oUF_Adirelle)
 
 --<GLOBALS
-local GetSpecialization = _G.GetSpecialization
-local GetSpecializationRole = _G.GetSpecializationRole
-local IsInRaid = _G.IsInRaid
-local UnitGroupRolesAssigned = _G.UnitGroupRolesAssigned
-local UnitSetRole = _G.UnitSetRole
+local GetSpecialization = assert(_G.GetSpecialization)
+local GetSpecializationRole = assert(_G.GetSpecializationRole)
+local IsInRaid = assert(_G.IsInRaid)
+local UnitGroupRolesAssigned = assert(_G.UnitGroupRolesAssigned)
+local UnitSetRole = assert(_G.UnitSetRole)
 --GLOBALS>
 
-local Debug = oUF_Adirelle.Debug
+local Debug = assert(oUF_Adirelle.Debug)
 
 local current
 local inRaid

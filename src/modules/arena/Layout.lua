@@ -16,22 +16,23 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --]=]
 
-local _G = _G
-local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
+local _G, assert = _G, _G.assert
+local oUF_Adirelle = assert(_G.oUF_Adirelle)
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 oUF:Factory(function()
 	--<GLOBALS
-	local GetScreenWidth = _G.GetScreenWidth
-	local IsInInstance = _G.IsInInstance
-	local max = _G.max
-	local RegisterUnitWatch = _G.RegisterUnitWatch
-	local SecureHandlerWrapScript = _G.SecureHandlerWrapScript
-	local select = _G.select
-	local UnregisterUnitWatch = _G.UnregisterUnitWatch
+	local GetScreenWidth = assert(_G.GetScreenWidth)
+	local IsInInstance = assert(_G.IsInInstance)
+	local RegisterUnitWatch = assert(_G.RegisterUnitWatch)
+	local SecureHandlerWrapScript = assert(_G.SecureHandlerWrapScript)
+	local select = assert(_G.select)
+	local UnregisterUnitWatch = assert(_G.UnregisterUnitWatch)
 	--GLOBALS>
 
-	local offset = 250 + max(0, GetScreenWidth() - 1280) / 5
+	local mmax = assert(_G.math.max)
+
+	local offset = 250 + mmax(0, GetScreenWidth() - 1280) / 5
 
 	local anchor = oUF_Adirelle.CreatePseudoHeader(
 		"oUF_Adirelle_Arena",

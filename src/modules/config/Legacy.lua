@@ -16,36 +16,35 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --]=]
 
-local _G = _G
-local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
-local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
+local _G, assert = _G, _G.assert
+local oUF_Adirelle = assert(_G.oUF_Adirelle)
 
 --<GLOBALS
-local DisableAddOn = _G.DisableAddOn
-local EnableAddOn = _G.EnableAddOn
-local format = _G.format
-local GetAddOnEnableState = _G.GetAddOnEnableState
-local GetSpellInfo = _G.GetSpellInfo
-local gsub = _G.gsub
-local IsAddOnLoaded = _G.IsAddOnLoaded
-local LibStub = _G.LibStub
-local next = _G.next
-local pairs = _G.pairs
-local strsub = _G.strsub
-local tostring = _G.tostring
-local type = _G.type
-local wipe = _G.wipe
+local DisableAddOn = assert(_G.DisableAddOn)
+local EnableAddOn = assert(_G.EnableAddOn)
+local format = assert(_G.format)
+local GetAddOnEnableState = assert(_G.GetAddOnEnableState)
+local GetSpellInfo = assert(_G.GetSpellInfo)
+local gsub = assert(_G.gsub)
+local IsAddOnLoaded = assert(_G.IsAddOnLoaded)
+local LibStub = assert(_G.LibStub)
+local next = assert(_G.next)
+local pairs = assert(_G.pairs)
+local strsub = assert(_G.strsub)
+local tostring = assert(_G.tostring)
+local type = assert(_G.type)
+local wipe = assert(_G.wipe)
 --GLOBALS>
 
 local LibMovable = oUF_Adirelle.GetLib("LibMovable-1.0")
 
-local Config = oUF_Adirelle.Config
-local SettingsModified = oUF_Adirelle.SettingsModified
-local layoutDB = oUF_Adirelle.layoutDB
-local themeDB = oUF_Adirelle.themeDB
+local Config = assert(oUF_Adirelle.Config)
+local SettingsModified = assert(oUF_Adirelle.SettingsModified)
+local layoutDB = assert(oUF_Adirelle.layoutDB)
+local themeDB = assert(oUF_Adirelle.themeDB)
 
-local IsLockedDown = Config.IsLockedDown
-local playerName = Config.playerName
+local IsLockedDown = assert(Config.IsLockedDown)
+local playerName = assert(Config.playerName)
 local reloadNeeded = false
 
 -- ------------------------------------------------------------------------------
@@ -114,15 +113,6 @@ local function IsSingleStyleUnused()
 	local d = layoutDB.profile.disabled
 	return not oUF_Adirelle.SingleStyle
 		or (d.arena and d.boss and d.player and d.pet and d.pettarget and d.target and d.targettarget and d.focus)
-end
-
--- Fetch the list of elements that can be disabled
-local IsElementDisabled = {}
-for _, key in pairs(oUF_Adirelle.optionalElements) do
-	local constKey = key
-	IsElementDisabled[key] = function()
-		return not layoutDB.profile.elements[constKey]
-	end
 end
 
 Config:RegisterBuilder(function(_, _, merge)

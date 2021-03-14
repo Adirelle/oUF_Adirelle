@@ -18,26 +18,26 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 Elements handled: .RoleIcon
 --]=]
 
-local _G = _G
-local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
+local _G, assert = _G, _G.assert
+local oUF_Adirelle = assert(_G.oUF_Adirelle)
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
-local GetRaidRosterInfo = _G.GetRaidRosterInfo
-local GetRaidTargetIndex = _G.GetRaidTargetIndex
-local GetTexCoordsForRoleSmallCircle = _G.GetTexCoordsForRoleSmallCircle
-local GetTexCoordsForRoleSmall = _G.GetTexCoordsForRoleSmall
-local IsInRaid = _G.IsInRaid
-local select = _G.select
-local SetRaidTargetIconTexture = _G.SetRaidTargetIconTexture
-local UnitGroupRolesAssigned = _G.UnitGroupRolesAssigned
-local UnitInRaid = _G.UnitInRaid
-local UnitIsPlayer = _G.UnitIsPlayer
-local UnitIsQuestBoss = _G.UnitIsQuestBoss
-local UnitIsUnit = _G.UnitIsUnit
+local GetRaidRosterInfo = assert(_G.GetRaidRosterInfo)
+local GetRaidTargetIndex = assert(_G.GetRaidTargetIndex)
+local GetTexCoordsForRoleSmall = assert(_G.GetTexCoordsForRoleSmall)
+local GetTexCoordsForRoleSmallCircle = assert(_G.GetTexCoordsForRoleSmallCircle)
+local IsInRaid = assert(_G.IsInRaid)
+local select = assert(_G.select)
+local SetRaidTargetIconTexture = assert(_G.SetRaidTargetIconTexture)
+local UnitGroupRolesAssigned = assert(_G.UnitGroupRolesAssigned)
+local UnitInRaid = assert(_G.UnitInRaid)
+local UnitIsPlayer = assert(_G.UnitIsPlayer)
+local UnitIsQuestBoss = assert(_G.UnitIsQuestBoss)
+local UnitIsUnit = assert(_G.UnitIsUnit)
 --GLOBALS>
 
-local GetPlayerRole = oUF_Adirelle.GetPlayerRole
+local GetPlayerRole = assert(oUF_Adirelle.GetPlayerRole)
 
 local function AcceptAllRole(role)
 	return role and role ~= "NONE"

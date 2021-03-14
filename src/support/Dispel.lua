@@ -16,23 +16,23 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --]=]
 
-local _G = _G
-local oUF_Adirelle = _G.oUF_Adirelle
+local _G, assert = _G, _G.assert
+local oUF_Adirelle = assert(_G.oUF_Adirelle)
 
 --<GLOBALS
-local IsSpellKnownOrOverridesKnown = _G.IsSpellKnownOrOverridesKnown
-local next = _G.next
-local pairs = _G.pairs
-local type = _G.type
-local UnitCanAssist = _G.UnitCanAssist
-local UnitCanAttack = _G.UnitCanAttack
-local UnitDebuff = _G.UnitDebuff
-local UnitIsUnit = _G.UnitIsUnit
-local unpack = _G.unpack
+local IsSpellKnownOrOverridesKnown = assert(_G.IsSpellKnownOrOverridesKnown)
+local next = assert(_G.next)
+local pairs = assert(_G.pairs)
+local type = assert(_G.type)
+local UnitCanAssist = assert(_G.UnitCanAssist)
+local UnitCanAttack = assert(_G.UnitCanAttack)
+local UnitDebuff = assert(_G.UnitDebuff)
+local UnitIsUnit = assert(_G.UnitIsUnit)
+local unpack = assert(_G.unpack)
 --GLOBALS>
 
-local band = _G.bit.band
-local bor = _G.bit.bor
+local band = assert(_G.bit.band)
+local bor = assert(_G.bit.bor)
 
 local LPS = oUF_Adirelle.GetLib("LibPlayerSpells-1.0")
 local C = LPS.constants

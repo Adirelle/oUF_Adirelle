@@ -16,17 +16,18 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --]=]
 
-local _G = _G
-local oUF_Adirelle = _G.oUF_Adirelle
-local Config = oUF_Adirelle.Config
+local _G, assert = _G, _G.assert
+local oUF_Adirelle = assert(_G.oUF_Adirelle)
 
 --<GLOBALS
-local C_CVar = _G.C_CVar
-local IsAddOnLoaded = _G.IsAddOnLoaded
-local setmetatable = _G.setmetatable
-local tonumber = _G.tonumber
-local tostring = _G.tostring
+local C_CVar = assert(_G.C_CVar)
+local IsAddOnLoaded = assert(_G.IsAddOnLoaded)
+local setmetatable = assert(_G.setmetatable)
+local tonumber = assert(_G.tonumber)
+local tostring = assert(_G.tostring)
 --GLOBALS>
+
+local Config = oUF_Adirelle.Config
 
 local labels = {
 	nameplateShowAll = "Show out of combat",

@@ -16,17 +16,17 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --]=]
 
-local _G = _G
-local oUF_Adirelle = _G.oUF_Adirelle
+local _G, assert = _G, _G.assert
+local oUF_Adirelle = assert(_G.oUF_Adirelle)
 
 --<GLOBALS
-local LibStub = _G.LibStub
+local LibStub = assert(_G.LibStub)
 --GLOBALS>
+
+local Config = assert(oUF_Adirelle.Config)
 
 local ADO = LibStub("AceDBOptions-3.0")
 local LDS = LibStub("LibDualSpec-1.0")
-
-local Config = oUF_Adirelle.Config
 
 local function BuildProfileOption(db)
 	local options = ADO:GetOptionsTable(db)

@@ -18,21 +18,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 Elements handled: .Border
 --]=]
 
-local _G = _G
-local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
+local _G, assert = _G, _G.assert
+local oUF_Adirelle = assert(_G.oUF_Adirelle)
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
-local IsInInstance = _G.IsInInstance
-local select = _G.select
-local UnitAffectingCombat = _G.UnitAffectingCombat
-local UnitExists = _G.UnitExists
-local UnitIsDeadOrGhost = _G.UnitIsDeadOrGhost
-local UnitIsUnit = _G.UnitIsUnit
-local UnitPower = _G.UnitPower
-local UnitPowerMax = _G.UnitPowerMax
-local UnitPowerType = _G.UnitPowerType
-local unpack = _G.unpack
+local IsInInstance = assert(_G.IsInInstance)
+local select = assert(_G.select)
+local UnitAffectingCombat = assert(_G.UnitAffectingCombat)
+local UnitExists = assert(_G.UnitExists)
+local UnitIsDeadOrGhost = assert(_G.UnitIsDeadOrGhost)
+local UnitIsUnit = assert(_G.UnitIsUnit)
+local UnitPower = assert(_G.UnitPower)
+local UnitPowerMax = assert(_G.UnitPowerMax)
+local UnitPowerType = assert(_G.UnitPowerType)
+local unpack = assert(_G.unpack)
 --GLOBALS>
 
 local SPELL_POWER_MANA = _G.Enum.PowerType.Mana

@@ -16,36 +16,38 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --]=]
 
-local _G, _, private = _G, ...
-local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
+local _, private = ...
+
+local _G, assert = _G, _G.assert
+local oUF_Adirelle = assert(_G.oUF_Adirelle)
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
-local CreateFrame = _G.CreateFrame
-local GetSpellInfo = _G.GetSpellInfo
-local GetUnitPowerBarTextureInfo = _G.GetUnitPowerBarTextureInfo
-local gsub = _G.gsub
-local pairs = _G.pairs
-local select = _G.select
-local strmatch = _G.strmatch
-local tonumber = _G.tonumber
-local UnitCanAssist = _G.UnitCanAssist
-local UnitClass = _G.UnitClass
-local UnitGetIncomingHeals = _G.UnitGetIncomingHeals
-local UnitGetTotalHealAbsorbs = _G.UnitGetTotalHealAbsorbs
-local UnitHealth = _G.UnitHealth
-local UnitHealthMax = _G.UnitHealthMax
-local UnitName = _G.UnitName
-local UNKNOWN = _G.UNKNOWN
-local unpack = _G.unpack
+local CreateFrame = assert(_G.CreateFrame)
+local GetSpellInfo = assert(_G.GetSpellInfo)
+local GetUnitPowerBarTextureInfo = assert(_G.GetUnitPowerBarTextureInfo)
+local gsub = assert(_G.gsub)
+local pairs = assert(_G.pairs)
+local select = assert(_G.select)
+local strmatch = assert(_G.strmatch)
+local tonumber = assert(_G.tonumber)
+local UnitCanAssist = assert(_G.UnitCanAssist)
+local UnitClass = assert(_G.UnitClass)
+local UnitGetIncomingHeals = assert(_G.UnitGetIncomingHeals)
+local UnitGetTotalHealAbsorbs = assert(_G.UnitGetTotalHealAbsorbs)
+local UnitHealth = assert(_G.UnitHealth)
+local UnitHealthMax = assert(_G.UnitHealthMax)
+local UnitName = assert(_G.UnitName)
+local UNKNOWN = assert(_G.UNKNOWN)
+local unpack = assert(_G.unpack)
 --GLOBALS>
 
 local ALT_POWER_TEX_FILL = _G.ALT_POWER_TEX_FILL or 2
 
 -- Import some values from oUF_Adirelle namespace
-local GetFrameUnitState = oUF_Adirelle.GetFrameUnitState
-local backdrop = oUF_Adirelle.backdrop
-local glowBorderBackdrop = oUF_Adirelle.glowBorderBackdrop
+local GetFrameUnitState = assert(oUF_Adirelle.GetFrameUnitState)
+local backdrop = assert(oUF_Adirelle.backdrop)
+local glowBorderBackdrop = assert(oUF_Adirelle.glowBorderBackdrop)
 
 -- Constants
 local SCALE = 1.0
@@ -352,10 +354,6 @@ local function AlternativePower_Layout(bar)
 	else
 		self.Health:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", 0, 0)
 	end
-end
-
-local function XRange_PostUpdate(xrange, _, _, inRange)
-	xrange.__owner:SetAlpha(inRange and 1 or oUF.colors.outOfRange[4])
 end
 
 local function OnRaidLayoutModified(self, _, layout)

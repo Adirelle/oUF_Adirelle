@@ -38,12 +38,12 @@ A default texture will be applied if the widget is a Texture and doesn't have a 
     self.CombatFlag = CombatFlag
 --]=]
 
-local _G = _G
-local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
+local _G, assert = _G, _G.assert
+local oUF_Adirelle = assert(_G.oUF_Adirelle)
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
-local UnitAffectingCombat = _G.UnitAffectingCombat
+local UnitAffectingCombat = assert(_G.UnitAffectingCombat)
 --GLOBALS>
 
 local function Update(self, _, unit)

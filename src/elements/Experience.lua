@@ -16,21 +16,22 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --]=]
 
-local _G = _G
-local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
+local _G, assert = _G, _G.assert
+local oUF_Adirelle = assert(_G.oUF_Adirelle)
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
-local GetXPExhaustion = _G.GetXPExhaustion
-local IsResting = _G.IsResting
-local IsXPUserDisabled = _G.IsXPUserDisabled
-local pairs = _G.pairs
-local UnitLevel = _G.UnitLevel
-local UnitXP = _G.UnitXP
-local UnitXPMax = _G.UnitXPMax
-local unpack = _G.unpack
+local GetXPExhaustion = assert(_G.GetXPExhaustion)
+local IsResting = assert(_G.IsResting)
+local IsXPUserDisabled = assert(_G.IsXPUserDisabled)
+local pairs = assert(_G.pairs)
+local UnitLevel = assert(_G.UnitLevel)
+local UnitXP = assert(_G.UnitXP)
+local UnitXPMax = assert(_G.UnitXPMax)
+local unpack = assert(_G.unpack)
 --GLOBALS>
-local mmin = _G.min
+
+local mmin = assert(_G.math.min)
 
 local colors = {
 	resting = { 0.0, 1.0, 0.37 }, -- green

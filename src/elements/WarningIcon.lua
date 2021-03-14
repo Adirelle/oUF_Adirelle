@@ -18,24 +18,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 Elements handled: .WarningIcon
 --]=]
 
-local _G = _G
-local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
+local _G, assert = _G, _G.assert
+local oUF_Adirelle = assert(_G.oUF_Adirelle)
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
-local band = _G.band
-local BigWigsLoader = _G.BigWigsLoader
-local DebuffTypeColor = _G.DebuffTypeColor
-local huge = _G.huge
-local pairs = _G.pairs
-local select = _G.select
-local UnitBuff = _G.UnitBuff
-local UnitDebuff = _G.UnitDebuff
-local UnitIsVisible = _G.UnitIsVisible
+local DebuffTypeColor = assert(_G.DebuffTypeColor)
+local pairs = assert(_G.pairs)
+local select = assert(_G.select)
+local UnitBuff = assert(_G.UnitBuff)
+local UnitDebuff = assert(_G.UnitDebuff)
+local UnitIsVisible = assert(_G.UnitIsVisible)
 --GLOBALS>
 
-local band = _G.bit.band
-local huge = _G.math.huge
+local band = assert(_G.bit.band)
+local huge = assert(_G.math.huge)
 
 -- ------------------------------------------------------------------------------
 -- Spell data
@@ -66,6 +63,7 @@ function oUF_Adirelle.IsEncounterDebuff(spellID)
 end
 
 -- Use BigWigs whenever available
+local BigWigsLoader = _G.BigWigsLoader
 if BigWigsLoader and BigWigsLoader.RegisterMessage then
 	-- Listen to BigWigs messages to update ENCOUNTER_DEBUFFS
 

@@ -18,14 +18,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 Elements handled: .CustomClick
 --]=]
 
-local _G = _G
-local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
+local _G, assert = _G, _G.assert
+local oUF_Adirelle = assert(_G.oUF_Adirelle)
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
-local GetSpellInfo = _G.GetSpellInfo
-local next = _G.next
-local pairs = _G.pairs
+local GetSpellInfo = assert(_G.GetSpellInfo)
+local next = assert(_G.next)
+local pairs = assert(_G.pairs)
 --GLOBALS>
 
 local band = _G.bit.band

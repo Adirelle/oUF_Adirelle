@@ -16,18 +16,20 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --]=]
 
-local _G, addonName = _G, ...
-local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
+local addonName = ...
+
+local _G, assert = _G, _G.assert
+local oUF_Adirelle = assert(_G.oUF_Adirelle)
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
-local pairs = _G.pairs
-local type = _G.type
-local unpack = _G.unpack
-local wipe = _G.wipe
+local pairs = assert(_G.pairs)
+local type = assert(_G.type)
+local unpack = assert(_G.unpack)
+local wipe = assert(_G.wipe)
 --GLOBALS>
 
-local Config = oUF_Adirelle.Config
+local Config = assert(oUF_Adirelle.Config)
 
 -- Use the HCY color gradient by default
 oUF.useHCYColorGradient = true

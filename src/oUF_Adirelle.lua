@@ -16,18 +16,17 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --]=]
 
-local _G, addonName, private = _G, ...
-local assert = _G.assert
-local oUF = assert(private.oUF, "oUF is undefined in " .. addonName .. " namespace")
+local addonName, private = ...
+local _G, assert = _G, _G.assert
+local oUF = assert(private.oUF, "oUF is undefined in oUF_Adirelle namespace")
 
 -- Export our namespace for standalone modules
 local oUF_Adirelle = { oUF = oUF }
 _G.oUF_Adirelle = oUF_Adirelle
 
 --<GLOBALS
-local next = _G.next
-local parent = _G.parent
-local print = _G.print
+local next = assert(_G.next)
+local print = assert(_G.print)
 --GLOBALS>
 
 -- Debugging stuff
@@ -93,11 +92,11 @@ end
 
 local LDB = oUF_Adirelle.GetLib("LibDataBroker-1.1")
 if LDB then
-	oUF_Adirelle.launcher = LDB:NewDataObject(parent, {
+	oUF_Adirelle.launcher = LDB:NewDataObject(addonName, {
 		type = "launcher",
 		icon = [[Interface\Icons\Ability_Vehicle_ShellShieldGenerator]],
-		tocname = parent,
-		label = parent,
+		tocname = addonName,
+		label = addonName,
 		OnClick = function(_, button)
 			if oUF_Adirelle.ToggleLock and button == "LeftButton" then
 				return oUF_Adirelle.ToggleLock()

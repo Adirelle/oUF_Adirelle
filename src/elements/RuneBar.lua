@@ -18,15 +18,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 Elements handled: .RuneBar
 --]=]
 
-local _G = _G
-local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
+local _G, assert = _G, _G.assert
+local oUF_Adirelle = assert(_G.oUF_Adirelle)
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
-local GetRuneCooldown = _G.GetRuneCooldown
-local GetTime = _G.GetTime
-local RuneFrame = _G.RuneFrame
-local tonumber = _G.tonumber
+local GetRuneCooldown = assert(_G.GetRuneCooldown)
+local GetTime = assert(_G.GetTime)
+local RuneFrame = assert(_G.RuneFrame)
+local tonumber = assert(_G.tonumber)
 --GLOBALS>
 
 local function OnUpdate(rune)

@@ -16,31 +16,32 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --]=]
 
-local _G = _G
-local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
+local _G, assert = _G, _G.assert
+local oUF_Adirelle = assert(_G.oUF_Adirelle)
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
-local CheckInteractDistance = _G.CheckInteractDistance
-local CreateFrame = _G.CreateFrame
-local geterrorhandler = _G.geterrorhandler
-local GetSpecialization = _G.GetSpecialization
-local GetSpecializationInfo = _G.GetSpecializationInfo
-local GetSpellInfo = _G.GetSpellInfo
-local IsLoggedIn = _G.IsLoggedIn
-local IsSpellInRange = _G.IsSpellInRange
-local next = _G.next
-local pairs = _G.pairs
-local type = _G.type
-local UnitCanAssist = _G.UnitCanAssist
-local UnitCanAttack = _G.UnitCanAttack
-local UnitExists = _G.UnitExists
-local UnitInRange = _G.UnitInRange
-local UnitIsConnected = _G.UnitIsConnected
-local UnitIsCorpse = _G.UnitIsCorpse
-local UnitIsUnit = _G.UnitIsUnit
-local UnitIsVisible = _G.UnitIsVisible
-local unpack = _G.unpack
+local CheckInteractDistance = assert(_G.CheckInteractDistance)
+local CreateFrame = assert(_G.CreateFrame)
+local format = assert(_G.format)
+local geterrorhandler = assert(_G.geterrorhandler)
+local GetSpecialization = assert(_G.GetSpecialization)
+local GetSpecializationInfo = assert(_G.GetSpecializationInfo)
+local GetSpellInfo = assert(_G.GetSpellInfo)
+local IsLoggedIn = assert(_G.IsLoggedIn)
+local IsSpellInRange = assert(_G.IsSpellInRange)
+local next = assert(_G.next)
+local pairs = assert(_G.pairs)
+local type = assert(_G.type)
+local UnitCanAssist = assert(_G.UnitCanAssist)
+local UnitCanAttack = assert(_G.UnitCanAttack)
+local UnitExists = assert(_G.UnitExists)
+local UnitInRange = assert(_G.UnitInRange)
+local UnitIsConnected = assert(_G.UnitIsConnected)
+local UnitIsCorpse = assert(_G.UnitIsCorpse)
+local UnitIsUnit = assert(_G.UnitIsUnit)
+local UnitIsVisible = assert(_G.UnitIsVisible)
+local unpack = assert(_G.unpack)
 --GLOBALS>
 
 -- Declare our color

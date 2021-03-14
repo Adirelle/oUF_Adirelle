@@ -16,18 +16,18 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --]=]
 
-local _G = _G
-local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
+local _G, assert = _G, _G.assert
+local oUF_Adirelle = assert(_G.oUF_Adirelle)
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
-local next = _G.next
-local select = _G.select
-local tostring = _G.tostring
-local type = _G.type
+local next = assert(_G.next)
+local select = assert(_G.select)
+local tostring = assert(_G.tostring)
+local type = assert(_G.type)
 --GLOBALS>
 
-local Config = oUF_Adirelle.Config
+local Config = assert(oUF_Adirelle.Config)
 
 local labels = {
 	power = _G,

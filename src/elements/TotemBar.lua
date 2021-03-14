@@ -18,14 +18,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 Elements handled: .RuneBar
 --]=]
 
-local _G = _G
-local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
+local _G, assert = _G, _G.assert
+local oUF_Adirelle = assert(_G.oUF_Adirelle)
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
-local GetTime = _G.GetTime
-local GetTotemInfo = _G.GetTotemInfo
-local ipairs = _G.ipairs
+local GetTime = assert(_G.GetTime)
+local GetTotemInfo = assert(_G.GetTotemInfo)
+local ipairs = assert(_G.ipairs)
 --GLOBALS>
 
 local function OnUpdate(totem, elapsed)

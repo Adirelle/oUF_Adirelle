@@ -16,23 +16,23 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --]=]
 
-local _G = _G
-local oUF_Adirelle = _G.oUF_Adirelle
+local _G, assert = _G, _G.assert
+local oUF_Adirelle = assert(_G.oUF_Adirelle)
 
 --<GLOBALS
-local error = _G.error
-local format = _G.format
-local geterrorhandler = _G.geterrorhandler
-local LibStub = _G.LibStub
-local next = _G.next
-local tinsert = _G.tinsert
-local type = _G.type
-local UnitAffectingCombat = _G.UnitAffectingCombat
-local UnitName = _G.UnitName
-local xpcall = _G.xpcall
+local error = assert(_G.error)
+local format = assert(_G.format)
+local geterrorhandler = assert(_G.geterrorhandler)
+local LibStub = assert(_G.LibStub)
+local next = assert(_G.next)
+local tinsert = assert(_G.tinsert)
+local type = assert(_G.type)
+local UnitAffectingCombat = assert(_G.UnitAffectingCombat)
+local UnitName = assert(_G.UnitName)
+local xpcall = assert(_G.xpcall)
 --GLOBALS>
 
-local Config = oUF_Adirelle.Config
+local Config = assert(oUF_Adirelle.Config)
 
 local AC = LibStub("AceConfig-3.0")
 local ACD = LibStub("AceConfigDialog-3.0")

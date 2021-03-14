@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --]=]
 
-local _G = _G
-local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
+local _G, assert = _G, _G.assert
+local oUF_Adirelle = assert(_G.oUF_Adirelle)
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 if oUF_Adirelle.CreatePseudoHeader then
@@ -25,12 +25,12 @@ if oUF_Adirelle.CreatePseudoHeader then
 end
 
 --<GLOBALS
-local CreateFrame = _G.CreateFrame
-local ipairs = _G.ipairs
-local pairs = _G.pairs
-local tinsert = _G.tinsert
-local type = _G.type
-local UIParent = _G.UIParent
+local CreateFrame = assert(_G.CreateFrame)
+local ipairs = assert(_G.ipairs)
+local pairs = assert(_G.pairs)
+local tinsert = assert(_G.tinsert)
+local type = assert(_G.type)
+local UIParent = assert(_G.UIParent)
 --GLOBALS>
 
 local headerProto = {

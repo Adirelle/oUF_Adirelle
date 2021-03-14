@@ -16,21 +16,21 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --]=]
 
-local _G = _G
-local oUF_Adirelle, assert = _G.oUF_Adirelle, _G.assert
+local _G, assert = _G, _G.assert
+local oUF_Adirelle = assert(_G.oUF_Adirelle)
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
-local CreateFrame = _G.CreateFrame
+local CreateFrame = assert(_G.CreateFrame)
 --GLOBALS>
 
-local backdrop = oUF_Adirelle.backdrop
-local CreateName = oUF_Adirelle.CreateName
-local GAP = oUF_Adirelle.GAP
-local GetSerialName = oUF_Adirelle.GetSerialName
-local TEXT_MARGIN = oUF_Adirelle.TEXT_MARGIN
-local CanDispel = oUF_Adirelle.CanDispel
-local IsEncounterDebuff = oUF_Adirelle.IsEncounterDebuff
+local backdrop = assert(oUF_Adirelle.backdrop)
+local CreateName = assert(oUF_Adirelle.CreateName)
+local GAP = assert(oUF_Adirelle.GAP)
+local GetSerialName = assert(oUF_Adirelle.GetSerialName)
+local TEXT_MARGIN = assert(oUF_Adirelle.TEXT_MARGIN)
+local CanDispel = assert(oUF_Adirelle.CanDispel)
+local IsEncounterDebuff = assert(oUF_Adirelle.IsEncounterDebuff)
 
 local LPS = oUF_Adirelle.GetLib("LibPlayerSpells-1.0")
 local IsCrowdControl = LPS:GetSpellTester("DISORIENT INCAPACITATE ROOT STUN", "CROWD_CTRL", "TAUNT")
