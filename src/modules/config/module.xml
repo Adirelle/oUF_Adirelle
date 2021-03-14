@@ -9,4 +9,5 @@
     <Script file="Colors.lua"/>
     <Script file="Nameplate.lua"/>
     <Script file="WarningThresholds.lua"/>
+    <Script file="About.lua"/>
 </Ui>

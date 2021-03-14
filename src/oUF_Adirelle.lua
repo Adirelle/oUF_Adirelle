@@ -70,6 +70,10 @@ function oUF_Adirelle.GetLib(major, silent)
 	end
 end
 
+function oUF_Adirelle:ListLibraries()
+	return next, versions
+end
+
 -- Configuration toggle
 
 _G.SLASH_OUFADIRELLE1 = "/ouf_adirelle"
