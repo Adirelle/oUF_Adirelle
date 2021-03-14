@@ -89,10 +89,10 @@ local function OnStatusBarUpdate(bar)
 	text:Show()
 end
 
-oUF:RegisterMetaFunction("SpawnTexture", function(self, frame, size, to, xOffset, yOffset)
+oUF:RegisterMetaFunction("SpawnTexture", function(_, frame, size, to, xOffset, yOffset)
 	local texture = frame:CreateTexture(GetSerialName(frame, "Texture"), "OVERLAY")
 	texture:SetSize(size, size)
-	texture:SetPoint("CENTER", self, to or "CENTER", xOffset or 0, yOffset or 0)
+	texture:SetPoint("CENTER", frame, to or "CENTER", xOffset or 0, yOffset or 0)
 	return texture
 end)
 
