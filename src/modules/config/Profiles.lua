@@ -20,13 +20,12 @@ local _G, assert = _G, _G.assert
 local oUF_Adirelle = assert(_G.oUF_Adirelle)
 
 --<GLOBALS
-local LibStub = assert(_G.LibStub)
 --GLOBALS>
 
 local Config = assert(oUF_Adirelle.Config)
 
-local ADO = LibStub("AceDBOptions-3.0")
-local LDS = LibStub("LibDualSpec-1.0")
+local ADO = oUF_Adirelle.GetLib("AceDBOptions-3.0")
+local LDS = oUF_Adirelle.GetLib("LibDualSpec-1.0")
 
 local function BuildProfileOption(db)
 	local options = ADO:GetOptionsTable(db)

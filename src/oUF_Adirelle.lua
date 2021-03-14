@@ -25,6 +25,7 @@ local oUF_Adirelle = { oUF = oUF }
 _G.oUF_Adirelle = oUF_Adirelle
 
 --<GLOBALS
+local LibStub = assert(_G.LibStub)
 local next = assert(_G.next)
 local print = assert(_G.print)
 --GLOBALS>
@@ -61,17 +62,11 @@ _G.SlashCmdList.OUFADIRELLEVER = function()
 end
 
 -- Library helper
-local LibStub = _G.LibStub
-if LibStub then
-	function oUF_Adirelle.GetLib(major)
-		local lib, minor = LibStub(major, true)
-		if lib then
-			versions[major] = minor
-			return lib, minor
-		end
-	end
-else
-	oUF_Adirelle.GetLib = function()
+function oUF_Adirelle.GetLib(major, silent)
+	local lib, minor = LibStub(major, silent)
+	if lib then
+		versions[major] = minor
+		return lib, minor
 	end
 end
 
@@ -90,7 +85,7 @@ _G.SlashCmdList.OUFADIRELLE = function(arg, ...)
 	end
 end
 
-local LDB = oUF_Adirelle.GetLib("LibDataBroker-1.1")
+local LDB = oUF_Adirelle.GetLib("LibDataBroker-1.1", true)
 if LDB then
 	oUF_Adirelle.launcher = LDB:NewDataObject(addonName, {
 		type = "launcher",

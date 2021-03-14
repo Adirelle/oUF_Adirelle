@@ -23,7 +23,6 @@ local oUF_Adirelle = assert(_G.oUF_Adirelle)
 local error = assert(_G.error)
 local format = assert(_G.format)
 local geterrorhandler = assert(_G.geterrorhandler)
-local LibStub = assert(_G.LibStub)
 local next = assert(_G.next)
 local tinsert = assert(_G.tinsert)
 local type = assert(_G.type)
@@ -34,9 +33,9 @@ local xpcall = assert(_G.xpcall)
 
 local Config = assert(oUF_Adirelle.Config)
 
-local AC = LibStub("AceConfig-3.0")
-local ACD = LibStub("AceConfigDialog-3.0")
-local ACR = LibStub("AceConfigRegistry-3.0")
+local AC = oUF_Adirelle.GetLib("AceConfig-3.0")
+local ACD = oUF_Adirelle.GetLib("AceConfigDialog-3.0")
+local ACR = oUF_Adirelle.GetLib("AceConfigRegistry-3.0")
 
 Config.playerName = UnitName("player")
 

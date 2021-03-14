@@ -25,7 +25,6 @@ local addonName = ...
 --<GLOBALS
 local GetCVarDefault = assert(_G.GetCVarDefault)
 local ipairs = assert(_G.ipairs)
-local LibStub = assert(_G.LibStub)
 local next = assert(_G.next)
 local pairs = assert(_G.pairs)
 local rawget = assert(_G.rawget)
@@ -33,7 +32,10 @@ local tostring = assert(_G.tostring)
 local type = assert(_G.type)
 --GLOBALS>
 
+local AD = oUF_Adirelle.GetLib("AceDB-3.0")
+local LDS = oUF_Adirelle.GetLib("LibDualSpec-1.0")
 local LSM = oUF_Adirelle.GetLib("LibSharedMedia-3.0")
+local LDI = oUF_Adirelle.GetLib("LibDBIcon-1.0", true)
 
 -- ------------------------------------------------------------------------------
 -- Main SV handling
@@ -257,11 +259,11 @@ local function ADDON_LOADED(self, _, name)
 	ADDON_LOADED = nil
 
 	-- Initialize the databases
-	local layoutDB = LibStub("AceDB-3.0"):New("oUF_Adirelle_Layout", LAYOUT_DEFAULTS, true)
-	local themeDB = LibStub("AceDB-3.0"):New("oUF_Adirelle_Theme", THEME_DEFAULTS, true)
+	local layoutDB = AD:New("oUF_Adirelle_Layout", LAYOUT_DEFAULTS, true)
+	local themeDB = AD:New("oUF_Adirelle_Theme", THEME_DEFAULTS, true)
 
-	LibStub("LibDualSpec-1.0"):EnhanceDatabase(layoutDB, addonName .. " Layout")
-	LibStub("LibDualSpec-1.0"):EnhanceDatabase(themeDB, addonName .. " Theme")
+	LDS:EnhanceDatabase(layoutDB, addonName .. " Layout")
+	LDS:EnhanceDatabase(themeDB, addonName .. " Theme")
 
 	self.layoutDB, self.themeDB = layoutDB, themeDB
 
@@ -301,10 +303,9 @@ local function ADDON_LOADED(self, _, name)
 	themeDB.RegisterCallback(self, "OnProfileReset", OnDatabaseChanged)
 
 	-- Optional launcher icon on the minimap
-	local LibDBIcon = LibStub("LibDBIcon-1.0", true)
-	if self.launcher and LibDBIcon then
+	if self.launcher and LDI then
 		self.hasMinimapIcon = true
-		LibDBIcon:Register("oUF_Adirelle", self.launcher, layoutDB.global.minimapIcon)
+		LDI:Register("oUF_Adirelle", self.launcher, layoutDB.global.minimapIcon)
 	end
 
 	-- Run
