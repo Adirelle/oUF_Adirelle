@@ -10,24 +10,24 @@
 ## X-Curse-Project-ID: 21613
 
 # Libraries
-#@no-lib-strip@
-libs\LibStub\LibStub.lua
-libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
-libs\BugGrabber\load.xml
-libs\AceDB-3.0\AceDB-3.0.xml
-libs\LibDualSpec-1.0\LibDualSpec-1.0.lua
-libs\LibSharedMedia-3.0\lib.xml
-#@end-no-lib-strip@
-libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
-#@no-lib-strip@
-libs\LibDBIcon-1.0\LibDBIcon-1.0.lua
-libs\LibPlayerSpells-1.0\lib.xml
-#@end-no-lib-strip@
-libs\LibSpellbook-1.0\LibSpellbook-1.0.xml
+#@non-debug@
+# libs\LibStub\LibStub.lua
+# libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
+# libs\BugGrabber\load.xml
+# libs\AceDB-3.0\AceDB-3.0.xml
+# libs\LibDualSpec-1.0\LibDualSpec-1.0.lua
+# libs\LibSharedMedia-3.0\lib.xml
+# libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
+# libs\LibDBIcon-1.0\LibDBIcon-1.0.lua
+# libs\LibPlayerSpells-1.0\lib.xml
+# libs\LibSpellbook-1.0\LibSpellbook-1.0.xml
+# libs\LibMovable-1.0\LibMovable-1.0.lua
+#@end-non-debug@
 
 # Embedded oUF
 oUF\oUF.xml
 
+# Our addon
 src\oUF_Adirelle.lua
 src\support\support.xml
 src\elements\elements.xml
