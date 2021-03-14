@@ -136,6 +136,14 @@ local function InitFrame(self)
 	overlay:SetAllPoints(self)
 	overlay:SetFrameLevel(border:GetFrameLevel() + 10)
 
+	-- Range fading
+	local xrange = overlay:CreateTexture(nil, "BACKGROUND")
+	xrange:SetAllPoints(self)
+	xrange:SetBlendMode("MOD")
+	self:RegisterColor(xrange, "outOfRange")
+	xrange.PostUpdate = XRange_PostUpdate
+	self.XRange = xrange
+
 	-- Display auras of interest on top of the nameplate
 	local auras = CreateFrame("Frame", nil, self)
 	auras:SetPoint("BOTTOMLEFT", self, "TOPLEFT", GAP, GAP)
@@ -204,20 +212,6 @@ local function InitFrame(self)
 	threat:SetTexCoord(85 / 512, (512 - 85) / 512, 0, 1)
 	threat:SetVertexColor(1.0, 0.0, 0.0, 0.7)
 	self.SmartThreat = threat
-
-	-- Range fading
-	local xrange = CreateFrame("Frame", nil, overlay)
-	xrange:SetAllPoints(self)
-	xrange:SetFrameLevel(health:GetFrameLevel() + 1)
-	xrange.PostUpdate = XRange_PostUpdate
-
-	local tex = xrange:CreateTexture(nil, "OVERLAY")
-	tex:SetAllPoints(self)
-	tex:SetColorTexture(0.4, 0.4, 0.4)
-	tex:SetBlendMode("MOD")
-
-	xrange.Texture = tex
-	self.XRange = xrange
 end
 
 oUF:RegisterStyle("Adirelle_Nameplate", InitFrame)

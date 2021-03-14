@@ -23,6 +23,7 @@ local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 local pairs = _G.pairs
 local type = _G.type
 local wipe = _G.wipe
+local unpack = _G.unpack
 
 -- Use the HCY color gradient by default
 oUF.useHCYColorGradient = true
@@ -113,4 +114,26 @@ oUF_Adirelle:RegisterMessage("OnSettingsModified", function(_, _, _, newProfile)
 		-- Copy the colors
 		DeepCopy(profile.colors or DEFAULTS, oUF.colors, true)
 	end
+end)
+
+oUF:RegisterMetaFunction("RegisterColor", function(self, target, key, callback)
+	if not callback then
+		callback = assert(
+			target.SetColorTexture
+				or target.SetStatusBarColor
+				or target.SetTextColor
+				or target.SetVertexColor
+				or target.SetColor,
+			"RegisterColor: either provide a callback or a target with either SetColorTexture, SetStatusBarColor, SetTextColor, SetVertexColor or SetColor"
+		)
+	end
+	local function actualCallback(_, _, updatedKey)
+		if updatedKey and updatedKey ~= key then
+			return
+		end
+		return callback(target, unpack(oUF.colors[key]))
+	end
+	self:RegisterMessage("OnSettingsModified", actualCallback)
+	self:RegisterMessage("OnColorsModified", actualCallback)
+	actualCallback()
 end)
