@@ -136,6 +136,7 @@ local Auto = function(key, label)
 				inCombat = "In combat",
 				always = "Always",
 			},
+			sorting = { "never", "outOfCombat", "inCombat", "always" },
 		},
 	}
 end
