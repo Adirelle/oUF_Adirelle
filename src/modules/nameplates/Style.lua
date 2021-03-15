@@ -73,7 +73,7 @@ end
 local function InitFrame(self, unit)
 	local WIDTH, HEIGHT = 120, 16
 	local CASTBAR_SIZE = 12
-	local SYMBOL_SIZE = 20
+	local SYMBOL_SIZE = 10
 
 	if not unit:match("nameplate%d") then
 		self:Debug("nameplate unit:", unit)
@@ -142,10 +142,10 @@ local function InitFrame(self, unit)
 	self.XRange = xrange
 
 	-- Combat indicator
-	self.CombatFlag = self:SpawnTexture(overlay, SYMBOL_SIZE / 2, "BOTTOMLEFT")
+	self.CombatFlag = self:SpawnTexture(overlay, SYMBOL_SIZE, "BOTTOMLEFT")
 
 	-- PvP flag
-	local pvp = self:SpawnTexture(overlay, SYMBOL_SIZE / 2)
+	local pvp = self:SpawnTexture(overlay, SYMBOL_SIZE)
 	pvp:SetTexCoord(0, 0.6, 0, 0.6)
 	pvp:SetPoint("CENTER", self.Portrait, "RIGHT")
 	self.PvPIndicator = pvp
@@ -156,7 +156,7 @@ local function InitFrame(self, unit)
 	auras:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -GAP, GAP)
 	auras:SetHeight(CASTBAR_SIZE)
 	auras.disableMouse = true
-	auras.size = 20
+	auras.size = HEIGHT
 	auras.spacing = 1
 	auras.numTotal = 5
 	auras.showType = true
@@ -166,7 +166,7 @@ local function InitFrame(self, unit)
 	self.Auras = auras
 
 	-- Elite/rare classification
-	local dragon = self:SpawnTexture(overlay, SYMBOL_SIZE / 2, "TOPLEFT")
+	local dragon = self:SpawnTexture(overlay, SYMBOL_SIZE, "TOPLEFT")
 	dragon.rare = [[Interface\Addons\oUF_Adirelle\media\rare_icon]]
 	dragon.elite = [[Interface\Addons\oUF_Adirelle\media\elite_icon]]
 	self.Dragon = dragon
@@ -179,7 +179,7 @@ local function InitFrame(self, unit)
 
 	-- Raid target icon
 	local raidTargetIcon = overlay:CreateTexture(GetSerialName(self, "RaidTarget"), "OVERLAY")
-	raidTargetIcon:SetSize(SYMBOL_SIZE, SYMBOL_SIZE)
+	raidTargetIcon:SetSize(HEIGHT, HEIGHT)
 	raidTargetIcon:SetPoint("LEFT", self, "RIGHT", GAP, 0)
 	self.RaidTargetIndicator = raidTargetIcon
 
