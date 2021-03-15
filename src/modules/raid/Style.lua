@@ -408,32 +408,22 @@ local function CureableDebuff_SetColor(icon, r, g, b, a)
 	end
 end
 
-local function AttachFlashingAnimationGroup(frame)
-	local group = frame:CreateAnimationGroup()
-	group:SetLooping("BOUNCE")
+local function AttachFadeOutAnimation(region)
+	local group = region:CreateAnimationGroup()
 	group:SetScript("OnFinished", function()
-		frame:SetAlpha(0)
+		region:SetAlpha(0)
 	end)
 
-	local count = 0
 	local alpha = group:CreateAnimation("Alpha")
-	alpha:SetDuration(0.25)
-	alpha:SetFromAlpha(0)
-	alpha:SetToAlpha(1)
-	alpha:SetScript("OnFinished", function()
-		count = count - 1
-		if count == 0 then
-			group:Finish()
-		end
-	end)
+	alpha:SetStartDelay(1)
+	alpha:SetDuration(3)
+	alpha:SetFromAlpha(1)
+	alpha:SetToAlpha(0)
 
-	frame:SetScript("OnShow", function()
-		count = 4
+	hooksecurefunc(region, "Show", function()
+		region:SetAlpha(1)
 		group:Restart()
 		group:Play()
-	end)
-	frame:SetScript("OnHide", function()
-		group:Finish()
 	end)
 end
 
@@ -525,16 +515,11 @@ local function InitFrame(self)
 	status.PostUpdate = UpdateColor
 	self.StatusIcon = status
 
-	-- Combat flash
-	local combat = CreateFrame("Frame", nil, overlay, "BackdropTemplate")
-	combat:SetAllPoints()
-	combat:SetBackdrop(backdrop)
-	combat:SetBackdropColor(1, 0.3, 0.3, 0.5)
-	combat:SetBackdropBorderColor(0, 0, 0, 0)
-	combat:SetPoint("CENTER")
-	combat:Hide()
-	AttachFlashingAnimationGroup(combat)
-	self.CombatFlag = combat
+	-- Combat flag
+	local combatFlag = self:SpawnTexture(overlay, SMALL_ICON_SIZE, "BOTTOMLEFT", INSET, INSET)
+	combatFlag:Hide()
+	AttachFadeOutAnimation(combatFlag)
+	self.CombatFlag = combatFlag
 
 	-- ReadyCheck icon
 	local rc = CreateFrame("Frame", self:GetName() .. "ReadyCheck", overlay)
