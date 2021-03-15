@@ -39,7 +39,17 @@ local labels = {
 	nameplateTargetRadialPosition = "Clamp to screen",
 }
 
-local descs = {}
+local descs = {
+	autoAll = "When enabled, show nameplates for most characters, instead of only a few ones.",
+	autoFriends = "When enabled, show nameplates of all friendly characters.",
+	autoEnemis = "When enabled, show nameplates of all charachters you can attack.",
+	nameplateOccludedAlphaMult = "Opacity of characters that are out of the of sight of the player.",
+	nameplateSelectedAlpha = "Opacity of the current target.",
+	nameplateMaxAlphaDistance = "Distance from the camera at which opacity reach its maximum.",
+	nameplateMaxAlpha = "Maximum opacity based on distance.",
+	nameplateMinAlphaDistance = "Distance from the max distance at which opacity reach its maximum.",
+	nameplateMinAlpha = "Minimum opacity based on distance.",
+}
 
 local function GetLabel(key)
 	if labels[key] then
@@ -108,6 +118,7 @@ local Auto = function(key, label)
 	return {
 		[key] = {
 			name = label,
+			desc = descs[key],
 			type = "select",
 			order = 0,
 			get = function()
@@ -167,17 +178,16 @@ Config:RegisterBuilder(function(_, options, merge)
 			["1"] = "Stacking",
 			["2"] = "Spreading",
 		}),
-		Distance("nameplateMaxDistance"),
 		Percent("nameplateMotionSpeed"),
 		Percent("nameplateOverlapV"),
 		Percent("nameplateOverlapH"),
+		Distance("nameplateMaxDistance"),
 		Select("nameplateTargetRadialPosition", {
 			["0"] = "None",
 			["1"] = "Target only",
 			["2"] = "All",
 		}),
-		Distance("nameplateTargetBehindMaxDistance"),
-		Toggle("nameplateResourceOnTarget")
+		Distance("nameplateTargetBehindMaxDistance")
 	)
 
 	order = 0
@@ -193,6 +203,7 @@ Config:RegisterBuilder(function(_, options, merge)
 		Toggle("NameplatePersonalShowInCombat"),
 		Toggle("NameplatePersonalShowAlways"),
 		Toggle("NameplatePersonalClickThrough"),
+		Toggle("nameplateResourceOnTarget"),
 		Alpha("nameplateSelfAlpha"),
 		Scale("nameplateSelfScale"),
 		Delay("NameplatePersonalHideDelaySeconds"),
@@ -226,7 +237,7 @@ Config:RegisterBuilder(function(_, options, merge)
 	order = 0
 	merge(
 		"nameplates",
-		"alpha",
+		"opacity",
 		Alpha("nameplateOccludedAlphaMult"),
 		Alpha("nameplateSelectedAlpha"),
 		Distance("nameplateMaxAlphaDistance"),
@@ -238,7 +249,7 @@ Config:RegisterBuilder(function(_, options, merge)
 	order = 0
 	merge(
 		"nameplates",
-		"scale",
+		"size",
 		Scale("nameplateGlobalScale"),
 		Scale("nameplateSelectedScale"),
 		Scale("nameplateLargerScale"),
