@@ -12,6 +12,7 @@
     <Script file="RuneBar.lua"/>
     <Script file="SmartThreat.lua"/>
     <Script file="StatusIcon.lua"/>
+    <Script file="Tags.lua"/>
     <Script file="TargetIcon.lua"/>
     <Script file="ThreatBar.lua"/>
     <Script file="TotemBar.lua"/>
