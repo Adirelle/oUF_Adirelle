@@ -408,6 +408,35 @@ local function CureableDebuff_SetColor(icon, r, g, b, a)
 	end
 end
 
+local function AttachFlashingAnimationGroup(frame)
+	local group = frame:CreateAnimationGroup()
+	group:SetLooping("BOUNCE")
+	group:SetScript("OnFinished", function()
+		frame:SetAlpha(0)
+	end)
+
+	local count = 0
+	local alpha = group:CreateAnimation("Alpha")
+	alpha:SetDuration(0.25)
+	alpha:SetFromAlpha(0)
+	alpha:SetToAlpha(1)
+	alpha:SetScript("OnFinished", function()
+		count = count - 1
+		if count == 0 then
+			group:Finish()
+		end
+	end)
+
+	frame:SetScript("OnShow", function()
+		count = 4
+		group:Restart()
+		group:Play()
+	end)
+	frame:SetScript("OnHide", function()
+		group:Finish()
+	end)
+end
+
 -- ------------------------------------------------------------------------------
 -- Unit frame initialization
 -- ------------------------------------------------------------------------------
@@ -503,30 +532,8 @@ local function InitFrame(self)
 	combat:SetBackdropColor(1, 0.3, 0.3, 0.5)
 	combat:SetBackdropBorderColor(0, 0, 0, 0)
 	combat:SetPoint("CENTER")
-	local combatAg = combat:CreateAnimationGroup()
-	combatAg:SetLooping("BOUNCE")
-	local combatAn = combatAg:CreateAnimation("Alpha")
-	combatAn:SetDuration(0.25)
-	combatAn:SetFromAlpha(0)
-	combatAn:SetToAlpha(1)
 	combat:Hide()
-	combat:SetScript("OnShow", function()
-		combatAg.count = 4
-		combatAg:Restart()
-		combatAg:Play()
-	end)
-	combat:SetScript("OnHide", function()
-		combatAg:Finish()
-	end)
-	combatAn:SetScript("OnFinished", function()
-		combatAg.count = combatAg.count - 1
-		if combatAg.count == 0 then
-			combatAg:Finish()
-		end
-	end)
-	combatAg:SetScript("OnFinished", function()
-		combat:SetAlpha(0)
-	end)
+	AttachFlashingAnimationGroup(combat)
 	self.CombatFlag = combat
 
 	-- ReadyCheck icon
