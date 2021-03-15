@@ -103,7 +103,7 @@ local function Enable(self)
 
 		if (element:IsObjectType("Texture") and not element:GetTexture()) then
 			element:SetTexture([[Interface\CharacterFrame\UI-StateIcon]])
-			element:SetTexCoord(0.5, 1, 0, 0.49)
+			element:SetTexCoord(35 / 63, 58 / 63, 4 / 63, 27 / 63)
 		end
 
 		return true
