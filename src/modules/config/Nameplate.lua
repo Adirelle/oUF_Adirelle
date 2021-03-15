@@ -21,6 +21,7 @@ local oUF_Adirelle = assert(_G.oUF_Adirelle)
 
 --<GLOBALS
 local C_CVar = assert(_G.C_CVar)
+local GetCVarBool = assert(_G.GetCVarBool)
 local IsAddOnLoaded = assert(_G.IsAddOnLoaded)
 local setmetatable = assert(_G.setmetatable)
 local tonumber = assert(_G.tonumber)
@@ -247,6 +248,9 @@ Config:RegisterBuilder(function(_, options, merge)
 		Scale("nameplateMinScale")
 	)
 
+	options.nameplates.args.self.disabled = function(info)
+		return info.type ~= "group" and info[#info] ~= "nameplateShowSelf" and not GetCVarBool("nameplateShowSelf")
+	end
 	options.nameplates.args.friends.disabled = DisabledIfNot("autoFriends")
 	options.nameplates.args.enemies.disabled = DisabledIfNot("autoEnemies")
 end)

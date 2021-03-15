@@ -20,6 +20,7 @@ local _G, assert = _G, _G.assert
 local oUF_Adirelle = assert(_G.oUF_Adirelle)
 
 --<GLOBALS
+local format = assert(_G.format)
 local table = assert(_G.table)
 local tinsert = assert(_G.tinsert)
 --GLOBALS>
@@ -29,7 +30,7 @@ local Config = assert(oUF_Adirelle.Config)
 Config:RegisterBuilder(function(_, _, merge)
 	local libs = {}
 	for major, minor in oUF_Adirelle:ListLibraries() do
-		tinsert(libs, major .. " " .. minor)
+		tinsert(libs, format("%s.%s", major, minor))
 	end
 	table.sort(libs)
 
@@ -37,19 +38,48 @@ Config:RegisterBuilder(function(_, _, merge)
 		about = {
 			name = "About",
 			type = "group",
+			cmdHidden = true,
 			order = -1,
 			args = {
-				oufa = {
-					name = "oUF_Adirelle " .. oUF_Adirelle.VERSION,
+				_oufa = {
+					name = "oUF_Adirelle",
+					type = "header",
+					order = 0,
+				},
+				version = {
+					name = "Version: " .. oUF_Adirelle.VERSION,
 					type = "description",
 					width = "full",
-					order = 0,
+					order = 10,
+				},
+				sources = {
+					name = "Sources:",
+					type = "input",
+					width = "full",
+					get = function()
+						return "https://github.com/Adirelle/oUF_Adirelle"
+					end,
+					order = 12,
+				},
+				issues = {
+					name = "Please report issues to:",
+					type = "input",
+					width = "full",
+					get = function()
+						return "https://github.com/Adirelle/oUF_Adirelle/issues"
+					end,
+					order = 14,
+				},
+				_libs = {
+					name = "Libraries",
+					type = "header",
+					order = 20,
 				},
 				libraries = {
 					name = table.concat(libs, "\n"),
 					type = "description",
 					width = "full",
-					order = 10,
+					order = 30,
 				},
 			},
 		},

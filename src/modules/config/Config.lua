@@ -75,9 +75,10 @@ local labels = {
 }
 
 local function humanize(text)
-	return text:gsub("(%l)(%u)", function(a, b)
+	text = text:gsub("(%l)(%u)", function(a, b)
 		return a .. " " .. b:lower()
 	end)
+	return text:sub(0, 1):upper() .. text:sub(2)
 end
 
 function Config:GetLabel(text)
@@ -111,7 +112,20 @@ do
 		return target
 	end
 
-	local order = 10
+	local function AddGroup(target, item)
+		local order = 0
+		for _, entry in next, target do
+			if entry.order and entry.order > order then
+				order = entry.order
+			end
+		end
+		target[item] = {
+			name = Config:GetLabel(item),
+			type = "group",
+			order = order + 10,
+			args = {},
+		}
+	end
 
 	local function MergeIn(path, target, item, ...)
 		if not item then
@@ -122,15 +136,15 @@ do
 			return MergeIn(path, target, ...)
 		end
 		if type(item) ~= "string" then
-			error(
-				"MergeIn: [" .. path .. "]: expected item to be a table or a string, got a " .. type(item)
-			)
+			error(format(
+				"MergeIn: %q: expected item to be a table or a string, got a %s",
+				path,
+				type(item)
+			))
 		end
 		path = path .. "." .. item
 		if not target[item] then
-			oUF_Adirelle:Debug("Create group", path)
-			order = order + 10
-			target[item] = { name = Config:GetLabel(item), type = "group", order = order, args = {} }
+			AddGroup(target, item)
 		elseif target[item].type ~= "group" then
 			error("MergeIn: [" .. path .. "]: expected a group, got a ", target[item].type)
 		end

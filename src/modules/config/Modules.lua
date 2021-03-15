@@ -40,7 +40,6 @@ local moduleList = {
 	"oUF_Adirelle_Boss",
 	"oUF_Adirelle_Arena",
 	"oUF_Adirelle_Nameplates",
-	"oUF_Adirelle_FooBar",
 }
 
 local function ConfigApplied()
