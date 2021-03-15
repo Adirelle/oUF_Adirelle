@@ -85,72 +85,79 @@ function Config:GetLabel(text)
 	return labels[text] or humanize(text)
 end
 
+local function MaxOrder(entries)
+	local order = 0
+	for _, entry in next, entries do
+		if entry.order and entry.order > order then
+			order = entry.order
+		end
+	end
+	return order
+end
+
+local function AddGroup(target, item)
+	target[item] = {
+		name = Config:GetLabel(item),
+		type = "group",
+		order = MaxOrder(target) + 10,
+		args = {},
+	}
+end
+
+local function MergeArgs(path, target, source)
+	for key, value in next, source do
+		local thisPath = path .. "." .. key
+		if not value.order then
+			value.order = MaxOrder(target) + 10
+		end
+		if target[key] then
+			if target[key].type == "group" and value.type == "group" then
+				oUF_Adirelle:Debug("Merge groups", thisPath)
+				target[key].args = MergeArgs(thisPath, target[key].args, value.args)
+			else
+				error(format(
+					"MergeArgs: [%s] option already exists with type %q, cannot replace it (new type: %q)",
+					thisPath,
+					target[key].type,
+					value.type
+				))
+			end
+		else
+			oUF_Adirelle:Debug("Set", value.type, thisPath)
+			target[key] = value
+		end
+	end
+	return target
+end
+
+local function MergeIn(path, target, item, ...)
+	if not item then
+		return target
+	end
+	if type(item) == "table" then
+		target = MergeArgs(path, target, item)
+		return MergeIn(path, target, ...)
+	end
+	if type(item) ~= "string" then
+		error(format(
+			"MergeIn: %q: expected item to be a table or a string, got a %s",
+			path,
+			type(item)
+		))
+	end
+	path = path .. "." .. item
+	if not target[item] then
+		AddGroup(target, item)
+	elseif target[item].type ~= "group" then
+		error("MergeIn: [" .. path .. "]: expected a group, got a ", target[item].type)
+	end
+	target[item].args = MergeIn(path, target[item].args, ...)
+	return target
+end
+
 local Build
 do
 	local builders = {}
-
-	local function MergeArgs(path, target, source)
-		for key, value in next, source do
-			local thisPath = path .. "." .. key
-			if target[key] then
-				if target[key].type == "group" and value.type == "group" then
-					oUF_Adirelle:Debug("Merge groups", thisPath)
-					target[key].args = MergeArgs(thisPath, target[key].args, value.args)
-				else
-					error(format(
-						"MergeArgs: [%s] option already exists with type %q, cannot replace it (new type: %q)",
-						thisPath,
-						target[key].type,
-						value.type
-					))
-				end
-			else
-				oUF_Adirelle:Debug("Set", value.type, thisPath)
-				target[key] = value
-			end
-		end
-		return target
-	end
-
-	local function AddGroup(target, item)
-		local order = 0
-		for _, entry in next, target do
-			if entry.order and entry.order > order then
-				order = entry.order
-			end
-		end
-		target[item] = {
-			name = Config:GetLabel(item),
-			type = "group",
-			order = order + 10,
-			args = {},
-		}
-	end
-
-	local function MergeIn(path, target, item, ...)
-		if not item then
-			return target
-		end
-		if type(item) == "table" then
-			target = MergeArgs(path, target, item)
-			return MergeIn(path, target, ...)
-		end
-		if type(item) ~= "string" then
-			error(format(
-				"MergeIn: %q: expected item to be a table or a string, got a %s",
-				path,
-				type(item)
-			))
-		end
-		path = path .. "." .. item
-		if not target[item] then
-			AddGroup(target, item)
-		elseif target[item].type ~= "group" then
-			error("MergeIn: [" .. path .. "]: expected a group, got a ", target[item].type)
-		end
-		target[item].args = MergeIn(path, target[item].args, ...)
-		return target
-	end
 
 	function Build()
 		local opts = {}
@@ -161,7 +168,6 @@ do
 
 		local eh = geterrorhandler()
 		for _, builder in next, builders do
-			order = 0
 			xpcall(function()
 				builder(Config, opts, merge)
 			end, eh)
