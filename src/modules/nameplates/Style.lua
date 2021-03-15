@@ -66,6 +66,10 @@ local function Auras_CustomFilter(_, unit, button, _, _, _, debuffType, _, _, _,
 		or MM_AFFIXES[spellID or 0]
 end
 
+local function Portrait_CropTexture(portrait)
+	portrait:SetTexCoord(0.15, 0.85, 0.15, 0.85)
+end
+
 local function InitFrame(self, unit)
 	local WIDTH, HEIGHT = 120, 16
 	local CASTBAR_SIZE = 12
@@ -100,13 +104,15 @@ local function InitFrame(self, unit)
 
 	-- 2d portrait
 	local portrait = self:CreateTexture(nil, "ARTWORK")
-	portrait:SetSize(HEIGHT, HEIGHT)
-	portrait:SetPoint("LEFT")
+	portrait:SetWidth(HEIGHT)
+	portrait:SetPoint("TOPLEFT")
+	portrait:SetPoint("BOTTOMLEFT")
+	portrait.PostUpdate = Portrait_CropTexture
 	self.Portrait = portrait
 
 	-- Health bar
 	local health = self:SpawnStatusBar("health", true)
-	health:SetPoint("TOPLEFT", portrait, "TOPRIGHT")
+	health:SetPoint("TOPLEFT", portrait, "TOPRIGHT", 1, 0)
 	health:SetPoint("BOTTOMRIGHT")
 	health.frequentUpdates = true
 	health.colorTapping = true
