@@ -27,16 +27,12 @@ local CreateFrame = assert(_G.CreateFrame)
 local GetSpellInfo = assert(_G.GetSpellInfo)
 local GetUnitPowerBarTextureInfo = assert(_G.GetUnitPowerBarTextureInfo)
 local gsub = assert(_G.gsub)
+local hooksecurefunc = assert(_G.hooksecurefunc)
 local pairs = assert(_G.pairs)
 local select = assert(_G.select)
 local strmatch = assert(_G.strmatch)
 local tonumber = assert(_G.tonumber)
-local UnitCanAssist = assert(_G.UnitCanAssist)
 local UnitClass = assert(_G.UnitClass)
-local UnitGetIncomingHeals = assert(_G.UnitGetIncomingHeals)
-local UnitGetTotalHealAbsorbs = assert(_G.UnitGetTotalHealAbsorbs)
-local UnitHealth = assert(_G.UnitHealth)
-local UnitHealthMax = assert(_G.UnitHealthMax)
 local UnitName = assert(_G.UnitName)
 local UNKNOWN = assert(_G.UNKNOWN)
 local unpack = assert(_G.unpack)
@@ -76,34 +72,7 @@ private.ICON_SIZE = ICON_SIZE
 -- Health bar and name updates
 -- ------------------------------------------------------------------------------
 
--- Update name
-local function UpdateName(self, _, unit)
-	if not unit then
-		unit = self.unit
-	elseif unit ~= self.unit and unit ~= self.realUnit then
-		return
-	end
-	local r, g, b = 0.5, 0.5, 0.5
-	if self.nameColor then
-		r, g, b = unpack(self.nameColor)
-	end
-	if UnitCanAssist("player", unit) then
-		local health, maxHealth = UnitHealth(unit), UnitHealthMax(unit)
-		local incHeal = UnitGetIncomingHeals(unit) or 0
-		--local absorb = UnitGetTotalAbsorbs(unit) or 0
-		local healAbsorb = UnitGetTotalHealAbsorbs(unit) or 0
-		local threshold = maxHealth * 0.25
-		if healAbsorb > 0 and health - healAbsorb <= threshold then
-			r, g, b = unpack(oUF.colors.healPrediction.healAbsorb)
-		elseif health - healAbsorb + incHeal >= maxHealth + threshold then
-			r, g, b = unpack(oUF.colors.healPrediction.self)
-		end
-	end
-	self.Name:SetTextColor(r, g, b, 1)
-	self.Name:SetText(unit and UnitName(unit) or UNKNOWN)
-end
-
--- Update health and name color
+-- Update health color
 local function UpdateColor(self, event, unit)
 	if unit and (unit ~= self.unit and unit ~= self.realUnit) then
 		return
@@ -117,10 +86,8 @@ local function UpdateColor(self, event, unit)
 	if state ~= self.__stateColor or not event then
 		self.__stateColor = state
 		local r, g, b
-		local nR, nG, nB = 1, 1, 1
 		if class then
 			r, g, b = unpack(oUF.colors.class[class])
-			nR, nG, nB = r, g, b
 		else
 			r, g, b = unpack(oUF.colors.health)
 		end
@@ -128,10 +95,8 @@ local function UpdateColor(self, event, unit)
 			r, g, b = unpack(oUF.colors.disconnected)
 		elseif state == "CHARMED" then
 			r, g, b = unpack(oUF.colors.charmed.background)
-			nR, nG, nB = unpack(oUF.colors.charmed.name)
 		elseif state == "INVEHICLE" then
 			r, g, b = unpack(oUF.colors.vehicle.background)
-			nR, nG, nB = unpack(oUF.colors.vehicle.name)
 		end
 		self.bgColor[1], self.bgColor[2], self.bgColor[3] = r, g, b
 		if self.invertedBar then
@@ -141,9 +106,7 @@ local function UpdateColor(self, event, unit)
 			self.Health.bg:SetVertexColor(0, 0, 0, 1)
 			self.Health:SetStatusBarColor(r, g, b, 0.75)
 		end
-		self.nameColor[1], self.nameColor[2], self.nameColor[3] = nR, nG, nB
 	end
-	return UpdateName(self)
 end
 
 -- Add a pseudo-element to update the color
@@ -159,11 +122,6 @@ do
 	oUF:AddElement("Adirelle_Raid:UpdateColor", UpdateColor, function(self)
 		if self.Health and self.bgColor and self.style == "Adirelle_Raid" then
 			self:RegisterEvent("UNIT_NAME_UPDATE", UpdateColor)
-			self:RegisterEvent("UNIT_HEAL_PREDICTION", UpdateName)
-			self:RegisterEvent("UNIT_MAXHEALTH", UpdateName)
-			self:RegisterEvent("UNIT_HEALTH", UpdateName)
-			self:RegisterEvent("UNIT_ABSORB_AMOUNT_CHANGED", UpdateName)
-			self:RegisterEvent("UNIT_HEAL_ABSORB_AMOUNT_CHANGED", UpdateName)
 			if self.unit and strmatch(self.unit, "pet") then
 				self:RegisterEvent("UNIT_PET", UNIT_PET)
 			end
@@ -183,9 +141,6 @@ local function OnSizeChanged(self, width, height)
 	local w = BORDER_WIDTH / self:GetEffectiveScale()
 	self.Border:SetSize(width + 2 * w, height + 2 * w)
 	self.ReadyCheckIndicator:SetSize(height, height)
-	self.SummonIndicator:SetSize(height, height)
-	self.ResurrectIndicator:SetSize(height, height)
-	self.StatusIcon:SetSize(height * 2, height)
 	self.WarningIconBuff:SetPoint("CENTER", self, "LEFT", width / 4, 0)
 	self.WarningIconDebuff:SetPoint("CENTER", self, "RIGHT", -width / 4, 0)
 end
@@ -482,7 +437,7 @@ local function InitFrame(self)
 	name:SetJustifyH("CENTER")
 	name:SetJustifyV("MIDDLE")
 	self:RegisterFontString(name, "raid", 11, "")
-	self.Name = name
+	self:Tag(name, "[$>statusIcon<$ ][raidcolor][name]|r")
 
 	-- LowHealth warning
 	local lowHealth = hp:CreateTexture(nil, "OVERLAY", 2)
@@ -506,15 +461,6 @@ local function InitFrame(self)
 	overlay:SetFrameLevel(self:GetFrameLevel() + 10)
 	self.Overlay = overlay
 
-	-- Big status icon
-	local status = overlay:CreateTexture(nil, "BORDER", nil, 1)
-	status:SetPoint("CENTER")
-	status:SetAlpha(0.75)
-	status:SetBlendMode("ADD")
-	status:Hide()
-	status.PostUpdate = UpdateColor
-	self.StatusIcon = status
-
 	-- Combat flag
 	local combatFlag = self:SpawnTexture(overlay, SMALL_ICON_SIZE, "BOTTOMLEFT", INSET, INSET)
 	combatFlag:Hide()
@@ -531,17 +477,6 @@ local function InitFrame(self)
 		return rc.icon:SetTexture(...)
 	end
 	self.ReadyCheckIndicator = rc
-
-	-- Resurrect Indicator
-	local ri = overlay:CreateTexture(self:GetName() .. "ResurrectIndicator", "OVERLAY", nil, 1)
-	ri:SetPoint("CENTER")
-	ri:SetTexture([[Interface\RaidFrame\Raid-Icon-Rez]])
-	self.ResurrectIndicator = ri
-
-	-- Summon Indicator
-	local si = overlay:CreateTexture(self:GetName() .. "SummonIndicator", "OVERLAY", nil, 1)
-	si:SetPoint("CENTER")
-	self.SummonIndicator = si
 
 	-- Have icons blinking 3 seconds before fading out
 	self.iconBlinkThreshold = 3
