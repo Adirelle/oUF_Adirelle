@@ -122,6 +122,9 @@ local function InitFrame(self, unit)
 	health.considerSelectionInCombatHostile = true
 	self.Health = health
 
+	-- Heal predictions
+	self:SpawnHealthPrediction(1.05)
+
 	-- Name
 	local name = self:SpawnText(health, "ARTWORK", nil, nil, nil, nil, "nameplate")
 	name:SetPoint("TOPLEFT", TEXT_MARGIN, 0)
