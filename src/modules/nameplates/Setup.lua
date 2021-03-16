@@ -94,10 +94,11 @@ oUF:Factory(function(self)
 	self:SetActiveStyle("Adirelle_Nameplate")
 	self:SpawnNamePlates("oUF_Adirelle_")
 
-	LoadNameplateCVars()
-
 	DisableFrame(NamePlateDriverFrame:GetClassNameplateBar())
 	DisableFrame(NamePlateDriverFrame:SetClassNameplateManaBar())
+
+	oUF_Adirelle:RegisterMessage("OnSettingsModified", LoadNameplateCVars)
+	LoadNameplateCVars()
 
 	local eventFrame = CreateFrame("Frame")
 	eventFrame:SetScript("OnEvent", UpdateVisiblities)
