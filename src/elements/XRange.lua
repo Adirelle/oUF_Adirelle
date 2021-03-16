@@ -115,7 +115,7 @@ local RANGE_SPELLS = {
 	},
 	WARRIOR = {
 		["*"] = {
-			HOSTILE = { 78, 100 }, -- Heroic Strike (melee) or Charge
+			HOSTILE = { 1464, 100 }, -- Slam (melee) or Charge
 		},
 	},
 	MONK = {
@@ -147,10 +147,8 @@ local function BuildSingleCheckFunc(spell)
 		if not warned[spell] then
 			warned[spell] = true
 			geterrorhandler()(format(
-				[[
-						XRange:CheckSpell: the spell #%s  has been removed; it cannot be used for range checking.
-						See https://github.com/Adirelle/oUF_Adirelle/issues/13
-					]],
+					"XRange:CheckSpell: the spell #%s has been removed; it cannot be used for range checking. "
+						.. "See https://github.com/Adirelle/oUF_Adirelle/issues/13",
 				spell
 			))
 		end
