@@ -23,13 +23,13 @@ local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 local addonName = ...
 
 --<GLOBALS
-local GetCVarDefault = assert(_G.GetCVarDefault)
-local ipairs = assert(_G.ipairs)
-local next = assert(_G.next)
-local pairs = assert(_G.pairs)
-local rawget = assert(_G.rawget)
-local tostring = assert(_G.tostring)
-local type = assert(_G.type)
+local GetCVarDefault = assert(_G.GetCVarDefault, "_G.GetCVarDefault is undefined")
+local ipairs = assert(_G.ipairs, "_G.ipairs is undefined")
+local next = assert(_G.next, "_G.next is undefined")
+local pairs = assert(_G.pairs, "_G.pairs is undefined")
+local rawget = assert(_G.rawget, "_G.rawget is undefined")
+local tostring = assert(_G.tostring, "_G.tostring is undefined")
+local type = assert(_G.type, "_G.type is undefined")
 --GLOBALS>
 
 local AD = oUF_Adirelle.GetLib("AceDB-3.0")

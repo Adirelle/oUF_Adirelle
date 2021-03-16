@@ -21,15 +21,15 @@ local oUF_Adirelle = assert(_G.oUF_Adirelle)
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
-local CreateFrame = assert(_G.CreateFrame)
-local ipairs = assert(_G.ipairs)
-local next = assert(_G.next)
-local pairs = assert(_G.pairs)
-local rawget = assert(_G.rawget)
-local setmetatable = assert(_G.setmetatable)
-local tinsert = assert(_G.tinsert)
-local tremove = assert(_G.tremove)
-local type = assert(_G.type)
+local CreateFrame = assert(_G.CreateFrame, "_G.CreateFrame is undefined")
+local ipairs = assert(_G.ipairs, "_G.ipairs is undefined")
+local next = assert(_G.next, "_G.next is undefined")
+local pairs = assert(_G.pairs, "_G.pairs is undefined")
+local rawget = assert(_G.rawget, "_G.rawget is undefined")
+local setmetatable = assert(_G.setmetatable, "_G.setmetatable is undefined")
+local tinsert = assert(_G.tinsert, "_G.tinsert is undefined")
+local tremove = assert(_G.tremove, "_G.tremove is undefined")
+local type = assert(_G.type, "_G.type is undefined")
 --GLOBALS>
 
 -- The big table

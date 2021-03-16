@@ -21,7 +21,7 @@ local oUF_Adirelle = assert(_G.oUF_Adirelle)
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
-local unpack = assert(_G.unpack)
+local unpack = assert(_G.unpack, "_G.unpack is undefined")
 --GLOBALS>
 
 local ALMOST_ZERO = 1e-8

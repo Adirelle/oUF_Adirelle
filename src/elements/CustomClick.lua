@@ -23,9 +23,9 @@ local oUF_Adirelle = assert(_G.oUF_Adirelle)
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
-local GetSpellInfo = assert(_G.GetSpellInfo)
-local next = assert(_G.next)
-local pairs = assert(_G.pairs)
+local GetSpellInfo = assert(_G.GetSpellInfo, "_G.GetSpellInfo is undefined")
+local next = assert(_G.next, "_G.next is undefined")
+local pairs = assert(_G.pairs, "_G.pairs is undefined")
 --GLOBALS>
 
 local band = _G.bit.band

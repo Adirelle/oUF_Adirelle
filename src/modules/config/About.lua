@@ -20,9 +20,9 @@ local _G, assert = _G, _G.assert
 local oUF_Adirelle = assert(_G.oUF_Adirelle)
 
 --<GLOBALS
-local format = assert(_G.format)
-local table = assert(_G.table)
-local tinsert = assert(_G.tinsert)
+local format = assert(_G.format, "_G.format is undefined")
+local table = assert(_G.table, "_G.table is undefined")
+local tinsert = assert(_G.tinsert, "_G.tinsert is undefined")
 --GLOBALS>
 
 local Config = assert(oUF_Adirelle.Config)

@@ -21,12 +21,12 @@ local oUF_Adirelle = assert(_G.oUF_Adirelle)
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
-local CreateFrame = assert(_G.CreateFrame)
-local hooksecurefunc = assert(_G.hooksecurefunc)
-local NamePlateDriverFrame = assert(_G.NamePlateDriverFrame)
-local next = assert(_G.next)
-local SetCVar = assert(_G.SetCVar)
-local UnitAffectingCombat = assert(_G.UnitAffectingCombat)
+local CreateFrame = assert(_G.CreateFrame, "_G.CreateFrame is undefined")
+local hooksecurefunc = assert(_G.hooksecurefunc, "_G.hooksecurefunc is undefined")
+local NamePlateDriverFrame = assert(_G.NamePlateDriverFrame, "_G.NamePlateDriverFrame is undefined")
+local next = assert(_G.next, "_G.next is undefined")
+local SetCVar = assert(_G.SetCVar, "_G.SetCVar is undefined")
+local UnitAffectingCombat = assert(_G.UnitAffectingCombat, "_G.UnitAffectingCombat is undefined")
 --GLOBALS>
 
 local NAMEPLATE_CVARS = assert(oUF_Adirelle.NAMEPLATE_CVARS)

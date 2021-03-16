@@ -20,12 +20,12 @@ local _G, assert = _G, _G.assert
 local oUF_Adirelle = assert(_G.oUF_Adirelle)
 
 --<GLOBALS
-local C_CVar = assert(_G.C_CVar)
-local GetCVarBool = assert(_G.GetCVarBool)
-local IsAddOnLoaded = assert(_G.IsAddOnLoaded)
-local setmetatable = assert(_G.setmetatable)
-local tonumber = assert(_G.tonumber)
-local tostring = assert(_G.tostring)
+local C_CVar = assert(_G.C_CVar, "_G.C_CVar is undefined")
+local GetCVarBool = assert(_G.GetCVarBool, "_G.GetCVarBool is undefined")
+local IsAddOnLoaded = assert(_G.IsAddOnLoaded, "_G.IsAddOnLoaded is undefined")
+local setmetatable = assert(_G.setmetatable, "_G.setmetatable is undefined")
+local tonumber = assert(_G.tonumber, "_G.tonumber is undefined")
+local tostring = assert(_G.tostring, "_G.tostring is undefined")
 --GLOBALS>
 
 local Config = oUF_Adirelle.Config

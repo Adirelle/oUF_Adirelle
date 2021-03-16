@@ -20,16 +20,16 @@ local _G, assert = _G, _G.assert
 local oUF_Adirelle = assert(_G.oUF_Adirelle)
 
 --<GLOBALS
-local DisableAddOn = assert(_G.DisableAddOn)
-local EnableAddOn = assert(_G.EnableAddOn)
-local format = assert(_G.format)
-local GetAddOnEnableState = assert(_G.GetAddOnEnableState)
-local GetAddOnInfo = assert(_G.GetAddOnInfo)
-local GetAddOnMetadata = assert(_G.GetAddOnMetadata)
-local IsAddOnLoaded = assert(_G.IsAddOnLoaded)
-local LoadAddOn = assert(_G.LoadAddOn)
-local next = assert(_G.next)
-local tostring = assert(_G.tostring)
+local DisableAddOn = assert(_G.DisableAddOn, "_G.DisableAddOn is undefined")
+local EnableAddOn = assert(_G.EnableAddOn, "_G.EnableAddOn is undefined")
+local format = assert(_G.format, "_G.format is undefined")
+local GetAddOnEnableState = assert(_G.GetAddOnEnableState, "_G.GetAddOnEnableState is undefined")
+local GetAddOnInfo = assert(_G.GetAddOnInfo, "_G.GetAddOnInfo is undefined")
+local GetAddOnMetadata = assert(_G.GetAddOnMetadata, "_G.GetAddOnMetadata is undefined")
+local IsAddOnLoaded = assert(_G.IsAddOnLoaded, "_G.IsAddOnLoaded is undefined")
+local LoadAddOn = assert(_G.LoadAddOn, "_G.LoadAddOn is undefined")
+local next = assert(_G.next, "_G.next is undefined")
+local tostring = assert(_G.tostring, "_G.tostring is undefined")
 --GLOBALS>
 
 local Config = assert(oUF_Adirelle.Config)

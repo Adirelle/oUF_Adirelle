@@ -27,7 +27,7 @@ if oUF_Adirelle.SingleStyle then
 end
 
 --<GLOBALS
-local unpack = assert(_G.unpack)
+local unpack = assert(_G.unpack, "_G.unpack is undefined")
 --GLOBALS>
 
 local playerClass = assert(oUF_Adirelle.playerClass)

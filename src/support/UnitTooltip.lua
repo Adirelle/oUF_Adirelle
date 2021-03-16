@@ -20,11 +20,11 @@ local _G, assert = _G, _G.assert
 local oUF_Adirelle = assert(_G.oUF_Adirelle)
 
 --<GLOBALS
-local GameTooltip = assert(_G.GameTooltip)
-local GameTooltip_SetDefaultAnchor = assert(_G.GameTooltip_SetDefaultAnchor)
-local GameTooltip_UnitColor = assert(_G.GameTooltip_UnitColor)
-local InCombatLockdown = assert(_G.InCombatLockdown)
-local UIParent = assert(_G.UIParent)
+local GameTooltip = assert(_G.GameTooltip, "_G.GameTooltip is undefined")
+local GameTooltip_SetDefaultAnchor = assert(_G.GameTooltip_SetDefaultAnchor, "_G.GameTooltip_SetDefaultAnchor is undefined")
+local GameTooltip_UnitColor = assert(_G.GameTooltip_UnitColor, "_G.GameTooltip_UnitColor is undefined")
+local InCombatLockdown = assert(_G.InCombatLockdown, "_G.InCombatLockdown is undefined")
+local UIParent = assert(_G.UIParent, "_G.UIParent is undefined")
 --GLOBALS>
 
 local function UpdateTooltip(frame)

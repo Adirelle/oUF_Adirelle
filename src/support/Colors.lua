@@ -23,10 +23,10 @@ local oUF_Adirelle = assert(_G.oUF_Adirelle)
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
-local pairs = assert(_G.pairs)
-local type = assert(_G.type)
-local unpack = assert(_G.unpack)
-local wipe = assert(_G.wipe)
+local pairs = assert(_G.pairs, "_G.pairs is undefined")
+local type = assert(_G.type, "_G.type is undefined")
+local unpack = assert(_G.unpack, "_G.unpack is undefined")
+local wipe = assert(_G.wipe, "_G.wipe is undefined")
 --GLOBALS>
 
 local Config = assert(oUF_Adirelle.Config)

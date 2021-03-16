@@ -20,15 +20,15 @@ local _G, assert = _G, _G.assert
 local oUF_Adirelle = assert(_G.oUF_Adirelle)
 
 --<GLOBALS
-local error = assert(_G.error)
-local format = assert(_G.format)
-local geterrorhandler = assert(_G.geterrorhandler)
-local next = assert(_G.next)
-local tinsert = assert(_G.tinsert)
-local type = assert(_G.type)
-local UnitAffectingCombat = assert(_G.UnitAffectingCombat)
-local UnitName = assert(_G.UnitName)
-local xpcall = assert(_G.xpcall)
+local error = assert(_G.error, "_G.error is undefined")
+local format = assert(_G.format, "_G.format is undefined")
+local geterrorhandler = assert(_G.geterrorhandler, "_G.geterrorhandler is undefined")
+local next = assert(_G.next, "_G.next is undefined")
+local tinsert = assert(_G.tinsert, "_G.tinsert is undefined")
+local type = assert(_G.type, "_G.type is undefined")
+local UnitAffectingCombat = assert(_G.UnitAffectingCombat, "_G.UnitAffectingCombat is undefined")
+local UnitName = assert(_G.UnitName, "_G.UnitName is undefined")
+local xpcall = assert(_G.xpcall, "_G.xpcall is undefined")
 --GLOBALS>
 
 local Config = assert(oUF_Adirelle.Config)

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -eu
+set -eux
 
 update() {
     local TARGET="$1"
@@ -20,7 +20,7 @@ update() {
 
     cat "$TARGET.__before" "$TARGET.__after" \
         | luac -l -p -  \
-        | awk '$3=="GETGLOBAL" && $7 != "_G"{print "local " $7 " = assert(_G." $7 ")"}' \
+        | awk '$3=="GETGLOBAL"&&$7!="_G"{print"local "$7" = assert(_G."$7", \"_G."$7" is undefined\")"}' \
         | sort -u \
         > "$TARGET.__globals"
 

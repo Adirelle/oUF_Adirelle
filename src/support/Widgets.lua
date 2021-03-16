@@ -21,12 +21,12 @@ local oUF_Adirelle = assert(_G.oUF_Adirelle)
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
-local ceil = assert(_G.ceil)
-local CreateFrame = assert(_G.CreateFrame)
-local floor = assert(_G.floor)
-local format = assert(_G.format)
-local tostring = assert(_G.tostring)
-local UnitClassification = assert(_G.UnitClassification)
+local ceil = assert(_G.ceil, "_G.ceil is undefined")
+local CreateFrame = assert(_G.CreateFrame, "_G.CreateFrame is undefined")
+local floor = assert(_G.floor, "_G.floor is undefined")
+local format = assert(_G.format, "_G.format is undefined")
+local tostring = assert(_G.tostring, "_G.tostring is undefined")
+local UnitClassification = assert(_G.UnitClassification, "_G.UnitClassification is undefined")
 --GLOBALS>
 
 local Config = oUF_Adirelle.Config

@@ -43,7 +43,7 @@ local oUF_Adirelle = assert(_G.oUF_Adirelle)
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
-local UnitAffectingCombat = assert(_G.UnitAffectingCombat)
+local UnitAffectingCombat = assert(_G.UnitAffectingCombat, "_G.UnitAffectingCombat is undefined")
 --GLOBALS>
 
 local function Update(self, _, unit)

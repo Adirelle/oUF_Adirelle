@@ -20,16 +20,16 @@ local _G, assert = _G, _G.assert
 local oUF_Adirelle = assert(_G.oUF_Adirelle)
 
 --<GLOBALS
-local format = assert(_G.format)
-local GetAddOnEnableState = assert(_G.GetAddOnEnableState)
-local GetSpellInfo = assert(_G.GetSpellInfo)
-local gsub = assert(_G.gsub)
-local next = assert(_G.next)
-local pairs = assert(_G.pairs)
-local strsub = assert(_G.strsub)
-local tostring = assert(_G.tostring)
-local type = assert(_G.type)
-local wipe = assert(_G.wipe)
+local format = assert(_G.format, "_G.format is undefined")
+local GetAddOnEnableState = assert(_G.GetAddOnEnableState, "_G.GetAddOnEnableState is undefined")
+local GetSpellInfo = assert(_G.GetSpellInfo, "_G.GetSpellInfo is undefined")
+local gsub = assert(_G.gsub, "_G.gsub is undefined")
+local next = assert(_G.next, "_G.next is undefined")
+local pairs = assert(_G.pairs, "_G.pairs is undefined")
+local strsub = assert(_G.strsub, "_G.strsub is undefined")
+local tostring = assert(_G.tostring, "_G.tostring is undefined")
+local type = assert(_G.type, "_G.type is undefined")
+local wipe = assert(_G.wipe, "_G.wipe is undefined")
 --GLOBALS>
 
 local LibMovable = oUF_Adirelle.GetLib("LibMovable-1.0")

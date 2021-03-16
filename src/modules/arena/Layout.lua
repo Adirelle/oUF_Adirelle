@@ -22,12 +22,12 @@ local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 oUF:Factory(function()
 	--<GLOBALS
-	local GetScreenWidth = assert(_G.GetScreenWidth)
-	local IsInInstance = assert(_G.IsInInstance)
-	local RegisterUnitWatch = assert(_G.RegisterUnitWatch)
-	local SecureHandlerWrapScript = assert(_G.SecureHandlerWrapScript)
-	local select = assert(_G.select)
-	local UnregisterUnitWatch = assert(_G.UnregisterUnitWatch)
+	local GetScreenWidth = assert(_G.GetScreenWidth, "_G.GetScreenWidth is undefined")
+	local IsInInstance = assert(_G.IsInInstance, "_G.IsInInstance is undefined")
+	local RegisterUnitWatch = assert(_G.RegisterUnitWatch, "_G.RegisterUnitWatch is undefined")
+	local SecureHandlerWrapScript = assert(_G.SecureHandlerWrapScript, "_G.SecureHandlerWrapScript is undefined")
+	local select = assert(_G.select, "_G.select is undefined")
+	local UnregisterUnitWatch = assert(_G.UnregisterUnitWatch, "_G.UnregisterUnitWatch is undefined")
 	--GLOBALS>
 
 	local mmax = assert(_G.math.max)

@@ -23,11 +23,11 @@ local oUF_Adirelle = assert(_G.oUF_Adirelle)
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
-local floor = assert(_G.floor)
-local GetPVPTimer = assert(_G.GetPVPTimer)
-local gsub = assert(_G.gsub)
-local IsPVPTimerRunning = assert(_G.IsPVPTimerRunning)
-local SecondsToTimeAbbrev = assert(_G.SecondsToTimeAbbrev)
+local floor = assert(_G.floor, "_G.floor is undefined")
+local GetPVPTimer = assert(_G.GetPVPTimer, "_G.GetPVPTimer is undefined")
+local gsub = assert(_G.gsub, "_G.gsub is undefined")
+local IsPVPTimerRunning = assert(_G.IsPVPTimerRunning, "_G.IsPVPTimerRunning is undefined")
+local SecondsToTimeAbbrev = assert(_G.SecondsToTimeAbbrev, "_G.SecondsToTimeAbbrev is undefined")
 --GLOBALS>
 
 local function OnElapsed(timer, elapsed)

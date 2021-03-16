@@ -23,10 +23,10 @@ local oUF_Adirelle = assert(_G.oUF_Adirelle)
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
-local GetCurrentRegion = assert(_G.GetCurrentRegion)
-local type = assert(_G.type)
-local UnitClassification = assert(_G.UnitClassification)
-local unpack = assert(_G.unpack)
+local GetCurrentRegion = assert(_G.GetCurrentRegion, "_G.GetCurrentRegion is undefined")
+local type = assert(_G.type, "_G.type is undefined")
+local UnitClassification = assert(_G.UnitClassification, "_G.UnitClassification is undefined")
+local unpack = assert(_G.unpack, "_G.unpack is undefined")
 --GLOBALS>
 
 local classifMap = {

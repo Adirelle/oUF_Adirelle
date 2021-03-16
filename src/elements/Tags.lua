@@ -21,13 +21,13 @@ local oUF_Adirelle = assert(_G.oUF_Adirelle)
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
-local C_IncomingSummon = assert(_G.C_IncomingSummon)
-local format = assert(_G.format)
-local tostring = assert(_G.tostring)
-local UnitHasIncomingResurrection = assert(_G.UnitHasIncomingResurrection)
-local UnitIsConnected = assert(_G.UnitIsConnected)
-local UnitIsDead = assert(_G.UnitIsDead)
-local UnitIsGhost = assert(_G.UnitIsGhost)
+local C_IncomingSummon = assert(_G.C_IncomingSummon, "_G.C_IncomingSummon is undefined")
+local format = assert(_G.format, "_G.format is undefined")
+local tostring = assert(_G.tostring, "_G.tostring is undefined")
+local UnitHasIncomingResurrection = assert(_G.UnitHasIncomingResurrection, "_G.UnitHasIncomingResurrection is undefined")
+local UnitIsConnected = assert(_G.UnitIsConnected, "_G.UnitIsConnected is undefined")
+local UnitIsDead = assert(_G.UnitIsDead, "_G.UnitIsDead is undefined")
+local UnitIsGhost = assert(_G.UnitIsGhost, "_G.UnitIsGhost is undefined")
 --GLOBALS>
 
 local SummonStatus = _G.Enum.SummonStatus

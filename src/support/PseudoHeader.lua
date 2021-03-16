@@ -25,12 +25,12 @@ if oUF_Adirelle.CreatePseudoHeader then
 end
 
 --<GLOBALS
-local CreateFrame = assert(_G.CreateFrame)
-local ipairs = assert(_G.ipairs)
-local pairs = assert(_G.pairs)
-local tinsert = assert(_G.tinsert)
-local type = assert(_G.type)
-local UIParent = assert(_G.UIParent)
+local CreateFrame = assert(_G.CreateFrame, "_G.CreateFrame is undefined")
+local ipairs = assert(_G.ipairs, "_G.ipairs is undefined")
+local pairs = assert(_G.pairs, "_G.pairs is undefined")
+local tinsert = assert(_G.tinsert, "_G.tinsert is undefined")
+local type = assert(_G.type, "_G.type is undefined")
+local UIParent = assert(_G.UIParent, "_G.UIParent is undefined")
 --GLOBALS>
 
 local headerProto = {

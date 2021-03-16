@@ -21,14 +21,14 @@ local oUF_Adirelle = assert(_G.oUF_Adirelle)
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
-local UnitCanAssist = assert(_G.UnitCanAssist)
-local UnitGetIncomingHeals = assert(_G.UnitGetIncomingHeals)
-local UnitGetTotalAbsorbs = assert(_G.UnitGetTotalAbsorbs)
-local UnitGetTotalHealAbsorbs = assert(_G.UnitGetTotalHealAbsorbs)
-local UnitHealth = assert(_G.UnitHealth)
-local UnitHealthMax = assert(_G.UnitHealthMax)
-local UnitIsConnected = assert(_G.UnitIsConnected)
-local UnitIsDeadOrGhost = assert(_G.UnitIsDeadOrGhost)
+local UnitCanAssist = assert(_G.UnitCanAssist, "_G.UnitCanAssist is undefined")
+local UnitGetIncomingHeals = assert(_G.UnitGetIncomingHeals, "_G.UnitGetIncomingHeals is undefined")
+local UnitGetTotalAbsorbs = assert(_G.UnitGetTotalAbsorbs, "_G.UnitGetTotalAbsorbs is undefined")
+local UnitGetTotalHealAbsorbs = assert(_G.UnitGetTotalHealAbsorbs, "_G.UnitGetTotalHealAbsorbs is undefined")
+local UnitHealth = assert(_G.UnitHealth, "_G.UnitHealth is undefined")
+local UnitHealthMax = assert(_G.UnitHealthMax, "_G.UnitHealthMax is undefined")
+local UnitIsConnected = assert(_G.UnitIsConnected, "_G.UnitIsConnected is undefined")
+local UnitIsDeadOrGhost = assert(_G.UnitIsDeadOrGhost, "_G.UnitIsDeadOrGhost is undefined")
 --GLOBALS>
 
 local mmax = assert(_G.math.max)

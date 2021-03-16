@@ -22,8 +22,8 @@ local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 oUF_Adirelle.oUF:Factory(function()
 	--<GLOBALS
-	local GetScreenWidth = assert(_G.GetScreenWidth)
-	local IsInInstance = assert(_G.IsInInstance)
+	local GetScreenWidth = assert(_G.GetScreenWidth, "_G.GetScreenWidth is undefined")
+	local IsInInstance = assert(_G.IsInInstance, "_G.IsInInstance is undefined")
 	--GLOBALS>
 
 	local mmax = assert(_G.math.max)

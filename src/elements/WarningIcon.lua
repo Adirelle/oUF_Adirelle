@@ -23,12 +23,12 @@ local oUF_Adirelle = assert(_G.oUF_Adirelle)
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
-local DebuffTypeColor = assert(_G.DebuffTypeColor)
-local pairs = assert(_G.pairs)
-local select = assert(_G.select)
-local UnitBuff = assert(_G.UnitBuff)
-local UnitDebuff = assert(_G.UnitDebuff)
-local UnitIsVisible = assert(_G.UnitIsVisible)
+local DebuffTypeColor = assert(_G.DebuffTypeColor, "_G.DebuffTypeColor is undefined")
+local pairs = assert(_G.pairs, "_G.pairs is undefined")
+local select = assert(_G.select, "_G.select is undefined")
+local UnitBuff = assert(_G.UnitBuff, "_G.UnitBuff is undefined")
+local UnitDebuff = assert(_G.UnitDebuff, "_G.UnitDebuff is undefined")
+local UnitIsVisible = assert(_G.UnitIsVisible, "_G.UnitIsVisible is undefined")
 --GLOBALS>
 
 local band = assert(_G.bit.band)

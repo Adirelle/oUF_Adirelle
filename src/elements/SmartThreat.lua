@@ -21,13 +21,13 @@ local oUF_Adirelle = assert(_G.oUF_Adirelle)
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
-local GetThreatStatusColor = assert(_G.GetThreatStatusColor)
-local gsub = assert(_G.gsub)
-local UnitAffectingCombat = assert(_G.UnitAffectingCombat)
-local UnitCanAttack = assert(_G.UnitCanAttack)
-local UnitIsPlayer = assert(_G.UnitIsPlayer)
-local UnitIsUnit = assert(_G.UnitIsUnit)
-local UnitThreatSituation = assert(_G.UnitThreatSituation)
+local GetThreatStatusColor = assert(_G.GetThreatStatusColor, "_G.GetThreatStatusColor is undefined")
+local gsub = assert(_G.gsub, "_G.gsub is undefined")
+local UnitAffectingCombat = assert(_G.UnitAffectingCombat, "_G.UnitAffectingCombat is undefined")
+local UnitCanAttack = assert(_G.UnitCanAttack, "_G.UnitCanAttack is undefined")
+local UnitIsPlayer = assert(_G.UnitIsPlayer, "_G.UnitIsPlayer is undefined")
+local UnitIsUnit = assert(_G.UnitIsUnit, "_G.UnitIsUnit is undefined")
+local UnitThreatSituation = assert(_G.UnitThreatSituation, "_G.UnitThreatSituation is undefined")
 --GLOBALS>
 
 local Update = function(self, _, unit)

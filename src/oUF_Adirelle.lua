@@ -25,9 +25,9 @@ local oUF_Adirelle = { oUF = oUF }
 _G.oUF_Adirelle = oUF_Adirelle
 
 --<GLOBALS
-local LibStub = assert(_G.LibStub)
-local next = assert(_G.next)
-local print = assert(_G.print)
+local LibStub = assert(_G.LibStub, "_G.LibStub is undefined")
+local next = assert(_G.next, "_G.next is undefined")
+local print = assert(_G.print, "_G.print is undefined")
 --GLOBALS>
 
 -- Debugging stuff
@@ -123,7 +123,6 @@ _, oUF_Adirelle.playerClass = _G.UnitClass("player")
 
 -- Frame background
 oUF_Adirelle.backdrop = {
-	--bgFile = [[Interface\Tooltips\UI-Tooltip-Background]],
 	bgFile = [[Interface\AddOns\oUF_Adirelle\media\white16x16]],
 	bgAlpha = 0.85,
 	tile = true,
@@ -136,5 +135,4 @@ oUF_Adirelle.glowBorderBackdrop = {
 	edgeFile = [[Interface\AddOns\oUF_Adirelle\media\glowborder]],
 	edgeSize = 4,
 	alpha = 1,
---edgeFile = [[Interface\AddOns\oUF_Adirelle\media\white16x16]], edgeSize = 2, alpha = 0.5,
 }

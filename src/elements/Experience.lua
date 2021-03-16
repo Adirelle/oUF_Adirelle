@@ -21,14 +21,14 @@ local oUF_Adirelle = assert(_G.oUF_Adirelle)
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
-local GetXPExhaustion = assert(_G.GetXPExhaustion)
-local IsResting = assert(_G.IsResting)
-local IsXPUserDisabled = assert(_G.IsXPUserDisabled)
-local pairs = assert(_G.pairs)
-local UnitLevel = assert(_G.UnitLevel)
-local UnitXP = assert(_G.UnitXP)
-local UnitXPMax = assert(_G.UnitXPMax)
-local unpack = assert(_G.unpack)
+local GetXPExhaustion = assert(_G.GetXPExhaustion, "_G.GetXPExhaustion is undefined")
+local IsResting = assert(_G.IsResting, "_G.IsResting is undefined")
+local IsXPUserDisabled = assert(_G.IsXPUserDisabled, "_G.IsXPUserDisabled is undefined")
+local pairs = assert(_G.pairs, "_G.pairs is undefined")
+local UnitLevel = assert(_G.UnitLevel, "_G.UnitLevel is undefined")
+local UnitXP = assert(_G.UnitXP, "_G.UnitXP is undefined")
+local UnitXPMax = assert(_G.UnitXPMax, "_G.UnitXPMax is undefined")
+local unpack = assert(_G.unpack, "_G.unpack is undefined")
 --GLOBALS>
 
 local mmin = assert(_G.math.min)

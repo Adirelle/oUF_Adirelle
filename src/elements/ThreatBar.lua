@@ -23,10 +23,10 @@ local oUF_Adirelle = assert(_G.oUF_Adirelle)
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
-local UnitCanAttack = assert(_G.UnitCanAttack)
-local UnitDetailedThreatSituation = assert(_G.UnitDetailedThreatSituation)
-local UnitIsUnit = assert(_G.UnitIsUnit)
-local unpack = assert(_G.unpack)
+local UnitCanAttack = assert(_G.UnitCanAttack, "_G.UnitCanAttack is undefined")
+local UnitDetailedThreatSituation = assert(_G.UnitDetailedThreatSituation, "_G.UnitDetailedThreatSituation is undefined")
+local UnitIsUnit = assert(_G.UnitIsUnit, "_G.UnitIsUnit is undefined")
+local unpack = assert(_G.unpack, "_G.unpack is undefined")
 --GLOBALS>
 
 local function Update(self, event, unit)

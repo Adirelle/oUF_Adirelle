@@ -23,10 +23,10 @@ local oUF_Adirelle = assert(_G.oUF_Adirelle)
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
-local GetRuneCooldown = assert(_G.GetRuneCooldown)
-local GetTime = assert(_G.GetTime)
-local RuneFrame = assert(_G.RuneFrame)
-local tonumber = assert(_G.tonumber)
+local GetRuneCooldown = assert(_G.GetRuneCooldown, "_G.GetRuneCooldown is undefined")
+local GetTime = assert(_G.GetTime, "_G.GetTime is undefined")
+local RuneFrame = assert(_G.RuneFrame, "_G.RuneFrame is undefined")
+local tonumber = assert(_G.tonumber, "_G.tonumber is undefined")
 --GLOBALS>
 
 local function OnUpdate(rune)

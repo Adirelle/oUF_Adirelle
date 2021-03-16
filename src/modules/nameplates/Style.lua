@@ -21,7 +21,7 @@ local oUF_Adirelle = assert(_G.oUF_Adirelle)
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
-local CreateFrame = assert(_G.CreateFrame)
+local CreateFrame = assert(_G.CreateFrame, "_G.CreateFrame is undefined")
 --GLOBALS>
 
 local backdrop = assert(oUF_Adirelle.backdrop)

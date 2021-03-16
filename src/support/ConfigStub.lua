@@ -20,8 +20,8 @@ local _G, assert = _G, _G.assert
 local oUF_Adirelle = assert(_G.oUF_Adirelle)
 
 --<GLOBALS
-local IsAddOnLoaded = assert(_G.IsAddOnLoaded)
-local LoadAddOn = assert(_G.LoadAddOn)
+local IsAddOnLoaded = assert(_G.IsAddOnLoaded, "_G.IsAddOnLoaded is undefined")
+local LoadAddOn = assert(_G.LoadAddOn, "_G.LoadAddOn is undefined")
 --GLOBALS>
 
 local function noop()

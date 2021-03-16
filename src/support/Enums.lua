@@ -20,7 +20,7 @@ local _G, assert = _G, _G.assert
 local oUF_Adirelle = assert(_G.oUF_Adirelle)
 
 --<GLOBALS
-local Enum = assert(_G.Enum)
+local Enum = assert(_G.Enum, "_G.Enum is undefined")
 --GLOBALS>
 
 oUF_Adirelle.Enum = {}

@@ -22,11 +22,11 @@ local _G, assert = _G, _G.assert
 local oUF_Adirelle = assert(_G.oUF_Adirelle)
 
 --<GLOBALS
-local CreateFrame = assert(_G.CreateFrame)
-local ipairs = assert(_G.ipairs)
-local pairs = assert(_G.pairs)
-local tinsert = assert(_G.tinsert)
-local wipe = assert(_G.wipe)
+local CreateFrame = assert(_G.CreateFrame, "_G.CreateFrame is undefined")
+local ipairs = assert(_G.ipairs, "_G.ipairs is undefined")
+local pairs = assert(_G.pairs, "_G.pairs is undefined")
+local tinsert = assert(_G.tinsert, "_G.tinsert is undefined")
+local wipe = assert(_G.wipe, "_G.wipe is undefined")
 --GLOBALS>
 
 local tsort = assert(_G.table.sort)

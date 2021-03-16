@@ -20,7 +20,7 @@ local _G, assert = _G, _G.assert
 local oUF_Adirelle = assert(_G.oUF_Adirelle)
 
 --<GLOBALS
-local next = assert(_G.next)
+local next = assert(_G.next, "_G.next is undefined")
 --GLOBALS>
 
 local Config = assert(oUF_Adirelle.Config)

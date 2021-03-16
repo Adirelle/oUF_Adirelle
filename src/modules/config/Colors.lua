@@ -21,10 +21,10 @@ local oUF_Adirelle = assert(_G.oUF_Adirelle)
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
-local next = assert(_G.next)
-local select = assert(_G.select)
-local tostring = assert(_G.tostring)
-local type = assert(_G.type)
+local next = assert(_G.next, "_G.next is undefined")
+local select = assert(_G.select, "_G.select is undefined")
+local tostring = assert(_G.tostring, "_G.tostring is undefined")
+local type = assert(_G.type, "_G.type is undefined")
 --GLOBALS>
 
 local Config = assert(oUF_Adirelle.Config)

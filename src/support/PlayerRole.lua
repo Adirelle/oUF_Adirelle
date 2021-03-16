@@ -20,11 +20,11 @@ local _G, assert = _G, _G.assert
 local oUF_Adirelle = assert(_G.oUF_Adirelle)
 
 --<GLOBALS
-local GetSpecialization = assert(_G.GetSpecialization)
-local GetSpecializationRole = assert(_G.GetSpecializationRole)
-local IsInRaid = assert(_G.IsInRaid)
-local UnitGroupRolesAssigned = assert(_G.UnitGroupRolesAssigned)
-local UnitSetRole = assert(_G.UnitSetRole)
+local GetSpecialization = assert(_G.GetSpecialization, "_G.GetSpecialization is undefined")
+local GetSpecializationRole = assert(_G.GetSpecializationRole, "_G.GetSpecializationRole is undefined")
+local IsInRaid = assert(_G.IsInRaid, "_G.IsInRaid is undefined")
+local UnitGroupRolesAssigned = assert(_G.UnitGroupRolesAssigned, "_G.UnitGroupRolesAssigned is undefined")
+local UnitSetRole = assert(_G.UnitSetRole, "_G.UnitSetRole is undefined")
 --GLOBALS>
 
 local Debug = assert(oUF_Adirelle.Debug)

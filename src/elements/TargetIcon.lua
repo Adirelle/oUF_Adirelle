@@ -23,8 +23,8 @@ local oUF_Adirelle = assert(_G.oUF_Adirelle)
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
-local GetRaidTargetIndex = assert(_G.GetRaidTargetIndex)
-local SetRaidTargetIconTexture = assert(_G.SetRaidTargetIconTexture)
+local GetRaidTargetIndex = assert(_G.GetRaidTargetIndex, "_G.GetRaidTargetIndex is undefined")
+local SetRaidTargetIconTexture = assert(_G.SetRaidTargetIconTexture, "_G.SetRaidTargetIconTexture is undefined")
 --GLOBALS>
 
 local function Update(self, _, unit)

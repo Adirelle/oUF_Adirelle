@@ -21,10 +21,10 @@ local oUF_Adirelle = assert(_G.oUF_Adirelle)
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
-local CreateFrame = assert(_G.CreateFrame)
-local select = assert(_G.select)
-local tonumber = assert(_G.tonumber)
-local type = assert(_G.type)
+local CreateFrame = assert(_G.CreateFrame, "_G.CreateFrame is undefined")
+local select = assert(_G.select, "_G.select is undefined")
+local tonumber = assert(_G.tonumber, "_G.tonumber is undefined")
+local type = assert(_G.type, "_G.type is undefined")
 --GLOBALS>
 
 local function NOOP()

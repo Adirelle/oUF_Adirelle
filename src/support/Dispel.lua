@@ -20,15 +20,15 @@ local _G, assert = _G, _G.assert
 local oUF_Adirelle = assert(_G.oUF_Adirelle)
 
 --<GLOBALS
-local IsSpellKnownOrOverridesKnown = assert(_G.IsSpellKnownOrOverridesKnown)
-local next = assert(_G.next)
-local pairs = assert(_G.pairs)
-local type = assert(_G.type)
-local UnitCanAssist = assert(_G.UnitCanAssist)
-local UnitCanAttack = assert(_G.UnitCanAttack)
-local UnitDebuff = assert(_G.UnitDebuff)
-local UnitIsUnit = assert(_G.UnitIsUnit)
-local unpack = assert(_G.unpack)
+local IsSpellKnownOrOverridesKnown = assert(_G.IsSpellKnownOrOverridesKnown, "_G.IsSpellKnownOrOverridesKnown is undefined")
+local next = assert(_G.next, "_G.next is undefined")
+local pairs = assert(_G.pairs, "_G.pairs is undefined")
+local type = assert(_G.type, "_G.type is undefined")
+local UnitCanAssist = assert(_G.UnitCanAssist, "_G.UnitCanAssist is undefined")
+local UnitCanAttack = assert(_G.UnitCanAttack, "_G.UnitCanAttack is undefined")
+local UnitDebuff = assert(_G.UnitDebuff, "_G.UnitDebuff is undefined")
+local UnitIsUnit = assert(_G.UnitIsUnit, "_G.UnitIsUnit is undefined")
+local unpack = assert(_G.unpack, "_G.unpack is undefined")
 --GLOBALS>
 
 local band = assert(_G.bit.band)

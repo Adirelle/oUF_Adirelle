@@ -23,16 +23,16 @@ local oUF_Adirelle = assert(_G.oUF_Adirelle)
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
-local IsInInstance = assert(_G.IsInInstance)
-local select = assert(_G.select)
-local UnitAffectingCombat = assert(_G.UnitAffectingCombat)
-local UnitExists = assert(_G.UnitExists)
-local UnitIsDeadOrGhost = assert(_G.UnitIsDeadOrGhost)
-local UnitIsUnit = assert(_G.UnitIsUnit)
-local UnitPower = assert(_G.UnitPower)
-local UnitPowerMax = assert(_G.UnitPowerMax)
-local UnitPowerType = assert(_G.UnitPowerType)
-local unpack = assert(_G.unpack)
+local IsInInstance = assert(_G.IsInInstance, "_G.IsInInstance is undefined")
+local select = assert(_G.select, "_G.select is undefined")
+local UnitAffectingCombat = assert(_G.UnitAffectingCombat, "_G.UnitAffectingCombat is undefined")
+local UnitExists = assert(_G.UnitExists, "_G.UnitExists is undefined")
+local UnitIsDeadOrGhost = assert(_G.UnitIsDeadOrGhost, "_G.UnitIsDeadOrGhost is undefined")
+local UnitIsUnit = assert(_G.UnitIsUnit, "_G.UnitIsUnit is undefined")
+local UnitPower = assert(_G.UnitPower, "_G.UnitPower is undefined")
+local UnitPowerMax = assert(_G.UnitPowerMax, "_G.UnitPowerMax is undefined")
+local UnitPowerType = assert(_G.UnitPowerType, "_G.UnitPowerType is undefined")
+local unpack = assert(_G.unpack, "_G.unpack is undefined")
 --GLOBALS>
 
 local SPELL_POWER_MANA = _G.Enum.PowerType.Mana
