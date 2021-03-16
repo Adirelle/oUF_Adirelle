@@ -23,25 +23,29 @@ local oUF_Adirelle = assert(_G.oUF_Adirelle)
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
-local GetNumGroupMembers = assert(_G.GetNumGroupMembers)
-local GetThreatStatusColor = assert(_G.GetThreatStatusColor)
-local LE_PARTY_CATEGORY_HOME = assert(_G.LE_PARTY_CATEGORY_HOME)
+local ForceUpdate = assert(_G.ForceUpdate)
+local UnitCanAttack = assert(_G.UnitCanAttack)
 local UnitDetailedThreatSituation = assert(_G.UnitDetailedThreatSituation)
-local UnitExists = assert(_G.UnitExists)
+local UnitIsUnit = assert(_G.UnitIsUnit)
+local unpack = assert(_G.unpack)
 --GLOBALS>
 
 local function Update(self, event, unit)
-	if unit and (unit ~= self.unit and unit ~= "player") then
-		return
-	elseif GetNumGroupMembers(LE_PARTY_CATEGORY_HOME) == 0 and not UnitExists("pet") then
-		return self.ThreatBar:Hide()
-	end
+	local playerUnit, mobUnit = "player", self.unit
 	local bar = self.ThreatBar
-	local isTanking, status, scaledPercent, rawPercent, threatValue = UnitDetailedThreatSituation("player", self.unit)
+	if not UnitCanAttack(playerUnit, mobUnit) and UnitCanAttack(self.unit, "target") then
+		playerUnit, mobUnit = self.unit, "target"
+	end
+	if UnitIsUnit(playerUnit, mobUnit) or not UnitCanAttack(playerUnit, mobUnit) then
+		bar:Hide()
+		return
+	end
+
+	local isTanking, status, scaledPercent, rawPercent, threatValue = UnitDetailedThreatSituation(playerUnit, mobUnit)
 	if status then
-		bar:SetValue(scaledPercent)
+		bar:SetValue(rawPercent)
 		if status > 0 then
-			bar:SetStatusBarColor(GetThreatStatusColor(status))
+			bar:SetStatusBarColor(unpack(self.colors.threat[status], 1, 3))
 		else
 			bar:SetStatusBarColor(0, 1, 0)
 		end
@@ -50,24 +54,27 @@ local function Update(self, event, unit)
 		bar:Hide()
 	end
 	if bar.PostUpdate then
-		bar.PostUpdate(self, event, unit, bar, isTanking, status, scaledPercent, rawPercent, threatValue)
+		bar:PostUpdate(event, unit, bar, isTanking, status, scaledPercent, rawPercent, threatValue)
 	end
 end
 
 local function Enable(self)
-	if self.ThreatBar then
-		self:RegisterEvent("GROUP_ROSTER_UPDATE", Update)
+	local bar = self.ThreatBar
+	if bar then
+		bar:Hide()
+
+		bar.__owner = self
+		bar = ForceUpdate
 		self:RegisterEvent("UNIT_PET", Update)
 		self:RegisterEvent("UNIT_THREAT_LIST_UPDATE", Update)
 		self:RegisterEvent("UNIT_THREAT_SITUATION_UPDATE", Update)
-		self.ThreatBar:Hide()
+
 		return true
 	end
 end
 
 local function Disable(self)
 	if self.ThreatBar then
-		self:UnregisterEvent("GROUP_ROSTER_UPDATE", Update)
 		self:UnregisterEvent("UNIT_PET", Update)
 		self:UnregisterEvent("UNIT_THREAT_LIST_UPDATE", Update)
 		self:UnregisterEvent("UNIT_THREAT_SITUATION_UPDATE", Update)
