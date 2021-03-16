@@ -407,8 +407,7 @@ local function InitFrame(self)
 	self.nameColor = { 1, 1, 1 }
 
 	local hp = CreateFrame("StatusBar", nil, self)
-	hp:SetPoint("TOPLEFT")
-	hp:SetPoint("BOTTOMRIGHT")
+	hp:SetAllPoints()
 	hp.current, hp.max = 0, 0
 	self.Health = hp
 	self:RegisterStatusBarTexture(hp, "health")
@@ -431,7 +430,7 @@ local function InitFrame(self)
 	self.Border = border
 
 	-- Name
-	local name = hp:CreateFontString(nil, "OVERLAY", "GameFontNormal", 3)
+	local name = hp:CreateFontString(nil, "ARTWORK", "GameFontNormal")
 	name:SetPoint("TOPLEFT", 6, 0)
 	name:SetPoint("BOTTOMRIGHT", -6, 0)
 	name:SetJustifyH("CENTER")
@@ -440,15 +439,15 @@ local function InitFrame(self)
 	self:Tag(name, "[$>statusIcon<$ ][raidcolor][name]|r")
 
 	-- LowHealth warning
-	local lowHealth = hp:CreateTexture(nil, "OVERLAY", 2)
+	local lowHealth = hp:CreateTexture(nil, "OVERLAY", nil, 1)
 	lowHealth:SetAllPoints(border)
 	lowHealth:SetColorTexture(1, 0, 0, 0.5)
 	self.LowHealth = lowHealth
 
 	-- Range fading
-	local xrange = hp:CreateTexture(nil, "OVERLAY", 1)
-	xrange:SetAllPoints(self)
-	xrange:SetColorTexture(0.4, 0.4, 0.4)
+	local xrange = hp:CreateTexture(nil, "OVERLAY", nil, -1)
+	xrange:SetAllPoints(hp)
+	xrange:SetColorTexture(0.5, 0.5, 0.5)
 	xrange:SetBlendMode("MOD")
 	self.XRange = xrange
 
