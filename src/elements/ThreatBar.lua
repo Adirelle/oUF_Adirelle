@@ -23,7 +23,6 @@ local oUF_Adirelle = assert(_G.oUF_Adirelle)
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
-local ForceUpdate = assert(_G.ForceUpdate)
 local UnitCanAttack = assert(_G.UnitCanAttack)
 local UnitDetailedThreatSituation = assert(_G.UnitDetailedThreatSituation)
 local UnitIsUnit = assert(_G.UnitIsUnit)
@@ -58,13 +57,17 @@ local function Update(self, event, unit)
 	end
 end
 
+local function ForceUpdate(bar)
+	return Update(bar.__owner, "ForceUpdate", bar.__owner.unit)
+end
+
 local function Enable(self)
 	local bar = self.ThreatBar
 	if bar then
 		bar:Hide()
 
 		bar.__owner = self
-		bar = ForceUpdate
+		bar.ForceUpdate = ForceUpdate
 		self:RegisterEvent("UNIT_PET", Update)
 		self:RegisterEvent("UNIT_THREAT_LIST_UPDATE", Update)
 		self:RegisterEvent("UNIT_THREAT_SITUATION_UPDATE", Update)
