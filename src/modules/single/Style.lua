@@ -669,32 +669,14 @@ local function InitFrame(settings, self, initUnit)
 	end
 
 	-- Threat Bar
-	if unit == "target" then
-		-- Add a simple threat bar on the target
-		local threatBar = self:SpawnStatusBar("threat", false)
+	if self.heightType ~= "Small" and unit ~= "player" then
+		-- Add a simple threat bar
+		local threatBar = self:SpawnStatusBar("threat")
 		threatBar:SetBackdrop(backdrop)
 		threatBar:SetBackdropColor(0, 0, 0, backdrop.bgAlpha)
 		threatBar:SetBackdropBorderColor(0, 0, 0, 1)
-		threatBar:SetWidth(190 * 0.5)
-		threatBar:SetHeight(14)
+		threatBar:SetSize(190 * 0.5, 14)
 		threatBar:SetMinMaxValues(0, 100)
-		threatBar.PostUpdate = function(_, _, _, bar, _, _, scaledPercent, _, threatValue)
-			if not bar.Text then
-				return
-			end
-			if threatValue then
-				local value, valueUnit = threatValue / 100, ""
-				if value > 1000000 then
-					value, valueUnit = value / 1000000, "m"
-				elseif value > 1000 then
-					value, valueUnit = value / 1000, "k"
-				end
-				bar.Text:SetFormattedText("%d%% (%.1f%s)", scaledPercent, value, valueUnit)
-				bar.Text:Show()
-			else
-				bar.Text:Hide()
-			end
-		end
 		self.ThreatBar = threatBar
 		AddAuxiliaryBar(self, threatBar)
 	end

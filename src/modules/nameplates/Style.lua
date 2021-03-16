@@ -194,6 +194,17 @@ local function InitFrame(self, unit)
 	threat:SetTexCoord(85 / 512, (512 - 85) / 512, 0, 1)
 	threat:SetVertexColor(1.0, 0.0, 0.0, 0.7)
 	self.SmartThreat = threat
+
+	-- Add a simple threat bar on the target
+	local threatBar = self:SpawnStatusBar("threat", true)
+	threatBar:SetBackdrop(backdrop)
+	threatBar:SetBackdropColor(0, 0, 0, backdrop.bgAlpha)
+	threatBar:SetBackdropBorderColor(0, 0, 0, 1)
+	threatBar:SetSize(60, 8)
+	threatBar:SetMinMaxValues(0, 100)
+	threatBar:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -8, 1)
+	threatBar:SetPoint("BOTTOMLEFT", self, "TOP", 0, 1)
+	self.ThreatBar = threatBar
 end
 
 oUF:RegisterStyle("Adirelle_Nameplate", InitFrame)
