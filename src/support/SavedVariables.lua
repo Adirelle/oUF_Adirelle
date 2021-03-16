@@ -213,7 +213,7 @@ oUF_Adirelle.NAMEPLATE_CVARS = NAMEPLATE_CVARS
 
 for _, name in next, NAMEPLATE_CVARS do
 	local value = GetCVarDefault(name)
-	LAYOUT_DEFAULTS.profile.nameplates.cvars = value and tostring(value) or nil
+	LAYOUT_DEFAULTS.profile.nameplates.cvars[name] = value and tostring(value) or nil
 end
 
 -- ------------------------------------------------------------------------------
