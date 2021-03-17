@@ -22,13 +22,13 @@ local oUF_Adirelle = assert(_G.oUF_Adirelle)
 --<GLOBALS
 local format = assert(_G.format, "_G.format is undefined")
 local GetAddOnEnableState = assert(_G.GetAddOnEnableState, "_G.GetAddOnEnableState is undefined")
-local GetSpellInfo = assert(_G.GetSpellInfo, "_G.GetSpellInfo is undefined")
+local geterrorhandler = assert(_G.geterrorhandler, "_G.geterrorhandler is undefined")
 local gsub = assert(_G.gsub, "_G.gsub is undefined")
 local next = assert(_G.next, "_G.next is undefined")
 local pairs = assert(_G.pairs, "_G.pairs is undefined")
+local Spell = assert(_G.Spell, "_G.Spell is undefined")
 local strsub = assert(_G.strsub, "_G.strsub is undefined")
 local tostring = assert(_G.tostring, "_G.tostring is undefined")
-local type = assert(_G.type, "_G.type is undefined")
 local wipe = assert(_G.wipe, "_G.wipe is undefined")
 --GLOBALS>
 
@@ -171,56 +171,37 @@ Config:RegisterBuilder(function(_, _, merge)
 			group.args["_" .. value] = { name = label, type = "header", order = orders[value] }
 		end
 
-		local LPS = oUF_Adirelle.GetLib("LibPlayerSpells-1.0")
-		local LS = oUF_Adirelle.GetLib("LibSpellbook-1.0")
-		local function BuildIsKnownFunc(id)
-			local _, providers = LPS:GetSpellInfo(id)
-			if type(providers) == "table" then
-				return function()
-					for _, p in pairs(providers) do
-						if LS:IsKnown(p) then
-							return true
-						end
-					end
-					return false
-				end
-			elseif type(providers) == "number" then
-				return function()
-					return LS:IsKnown(providers)
-				end
+		local function AddSpellOption(id, default)
+			local spell = Spell:CreateFromSpellID(id)
+			if spell:IsSpellEmpty() then
+				geterrorhandler()(format("oUF_Adirelle: unknown spell by id: #%d", id))
+				return
 			end
-			return function()
-				return false
-			end
+
+			spell:ContinueOnSpellLoad(function()
+				local name, icon = spell:GetSpellName(), spell:GetSpellTexture()
+				group.args[tostring(id)] = {
+					name = format("|T%s:0|t %s (#%d)", icon, name, id),
+					order = function()
+						local pos = layoutDB.profile.Raid.classAuraIcons[id] or default or "HIDDEN"
+						return orders[pos]
+					end,
+					desc = function()
+						return "Use the dropdown menu to move this buff in another area."
+					end,
+					type = "select",
+					set = function(_, x)
+						local value = strsub(x, 3)
+						layoutDB.profile.Raid.classAuraIcons[id] = value ~= default and value or nil
+						SettingsModified("OnRaidLayoutModified")
+					end,
+					values = values,
+				}
+			end)
 		end
 
-		for loopId, loopDefault in pairs(defaults) do
-			local id, default = loopId, loopDefault
-			local IsKnown = BuildIsKnownFunc(id)
-
-			group.args[tostring(id)] = {
-				name = function()
-					local name, _, icon = GetSpellInfo(id)
-					return format("|T%s:0|t %s (#%d)", icon, name, id)
-				end,
-				order = function()
-					local pos = layoutDB.profile.Raid.classAuraIcons[id] or default or "HIDDEN"
-					return orders[pos]
-				end,
-				desc = function()
-					return "Use the dropdown menu to move this buff in another area."
-				end,
-				type = "select",
-				set = function(_, x)
-					local value = strsub(x, 3)
-					layoutDB.profile.Raid.classAuraIcons[id] = value ~= default and value or nil
-					SettingsModified("OnRaidLayoutModified")
-				end,
-				hidden = function()
-					return not IsKnown()
-				end,
-				values = values,
-			}
+		for id, default in next, defaults do
+			AddSpellOption(id, default)
 		end
 
 		return group

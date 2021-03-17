@@ -24,6 +24,7 @@ local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
 local GetSpellInfo = assert(_G.GetSpellInfo, "_G.GetSpellInfo is undefined")
+local IsSpellKnownOrOverridesKnown = assert(_G.IsSpellKnownOrOverridesKnown, "_G.IsSpellKnownOrOverridesKnown is undefined")
 local next = assert(_G.next, "_G.next is undefined")
 local pairs = assert(_G.pairs, "_G.pairs is undefined")
 --GLOBALS>
@@ -33,7 +34,6 @@ local bor = _G.bit.bor
 
 local Dispels = oUF_Adirelle.Dispels
 local LPS = oUF_Adirelle.GetLib("LibPlayerSpells-1.0")
-local LS = oUF_Adirelle.GetLib("LibSpellbook-1.0")
 local C = LPS.constants
 local HARMFUL = C.HARMFUL
 
@@ -62,7 +62,7 @@ local function Update(self)
 	local flags = self.CustomClick.flags
 	local helpfulSpell, harmfulSpell
 	for spellID, data in pairs(Dispels) do
-		if spellID ~= 32375 and LS:IsKnown(spellID) then -- ignore Mass Dispel
+		if spellID ~= 32375 and IsSpellKnownOrOverridesKnown(spellID) then -- ignore Mass Dispel
 			if not helpfulSpell and band(data[1], flags) ~= 0 then
 				helpfulSpell = spellID
 			end
@@ -105,7 +105,6 @@ local function Enable(self)
 		element.__owner, element.ForceUpdate = self, ForceUpdate
 		self:RegisterEvent("PLAYER_REGEN_DISABLED", Update, true)
 		self:RegisterEvent("PLAYER_REGEN_ENABLED", Update, true)
-		LS.RegisterCallback(self, "LibSpellbook_Spells_Changed", Update, self)
 		return true
 	end
 end
@@ -118,7 +117,6 @@ local function Disable(self)
 		end
 		self:UnregisterEvent("PLAYER_REGEN_DISABLED", Update)
 		self:UnregisterEvent("PLAYER_REGEN_ENABLED", Update)
-		LS.UnregisterCallback(self, "LibSpellbook_Spells_Changed")
 	end
 end
 
