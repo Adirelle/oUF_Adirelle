@@ -1,15 +1,22 @@
 #!/usr/bin/env bash
-set -eux
+set -eu
+
+WITNESS="$(dirname $0)/../.witness"
 
 update() {
     local TARGET="$1"
 
-    if ! grep -q -e '--<GLOBALS' "$TARGET"; then
-        echo "No GLOBALS comments in $TARGET, skipped" >&2
+    if ! [[ -f "$WITNESS" && "$TARGET" -nt "$WITNESS" ]]; then
+        echo "$TARGET: unmodified, skipped" >&2
         return 0
     fi
 
-    echo "Processing $TARGET" >&2
+    if ! grep -q -e '--<GLOBALS' "$TARGET"; then
+        echo "$TARGET: no GLOBALS comments, skipped" >&2
+        return 0
+    fi
+
+    echo " $TARGET: processing..." >&2
 
     cp "$TARGET" "$TARGET.__bak"
     trap "mv $TARGET.__bak $TARGET" ERR
@@ -36,3 +43,5 @@ for FILE in "$@"; do
         update "$FILE"
     )
 done
+
+touch "$WITNESS"
