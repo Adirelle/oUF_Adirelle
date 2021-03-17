@@ -599,7 +599,7 @@ local function InitFrame(settings, self, initUnit)
 	local name = self:SpawnText(health, "OVERLAY", "TOPLEFT", "TOPLEFT", TEXT_MARGIN, 0, "name")
 	name:SetPoint("BOTTOMLEFT", health, "BOTTOMLEFT", TEXT_MARGIN)
 	name:SetPoint("RIGHT", health.Text, "LEFT")
-	self:Tag(name, "[$>statusIcon<$ ][name]")
+	self:Tag(name, "[name]")
 	self.Name = name
 
 	-- Low health indicator

@@ -24,114 +24,161 @@ local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
 local CreateFrame = assert(_G.CreateFrame, "_G.CreateFrame is undefined")
-local GetSpellInfo = assert(_G.GetSpellInfo, "_G.GetSpellInfo is undefined")
+local format = assert(_G.format, "_G.format is undefined")
 local GetUnitPowerBarTextureInfo = assert(_G.GetUnitPowerBarTextureInfo, "_G.GetUnitPowerBarTextureInfo is undefined")
-local gsub = assert(_G.gsub, "_G.gsub is undefined")
 local hooksecurefunc = assert(_G.hooksecurefunc, "_G.hooksecurefunc is undefined")
 local pairs = assert(_G.pairs, "_G.pairs is undefined")
-local select = assert(_G.select, "_G.select is undefined")
-local strmatch = assert(_G.strmatch, "_G.strmatch is undefined")
 local tonumber = assert(_G.tonumber, "_G.tonumber is undefined")
-local UnitClass = assert(_G.UnitClass, "_G.UnitClass is undefined")
+local tostring = assert(_G.tostring, "_G.tostring is undefined")
 local UnitName = assert(_G.UnitName, "_G.UnitName is undefined")
-local UNKNOWN = assert(_G.UNKNOWN, "_G.UNKNOWN is undefined")
 local unpack = assert(_G.unpack, "_G.unpack is undefined")
 --GLOBALS>
 
 local ALT_POWER_TEX_FILL = _G.ALT_POWER_TEX_FILL or 2
+local SummonStatus = assert(_G.Enum.SummonStatus)
 
 -- Import some values from oUF_Adirelle namespace
-local GetFrameUnitState = assert(oUF_Adirelle.GetFrameUnitState)
 local backdrop = assert(oUF_Adirelle.backdrop)
 local glowBorderBackdrop = assert(oUF_Adirelle.glowBorderBackdrop)
 
--- Constants
-local SCALE = 1.0
-local WIDTH = 80
-local SPACING = 2
-local HEIGHT = 25
-local BORDER_WIDTH = 1
-local ICON_SIZE = 14
-local INSET = 1
-local SMALL_ICON_SIZE = 8
+local CreateClassAuraIcons = assert(private.CreateClassAuraIcons)
+local LayoutClassAuraIcons = assert(private.LayoutClassAuraIcons)
 
-local borderBackdrop = {
-	edgeFile = [[Interface\Addons\oUF_Adirelle\media\white16x16]],
-	edgeSize = BORDER_WIDTH,
+local WIDTH = private.WIDTH
+local HEIGHT = private.HEIGHT
+local INSET = private.INSET
+local BORDER_WIDTH = private.BORDER_WIDTH
+local ICON_SIZE = private.ICON_SIZE
+local SMALL_ICON_SIZE = private.SMALL_ICON_SIZE
+local borderBackdrop = private.borderBackdrop
+
+-- ------------------------------------------------------------------------------
+-- Status icon
+-- ------------------------------------------------------------------------------
+
+local function toStr(val)
+	return val and tostring(val) or ""
+end
+
+local function IconString(d)
+	if d.height == 0 and not d.width and d.left and d.right and d.top and d.bottom then
+		d.width = (d.right - d.left) / (d.bottom - d.top)
+	end
+	return format(
+		"|T%s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s|t",
+		d.path,
+		toStr(d.height),
+		toStr(d.width),
+		toStr(d.offsetX),
+		toStr(d.offsetY),
+		toStr(d.textureWidth),
+		toStr(d.textureHeight),
+		toStr(d.left),
+		toStr(d.right),
+		toStr(d.top),
+		toStr(d.bottom),
+		toStr(d.r and (d.r * 255)),
+		toStr(d.g and (d.g * 255)),
+		toStr(d.b and (d.b * 255))
+	)
+end
+
+local statusIcons = {
+	DEAD = {
+		path = [[Interface\Navigation\IngameNavigationUI]],
+		height = 0,
+		textureWidth = 64,
+		textureHeight = 64,
+		left = 2,
+		right = 25,
+		top = 2,
+		bottom = 32,
+	},
+	GHOST = {
+		path = [[Interface\MINIMAP\ObjectIconsAtlas]],
+		height = 0,
+		textureWidth = 1024,
+		textureHeight = 512,
+		left = 252,
+		right = 283,
+		top = 77,
+		bottom = 110,
+	},
+	DISCONNECTED = {
+		path = [[Interface\CHARACTERFRAME\Disconnect-Icon]],
+		height = 0,
+		textureWidth = 64,
+		textureHeight = 64,
+		left = 15,
+		right = 47,
+		top = 11,
+		bottom = 49,
+	},
+	RESURRECTION = {
+		path = [[Interface\RAIDFRAME\Raid-Icon-Rez]],
+		height = 0,
+		textureWidth = 64,
+		textureHeight = 64,
+		left = 5,
+		right = 58,
+		top = 2,
+		bottom = 59,
+	},
+	["SUMMON" .. SummonStatus.Pending] = {
+		path = [[Interface\RAIDFRAME\Raid-Icon-SummonPending]],
+		textureWidth = 32,
+		textureHeight = 32,
+		left = 7,
+		right = 27,
+		top = 7,
+		bottom = 25,
+	},
+	["SUMMON" .. SummonStatus.Accepted] = {
+		path = [[Interface\RAIDFRAME\Raid-Icon-SummonAccepted]],
+		textureWidth = 32,
+		textureHeight = 32,
+		left = 7,
+		right = 27,
+		top = 7,
+		bottom = 25,
+	},
+	["SUMMON" .. SummonStatus.Declined] = {
+		path = [[Interface\RAIDFRAME\Raid-Icon-SummonDeclined]],
+		textureWidth = 32,
+		textureHeight = 32,
+		left = 7,
+		right = 27,
+		top = 7,
+		bottom = 25,
+	},
 }
 
--- Export some constants
-private.SCALE = SCALE
-private.WIDTH = WIDTH
-private.SPACING = SPACING
-private.HEIGHT = HEIGHT
-private.BORDER_WIDTH = BORDER_WIDTH
-private.ICON_SIZE = ICON_SIZE
-
--- ------------------------------------------------------------------------------
--- Health bar and name updates
--- ------------------------------------------------------------------------------
-
--- Update health color
-local function UpdateColor(self, event, unit)
-	if unit and (unit ~= self.unit and unit ~= self.realUnit) then
+local function UpdateColor(element)
+	local self, color = element.__owner, element.color
+	self:Debug("UpdateColor", color)
+	if not color then
 		return
 	end
-	local refUnit = (self.realUnit or self.unit):gsub("pet", "")
-	if refUnit == "" then
-		refUnit = "player"
-	end -- 'pet'
-	local class = self.colorClass and UnitName(refUnit) ~= UNKNOWN and select(2, UnitClass(refUnit))
-	local state = GetFrameUnitState(self, true) or class or ""
-	if state ~= self.__stateColor or not event then
-		self.__stateColor = state
-		local r, g, b
-		if class then
-			r, g, b = unpack(oUF.colors.class[class])
-		else
-			r, g, b = unpack(oUF.colors.health)
-		end
-		if state == "DEAD" or state == "DISCONNECTED" then
-			r, g, b = unpack(oUF.colors.disconnected)
-		elseif state == "CHARMED" then
-			r, g, b = unpack(oUF.colors.charmed.background)
-		elseif state == "INVEHICLE" then
-			r, g, b = unpack(oUF.colors.vehicle.background)
-		end
-		self.bgColor[1], self.bgColor[2], self.bgColor[3] = r, g, b
-		if self.invertedBar then
-			self.Health.bg:SetVertexColor(r, g, b, 1)
-			self.Health:SetStatusBarColor(0, 0, 0, 0.75)
-		else
-			self.Health.bg:SetVertexColor(0, 0, 0, 1)
-			self.Health:SetStatusBarColor(r, g, b, 0.75)
-		end
+	local r, g, b = unpack(color)
+	if self.invertedBar then
+		self.Health.bg:SetVertexColor(r, g, b, 1)
+		self.Health:SetStatusBarColor(0, 0, 0, 0.75)
+	else
+		self.Health.bg:SetVertexColor(0, 0, 0, 1)
+		self.Health:SetStatusBarColor(r, g, b, 0.75)
 	end
+	self.Name:SetTextColor(r, g, b)
 end
 
--- Add a pseudo-element to update the color
-do
-	local function UNIT_PET(self, event, unit)
-		if unit == "player" then
-			return UpdateColor(self, event, "pet")
-		elseif unit then
-			return UpdateColor(self, event, gsub(unit, "(%d*)$", "pet%1"))
-		end
-	end
-
-	oUF:AddElement("Adirelle_Raid:UpdateColor", UpdateColor, function(self)
-		if self.Health and self.bgColor and self.style == "Adirelle_Raid" then
-			self:RegisterEvent("UNIT_NAME_UPDATE", UpdateColor)
-			if self.unit and strmatch(self.unit, "pet") then
-				self:RegisterEvent("UNIT_PET", UNIT_PET)
-			end
-			return true
-		end
-	end, function()
-	end)
+local function UpdateStatus(element)
+	local self, status = element.__owner, element.status
+	self:Debug("UpdateStatus", status)
+	local icon = status and statusIcons[status]
+	local name = UnitName(self.realUnit or self.unit)
+	self.Name:SetText((icon and IconString(icon) or "") .. name)
+	return self.RaidColor:PostUpdate()
 end
 
--- Layout internal frames on size change
 local function OnSizeChanged(self, width, height)
 	width = width or self:GetWidth()
 	height = height or self:GetHeight()
@@ -144,150 +191,6 @@ local function OnSizeChanged(self, width, height)
 	self.WarningIconBuff:SetPoint("CENTER", self, "LEFT", width / 4, 0)
 	self.WarningIconDebuff:SetPoint("CENTER", self, "RIGHT", -width / 4, 0)
 end
-
--- ------------------------------------------------------------------------------
--- Aura icon initialization
--- ------------------------------------------------------------------------------
-
-do
-	local GetAnyAuraFilter = private.GetAnyAuraFilter
-
-	local band = _G.bit.band
-	local LPS = oUF_Adirelle.GetLib("LibPlayerSpells-1.0")
-	local requiredFlags = oUF_Adirelle.playerClass .. " AURA"
-	local rejectedFlags = "INTERRUPT DISPEL BURST SURVIVAL HARMFUL"
-	local INVERT_AURA = LPS.constants.INVERT_AURA
-	local UNIQUE_AURA = LPS.constants.UNIQUE_AURA
-
-	local anchors = { "TOPLEFT", "TOPRIGHT", "BOTTOMRIGHT", "BOTTOMLEFT", "TOP", "RIGHT", "BOTTOM", "LEFT" }
-
-	local filters = {}
-	local defaultAnchors = {}
-	local count = 0
-
-	local ExpandFlags
-	do
-		local C = LPS.constants
-
-		local function expandSimple2(flags, n, ...)
-			if not n then
-				return
-			end
-			local v = C[n]
-			if band(flags, v) ~= 0 then
-				return n, expandSimple2(flags, ...)
-			else
-				return expandSimple2(flags, ...)
-			end
-		end
-
-		local function expandSimple(flags, n, ...)
-			if not n then
-				if band(flags, C.DISPEL) ~= 0 then
-					return expandSimple2(flags, "CURSE", "DISEASE", "MAGIC", "POISON")
-				end
-				if band(flags, C.CROWD_CTRL) ~= 0 then
-					return expandSimple2(flags, "DISORIENT", "INCAPACITATE", "ROOT", "STUN", "TAUNT")
-				end
-				return expandSimple2(
-					flags,
-					"DEATHKNIGHT",
-					"DEMONHUNTER",
-					"DRUID",
-					"HUNTER",
-					"MAGE",
-					"MONK",
-					"PALADIN",
-					"PRIEST",
-					"ROGUE",
-					"SHAMAN",
-					"WARLOCK",
-					"WARRIOR",
-					"RACIAL"
-				)
-			end
-			local v = C[n]
-			if band(flags, v) ~= 0 then
-				return n, expandSimple(flags, ...)
-			else
-				return expandSimple(flags, ...)
-			end
-		end
-
-		function ExpandFlags(flags)
-			return expandSimple(
-				flags,
-				"DISPEL",
-				"CROWD_CTRL",
-				"HELPFUL",
-				"HARMFUL",
-				"PERSONAL",
-				"PET",
-				"AURA",
-				"INVERT_AURA",
-				"UNIQUE_AURA",
-				"COOLDOWN",
-				"SURVIVAL",
-				"BURST",
-				"POWER_REGEN",
-				"IMPORTANT",
-				"INTERRUPT",
-				"KNOCKBACK",
-				"SNARE"
-			)
-		end
-	end
-
-	for spellId, flags in LPS:IterateSpells("HELPFUL PET", requiredFlags, rejectedFlags) do
-		local auraFilter = band(flags, INVERT_AURA) ~= 0 and "HARMFUL" or "HELPFUL"
-		if band(flags, UNIQUE_AURA) == 0 then
-			auraFilter = auraFilter .. " PLAYER"
-		end
-		oUF_Adirelle.Debug(
-			"Watching buff",
-			spellId,
-			GetSpellInfo(spellId),
-			"with filter",
-			auraFilter,
-			"flags: ",
-			ExpandFlags(flags)
-		)
-
-		filters[spellId] = GetAnyAuraFilter(spellId, auraFilter)
-		count = (count % #anchors) + 1
-		defaultAnchors[spellId] = anchors[count]
-	end
-
-	oUF_Adirelle.ClassAuraIcons = {
-		filters = filters,
-		defaultAnchors = defaultAnchors,
-	}
-end
-
-local function CreateClassAuraIcons(self)
-	self.ClassAuraIcons = {}
-	for id, filter in pairs(oUF_Adirelle.ClassAuraIcons.filters) do
-		local icon = self:CreateIcon(self.Overlay, SMALL_ICON_SIZE, true, true, true, false)
-		self.ClassAuraIcons[id] = icon
-		self:AddAuraIcon(icon, filter)
-	end
-end
-
-local function LayoutClassAuraIcons(self, layout)
-	for id, icon in pairs(self.ClassAuraIcons) do
-		local anchor = layout.Raid.classAuraIcons[id] or oUF_Adirelle.ClassAuraIcons.defaultAnchors[id]
-		icon:ClearAllPoints()
-		if anchor and anchor ~= "HIDDEN" then
-			local xOffset = strmatch(anchor, "LEFT") and INSET or strmatch(anchor, "RIGHT") and -INSET or 0
-			local yOffset = strmatch(anchor, "BOTTOM") and INSET or strmatch(anchor, "TOP") and -INSET or 0
-			icon:SetPoint(anchor, xOffset, yOffset)
-		end
-	end
-end
-
--- ------------------------------------------------------------------------------
--- Alternate Power Bar
--- ------------------------------------------------------------------------------
 
 local function AlternativePower_PostUpdate(bar, unit, cur, min, max)
 	if unit ~= bar.__owner.unit or not cur or not min then
@@ -339,7 +242,7 @@ local function OnThemeModified(self, _, _, theme)
 	-- Update health bar settings
 	self.colorClass = theme.raid.Health.colorClass
 	self.invertedBar = theme.raid.Health.invertedBar
-	UpdateColor(self)
+	self.RaidColor:PostUpdate()
 
 	-- Update low health threshold
 	local lowHealth = self.LowHealth
@@ -402,10 +305,6 @@ local function InitFrame(self)
 	-- Let it have dispel click on mouse button 2
 	self.CustomClick = {}
 
-	-- Health bar
-	self.bgColor = { 1, 1, 1 }
-	self.nameColor = { 1, 1, 1 }
-
 	local hp = CreateFrame("StatusBar", nil, self)
 	hp:SetAllPoints()
 	hp.current, hp.max = 0, 0
@@ -429,6 +328,10 @@ local function InitFrame(self)
 	border:Hide()
 	self.Border = border
 
+	-- Status and color updates
+	self.RaidColor = { PostUpdate = UpdateColor }
+	self.Status = { PostUpdate = UpdateStatus }
+
 	-- Name
 	local name = hp:CreateFontString(nil, "ARTWORK", "GameFontNormal")
 	name:SetPoint("TOPLEFT", 6, 0)
@@ -436,7 +339,11 @@ local function InitFrame(self)
 	name:SetJustifyH("CENTER")
 	name:SetJustifyV("MIDDLE")
 	self:RegisterFontString(name, "raid", 11, "")
-	self:Tag(name, "[$>statusIcon<$ ][raidcolor][name]|r")
+	self:Tag(name, "[name]")
+	self.Name = name
+	hooksecurefunc(name, "UpdateTag", function()
+		return self.Status:PostUpdate(self.Status.status)
+	end)
 
 	-- LowHealth warning
 	local lowHealth = hp:CreateTexture(nil, "OVERLAY", nil, 1)
@@ -539,8 +446,12 @@ local function InitFrame(self)
 	-- Setting callbacks
 	self:RegisterMessage("OnSettingsModified", OnRaidLayoutModified)
 	self:RegisterMessage("OnRaidLayoutModified", OnRaidLayoutModified)
-	self:RegisterMessage("OnSettingsModified", UpdateColor)
-	self:RegisterMessage("OnColorModified", UpdateColor)
+	self:RegisterMessage("OnSettingsModified", function()
+		self.RaidColor:PostUpdate()
+	end)
+	self:RegisterMessage("OnColorModified", function()
+		self.RaidColor:PostUpdate()
+	end)
 	self:RegisterMessage("OnSettingsModified", OnThemeModified)
 	self:RegisterMessage("OnThemeModified", OnThemeModified)
 
