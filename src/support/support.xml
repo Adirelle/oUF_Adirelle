@@ -1,17 +1,18 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/">
     <!-- Order matters -->
-    <Script file ="Constants.lua"/>
-    <Script file ="Messages.lua"/>
-    <Script file ="SavedVariables.lua"/>
-    <Script file ="ConfigStub.lua"/>
-    <Script file ="Enums.lua"/>
-    <Script file ="Movable.lua"/>
-    <Script file ="Widgets.lua"/>
-    <Script file ="Media.lua"/>
-    <Script file ="Colors.lua"/>
-    <Script file ="CreateIcon.lua"/>
-    <Script file ="PlayerRole.lua"/>
-    <Script file ="UnitTooltip.lua"/>
-    <Script file ="HealthPrediction.lua"/>
-    <Script file ="Dispel.lua"/>
+    <Script file="Constants.lua"/>
+    <Script file="Messages.lua"/>
+    <Script file="SavedVariables.lua"/>
+    <Script file="ConfigStub.lua"/>
+    <Script file="Enums.lua"/>
+    <Script file="Movable.lua"/>
+    <Script file="Widgets.lua"/>
+    <Script file="Media.lua"/>
+    <Script file="Colors.lua"/>
+    <Script file="CreateIcon.lua"/>
+    <Script file="PlayerRole.lua"/>
+    <Script file="UnitTooltip.lua"/>
+    <Script file="HealthPrediction.lua"/>
+    <Script file="Ticker.lua"/>
+    <Script file="Dispel.lua"/>
 </Ui>
