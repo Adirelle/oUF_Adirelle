@@ -85,7 +85,6 @@ local function UpdateVisiblities(_, event)
 	for cvar, config in next, visibility.variables do
 		local choice = profile.nameplates[config]
 		local enable = visibility.tests[choice](inCombat)
-		oUF_Adirelle:Debug("UpdateVisiblities", cvar, config, choice, inCombat, "=>", enable)
 		SetCVar(cvar, enable and "1" or "0")
 	end
 end

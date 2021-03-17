@@ -155,7 +155,6 @@ local statusIcons = {
 
 local function UpdateColor(element)
 	local self, color = element.__owner, element.color
-	self:Debug("UpdateColor", color)
 	if not color then
 		return
 	end
@@ -172,7 +171,6 @@ end
 
 local function UpdateStatus(element)
 	local self, status = element.__owner, element.status
-	self:Debug("UpdateStatus", status)
 	local icon = status and statusIcons[status]
 	local name = UnitName(self.realUnit or self.unit)
 	self.Name:SetText((icon and IconString(icon) or "") .. name)

@@ -22,7 +22,6 @@ local _G, assert = _G, _G.assert
 local oUF_Adirelle = assert(_G.oUF_Adirelle)
 
 --<GLOBALS
-local GetSpellInfo = assert(_G.GetSpellInfo, "_G.GetSpellInfo is undefined")
 local pairs = assert(_G.pairs, "_G.pairs is undefined")
 local strmatch = assert(_G.strmatch, "_G.strmatch is undefined")
 --GLOBALS>
@@ -123,15 +122,6 @@ for spellId, flags in LPS:IterateSpells("HELPFUL PET", requiredFlags, rejectedFl
 	if band(flags, UNIQUE_AURA) == 0 then
 		auraFilter = auraFilter .. " PLAYER"
 	end
-	oUF_Adirelle.Debug(
-		"Watching buff",
-		spellId,
-		GetSpellInfo(spellId),
-		"with filter",
-		auraFilter,
-		"flags: ",
-		ExpandFlags(flags)
-	)
 
 	filters[spellId] = GetAnyAuraFilter(spellId, auraFilter)
 	count = (count % #anchors) + 1
