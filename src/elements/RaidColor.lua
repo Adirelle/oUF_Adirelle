@@ -52,7 +52,6 @@ local function Update(frame, event, eventUnit)
 		unit = "player"
 	end
 	local color = GetColor(unit, frame.colors)
-	frame:Debug("RaidColor.Update", event, eventUnit, unit, color)
 	local element = frame.RaidColor
 	if element.color ~= color or event == "ForceUpdate" then
 		element.color = color

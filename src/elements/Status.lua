@@ -67,7 +67,6 @@ local function Update(frame, event, unit)
 	end
 	local element = frame.Status
 	local status = element:Get()
-	frame:Debug("Status.Update", event, unit, status)
 	if element.status ~= status or event == "ForceUpdate" then
 		element.status = status
 		if element.PostUpdate then
