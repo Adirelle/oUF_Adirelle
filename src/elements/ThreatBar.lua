@@ -23,66 +23,57 @@ local oUF_Adirelle = assert(_G.oUF_Adirelle)
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
-local UnitCanAttack = assert(_G.UnitCanAttack, "_G.UnitCanAttack is undefined")
-local UnitDetailedThreatSituation = assert(_G.UnitDetailedThreatSituation, "_G.UnitDetailedThreatSituation is undefined")
-local UnitIsUnit = assert(_G.UnitIsUnit, "_G.UnitIsUnit is undefined")
 local unpack = assert(_G.unpack, "_G.unpack is undefined")
 --GLOBALS>
 
-local function Update(self, event, unit)
-	local playerUnit, mobUnit = "player", self.unit
-	local bar = self.ThreatBar
-	if not UnitCanAttack(playerUnit, mobUnit) and UnitCanAttack(self.unit, "target") then
-		playerUnit, mobUnit = self.unit, "target"
-	end
-	if UnitIsUnit(playerUnit, mobUnit) or not UnitCanAttack(playerUnit, mobUnit) then
-		bar:Hide()
+local GetThreatInfo = assert(oUF_Adirelle.GetThreatInfo)
+
+local function Update(frame, event, unit)
+	if unit and unit ~= frame.unit then
 		return
 	end
+	local element = frame.ThreatBar
 
-	local isTanking, status, scaledPercent, rawPercent, threatValue = UnitDetailedThreatSituation(playerUnit, mobUnit)
+	local status, value, warning = GetThreatInfo(frame.unit)
 	if status then
-		bar:SetValue(rawPercent)
-		if status > 0 then
-			bar:SetStatusBarColor(unpack(self.colors.threat[status], 1, 3))
-		else
-			bar:SetStatusBarColor(0, 1, 0)
-		end
-		bar:Show()
+		element:SetValue(value)
+		element:SetStatusBarColor(unpack(frame.colors.threat[status], 1, 3))
+		element:Show()
 	else
-		bar:Hide()
+		element:Hide()
 	end
-	if bar.PostUpdate then
-		bar:PostUpdate(event, unit, bar, isTanking, status, scaledPercent, rawPercent, threatValue)
-	end
-end
-
-local function ForceUpdate(bar)
-	return Update(bar.__owner, "ForceUpdate", bar.__owner.unit)
-end
-
-local function Enable(self)
-	local bar = self.ThreatBar
-	if bar then
-		bar:Hide()
-
-		bar.__owner = self
-		bar.ForceUpdate = ForceUpdate
-		self:RegisterEvent("UNIT_PET", Update)
-		self:RegisterEvent("UNIT_THREAT_LIST_UPDATE", Update)
-		self:RegisterEvent("UNIT_THREAT_SITUATION_UPDATE", Update)
-
-		return true
+	if element.PostUpdate then
+		element:PostUpdate(frame.unit, status, value, warning)
 	end
 end
 
-local function Disable(self)
-	if self.ThreatBar then
-		self:UnregisterEvent("UNIT_PET", Update)
-		self:UnregisterEvent("UNIT_THREAT_LIST_UPDATE", Update)
-		self:UnregisterEvent("UNIT_THREAT_SITUATION_UPDATE", Update)
-		self.ThreatBar:Hide()
+local function ForceUpdate(element)
+	return Update(element.__owner, "ForceUpdate", element.__owner.unit)
+end
+
+local function Enable(frame)
+	local element = frame.ThreatBar
+	if not element then
+		return
 	end
+	element.__owner = frame
+	element.ForceUpdate = ForceUpdate
+	element:Hide()
+	frame:RegisterEvent("UNIT_PET", Update)
+	frame:RegisterEvent("UNIT_THREAT_LIST_UPDATE", Update)
+	frame:RegisterEvent("UNIT_THREAT_SITUATION_UPDATE", Update)
+	return true
+end
+
+local function Disable(frame)
+	local element = frame.ThreatBar
+	if not element then
+		return
+	end
+	element:Hide()
+	frame:UnregisterEvent("UNIT_PET", Update)
+	frame:UnregisterEvent("UNIT_THREAT_LIST_UPDATE", Update)
+	frame:UnregisterEvent("UNIT_THREAT_SITUATION_UPDATE", Update)
 end
 
 oUF:AddElement("ThreatBar", Update, Enable, Disable)

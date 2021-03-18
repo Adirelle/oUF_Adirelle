@@ -21,82 +21,68 @@ local oUF_Adirelle = assert(_G.oUF_Adirelle)
 local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
-local GetThreatStatusColor = assert(_G.GetThreatStatusColor, "_G.GetThreatStatusColor is undefined")
-local gsub = assert(_G.gsub, "_G.gsub is undefined")
-local UnitAffectingCombat = assert(_G.UnitAffectingCombat, "_G.UnitAffectingCombat is undefined")
-local UnitCanAttack = assert(_G.UnitCanAttack, "_G.UnitCanAttack is undefined")
-local UnitIsPlayer = assert(_G.UnitIsPlayer, "_G.UnitIsPlayer is undefined")
-local UnitIsUnit = assert(_G.UnitIsUnit, "_G.UnitIsUnit is undefined")
-local UnitThreatSituation = assert(_G.UnitThreatSituation, "_G.UnitThreatSituation is undefined")
+local unpack = assert(_G.unpack, "_G.unpack is undefined")
 --GLOBALS>
 
-local Update = function(self, _, unit)
-	if unit ~= self.unit then
+local GetThreatInfo = assert(oUF_Adirelle.GetThreatInfo)
+
+local Update = function(frame, _, unit)
+	if unit and unit ~= frame.unit then
 		return
 	end
-	unit = unit or self.unit
 
-	local threat = self.SmartThreat
-	if threat.PreUpdate then
-		threat:PreUpdate(unit)
+	local element = frame.SmartThreat
+	if element.PreUpdate then
+		element:PreUpdate(frame.unit)
 	end
 
-	local status
-	if UnitCanAttack(unit, "player") then
-		if UnitIsPlayer(unit) then
-			if UnitAffectingCombat(unit) and UnitIsUnit(gsub(unit, "(%d+)$", "target%1"), "player") then
-				status = 3
-			end
-		else
-			status = UnitThreatSituation("player", unit)
+	local status, value, warning = GetThreatInfo(frame.unit)
+	if status and (element.showNoAggro or status > 0) then
+		local a, r, g, b = 1.0, unpack(frame.colors.threat[status])
+		if value and element.percentAsAlpha then
+			a = (value / 100) * (element.highAlpha - element.lowAlpha) + element.lowAlpha
 		end
+		element:SetVertexColor(r, g, b, element.percentAsAlpha and value or 1.0)
+		element:Show()
 	else
-		status = UnitThreatSituation(unit)
+		element:Hide()
 	end
 
-	if status and status > 0 then
-		local r, g, b = GetThreatStatusColor(status)
-		threat:SetVertexColor(r, g, b)
-		threat:Show()
-	else
-		threat:Hide()
-	end
-
-	if threat.PostUpdate then
-		return threat:PostUpdate(unit, status)
+	if element.PostUpdate then
+		return element:PostUpdate(frame.unit, status, value, warning)
 	end
 end
 
-local Path = function(self, ...)
-	return (self.SmartThreat.Override or Update)(self, ...)
+local Path = function(frame, ...)
+	return (frame.SmartThreat.Override or Update)(frame, ...)
 end
 
 local ForceUpdate = function(element)
-	return Path(element.__owner, "ForceUpdate", element.__owner.unit)
+	return Path(element.__owner, "ForceUpdate")
 end
 
-local Enable = function(self)
-	local threat = self.SmartThreat
-	if threat then
-		threat.__owner = self
-		threat.ForceUpdate = ForceUpdate
+local Enable = function(frame)
+	local element = frame.SmartThreat
+	if element then
+		element.__owner = frame
+		element.ForceUpdate = ForceUpdate
 
-		self:RegisterEvent("UNIT_THREAT_SITUATION_UPDATE", Path)
-		self:RegisterEvent("UNIT_THREAT_LIST_UPDATE", Path)
-		self:RegisterEvent("UNIT_TARGET", Path)
-		threat:Hide()
+		frame:RegisterEvent("UNIT_THREAT_SITUATION_UPDATE", Path)
+		frame:RegisterEvent("UNIT_THREAT_LIST_UPDATE", Path)
+		frame:RegisterEvent("UNIT_TARGET", Path)
+		element:Hide()
 
 		return true
 	end
 end
 
-local Disable = function(self)
-	local threat = self.SmartThreat
-	if threat then
-		self:UnregisterEvent("UNIT_THREAT_SITUATION_UPDATE", Path)
-		self:UnregisterEvent("UNIT_THREAT_LIST_UPDATE", Path)
-		self:UnregisterEvent("UNIT_TARGET", Path)
-		threat:Hide()
+local Disable = function(frame)
+	local element = frame.SmartThreat
+	if element then
+		frame:UnregisterEvent("UNIT_THREAT_SITUATION_UPDATE", Path)
+		frame:UnregisterEvent("UNIT_THREAT_LIST_UPDATE", Path)
+		frame:UnregisterEvent("UNIT_TARGET", Path)
+		element:Hide()
 	end
 end
 

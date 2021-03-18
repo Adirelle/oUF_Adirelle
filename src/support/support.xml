@@ -13,6 +13,7 @@
     <Script file="PlayerRole.lua"/>
     <Script file="UnitTooltip.lua"/>
     <Script file="HealthPrediction.lua"/>
+    <Script file="Threat.lua"/>
     <Script file="Ticker.lua"/>
     <Script file="Dispel.lua"/>
 </Ui>

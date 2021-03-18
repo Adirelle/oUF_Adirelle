@@ -409,6 +409,9 @@ local function InitFrame(self)
 	threat.SetVertexColor = threat.SetBackdropBorderColor
 	threat:SetAlpha(glowBorderBackdrop.alpha)
 	threat:SetFrameLevel(self:GetFrameLevel() + 2)
+	threat.percentAsAlpha = true
+	threat.lowAlpha = 0.3
+	threat.highAlpha = 1.0
 	self.SmartThreat = threat
 
 	-- Role/Raid icon
