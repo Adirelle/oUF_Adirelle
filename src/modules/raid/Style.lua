@@ -264,23 +264,52 @@ local function CureableDebuff_SetColor(icon, r, g, b, a)
 	end
 end
 
-local function AttachFadeOutAnimation(region)
-	local group = region:CreateAnimationGroup()
+local function CreateCombatFlag(self, overlay)
+	local combatFlag = self:SpawnTexture(overlay, SMALL_ICON_SIZE, "BOTTOMLEFT", INSET, INSET)
+	combatFlag:Hide()
+
+	local group = combatFlag:CreateAnimationGroup()
 	group:SetScript("OnFinished", function()
-		region:SetAlpha(0)
+		combatFlag:SetAlpha(0)
+		combatFlag:SetScale(1)
 	end)
 
+	local scale1 = group:CreateAnimation("Scale")
+	scale1:SetDuration(0.25)
+	scale1:SetScale(3, 3)
+	scale1:SetOrder(10)
+
+	local scale2 = group:CreateAnimation("Scale")
+	scale2:SetDuration(0.25)
+	scale2:SetScale(1 / 3, 1 / 3)
+	scale2:SetOrder(20)
+
 	local alpha = group:CreateAnimation("Alpha")
-	alpha:SetStartDelay(1)
-	alpha:SetDuration(3)
+	alpha:SetDuration(5.5)
 	alpha:SetFromAlpha(1)
 	alpha:SetToAlpha(0)
+	alpha:SetOrder(30)
 
-	hooksecurefunc(region, "Show", function()
-		region:SetAlpha(1)
+	local inCombat = false
+	hooksecurefunc(combatFlag, "Show", function()
+		if inCombat then
+			return
+		end
+		inCombat = true
+		combatFlag:SetScale(1)
+		combatFlag:SetAlpha(1)
 		group:Restart()
 		group:Play()
 	end)
+	hooksecurefunc(combatFlag, "Hide", function()
+		if not inCombat then
+			return
+		end
+		inCombat = false
+		group:Finish()
+	end)
+
+	return combatFlag
 end
 
 -- ------------------------------------------------------------------------------
@@ -366,10 +395,7 @@ local function InitFrame(self)
 	self.Overlay = overlay
 
 	-- Combat flag
-	local combatFlag = self:SpawnTexture(overlay, SMALL_ICON_SIZE, "BOTTOMLEFT", INSET, INSET)
-	combatFlag:Hide()
-	AttachFadeOutAnimation(combatFlag)
-	self.CombatFlag = combatFlag
+	self.CombatFlag = CreateCombatFlag(self, overlay)
 
 	-- ReadyCheck icon
 	local rc = CreateFrame("Frame", self:GetName() .. "ReadyCheck", overlay)
