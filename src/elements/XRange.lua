@@ -100,16 +100,22 @@ local checks = {
 local RANGE_SPELLS = {}
 
 local function UpdateRangeChecks()
-	local specID = GetSpecializationInfo(GetSpecialization())
-	local classSpells = RANGE_SPELLS["*"] or EMPTY
-	local specSpells = RANGE_SPELLS[specID] or EMPTY
+	oUF:Factory(function()
+		local spec = GetSpecialization()
+		local specID = spec and GetSpecializationInfo(spec)
+		if not specID then
+			return
+		end
+		local classSpells = RANGE_SPELLS["*"] or EMPTY
+		local specSpells = RANGE_SPELLS[specID] or EMPTY
 
-	for key in next, checks do
-		local spells = specSpells[key] or classSpells[key] or EMPTY
-		local func, code = BuildCheckFunc(unpack(spells))
-		oUF_Adirelle.Debug("XRange", key, code)
-		checks[key] = func
-	end
+		for key in next, checks do
+			local spells = specSpells[key] or classSpells[key] or EMPTY
+			local func, code = BuildCheckFunc(unpack(spells))
+			oUF_Adirelle.Debug("XRange", key, code)
+			checks[key] = func
+		end
+	end)
 end
 
 -- Load spell info for the current class
