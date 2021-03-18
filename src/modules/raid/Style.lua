@@ -24,13 +24,10 @@ local oUF = assert(oUF_Adirelle.oUF, "oUF is undefined in oUF_Adirelle")
 
 --<GLOBALS
 local CreateFrame = assert(_G.CreateFrame, "_G.CreateFrame is undefined")
-local format = assert(_G.format, "_G.format is undefined")
 local GetUnitPowerBarTextureInfo = assert(_G.GetUnitPowerBarTextureInfo, "_G.GetUnitPowerBarTextureInfo is undefined")
 local hooksecurefunc = assert(_G.hooksecurefunc, "_G.hooksecurefunc is undefined")
 local pairs = assert(_G.pairs, "_G.pairs is undefined")
 local tonumber = assert(_G.tonumber, "_G.tonumber is undefined")
-local tostring = assert(_G.tostring, "_G.tostring is undefined")
-local UnitName = assert(_G.UnitName, "_G.UnitName is undefined")
 local unpack = assert(_G.unpack, "_G.unpack is undefined")
 --GLOBALS>
 
@@ -56,37 +53,36 @@ local borderBackdrop = private.borderBackdrop
 -- Status icon
 -- ------------------------------------------------------------------------------
 
-local function toStr(val)
-	return val and tostring(val) or ""
-end
+-- local function toStr(val)
+-- 	return val and tostring(val) or ""
+-- end
 
-local function IconString(d)
-	if d.height == 0 and not d.width and d.left and d.right and d.top and d.bottom then
-		d.width = (d.right - d.left) / (d.bottom - d.top)
-	end
-	return format(
-		"|T%s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s|t",
-		d.path,
-		toStr(d.height),
-		toStr(d.width),
-		toStr(d.offsetX),
-		toStr(d.offsetY),
-		toStr(d.textureWidth),
-		toStr(d.textureHeight),
-		toStr(d.left),
-		toStr(d.right),
-		toStr(d.top),
-		toStr(d.bottom),
-		toStr(d.r and (d.r * 255)),
-		toStr(d.g and (d.g * 255)),
-		toStr(d.b and (d.b * 255))
-	)
-end
+-- local function IconString(d)
+-- 	if d.height == 0 and not d.width and d.left and d.right and d.top and d.bottom then
+-- 		d.width = (d.right - d.left) / (d.bottom - d.top)
+-- 	end
+-- 	return format(
+-- 		"|T%s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s|t",
+-- 		d.path,
+-- 		toStr(d.height),
+-- 		toStr(d.width),
+-- 		toStr(d.offsetX),
+-- 		toStr(d.offsetY),
+-- 		toStr(d.textureWidth),
+-- 		toStr(d.textureHeight),
+-- 		toStr(d.left),
+-- 		toStr(d.right),
+-- 		toStr(d.top),
+-- 		toStr(d.bottom),
+-- 		toStr(d.r and (d.r * 255)),
+-- 		toStr(d.g and (d.g * 255)),
+-- 		toStr(d.b and (d.b * 255))
+-- 	)
+-- end
 
 local statusIcons = {
 	DEAD = {
 		path = [[Interface\Navigation\IngameNavigationUI]],
-		height = 0,
 		textureWidth = 64,
 		textureHeight = 64,
 		left = 2,
@@ -96,7 +92,6 @@ local statusIcons = {
 	},
 	GHOST = {
 		path = [[Interface\MINIMAP\ObjectIconsAtlas]],
-		height = 0,
 		textureWidth = 1024,
 		textureHeight = 512,
 		left = 252,
@@ -106,7 +101,6 @@ local statusIcons = {
 	},
 	DISCONNECTED = {
 		path = [[Interface\CHARACTERFRAME\Disconnect-Icon]],
-		height = 0,
 		textureWidth = 64,
 		textureHeight = 64,
 		left = 15,
@@ -116,7 +110,6 @@ local statusIcons = {
 	},
 	RESURRECTION = {
 		path = [[Interface\RAIDFRAME\Raid-Icon-Rez]],
-		height = 0,
 		textureWidth = 64,
 		textureHeight = 64,
 		left = 5,
@@ -153,6 +146,24 @@ local statusIcons = {
 	},
 }
 
+local function Status_PostUpdate(element)
+	local frame, status = element.__owner, element.status
+	local icon = status and statusIcons[status]
+	frame:Debug("Status_PostUpdate", status, icon)
+	element:SetShown(icon ~= nil)
+	if icon then
+		element:SetTexture(icon.path)
+		element:SetTexCoord(
+			icon.left / icon.textureWidth,
+			icon.right / icon.textureWidth,
+			icon.top / icon.textureHeight,
+			icon.bottom / icon.textureHeight
+		)
+		local aspect = (icon.right - icon.left) / (icon.bottom - icon.top)
+		element:SetWidth(aspect * element:GetHeight())
+	end
+end
+
 local function UpdateColor(element)
 	local self, color = element.__owner, element.color
 	if not color then
@@ -167,14 +178,6 @@ local function UpdateColor(element)
 		self.Health:SetStatusBarColor(r, g, b, 0.75)
 	end
 	self.Name:SetTextColor(r, g, b)
-end
-
-local function UpdateStatus(element)
-	local self, status = element.__owner, element.status
-	local icon = status and statusIcons[status]
-	local name = UnitName(self.realUnit or self.unit)
-	self.Name:SetText((icon and IconString(icon) or "") .. name)
-	return self.RaidColor:PostUpdate()
 end
 
 local function OnSizeChanged(self, width, height)
@@ -357,7 +360,6 @@ local function InitFrame(self)
 
 	-- Status and color updates
 	self.RaidColor = { PostUpdate = UpdateColor }
-	self.Status = { PostUpdate = UpdateStatus }
 
 	-- Name
 	local name = hp:CreateFontString(nil, "ARTWORK", "GameFontNormal")
@@ -368,9 +370,6 @@ local function InitFrame(self)
 	self:RegisterFontString(name, "raid", 11, "")
 	self:Tag(name, "[name]")
 	self.Name = name
-	hooksecurefunc(name, "UpdateTag", function()
-		return self.Status:PostUpdate(self.Status.status)
-	end)
 
 	-- LowHealth warning
 	local lowHealth = hp:CreateTexture(nil, "OVERLAY", nil, 1)
@@ -407,6 +406,13 @@ local function InitFrame(self)
 		return rc.icon:SetTexture(...)
 	end
 	self.ReadyCheckIndicator = rc
+
+	-- Other status icon
+	local status = self:SpawnTexture(overlay, HEIGHT)
+	status:SetPoint("TOPLEFT", self, 1, -1)
+	status:SetPoint("BOTTOMLEFT", self, 1, 1)
+	status.PostUpdate = Status_PostUpdate
+	self.Status = status
 
 	-- Have icons blinking 3 seconds before fading out
 	self.iconBlinkThreshold = 3
